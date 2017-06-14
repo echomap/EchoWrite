@@ -1,5 +1,8 @@
 -=KindleQuickFormatter=-
 
+I write my novels/stories in plain text, even if I sometimes use LibreOffice, since my books are just novels, and need no formatting. Yet, I do need to use SIGIL to publish my ebooks, so I made this program.
+
+
 If command line run Like:
 
 set BOOKPATH=%WRITEPATH%\TheUnderU\Mer
