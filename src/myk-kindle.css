@@ -1,0 +1,41 @@
+ /* Style Definitions */
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+p.MsoChapter, li.MsoChapter, div.MsoChapter
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-weight:bold;
+	font-family:"Courier New";}
+p.MsoSection, li.MsoSection, div.MsoSection
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-weight:bold;
+	font-family:"Courier New";}	
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-weight:bold;
+	font-family:"Courier New";}
+p.MsoPlainTextSm, li.MsoPlainTextSm, div.MsoPlainTextSm
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Courier New";}
+p.MsoPlainTextCenter, li.MsoPlainTextCenter, div.MsoPlainTextCenter
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	text-align: center;}	
+p.MsoPlainTextCenterSm, li.MsoPlainTextCenterSm, div.MsoPlainTextCenterSm
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Courier New";
+	text-align: center;}	

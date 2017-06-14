@@ -1,0 +1,3 @@
+2014 08 23
+	- added fix for <center>....</center> for sigil validation
+	- Sigil doc type
