@@ -29,11 +29,16 @@ public class FormatBiz {
 	boolean inSpecial = false;
 	boolean lastLineWasChapter = false;
 	String htmlLine = null;
-	Integer chapterCounter = 0;
-	final Map<String, String> filterMap = new HashMap<String, String>();
-	File outputChaperDir = null;
-	FileWriter chapterWriter = null;
 	Integer thisLineCharacterCount = 0;
+	final Map<String, String> filterMap = new HashMap<String, String>();
+
+	Integer chapterCounter = 0;
+	File outputChapterDir = null;
+	FileWriter chapterWriter = null;
+
+	Integer sectionCounter = 0;
+	File outputSectionDir = null;
+	FileWriter sectionWriter = null;
 
 	public void format(final FormatDao formatDao) throws IOException {
 		System.out.println("Formatter...>");
@@ -60,40 +65,47 @@ public class FormatBiz {
 
 		// Create dirs
 		final File outputDir = outputFile.getParentFile();
-		outputDir.mkdirs();
+		if (outputDir != null)
+			outputDir.mkdirs();
 
 		FileWriter fWriter = null;
 		BufferedReader reader = null;
 		try {
 
 			if (formatDao.writeChapters != null && !StringUtils.isBlank(formatDao.writeChapters)) {
-				outputChaperDir = new File(formatDao.writeChapters);
-				outputChaperDir.mkdirs();
+				outputChapterDir = new File(formatDao.writeChapters);
+				outputChapterDir.mkdirs();
+
+				outputSectionDir = new File(formatDao.writeChapters);
+				outputSectionDir.mkdirs();
+
 			}
 
-			fWriter = new FileWriter(outputFile, false);
+			if (outputDir != null)
+				fWriter = new FileWriter(outputFile, false);
 
 			if (!inputFile.exists() && inputFile.length() < 0) {
 				System.out.println("The specified file does not exist");
 			} else {
+				if (fWriter != null) {
+					outputHeader(fWriter);
+					fWriter.flush();
 
-				outputHeader(fWriter);
-				fWriter.flush();
+					final FileInputStream is = new FileInputStream(inputFile);
+					final InputStreamReader isr = new InputStreamReader(is, charsetName);
+					reader = new BufferedReader(isr);
+					// final FileReader fr = new FileReader(inputFile);
+					// reader = new BufferedReader(fr);
 
-				final FileInputStream is = new FileInputStream(inputFile);
-				final InputStreamReader isr = new InputStreamReader(is, charsetName);
-				reader = new BufferedReader(isr);
-				// final FileReader fr = new FileReader(inputFile);
-				// reader = new BufferedReader(fr);
-
-				String st = "";
-				inSpecial = false;
-				htmlLine = null;
-				while ((st = reader.readLine()) != null) {
-					writeLine(st, fWriter, formatDao);
+					String st = "";
+					inSpecial = false;
+					htmlLine = null;
+					while ((st = reader.readLine()) != null) {
+						writeLine(st, fWriter, formatDao);
+					}
+					outputFooter(fWriter);
+					fWriter.flush();
 				}
-				outputFooter(fWriter);
-				fWriter.flush();
 			}
 		} finally {
 			if (fWriter != null) {
@@ -172,6 +184,9 @@ public class FormatBiz {
 		if (line.startsWith("Section")) {
 			// preTag = "<mbp:pagebreak/>\n" + "<p class=MsoSection>";
 			return SECTIONTYPE.PLAIN;
+		} else if (line.indexOf("Section:") > -1) {
+			// preTag = "<p class=MsoSection>";
+			return SECTIONTYPE.PLAIN;
 		} else if (line.startsWith(special1) && !inSpecial) {
 			// preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
 			return SECTIONTYPE.NOTSPECIAL;
@@ -179,10 +194,10 @@ public class FormatBiz {
 			// preTag = "<p class=MsoSection>";
 			return SECTIONTYPE.INSPECIAL;
 		}
-		if (miscDiv != null) {
-			if (line.contains(miscDiv))// && line.contains("Section"))
-				return SECTIONTYPE.PLAIN;
-		}
+		// if (miscDiv != null) {
+		// if (line.contains(miscDiv))// && line.contains("Section"))
+		// return SECTIONTYPE.PLAIN;
+		// }
 		return null;
 	}
 
@@ -231,6 +246,13 @@ public class FormatBiz {
 			if (sectionType != null)
 				System.out.println("sectionType: " + sectionType + " for line: " + st);
 			if (sectionType != null) {
+				// closeSectionWriter(sectionCounter);
+				sectionCounter++;
+				// openNewSectionWriter(sectionCounter);
+				if (sectionCounter > 1) {
+					// TODO
+				}
+				// writeToSectionWriter(textToWrite);
 				switch (sectionType) {
 				case PLAIN:
 					preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
@@ -304,8 +326,14 @@ public class FormatBiz {
 			thisLineCharacterCount += textToWrite.length();
 		fWriter.write(textToWrite);
 
-		writeToChapterWriter(preTag);
-		writeToChapterWriter(textToWrite);
+		if (sectionType != null) {
+			openNewSectionWriter(sectionCounter, chapterCounter);
+			writeToSectionWriter(textToWrite);
+			closeSectionWriter(sectionCounter, chapterCounter);
+		} else {
+			writeToChapterWriter(preTag);
+			writeToChapterWriter(textToWrite);
+		}
 
 		if (htmlLine == null) {
 			if (isChapter) {
@@ -361,6 +389,21 @@ public class FormatBiz {
 		return false;
 	}
 
+	private void writeToSectionWriter(String textToWrite) throws IOException {
+		if (sectionWriter == null) {
+			return;
+		}
+		sectionWriter.write("\n<p class=\"plain\">&nbsp;</p>\n\n");
+		sectionWriter.write("<hr/>\n");
+
+		sectionWriter.write("<h1>\n");
+		sectionWriter.write(textToWrite);
+		sectionWriter.write("<h1/>\n");
+
+		sectionWriter.write("<hr/>\n");
+		sectionWriter.write("<p class=\"plain\">&nbsp;</p>\n");
+	}
+
 	private void writeToChapterWriter(String textToWrite) throws IOException {
 		if (chapterWriter == null) {
 			return;
@@ -380,13 +423,35 @@ public class FormatBiz {
 	}
 
 	private void openNewChapterWriter(final Integer count) throws IOException {
-		if (outputChaperDir == null) {
+		if (outputChapterDir == null) {
 			return;
 		}
 		System.out.println("openNewChapterWriter: count: " + count);
-		chapterWriter = new FileWriter(new File(outputChaperDir, "chapter" + count + ".html"));
+		chapterWriter = new FileWriter(new File(outputChapterDir, "chapter" + count + ".html"));
 		outputHeader(chapterWriter);
 		chapterWriter.flush();
+	}
+
+	private void openNewSectionWriter(final Integer count, final Integer chapterCounter) throws IOException {
+		if (outputSectionDir == null) {
+			return;
+		}
+		System.out.println("openNewSectionWriter: count: " + count);
+		sectionWriter = new FileWriter(
+				new File(outputSectionDir, "chapter" + chapterCounter + " _section" + count + ".html"));
+		outputHeader(sectionWriter);
+		sectionWriter.flush();
+	}
+
+	private void closeSectionWriter(final Integer sectionCount, final Integer chapterCounter) throws IOException {
+		if (sectionWriter == null) {
+			return;
+		}
+		System.out.println("closeSectionWriter");
+		sectionWriter.flush();
+		outputFooter(sectionWriter);
+		sectionWriter.flush();
+		sectionWriter.close();
 	}
 
 	void doDropCaps(final String st, final FileWriter fWriter) throws IOException {

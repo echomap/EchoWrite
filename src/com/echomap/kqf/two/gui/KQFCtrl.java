@@ -193,6 +193,7 @@ public class KQFCtrl implements Initializable {
 			// Setup the argument passed
 			formatDao.setInputFilename(inputFileText.getText());
 			formatDao.setOutputFilename(outputFileText.getText());
+			// formatDao.setou
 			formatDao.setWriteChapters(outputDirText.getText());
 
 			formatDao.setStoryTitle1(titleOneText.getValue());
