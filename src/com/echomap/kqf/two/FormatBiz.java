@@ -52,15 +52,15 @@ public class FormatBiz {
 			formatMode = new SigilMode();
 		}
 
-		final File inputFile = new File(formatDao.inputFilename);
-		final File outputFile = new File(formatDao.outputFilename);
+		final File inputFile = new File(formatDao.getInputFilename());
+		final File outputFile = new File(formatDao.getOutputFilename());
 
-		filterMap.put("@TITLE@", formatDao.storyTitle1);
-		filterMap.put("@SUBTITLE@", formatDao.storyTitle1);
-		filterMap.put("@ENCODING@", formatDao.outputEncoding);
+		filterMap.put("@TITLE@", formatDao.getStoryTitle1());
+		filterMap.put("@SUBTITLE@", formatDao.getStoryTitle1());
+		filterMap.put("@ENCODING@", formatDao.getOutputEncoding());
 
 		String charsetName = FormatDao.DEFAULToutputEncoding;
-		if (formatDao.outputEncoding != null && formatDao.outputEncoding.length() > 0)
+		if (formatDao.getOutputEncoding() != null && formatDao.getOutputEncoding().length() > 0)
 			charsetName = formatDao.getOutputEncoding();
 
 		// Create dirs
@@ -72,11 +72,11 @@ public class FormatBiz {
 		BufferedReader reader = null;
 		try {
 
-			if (formatDao.writeChapters != null && !StringUtils.isBlank(formatDao.writeChapters)) {
-				outputChapterDir = new File(formatDao.writeChapters);
+			if (formatDao.getWriteChapters() != null && !StringUtils.isBlank(formatDao.getWriteChapters())) {
+				outputChapterDir = new File(formatDao.getWriteChapters());
 				outputChapterDir.mkdirs();
 
-				outputSectionDir = new File(formatDao.writeChapters);
+				outputSectionDir = new File(formatDao.getWriteChapters());
 				outputSectionDir.mkdirs();
 
 			}
@@ -149,6 +149,11 @@ public class FormatBiz {
 		PLAIN, INSPECIAL, NOTSPECIAL
 	};
 
+	private String cleanText(String st, Boolean removeSectDiv, String sectionDivider, SECTIONTYPE sectionType) {
+		String st2 = st.replaceAll("Section: ", "");
+		return cleanText(st2, removeSectDiv, sectionDivider);
+	}
+
 	private String cleanText(final String st, final boolean remChapterDiv, final String miscChapterDiv) {
 		if (remChapterDiv) {
 			String st2 = st.replaceAll("--", "");
@@ -162,7 +167,7 @@ public class FormatBiz {
 			if (st2.endsWith(" "))
 				st2 = st2.substring(0, st2.length() - 1);
 			System.out.println("  Cleaned Chapter-Divs: " + st2);
-			return st2;
+			return st2.trim();
 		}
 		return st;
 	}
@@ -208,6 +213,14 @@ public class FormatBiz {
 		return null;
 	}
 
+	private String createPreTag(final String tagname) {
+		return "<" + tagname + ">";
+	}
+
+	private String createPostTag(final String tagname) {
+		return "</" + tagname + ">";
+	}
+
 	private void writeLine(String st, final FileWriter fWriter, final FormatDao formatDao) throws IOException {
 		// st = st.replace("<", "&lt;");
 		String preTag = "";
@@ -232,12 +245,14 @@ public class FormatBiz {
 			chapterCounter++;
 			openNewChapterWriter(chapterCounter);
 			if (chapterCounter > 1)
-				preTag = formatMode.getChapterPreTag();// "<mbp:pagebreak/>\n" +
-														// "<p
-														// class=\"MsoChapter\">";
+				preTag = createPreTag(formatDao.getChapterHeaderTag());
+			// preTag = formatMode.getChapterPreTag();// "<mbp:pagebreak/>\n" +
+			// "<p
+			// class=\"MsoChapter\">";
 			else
-				preTag = formatMode.getFirstChapterPreTag();// "<p
-															// class=\"MsoChapter\">";
+				preTag = createPreTag(formatDao.getChapterHeaderTag());
+			// preTag = formatMode.getFirstChapterPreTag();// "<p
+			// class=\"MsoChapter\">";
 			postTag = "<p class=\"" + formatMode.getPlainTextTag() + "\">&nbsp;</p>";
 		} else if (htmlLine != null) {
 			preTag = " ";
@@ -309,13 +324,13 @@ public class FormatBiz {
 			// fWriter.write(cleanText(st, formatDao.getRemoveChptDiv(),
 			// formatDao.getChapterDivider()));
 		} else if (sectionType != null) {
-			textToWrite = cleanText(st, formatDao.getRemoveSectDiv(), formatDao.getSectionDivider());
+			textToWrite = cleanText(st, formatDao.getRemoveSectDiv(), formatDao.getSectionDivider(), sectionType);
 			// fWriter.write(cleanText(st, formatDao.getRemoveSectDiv(),
 			// formatDao.getSectionDivider()));
 		} else if (lastLineWasChapter && st != null && st.length() > 1) {
 			// TODO doDropCaps(st, fWriter);
 			// <span class="dropcaps">I</span>
-			textToWrite = st;
+			textToWrite = cleanPlainText(st);
 			// fWriter.write(st);
 			lastLineWasChapter = false;
 		} else {
@@ -328,17 +343,22 @@ public class FormatBiz {
 
 		if (sectionType != null) {
 			openNewSectionWriter(sectionCounter, chapterCounter);
-			writeToSectionWriter(textToWrite);
+			writeToSectionWriter(textToWrite, formatDao.getSectionHeaderTag());
 			closeSectionWriter(sectionCounter, chapterCounter);
 		} else {
+			// writeToChapterWriter(formatDao.get);
+			// final String stTSt = "<"+formatDao.getChapterHeaderTag()+">";
 			writeToChapterWriter(preTag);
 			writeToChapterWriter(textToWrite);
 		}
 
 		if (htmlLine == null) {
 			if (isChapter) {
-				fWriter.write(formatMode.getChapterPostTag());
-				writeToChapterWriter(formatMode.getChapterPostTag());
+				final String stTEnd = createPostTag(formatDao.getChapterHeaderTag());
+				fWriter.write(stTEnd);
+				writeToChapterWriter(stTEnd);
+				// fWriter.write(formatMode.getChapterPostTag());
+				// writeToChapterWriter(formatMode.getChapterPostTag());
 			} else {
 				if (!StringUtils.isBlank(textToWrite)) {
 					if (thisLineCharacterCount == 0)
@@ -380,7 +400,7 @@ public class FormatBiz {
 		// String st2 = st.replaceAll("\x", ""\"x");
 		if (StringUtils.isEmpty(st))
 			st = "&nbsp;";
-		return st;
+		return st.trim();
 	}
 
 	private boolean checkHTMLCenterLine(FormatDao formatDao, String st) {
@@ -389,16 +409,17 @@ public class FormatBiz {
 		return false;
 	}
 
-	private void writeToSectionWriter(String textToWrite) throws IOException {
+	private void writeToSectionWriter(final String textToWrite, final String sectionDivider) throws IOException {
 		if (sectionWriter == null) {
 			return;
 		}
 		sectionWriter.write("\n<p class=\"plain\">&nbsp;</p>\n\n");
 		sectionWriter.write("<hr/>\n");
 
-		sectionWriter.write("<h1>\n");
+		sectionWriter.write(createPreTag(sectionDivider));
 		sectionWriter.write(textToWrite);
-		sectionWriter.write("<h1/>\n");
+		sectionWriter.write(createPostTag(sectionDivider));
+		sectionWriter.write("\n");
 
 		sectionWriter.write("<hr/>\n");
 		sectionWriter.write("<p class=\"plain\">&nbsp;</p>\n");

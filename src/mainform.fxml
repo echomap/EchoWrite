@@ -7,22 +7,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="425.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
+<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
   <children>
-    <GridPane hgap="5.0" vgap="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <GridPane hgap="5.0" prefHeight="100.0" prefWidth="600.0" vgap="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-        <FlowPane prefHeight="200.0" prefWidth="200.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 0 0 2px 0;&#10;" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="0" GridPane.valignment="TOP">
+        <FlowPane prefHeight="200.0" prefWidth="200.0" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 5, 0);&#10;" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="0" GridPane.valignment="TOP">
           <children>
-            <Label text="Kindle Quick Formatter" textAlignment="CENTER" textFill="#72cc00" />
+            <Label text="Kindle Quick Formatter" textAlignment="CENTER" textFill="#0066ff">
+              <font>
+                <Font size="14.0" />
+              </font>
+            </Label>
           </children>
+          <GridPane.margin>
+            <Insets right="4.0" fx:id="x3bi1" />
+          </GridPane.margin>
         </FlowPane>
         <GridPane fx:id="asdf2" prefHeight="200.0" prefWidth="250.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
           <children>
             <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
               <children>
                 <Label minWidth="-Infinity" prefWidth="70.0" text="Title 1:" textFill="#ff007a" />
-                <ComboBox fx:id="titleOneText" editable="true" HBox.hgrow="ALWAYS">
+                <ComboBox fx:id="titleOneText" editable="true" minWidth="120.0" HBox.hgrow="SOMETIMES">
                   <items>
                     <FXCollections fx:factory="observableArrayList">
                       <String fx:value="Item 1" />
@@ -31,23 +39,26 @@
                     </FXCollections>
                   </items>
                   <HBox.margin>
-                    <Insets right="4.0" fx:id="x3" />
+                    <Insets right="4.0" fx:id="x3bi1" />
                   </HBox.margin>
                 </ComboBox>
               </children>
+              <padding>
+                <Insets bottom="2.0" top="2.0" />
+              </padding>
             </HBox>
             <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
               <children>
                 <Label disable="true" minWidth="-Infinity" prefWidth="70.0" text="Title 2:" visible="false">
                   <HBox.margin>
-                    <Insets fx:id="x2" />
+                    <Insets fx:id="x2i2" />
                   </HBox.margin>
                 </Label>
-                <HBox alignment="CENTER" minHeight="-Infinity" padding="$x2" prefHeight="32.0" prefWidth="200.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
+                <HBox alignment="CENTER" minHeight="-Infinity" prefHeight="32.0" prefWidth="200.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
                   <children>
                     <Button id="loadPrefsBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadPrefs" prefWidth="50.0" text="_Load">
                       <HBox.margin>
-                        <Insets right="4.0" fx:id="x3" />
+                        <Insets right="4.0" fx:id="x3bi" />
                       </HBox.margin>
                     </Button>
                     <Button id="savePrefsBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleSavePrefs" prefWidth="50.0" text="_Save">
@@ -55,11 +66,11 @@
                         <Insets left="6.0" right="6.0" />
                       </HBox.margin>
                     </Button>
-                    <Button mnemonicParsing="false" onAction="#handleDeletePrefs" text="Delete" HBox.margin="$x3" />
+                    <Button mnemonicParsing="false" onAction="#handleDeletePrefs" text="Delete" />
                   </children>
-                  <HBox.margin>
-                    <Insets fx:id="x2" />
-                  </HBox.margin>
+                  <padding>
+                    <Insets fx:id="x2i3" />
+                  </padding>
                 </HBox>
               </children>
               <padding>
@@ -99,12 +110,15 @@
           <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
           </columnConstraints>
+          <padding>
+            <Insets bottom="4.0" top="5.0" />
+          </padding>
           <rowConstraints>
             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
           </rowConstraints>
         </GridPane>
-        <GridPane fx:id="asdf1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" vgap="10.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+        <GridPane fx:id="asdf1" gridLinesVisible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" vgap="10.0" GridPane.columnIndex="0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
           <children>
             <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
               <children>
@@ -120,7 +134,7 @@
                 <fx:reference source="outputDirText" />
                 <Button fx:id="loadOutputDirBtn" disable="false" mnemonicParsing="false" onAction="#handleLoadOutputDir" text="Load" HBox.hgrow="NEVER">
                   <HBox.margin>
-                    <Insets right="5.0" fx:id="x3b" />
+                    <Insets right="5.0" fx:id="x3bi2" />
                   </HBox.margin>
                 </Button>
               </children>
@@ -171,59 +185,125 @@
             <RowConstraints maxHeight="16.0" prefHeight="16.0" />
           </rowConstraints>
         </GridPane>
-        <GridPane fx:id="asdf3" prefHeight="176.0" prefWidth="590.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="3" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+        <GridPane fx:id="asdf3" hgap="2.0" prefHeight="176.0" prefWidth="590.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
           <children>
-            <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
-              <children>
-                <Label minWidth="-Infinity" prefWidth="90.0" text="Chapter Divider:" />
-                <TextField fx:id="chpDivText" prefWidth="-1.0" text="-=" />
-                <Label text="Output Encoding:" />
-                <TextField fx:id="outputEncoding" prefWidth="200.0" promptText="Encoding of output file" />
-              </children>
-              <padding>
-                <Insets top="4.0" fx:id="x4" />
-              </padding>
-            </HBox>
-            <HBox maxWidth="1.7976931348623157E308" padding="$x4" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP">
-              <children>
-                <Label minWidth="-Infinity" prefWidth="90.0" text="Format Mode:" />
-                <TextField fx:id="fmtModeText" prefWidth="-1.0" text="Sigil" />
-              </children>
-            </HBox>
-            <FlowPane fx:id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;" vgap="10.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
-              <children>
-                <Button fx:id="wordCountBtn" mnemonicParsing="true" onAction="#handleDoAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!" />
-                <Button cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" text="_Close" textFill="#fefefe" />
-              </children>
-              <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1" />
-              </padding>
+            <TitledPane animated="false" collapsible="false" expanded="true" minHeight="130.0" text="Input" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="0" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+              <content>
+                <GridPane fx:id="fff23">
+                  <children>
+                    <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" style="" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
+                      <children>
+                        <Label minWidth="-Infinity" prefWidth="90.0" text="Chapter Divider:" />
+                        <TextField fx:id="chpDivText" prefWidth="-1.0" text="-=" HBox.hgrow="SOMETIMES">
+                          <HBox.margin>
+                            <Insets left="6.0" fx:id="x1" />
+                          </HBox.margin>
+                        </TextField>
+                      </children>
+                      <padding>
+                        <Insets top="4.0" fx:id="x4" />
+                      </padding>
+                    </HBox>
+                    <HBox maxWidth="1.7976931348623157E308" padding="$x4" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                      <children>
+                        <Label minWidth="-Infinity" prefWidth="90.0" text="Format Mode:" />
+                        <TextField fx:id="fmtModeText" prefWidth="-1.0" text="Sigil" HBox.hgrow="SOMETIMES" HBox.margin="$x1" />
+                      </children>
+                    </HBox>
+                    <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP">
+                      <children>
+                        <Label prefWidth="90.0" text="Section Divider:" />
+                        <TextField fx:id="secDivText" prefWidth="-1.0" text="-=" HBox.hgrow="SOMETIMES" HBox.margin="$x1" />
+                      </children>
+                      <padding>
+                        <Insets top="4.0" fx:id="x4c" />
+                      </padding>
+                    </HBox>
+                  </children>
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                </GridPane>
+              </content>
               <GridPane.margin>
-                <Insets left="90.0" />
+                <Insets fx:id="x2i" />
               </GridPane.margin>
-            </FlowPane>
-            <TextField fx:id="lastRunText" prefWidth="50.0" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="NEVER" />
-            <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
-              <children>
-                <Label prefWidth="90.0" text="Section Divider:" />
-                <TextField fx:id="secDivText" prefWidth="-1.0" text="-=" />
-              </children>
-              <padding>
-                <Insets top="4.0" fx:id="x4c" />
-              </padding>
-            </HBox>
+            </TitledPane>
+            <TitledPane animated="false" collapsible="false" expanded="true" minHeight="130.0" text="Output" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="0" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+              <content>
+                <GridPane>
+                  <children>
+                    <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
+                      <children>
+                        <Label prefWidth="100.0" text="Output Encoding:" />
+                        <TextField fx:id="outputEncoding" prefWidth="-1.0" promptText="Encoding of output file" HBox.hgrow="SOMETIMES" HBox.margin="$x1" />
+                      </children>
+                      <padding>
+                        <Insets top="4.0" fx:id="x4" />
+                      </padding>
+                    </HBox>
+                    <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                      <children>
+                        <Label prefWidth="100.0" text="Chapter Label:" />
+                        <TextField id="outputEncoding" fx:id="chapterHeaderTag" prefWidth="-1.0" promptText="Output Header" text="h1" HBox.hgrow="SOMETIMES" HBox.margin="$x1" />
+                      </children>
+                    </HBox>
+                    <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                      <children>
+                        <Label prefWidth="100.0" text="Section Label:" />
+                        <TextField id="outputEncoding" fx:id="sectionHeaderTag" prefWidth="-1.0" promptText="Output Header" text="h1" HBox.hgrow="SOMETIMES" HBox.margin="$x1" />
+                      </children>
+                    </HBox>
+                  </children>
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                </GridPane>
+              </content>
+            </TitledPane>
           </children>
           <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="340.0" minWidth="10.0" prefWidth="292.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="298.0" minWidth="10.0" prefWidth="298.0" />
           </columnConstraints>
+          <padding>
+            <Insets right="2.0" />
+          </padding>
           <rowConstraints>
-            <RowConstraints maxHeight="39.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="82.0" minHeight="10.0" prefHeight="82.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="39.0" minHeight="10.0" percentHeight="100.0" prefHeight="34.0" valignment="TOP" vgrow="SOMETIMES" />
           </rowConstraints>
         </GridPane>
+        <FlowPane fx:id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="50.0" prefWidth="200.0" style="-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;" vgap="10.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+          <children>
+            <Button fx:id="wordCountBtn" mnemonicParsing="true" onAction="#handleDoAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!" />
+            <Button cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" text="_Close" textFill="#fefefe" />
+          </children>
+          <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+          </padding>
+          <GridPane.margin>
+            <Insets left="40.0" />
+          </GridPane.margin>
+        </FlowPane>
+        <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="SOMETIMES">
+          <content>
+            <TextArea fx:id="lastRunText" editable="false" prefWidth="200.0" wrapText="true" />
+          </content>
+          <GridPane.margin>
+            <Insets fx:id="x2i2" />
+          </GridPane.margin>
+        </ScrollPane>
       </children>
       <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -232,10 +312,12 @@
         <Insets left="10.0" top="10.0" />
       </padding>
       <rowConstraints>
-        <RowConstraints maxHeight="120.0" minHeight="10.0" prefHeight="24.0" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="210.0" minHeight="10.0" prefHeight="125.0" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="296.0" minHeight="10.0" prefHeight="90.0" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="296.0" minHeight="10.0" prefHeight="190.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="120.0" minHeight="10.0" percentHeight="-1.0" prefHeight="24.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="210.0" minHeight="10.0" percentHeight="-1.0" prefHeight="140.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="296.0" minHeight="10.0" prefHeight="120.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="296.0" minHeight="10.0" percentHeight="-1.0" prefHeight="160.0" valignment="TOP" vgrow="ALWAYS" />
+        <RowConstraints minHeight="10.0" percentHeight="-1.0" valignment="CENTER" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
       </rowConstraints>
     </GridPane>
   </children>

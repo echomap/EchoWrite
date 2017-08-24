@@ -7,21 +7,24 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class FormatDao {
 	public static final String DEFAULToutputEncoding = "Cp1252";
-	String inputFilename = null;
-	String outputFilename = null;
-	String storyTitle1 = null;
-	String storyTitle2 = null;
-	String formatMode = null;
-	String outputEncoding = DEFAULToutputEncoding;
+	private String inputFilename = null;
+	private String outputFilename = null;
+	private String storyTitle1 = null;
+	private String storyTitle2 = null;
+	private String formatMode = null;
+	private String outputEncoding = DEFAULToutputEncoding;
 
-	String chapterDivider = null;
-	String sectionDivider = null;
-	String centerableLineText = null;
-	Boolean removeChptDiv = false;
-	Boolean removeSectDiv = false;
-	Boolean centerStars = false;
-	Boolean dropCapChapter = false;
-	String writeChapters = null;
+	private String chapterDivider = null;
+	private String sectionDivider = null;
+	private String centerableLineText = null;
+	private Boolean removeChptDiv = false;
+	private Boolean removeSectDiv = false;
+	private Boolean centerStars = false;
+	private Boolean dropCapChapter = false;
+	private String writeChapters = null;
+
+	private String chapterHeaderTag = "h1";
+	private String sectionHeaderTag = "h1";
 
 	public String prettyPrint() {
 		final StringBuilder sbuf = new StringBuilder();
@@ -38,6 +41,8 @@ public class FormatDao {
 		addLine(sbuf, "DropCapChapter", this.dropCapChapter.toString());
 		addLine(sbuf, "FormatMode:", this.formatMode);
 		addLine(sbuf, "WriteChapters:", this.writeChapters);
+		addLine(sbuf, "ChapterHeaderTag:", this.getChapterHeaderTag());
+		addLine(sbuf, "SectionHeaderTag:", this.getSectionHeaderTag());
 
 		sbuf.setLength(sbuf.length() - 1);
 		return sbuf.toString();
@@ -166,6 +171,22 @@ public class FormatDao {
 
 	public void setOutputEncoding(String outputEncoding) {
 		this.outputEncoding = outputEncoding;
+	}
+
+	public String getChapterHeaderTag() {
+		return chapterHeaderTag;
+	}
+
+	public void setChapterHeaderTag(String chapterHeaderTag) {
+		this.chapterHeaderTag = chapterHeaderTag;
+	}
+
+	public String getSectionHeaderTag() {
+		return sectionHeaderTag;
+	}
+
+	public void setSectionHeaderTag(String sectionHeaderTag) {
+		this.sectionHeaderTag = sectionHeaderTag;
 	}
 
 }

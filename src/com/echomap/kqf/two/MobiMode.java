@@ -21,6 +21,7 @@ public class MobiMode implements FormatMode {
 		return "MsoPlainText";
 	}
 
+	/*
 	@Override
 	public String getFirstChapterPreTag() {
 		return "<p class=\"MsoChapter\">";
@@ -34,7 +35,7 @@ public class MobiMode implements FormatMode {
 	@Override
 	public String getChapterPostTag() {
 		return "</p>";
-	}
+	}*/
 
 	@Override
 	public String getHTMLCenterReplacement() {

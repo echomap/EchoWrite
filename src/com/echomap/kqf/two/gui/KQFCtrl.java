@@ -19,7 +19,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -31,13 +33,18 @@ public class KQFCtrl implements Initializable {
 	// Preferences.userNodeForPackage(KQFCtrl.class);
 
 	@FXML
-	private TextField lastRunText;
+	private TextArea lastRunText;
 	@FXML
 	private TextField fmtModeText;
 	@FXML
 	private TextField chpDivText;
 	@FXML
 	private TextField secDivText;
+
+	@FXML
+	private TextField chapterHeaderTag;
+	@FXML
+	private TextField sectionHeaderTag;
 
 	@FXML
 	private ComboBox<String> titleOneText;
@@ -203,6 +210,9 @@ public class KQFCtrl implements Initializable {
 			formatDao.setChapterDivider(chpDivText.getText());// "-=");
 			formatDao.setSectionDivider(secDivText.getText());// "-=");
 
+			formatDao.setChapterHeaderTag(chapterHeaderTag.getText());
+			formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
+
 			if (cbCenterStars.isSelected())
 				formatDao.setCenterStars(true);
 			if (cbDropCapChapters.isSelected())
@@ -233,14 +243,14 @@ public class KQFCtrl implements Initializable {
 	}
 
 	class MyTimerTask extends TimerTask {
-		TextField textF = null;
+		TextInputControl textF = null;
 
 		@Override
 		public void run() {
 			textF.setText("");
 		}
 
-		public MyTimerTask(final TextField textf) {
+		public MyTimerTask(final TextInputControl textf) {
 			this.textF = textf;
 		}
 	}

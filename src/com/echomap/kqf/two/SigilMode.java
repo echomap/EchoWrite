@@ -22,6 +22,7 @@ public class SigilMode implements FormatMode {
 		return "plain";
 	}
 
+	/*
 	@Override
 	public String getFirstChapterPreTag() {
 		return "<h1>";
@@ -36,6 +37,7 @@ public class SigilMode implements FormatMode {
 	public String getChapterPostTag() {
 		return "</h1>";
 	}
+	*/
 	
 	@Override
 	public String getHTMLCenterReplacement() {
