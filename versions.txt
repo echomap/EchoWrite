@@ -1,3 +1,16 @@
+TODO
+add tag support like
+[[def:... ]]
+[[pov:... ]]
+[[loc:... ]]
+[[date:...]]
+
+Strip doctags-> plainText
+Outline-> Time/Date/Loc/event/note
+DocTags-> All
+
+2017 09 11
+	need to refactor now that added some docTag support!!
 2014 08 23
 	- added fix for <center>....</center> for sigil validation
 	- Sigil doc type
