@@ -11,8 +11,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import com.echomap.kqf.two.biz.FormatBiz;
-import com.echomap.kqf.two.data.FormatDao;
+import com.echomap.kqf.data.FormatDao;
+import com.echomap.kqf.looper.FileLooper;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class FormatCli {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		try {
 			Options options = setupOptions();
 			final CommandLineParser parser = new PosixParser();
@@ -71,13 +71,18 @@ public class FormatCli {
 			if (line.hasOption("centerable")) {
 				formatDao.setCenterableLineText(line.getOptionValue("centerable"));
 			}
-			biz.format(formatDao);
+			// biz.format(formatDao);
+
+			// setupDao(formatDao);
+			final FileLooper fileLooper = new FileLooper();
+			fileLooper.format(formatDao);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("Format CLI 2 Done");
+
 	}
 
 	private static Options setupOptions() {
@@ -92,7 +97,7 @@ public class FormatCli {
 
 		options.addOption("formatmode", true, "Format Mode");
 		options.addOption("outputencoding", true, "Output Encoding");
-		
+
 		options.addOption("chapterdivider", true, "chapterdivider custom symbol");
 		options.addOption("sectiondivider", true, "sectiondivider custom symbol");
 		options.addOption("centerable", true, "centerable line text, ie '* * *'");

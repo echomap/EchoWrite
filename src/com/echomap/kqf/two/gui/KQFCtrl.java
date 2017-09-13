@@ -14,8 +14,8 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.FileLooper;
-import com.echomap.kqf.two.data.FormatDao;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -76,6 +76,8 @@ public class KQFCtrl implements Initializable {
 	private TextField outlineFileText;
 	@FXML
 	private TextField outputOutlineFileText;
+	@FXML
+	private TextField outputOutlineFileText1;
 
 	@FXML
 	private ComboBox<String> titleOneText;
@@ -112,7 +114,8 @@ public class KQFCtrl implements Initializable {
 	private ChoiceBox<String> counterDigitChoice;
 
 	private File outputCountDir;
-	private File outputOutlineDir;
+	// private File outputOutlineDir;
+	// private File outputOutlineDir1;
 
 	Timer timer = new Timer();
 	private MyTimerTask myTimerTask;
@@ -237,23 +240,18 @@ public class KQFCtrl implements Initializable {
 
 	public void handleOutputOutlineFile(final ActionEvent event) {
 		locateDir(event, "Open Output Dir ", outputOutlineFileText);
-		// final String inFilename = outputCountFileText.getText();
 		String outFilename = "/Outline1.csv";
-		// if (inFilename != null && inFilename.length() > 0) {
-		// final File inFile = new File(inFilename);
-		// final String filenameOnly = inFile.getName();
-		// final int extIdx = filenameOnly.lastIndexOf(".");
-		// String ext = "";
-		// if (extIdx >= 1) {
-		// ext = filenameOnly.substring(extIdx + 1);
-		// outFilename = filenameOnly.replaceAll(ext, "html");
-		// } else {
-		// outFilename = filenameOnly + ".html";
-		// }
-		// }
 		final File nFile = new File(outputOutlineFileText.getText(), outFilename);
 		outputOutlineFileText.setText(nFile.getAbsolutePath());
-		outputOutlineDir = nFile.getParentFile();
+		// outputOutlineDir = nFile.getParentFile();
+	}
+
+	public void handleOutputOutlineFile1(final ActionEvent event) {
+		locateDir(event, "Open Output Dir ", outputOutlineFileText1);
+		String outFilename = "/Outline1.csv";
+		final File nFile = new File(outputOutlineFileText1.getText(), outFilename);
+		outputOutlineFileText1.setText(nFile.getAbsolutePath());
+		// outputOutlineDir1 = nFile.getParentFile();
 	}
 
 	public void handleClose(final ActionEvent event) {
@@ -352,6 +350,7 @@ public class KQFCtrl implements Initializable {
 
 		formatDao.setOutputCountFile(outputCountFileText.getText());
 		formatDao.setOutputOutlineFile(outputOutlineFileText.getText());
+		formatDao.setOutputOutlineFile1(outputOutlineFileText1.getText());
 
 		// formatDao.setou
 		formatDao.setWriteChapters(outputDirText.getText());
@@ -476,17 +475,19 @@ public class KQFCtrl implements Initializable {
 		outputFileText.setText(child.get("ouputFile", ""));
 		outputDirText.setText(child.get("outputDir", ""));
 
-		outputCountFileText.setText(child.get("ouputCountFile", ""));
 		outputOutlineFileText.setText(child.get("ouputOutlineFile", ""));
+		outputOutlineFileText1.setText(child.get("ouputOutlineFile1", ""));
 
 		chpDivText.setText(child.get("chpDiv", ""));
 		secDivText.setText(child.get("secDiv", ""));
 
-		docTagStartText.setText(child.get("docTagStart", "[["));
-		docTagEndText.setText(child.get("docTagEnd", "]]"));
+		docTagStartText.setText(child.get("docTagStart", "[[*"));
+		docTagEndText.setText(child.get("docTagEnd", "*]]"));
 
 		fmtModeText.setText(child.get("fmtMode", ""));
 		outputEncoding.setText(child.get("outputEncoding", ""));
+
+		outputCountFileText.setText(child.get("ouputCountFile", ""));
 
 		if (outputCountFileText.getText().length() < 1) {
 			outputCountDir = new File(inputFileText.getText()).getParentFile();
@@ -495,10 +496,20 @@ public class KQFCtrl implements Initializable {
 			outputCountDir = new File(outputCountFileText.getText()).getParentFile();
 		}
 		if (outputOutlineFileText.getText().length() < 1) {
-			outputOutlineDir = new File(inputFileText.getText()).getParentFile();
+			// outputOutlineDir = new
+			// File(inputFileText.getText()).getParentFile();
 			outputOutlineFileText.setText(outputCountDir + "\\Outline1.csv");
 		} else {
-			outputOutlineDir = new File(outputOutlineFileText.getText()).getParentFile();
+			// outputOutlineDir = new
+			// File(outputOutlineFileText.getText()).getParentFile();
+		}
+		if (outputOutlineFileText1.getText().length() < 1) {
+			// outputOutlineDir = new
+			// File(inputFileText.getText()).getParentFile();
+			outputOutlineFileText1.setText(outputCountDir + "\\DocTags.csv");
+		} else {
+			// outputOutlineDir = new
+			// File(outputOutlineFileText.getText()).getParentFile();
 		}
 		// counterDigitChoice.getSelectionModel().select(3);
 		unlockGui();
@@ -519,6 +530,7 @@ public class KQFCtrl implements Initializable {
 
 			child.put("ouputCountFile", outputCountFileText.getText());
 			child.put("ouputOutlineFile", outputOutlineFileText.getText());
+			child.put("ouputOutlineFile1", outputOutlineFileText1.getText());
 
 			child.put("chpDiv", chpDivText.getText());
 			child.put("secDiv", secDivText.getText());

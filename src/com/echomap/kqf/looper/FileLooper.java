@@ -8,8 +8,8 @@ import java.io.IOException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.LooperDao;
-import com.echomap.kqf.two.data.FormatDao;
 
 /**
  * 

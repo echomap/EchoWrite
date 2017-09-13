@@ -1,7 +1,5 @@
 package com.echomap.kqf.data;
 
-import com.echomap.kqf.two.data.FormatMode;
-
 public class MobiMode implements FormatMode {
 	public MobiMode() {
 		System.out.println("MobiMode: Created");

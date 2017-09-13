@@ -9,7 +9,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="1070.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
+<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1070.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
   <children>
     <BorderPane prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <center>
@@ -129,7 +129,7 @@
             </TitledPane>
                   <FlowPane minWidth="500.0">
                      <children>
-                  <TitledPane animated="false" collapsible="false" minWidth="550.0" text="Word Counter:">
+                  <TitledPane animated="false" collapsible="false" minWidth="550.0" text="Word Counter Output:">
                     <content>
                       <GridPane>
                         <children>
@@ -163,13 +163,13 @@
                       <Insets fx:id="x3" />
                     </FlowPane.margin>
                   </TitledPane>
-                  <TitledPane collapsible="false" minWidth="550.0" prefWidth="-1.0" text="DocTag Outliner:">
+                  <TitledPane collapsible="false" minWidth="550.0" prefWidth="-1.0" text="DocTag Outliner Output:">
                     <content>
                       <GridPane>
                         <children>
                           <HBox>
                             <children>
-                              <Label minWidth="-Infinity" prefWidth="70.0" text="Output File:" />
+                              <Label minWidth="-Infinity" prefWidth="70.0" text="Ouline:" />
                               <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText" promptText="Output Ouline File" HBox.hgrow="SOMETIMES" />
                               <Button id="outlineOutputBtn" fx:id="outlineOutputBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile" prefWidth="70.0" text="Browse">
                                 <HBox.margin>
@@ -178,12 +178,24 @@
                               </Button>
                             </children>
                           </HBox>
+                                    <HBox layoutX="20.0" layoutY="20.0" GridPane.rowIndex="1">
+                                       <children>
+                                          <Label minWidth="-Infinity" prefWidth="70.0" text="All File:" />
+                                          <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText1" promptText="Output All DocTags File" HBox.hgrow="SOMETIMES" />
+                                          <Button id="outlineOutputBtn" fx:id="outlineOutputBtn1" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </Button>
+                                       </children>
+                                    </HBox>
                         </children>
                         <columnConstraints>
                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         </columnConstraints>
                         <rowConstraints>
                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                       </GridPane>
                     </content>
@@ -227,7 +239,7 @@
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="3">
                           <children>
                             <Label minWidth="-Infinity" prefWidth="90.0" text="Doc Tag (Start):" />
-                            <TextField id="docTagStartText" fx:id="docTagStartText" prefWidth="-1.0" text="[[" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                            <TextField id="docTagStartText" fx:id="docTagStartText" prefWidth="-1.0" text="[[*" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
                             <Insets top="4.0" fx:id="x5" />
@@ -236,7 +248,7 @@
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="4">
                           <children>
                             <Label minWidth="-Infinity" prefWidth="90.0" text="Doc Tag(End):" />
-                            <TextField id="docTagEndText" fx:id="docTagEndText" prefWidth="-1.0" text="]]" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                            <TextField id="docTagEndText" fx:id="docTagEndText" prefWidth="-1.0" text="*]]" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
                             <Insets top="4.0" fx:id="x5" />
@@ -296,15 +308,15 @@
                 </TitledPane>
                      </children>
                   </FlowPane>
-                  <FlowPane minWidth="500.0">
+                  <FlowPane minWidth="550.0">
                      <children>
-                  <TitledPane animated="false" collapsible="false" minWidth="550.0" text="Formatting:">
+                  <TitledPane animated="false" collapsible="false" minWidth="550.0" text="Formatting Output:">
                     <content>
                       <GridPane>
                         <children>
-                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.halignment="LEFT" GridPane.valignment="TOP">
+                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.valignment="TOP">
                             <children>
-                              <Label minWidth="-Infinity" prefWidth="70.0" text="Output File:">
+                              <Label minWidth="-Infinity" prefWidth="70.0" text="Single File:">
                                 <textFill>
                                   <Color blue="0.478" green="0.000" red="1.000" fx:id="x1" />
                                 </textFill>
@@ -324,9 +336,9 @@
                               </Button>
                             </children>
                           </HBox>
-                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
                             <children>                          
-                             <Label minWidth="-Infinity" prefWidth="70.0" text="Output Dir:">
+                             <Label minWidth="-Infinity" prefWidth="70.0" text="Dir:">
                                 <textFill>
                                   <Color blue="0.478" green="0.000" red="1.000" fx:id="x1" />
                                 </textFill>

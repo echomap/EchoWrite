@@ -9,12 +9,11 @@ import java.util.Properties;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
-import com.echomap.kqf.two.biz.FormatBiz;
-import com.echomap.kqf.two.data.FormatDao;
 
 public class FileLooperHandlerCount implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerCount.class);
@@ -22,7 +21,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	public FileLooperHandlerCount() {
 		try {
-			props.load(FormatBiz.class.getClassLoader().getResourceAsStream("cwc.properties"));
+			props.load(FileLooperHandlerCount.class.getClassLoader().getResourceAsStream("cwc.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 			props.setProperty("version", "0.0.0");

@@ -1,4 +1,4 @@
-package com.echomap.kqf.two.data;
+package com.echomap.kqf.data;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -14,6 +14,7 @@ public class FormatDao {
 	private String outputFilename = null;
 	private String outputCountFile = null;
 	private String outputOutlineFile = null;
+	private String outputOutlineFile1 = null;
 
 	private String storyTitle1 = null;
 	private String storyTitle2 = null;
@@ -253,6 +254,14 @@ public class FormatDao {
 
 	public void setCountOutputDigits(Integer countOutputDigits) {
 		this.countOutputDigits = countOutputDigits;
+	}
+
+	public String getOutputOutlineFile1() {
+		return outputOutlineFile1;
+	}
+
+	public void setOutputOutlineFile1(String outputOutlineFile1) {
+		this.outputOutlineFile1 = outputOutlineFile1;
 	}
 
 }

@@ -32,7 +32,7 @@
 	<root>
 		<priority value="debug" />
 		<appender-ref ref="STDOUT" />
-		<!-- 
+		<!--
 		<appender-ref ref="A2" />
 		<appender-ref ref="E2" />
 		 -->

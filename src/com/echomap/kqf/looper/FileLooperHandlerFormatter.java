@@ -16,6 +16,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.DocTagLine;
+import com.echomap.kqf.data.FormatDao;
+import com.echomap.kqf.data.FormatMode;
 import com.echomap.kqf.data.MobiMode;
 import com.echomap.kqf.data.SigilMode;
 import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
@@ -23,14 +25,13 @@ import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
-import com.echomap.kqf.two.data.FormatDao;
-import com.echomap.kqf.two.data.FormatMode;
 
 public class FileLooperHandlerFormatter implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerFormatter.class);
 	final static Properties props = new Properties();
 
 	FileWriter fWriter = null;
+	FileWriter fWriterPlain = null;
 
 	FormatMode formatMode = null;
 	final Map<String, String> filterMap = new HashMap<String, String>();
@@ -249,6 +250,12 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			if (!cancelLine) {
 				fWriter.write(preTag);
 				fWriter.write(textToWrite);
+
+				if (TextBiz.lineEmpty(textToWrite))
+					fWriterPlain.write("");
+				else
+					fWriterPlain.write(textToWrite);
+				fWriterPlain.write(TextBiz.newLine);
 			}
 
 			if (!cancelLine) {
@@ -301,22 +308,15 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 
 		} // LONGDOCTAG
 
-		if (htmlIsClosed)
-
-		{
+		if (htmlIsClosed) {
 			ldao.setHtmlLine(null);
 		}
-		if (isChapter)
-
-		{
+		if (isChapter) {
 			ldao.setLastLineWasChapter(true);
 		}
-		if (ldao.isInLongDocTag() && st.contains(formatDao.getDocTagEnd()))
-
-		{
+		if (ldao.isInLongDocTag() && st.contains(formatDao.getDocTagEnd())) {
 			ldao.setInLongDocTag(false);
 		}
-
 	}
 
 	private void openNewChapterWriter(final Integer chapterCounter) throws IOException {
@@ -401,11 +401,15 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			fWriter.flush();
 			fWriter.close();
 		}
+		if (fWriterPlain != null) {
+			fWriterPlain.flush();
+			fWriterPlain.close();
+		}
 	}
 
 	@Override
 	public void preHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
-
+		LOGGER.debug("preHandler-->");
 		if (formatDao.getFormatMode() == null) {
 			formatMode = new MobiMode();
 		} else if (formatDao.getFormatMode().toLowerCase().compareTo("sigil") == 0) {
@@ -444,8 +448,25 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			// lineTracker.setOutputSectionDir(outputSectionDir);
 		}
 
-		if (outputDir != null)
+		if (outputDir != null) {
+			LOGGER.info("Writing html text file to: " + outputFile);
 			fWriter = new FileWriter(outputFile, false);
+		}
+		if (outputDir != null) {
+			String outFilename = null;
+			final String filenameOnly = outputFile.getName();
+			final int extIdx = filenameOnly.lastIndexOf(".");
+			String ext = "";
+			if (extIdx >= 1) {
+				ext = filenameOnly.substring(extIdx + 1);
+				outFilename = filenameOnly.replaceAll(ext, "txt");
+			} else {
+				outFilename = filenameOnly + ".txt";
+			}
+			final File outputFile2 = new File(outputDir, outFilename);
+			LOGGER.info("Writing plain text file to: " + outputFile2);
+			fWriterPlain = new FileWriter(outputFile2, false);
+		}
 
 		ldao.InitializeCount();
 

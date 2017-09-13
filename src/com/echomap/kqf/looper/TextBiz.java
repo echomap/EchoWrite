@@ -9,9 +9,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.DocTagLine;
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
-import com.echomap.kqf.two.data.FormatDao;
 
 public class TextBiz {
 	private final static Logger LOGGER = LogManager.getLogger(TextBiz.class);
@@ -19,9 +19,9 @@ public class TextBiz {
 	final static String newLine = System.getProperty("line.separator");
 	final static String special1 = "* * * * * * * *";
 
-//	public static enum DOCTAGTYPE {
-//		NONE, ALLDOCTAG, HASDOCTAG, LONGDOCTAG
-//	};
+	// public static enum DOCTAGTYPE {
+	// NONE, ALLDOCTAG, HASDOCTAG, LONGDOCTAG
+	// };
 
 	public static enum LINETYPE {
 		PLAIN, CHAPTER, SECTION
@@ -263,10 +263,9 @@ public class TextBiz {
 				dtl.setupOnlyDocTag(line.substring(idx1 + startTag.length(), idx2));
 			// return DOCTAGTYPE.ALLDOCTAG;
 			else
-			dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
+				dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
 			// return DOCTAGTYPE.HASDOCTAG;
-		} else
-		if (line.contains(startTag)) {
+		} else if (line.contains(startTag)) {
 			int idx1 = line.indexOf(startTag);
 			dtl.setupLongDocTag(line, line.substring(idx1 + startTag.length()));
 			// return DOCTAGTYPE.LONGDOCTAG;
@@ -276,7 +275,7 @@ public class TextBiz {
 		return dtl;
 	}
 
-	static String parseForDocTags(final String st, final String docTagStart, final String docTagEnd) {
+	public static String parseForDocTags(final String st, final String docTagStart, final String docTagEnd) {
 		String st2 = st;
 		int idx1 = st2.indexOf(docTagStart);
 		if (idx1 > -1) {

@@ -1,4 +1,4 @@
-package com.echomap.kqf.two.data;
+package com.echomap.kqf.data;
 
 public class DocTag {
 	private String fullText;

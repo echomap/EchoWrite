@@ -2,8 +2,8 @@ package com.echomap.kqf.looper;
 
 import java.io.IOException;
 
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.LooperDao;
-import com.echomap.kqf.two.data.FormatDao;
 
 public interface FileLooperHandler {
 

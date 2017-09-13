@@ -1,3 +1,18 @@
+TODO
+add tag support like:
+[[def:... ]]  / [[pov:... ]] / [[loc:... ]] / [[date:...]]
+
+
+
+2017 09 12
+	- fixed up some doctags
+	- using generic looper with 'callbacks'
+	- Strip doctags-> plainText
+	- updated output files
+		- Outline.csv-> Time/Date/Loc/event/note
+		- DocTags.csv-> All
+2017 09 11
+	need to refactor now that added some docTag support!!
 2014 08 23
 	- added fix for <center>....</center> for sigil validation
 	- Sigil doc type

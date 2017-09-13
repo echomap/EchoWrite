@@ -4,24 +4,29 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
-import com.echomap.kqf.two.data.DocTag;
-import com.echomap.kqf.two.data.FormatDao;
 
 public class FileLooperHandlerOutline implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerOutline.class);
 	final static Properties props = new Properties();
 
-	FileWriter fWriter = null;
+	FileWriter fWriterOutline = null;
+	FileWriter fWriterAll = null;
+
+	final List<String> outlineTags = new ArrayList<String>();
 
 	public FileLooperHandlerOutline() {
 		try {
@@ -82,21 +87,25 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// if (dtt != TextBiz.DOCTAGTYPE.NONE) {
 			final DocTag docTag = dtt.getDocTag();
 			if (docTag != null) {
-				// final String docTagText = TextBiz.parseForDocTags(st,
-				// formatDao.getDocTagStart(), formatDao.getDocTagEnd());
-				// if (!StringUtils.isBlank(docTagText)) {
-				// final DocTag docTag = new DocTag(docTagText);
-				fWriter.write("\"");
-				fWriter.write(docTag.getName());
-				fWriter.write("\",");
-				fWriter.write(docTag.getValue());
-				fWriter.write(",");
-				fWriter.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
-				fWriter.write(",");
-				fWriter.write(String.valueOf(cdao.getNumLines()));// lineCount));
-				fWriter.write(TextBiz.newLine);
+				if (outlineTags.contains(docTag.getName())) {
+					writeEntryToCSV(fWriterOutline, docTag, cdao);
+				}
+				writeEntryToCSV(fWriterAll, docTag, cdao);
 			}
 		}
+	}
+
+	private void writeEntryToCSV(final FileWriter fWriter, final DocTag docTag, final CountDao cdao)
+			throws IOException {
+		fWriter.write("\"");
+		fWriter.write(docTag.getName());
+		fWriter.write("\",\"");
+		fWriter.write(docTag.getValue());
+		fWriter.write("\",");
+		fWriter.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
+		fWriter.write(",");
+		fWriter.write(String.valueOf(cdao.getNumLines()));// lineCount));
+		fWriter.write(TextBiz.newLine);
 	}
 
 	@Override
@@ -107,28 +116,48 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	@Override
 	public void postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
 
-		if (fWriter != null) {
-			fWriter.flush();
-			fWriter.close();
+		if (fWriterAll != null) {
+			fWriterAll.flush();
+			fWriterAll.close();
+		}
+		if (fWriterOutline != null) {
+			fWriterOutline.flush();
+			fWriterOutline.close();
 		}
 	}
 
 	@Override
 	public void preHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
 		// open output file
-		final File outputFile = new File(formatDao.getOutputOutlineFile());
-		final File outputDir = outputFile.getParentFile();
-		if (outputDir != null) {
-			outputDir.getParentFile().mkdirs();
-			outputDir.mkdirs();
+		final File outputFile0 = new File(formatDao.getOutputOutlineFile());
+		final File outputDir0 = outputFile0.getParentFile();
+		if (outputDir0 != null) {
+			outputDir0.getParentFile().mkdirs();
+			outputDir0.mkdirs();
+		}
+		final File outputFile1 = new File(formatDao.getOutputOutlineFile1());
+		final File outputDir1 = outputFile1.getParentFile();
+		if (outputDir1 != null) {
+			outputDir1.getParentFile().mkdirs();
+			outputDir1.mkdirs();
 		}
 
-		LOGGER.info("Writing data to " + outputFile);
-		fWriter = new FileWriter(outputFile, false);
-		fWriter.write("TagName,TagValue,Chpt,Line");
-		fWriter.write(TextBiz.newLine);
+		// LOGGER.info("Writing data to " + outputFile1);
+		fWriterAll = new FileWriter(outputFile1, false);
+		fWriterAll.write("TagName,TagValue,Chpt,Line");
+		fWriterAll.write(TextBiz.newLine);
+
+		fWriterOutline = new FileWriter(outputFile0, false);
+		fWriterOutline.write("TagName,TagValue,Chpt,Line");
+		fWriterOutline.write(TextBiz.newLine);
 
 		ldao.InitializeCount();
+
+		outlineTags.add("time");
+		outlineTags.add("loc");
+		outlineTags.add("Date");
+		outlineTags.add("loc");
+		outlineTags.add("eventnote");
 	}
 
 	@Override
