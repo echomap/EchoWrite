@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+
+		<File name="fileO" fileName="app.log" immediateFlush="true"
+			append="false">
+			<PatternLayout>
+				<Pattern>%d %p %c{1.} [%t] %m %ex%n</Pattern>
+			</PatternLayout>
+		</File>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d %-5p (%F:%L) - %m%n" />
+		</Console>
+		<File name="fileE" fileName="apperr.log" immediateFlush="true"
+			bufferedIO="false" append="false">
+			<PatternLayout>
+				<Pattern>%d %p %c{1.} [%t] %L %m %ex%n</Pattern>
+			</PatternLayout>
+		</File>
+	</Appenders>
+	<Loggers>
+		<Root level="trace">
+			<AppenderRef ref="fileE" level="ERROR" />
+			<AppenderRef ref="fileO" level="DEBUG" />
+			<AppenderRef ref="STDOUT" level="INFO" />
+		</Root>
+	</Loggers>
+</Configuration>

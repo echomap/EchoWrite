@@ -1,4 +1,4 @@
-package com.echomap.kqf.two;
+package com.echomap.kqf.two.data;
 
 public interface FormatMode {
 

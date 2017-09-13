@@ -1,4 +1,6 @@
-package com.echomap.kqf.two;
+package com.echomap.kqf.data;
+
+import com.echomap.kqf.two.data.FormatMode;
 
 public class SigilMode implements FormatMode {
 	final String chapterPreTag = "<p class=\"MsoChapter\">";

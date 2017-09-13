@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
+	debug="true">
+
+	<appender name="A2" class="org.apache.log4j.FileAppender">
+		<param name="File" value="output.log" />
+		<param name="Append" value="False" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t %-5p %c{3} - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="E2" class="org.apache.log4j.FileAppender">
+		<param name="File" value="errors.log" />
+		<param name="Append" value="False" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %t %-5p %c{3} - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMin" value="ERROR" />
+		</filter>
+	</appender>
+
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p [%t] %C{2}:%L - %m%n" />
+		</layout>
+	</appender>
+
+	<root>
+		<priority value="debug" />
+		<appender-ref ref="STDOUT" />
+		<!-- 
+		<appender-ref ref="A2" />
+		<appender-ref ref="E2" />
+		 -->
+	</root>
+
+</log4j:configuration>

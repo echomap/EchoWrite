@@ -14,8 +14,9 @@ import javafx.stage.WindowEvent;
 
 public class KQFFrame extends Application {
 
-	// "fxml/mainform.fxml"
-	private static final String FXML_FILE = "/mainform.fxml";
+	private static final String FXML_FILE1 = "/mainform.fxml";
+	private static final String FXML_FILE2 = "/mainform_flow.fxml";
+	private static final String FXML_FILE = FXML_FILE2;
 
 	public static void main(String[] args) {
 		Application.launch(KQFFrame.class, args);

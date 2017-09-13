@@ -3,32 +3,42 @@ package com.echomap.kqf.two.gui;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import com.echomap.kqf.two.FormatBiz;
-import com.echomap.kqf.two.FormatDao;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
+import com.echomap.kqf.looper.FileLooper;
+import com.echomap.kqf.two.data.FormatDao;
+
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class KQFCtrl implements Initializable {
-	private File lastSelectedDirectory = null;
+	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
+	private File lastSelectedDirectory = null;
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	// final Preferences userPrefs =
 	// Preferences.userNodeForPackage(KQFCtrl.class);
 
@@ -40,16 +50,39 @@ public class KQFCtrl implements Initializable {
 	private TextField chpDivText;
 	@FXML
 	private TextField secDivText;
-
+	@FXML
+	private TextField docTagStartText;
+	@FXML
+	private TextField docTagEndText;
 	@FXML
 	private TextField chapterHeaderTag;
 	@FXML
 	private TextField sectionHeaderTag;
+	@FXML
+	private TextField titleTwoText;
+	@FXML
+	private TextField titleThreeText;
+	@FXML
+	private TextField inputFileText;
+	@FXML
+	private TextField outputFileText;
+	@FXML
+	private TextField outputDirText;
+	@FXML
+	private TextField outputEncoding;
+	@FXML
+	private TextField outputCountFileText;
+	@FXML
+	private TextField outlineFileText;
+	@FXML
+	private TextField outputOutlineFileText;
 
 	@FXML
 	private ComboBox<String> titleOneText;
+
 	@FXML
-	private TextField titleTwoText;
+	private HBox profileButtonBox;
+
 	@FXML
 	private Button inputFileBtn;
 	@FXML
@@ -59,14 +92,13 @@ public class KQFCtrl implements Initializable {
 	@FXML
 	private Button wordCountBtn;
 	@FXML
-	private TextField inputFileText;
-
+	private Button countOutputBtn;
 	@FXML
-	private TextField outputFileText;
+	private Button outlineBtn;
 	@FXML
-	private TextField outputDirText;
+	private Button outlineOutputBtn;
 	@FXML
-	private TextField outputEncoding;
+	private Button formatBtn;
 
 	@FXML
 	private CheckBox cbRemoveDiv;
@@ -76,32 +108,36 @@ public class KQFCtrl implements Initializable {
 	private CheckBox cbDropCapChapters;
 	@FXML
 	private CheckBox cbCenterable;
+	@FXML
+	private ChoiceBox<String> counterDigitChoice;
+
+	private File outputCountDir;
+	private File outputOutlineDir;
 
 	Timer timer = new Timer();
 	private MyTimerTask myTimerTask;
 
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
-		assert wordCountBtn != null : "fx:id=\"wordCountBtn\" was not injected: check your FXML file 'simple.fxml'.";
+
+		assert wordCountBtn != null : "fx:id=\"wordCountBtn1\" was not injected: check your FXML file 'simple.fxml'.";
 		assert lastRunText != null : "fx:id=\"lastRunText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert fmtModeText != null : "fx:id=\"fmtModeText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert chpDivText != null : "fx:id=\"chpDivText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert secDivText != null : "fx:id=\"secDivText\" was not injected: check your FXML file 'simple.fxml'.";
+
+		assert docTagStartText != null : "fx:id=\"docTagStartText\" was not injected: check your FXML file 'simple.fxml'.";
+		assert docTagEndText != null : "fx:id=\"docTagEndText\" was not injected: check your FXML file 'simple.fxml'.";
+
 		assert titleOneText != null : "fx:id=\"titleOneText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert inputFileBtn != null : "fx:id=\"inputFileBtn\" was not injected: check your FXML file 'simple.fxml'.";
 		assert loadOutputDirBtn != null : "fx:id=\"loadOutputDirBtn\" was not injected: check your FXML file 'simple.fxml'.";
 		assert loadOutputFileBtn != null : "fx:id=\"loadOutputFileBtn\" was not injected: check your FXML file 'simple.fxml'.";
-		assert wordCountBtn != null : "fx:id=\"wordCountBtn\" was not injected: check your FXML file 'simple.fxml'.";
+
 		assert inputFileText != null : "fx:id=\"inputFileText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputFileText != null : "fx:id=\"outputFileText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputDirText != null : "fx:id=\"outputDirText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputEncoding != null : "fx:id=\"outputEncoding\" was not injected: check your FXML file 'simple.fxml'.";
-		assert lastRunText != null : "fx:id=\"lastRunText\" was not injected: check your FXML file 'simple.fxml'.";
-
-		// titleOneText.setText(userPrefs.get("titleOne", ""));
-		// titleTwoText.setText(userPrefs.get("titleTwo", ""));
-		// inputFileText.setText(userPrefs.get("inputFile", ""));
-		// outputFileText.setText(userPrefs.get("ouputFile", ""));
 
 		if (inputFileText.getText() != null && inputFileText.getText().length() > 0)
 			lastSelectedDirectory = new File(inputFileText.getText()).getParentFile();
@@ -110,13 +146,18 @@ public class KQFCtrl implements Initializable {
 		if (lastSelectedDirectory == null || !lastSelectedDirectory.isDirectory())
 			lastSelectedDirectory = null;
 
-		// automaticFromInput();
-
 		myTimerTask = new MyTimerTask(this.lastRunText);
 
 		// tooltips
-
+		loadChoices();
 		loadProfiles();
+		lockGui();
+	}
+
+	private void loadChoices() {
+		counterDigitChoice.setItems(FXCollections.observableArrayList("0", "1", "2", "3", "4"));
+		// counterDigitChoice.getValue()
+		counterDigitChoice.getSelectionModel().select(3);
 	}
 
 	public void handleDeletePrefs(final ActionEvent event) {
@@ -173,6 +214,48 @@ public class KQFCtrl implements Initializable {
 		outputFileText.setText(nFile.getAbsolutePath());
 	}
 
+	public void handleOutputCountFile(final ActionEvent event) {
+		locateDir(event, "Open Output Dir ", outputCountFileText);
+		// final String inFilename = outputCountFileText.getText();
+		String outFilename = "\\ChapterCount1.csv";
+		// if (inFilename != null && inFilename.length() > 0) {
+		// final File inFile = new File(inFilename);
+		// final String filenameOnly = inFile.getName();
+		// final int extIdx = filenameOnly.lastIndexOf(".");
+		// String ext = "";
+		// if (extIdx >= 1) {
+		// ext = filenameOnly.substring(extIdx + 1);
+		// outFilename = filenameOnly.replaceAll(ext, "html");
+		// } else {
+		// outFilename = filenameOnly + ".html";
+		// }
+		// }
+		final File nFile = new File(outputCountFileText.getText(), outFilename);
+		outputCountFileText.setText(nFile.getAbsolutePath());
+		outputCountDir = nFile.getParentFile();
+	}
+
+	public void handleOutputOutlineFile(final ActionEvent event) {
+		locateDir(event, "Open Output Dir ", outputOutlineFileText);
+		// final String inFilename = outputCountFileText.getText();
+		String outFilename = "/Outline1.csv";
+		// if (inFilename != null && inFilename.length() > 0) {
+		// final File inFile = new File(inFilename);
+		// final String filenameOnly = inFile.getName();
+		// final int extIdx = filenameOnly.lastIndexOf(".");
+		// String ext = "";
+		// if (extIdx >= 1) {
+		// ext = filenameOnly.substring(extIdx + 1);
+		// outFilename = filenameOnly.replaceAll(ext, "html");
+		// } else {
+		// outFilename = filenameOnly + ".html";
+		// }
+		// }
+		final File nFile = new File(outputOutlineFileText.getText(), outFilename);
+		outputOutlineFileText.setText(nFile.getAbsolutePath());
+		outputOutlineDir = nFile.getParentFile();
+	}
+
 	public void handleClose(final ActionEvent event) {
 		final Node source = (Node) event.getSource();
 		final Stage stage = (Stage) source.getScene().getWindow();
@@ -181,65 +264,153 @@ public class KQFCtrl implements Initializable {
 	}
 
 	protected void doCleanup() {
-		System.out.println("Ctrl is cleaning up...");
+		LOGGER.info("Ctrl is cleaning up...");
 		myTimerTask.cancel();
 		timer.cancel();
 		myTimerTask = null;
 		timer = null;
 	}
 
-	public void handleDoAction(final ActionEvent event) {
-		System.out.println("That was easy, wasn't it?");
-		lastRunText.setText("Running...");
+	private void setLastRunText(String fmtt) {
+		lastRunText.setText(fmtt + "\r\n" + lastRunText.getText());
+	}
+
+	public void handleDoCountAction(final ActionEvent event) {
+		// lastRunText.setText("Running word count...");
+		setLastRunText("Running word count...");
+		lockGui();
+		// timer.cancel();
+		// timer = new Timer();
 		try {
-			final FormatBiz biz = new FormatBiz();
+			// final CountBiz biz = new CountBiz();
 			final FormatDao formatDao = new FormatDao();
-			wordCountBtn.setDisable(true);
-			// boolean noseperate = true;
-
-			// Setup the argument passed
-			formatDao.setInputFilename(inputFileText.getText());
-			formatDao.setOutputFilename(outputFileText.getText());
-			// formatDao.setou
-			formatDao.setWriteChapters(outputDirText.getText());
-
-			formatDao.setStoryTitle1(titleOneText.getValue());
-			formatDao.setStoryTitle2(titleTwoText.getText());
-			formatDao.setFormatMode(fmtModeText.getText());// "Sigil"
-
-			formatDao.setChapterDivider(chpDivText.getText());// "-=");
-			formatDao.setSectionDivider(secDivText.getText());// "-=");
-
-			formatDao.setChapterHeaderTag(chapterHeaderTag.getText());
-			formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
-
-			if (cbCenterStars.isSelected())
-				formatDao.setCenterStars(true);
-			if (cbDropCapChapters.isSelected())
-				formatDao.setDropCapChapter(true);
-			if (cbRemoveDiv.isSelected()) {
-				formatDao.setRemoveChptDiv(true);
-				formatDao.setRemoveSectDiv(true);
-			}
-
-			if (outputEncoding.getText() != null && outputEncoding.getText().length() > 0)
-				formatDao.setOutputEncoding(outputEncoding.getText());
-
-			// if (cbCenterable.isSelected())
-			// formatDao.setCenterableLineText(line.getOptionValue("centerable"));
-			biz.format(formatDao);
-
-		} catch (
-
-		IOException e)
-
-		{
+			setupDao(formatDao);
+			// biz.format(inputFileText.getText(),
+			// outputCountDir.getAbsolutePath(), outputCountFileText.getText(),
+			// formatDao);
+			final FileLooper fileLooper = new FileLooper();
+			fileLooper.count(formatDao);
+		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			unlockGui();
+			String fmtt = "Done running COUNT ( " + getCurrentDateFmt() + ")";
+			LOGGER.debug("fmtt: " + fmtt);
+			setLastRunText(fmtt);
+			startTimerTask();
 		}
+	}
+
+	public void handleDoOutlineAction(final ActionEvent event) {
+		// lastRunText.setText("Running word count...");
+		setLastRunText("Running OUTLINE...");
+		lockGui();
+		try {
+			// final OutlineBiz biz = new OutlineBiz();
+			final FormatDao formatDao = new FormatDao();
+			setupDao(formatDao);
+			//
+			// biz.runOutline(inputFileText.getText(),
+			// outputOutlineFileText.getText(), formatDao.getDocTagStart(),
+			// formatDao.getDocTagEnd());
+			final FileLooper fileLooper = new FileLooper();
+			fileLooper.outline(formatDao);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			unlockGui();
+			setLastRunText("Done running OUTLINE (" + getCurrentDateFmt() + ")");
+			startTimerTask();
+		}
+	}
+
+	public void handleDoFormatAction(final ActionEvent event) {
+		LOGGER.info("That was easy, wasn't it?");
+		setLastRunText("Running...");
+		lockGui();
+		try {
+			// final FormatBiz biz = new FormatBiz();
+			final FormatDao formatDao = new FormatDao();
+			setupDao(formatDao);
+			// biz.format(formatDao);
+			final FileLooper fileLooper = new FileLooper();
+			fileLooper.format(formatDao);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			unlockGui();
+			setLastRunText("Done running FORMAT (" + getCurrentDateFmt() + ")");
+			startTimerTask();
+		}
+	}
+
+	private void setupDao(final FormatDao formatDao) {
+		// Setup the argument passed
+		formatDao.setInputFilename(inputFileText.getText());
+		formatDao.setOutputFilename(outputFileText.getText());
+
+		formatDao.setOutputCountFile(outputCountFileText.getText());
+		formatDao.setOutputOutlineFile(outputOutlineFileText.getText());
+
+		// formatDao.setou
+		formatDao.setWriteChapters(outputDirText.getText());
+
+		formatDao.setStoryTitle1(titleTwoText.getText());
+		formatDao.setStoryTitle2(titleThreeText.getText());
+		formatDao.setFormatMode(fmtModeText.getText());// "Sigil"
+
+		formatDao.setChapterDivider(chpDivText.getText());// "-=");
+		formatDao.setSectionDivider(secDivText.getText());// "-=");
+
+		formatDao.setDocTagStart(docTagStartText.getText());
+		formatDao.setDocTagEnd(docTagEndText.getText());
+
+		formatDao.setChapterHeaderTag(chapterHeaderTag.getText());
+		formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
+
+		if (cbCenterStars.isSelected())
+			formatDao.setCenterStars(true);
+		if (cbDropCapChapters.isSelected())
+			formatDao.setDropCapChapter(true);
+		if (cbRemoveDiv.isSelected()) {
+			formatDao.setRemoveChptDiv(true);
+			formatDao.setRemoveSectDiv(true);
+		}
+
+		if (outputEncoding.getText() != null && outputEncoding.getText().length() > 0)
+			formatDao.setOutputEncoding(outputEncoding.getText());
+
+		final Integer itm = new Integer((String) counterDigitChoice.getSelectionModel().getSelectedItem());
+		formatDao.setCountOutputDigits(itm);
+
+	}
+
+	private void lockGui() {
+		inputFileBtn.setDisable(true);
+		loadOutputDirBtn.setDisable(true);
+		loadOutputFileBtn.setDisable(true);
+		wordCountBtn.setDisable(true);
+		countOutputBtn.setDisable(true);
+		outlineBtn.setDisable(true);
+		formatBtn.setDisable(true);
+	}
+
+	private void unlockGui() {
+		inputFileBtn.setDisable(false);
+		loadOutputDirBtn.setDisable(false);
+		loadOutputFileBtn.setDisable(false);
 		wordCountBtn.setDisable(false);
-		lastRunText.setText("Done running at " + DateFormat.getDateInstance());
+		countOutputBtn.setDisable(false);
+		outlineBtn.setDisable(false);
+		formatBtn.setDisable(false);
+	}
+
+	private void startTimerTask() {
+		this.myTimerTask = new MyTimerTask(this.lastRunText);
+		timer.cancel();
+		timer = new Timer();
 		timer.schedule(myTimerTask, 5000);
-		// saveProps();
 	}
 
 	class MyTimerTask extends TimerTask {
@@ -247,7 +418,7 @@ public class KQFCtrl implements Initializable {
 
 		@Override
 		public void run() {
-			textF.setText("");
+			// textF.setText("");
 		}
 
 		public MyTimerTask(final TextInputControl textf) {
@@ -286,20 +457,51 @@ public class KQFCtrl implements Initializable {
 		lastRunText.setText(msg);
 	}
 
+	private String getCurrentDateFmt() {
+		final Calendar cal = Calendar.getInstance();
+		dateFormat.setTimeZone(cal.getTimeZone());
+		String txt = dateFormat.format(cal.getTime());
+		LOGGER.debug("date = " + txt);
+		return txt;
+	}
+
 	protected void loadProps() {
 		final String key = titleOneText.getValue();
 		final Preferences child = getPrefs().node(key);
 
 		titleOneText.setValue(child.get("titleOne", ""));
 		titleTwoText.setText(child.get("titleTwo", ""));
+		titleThreeText.setText(child.get("titleThree", ""));
 		inputFileText.setText(child.get("inputFile", ""));
 		outputFileText.setText(child.get("ouputFile", ""));
 		outputDirText.setText(child.get("outputDir", ""));
+
+		outputCountFileText.setText(child.get("ouputCountFile", ""));
+		outputOutlineFileText.setText(child.get("ouputOutlineFile", ""));
+
 		chpDivText.setText(child.get("chpDiv", ""));
 		secDivText.setText(child.get("secDiv", ""));
+
+		docTagStartText.setText(child.get("docTagStart", "[["));
+		docTagEndText.setText(child.get("docTagEnd", "]]"));
+
 		fmtModeText.setText(child.get("fmtMode", ""));
 		outputEncoding.setText(child.get("outputEncoding", ""));
 
+		if (outputCountFileText.getText().length() < 1) {
+			outputCountDir = new File(inputFileText.getText()).getParentFile();
+			outputCountFileText.setText(outputCountDir + "\\ChapterCount1.csv");
+		} else {
+			outputCountDir = new File(outputCountFileText.getText()).getParentFile();
+		}
+		if (outputOutlineFileText.getText().length() < 1) {
+			outputOutlineDir = new File(inputFileText.getText()).getParentFile();
+			outputOutlineFileText.setText(outputCountDir + "\\Outline1.csv");
+		} else {
+			outputOutlineDir = new File(outputOutlineFileText.getText()).getParentFile();
+		}
+		// counterDigitChoice.getSelectionModel().select(3);
+		unlockGui();
 	}
 
 	protected void saveProps() {
@@ -309,14 +511,25 @@ public class KQFCtrl implements Initializable {
 
 			child.put("titleOne", key);
 			child.put("titleTwo", titleTwoText.getText());
+			child.put("titleThree", titleThreeText.getText());
+
 			child.put("inputFile", inputFileText.getText());
 			child.put("ouputFile", outputFileText.getText());
 			child.put("outputDir", outputDirText.getText());
 
+			child.put("ouputCountFile", outputCountFileText.getText());
+			child.put("ouputOutlineFile", outputOutlineFileText.getText());
+
 			child.put("chpDiv", chpDivText.getText());
 			child.put("secDiv", secDivText.getText());
+
+			child.put("docTagStart", docTagStartText.getText());
+			child.put("docTagEnd", docTagEndText.getText());
+
 			child.put("fmtMode", fmtModeText.getText());
 			child.put("outputEncoding", outputEncoding.getText());
+
+			// counterDigitChoice.getSelectionModel().select(3);
 
 			try {
 				child.flush();
@@ -326,7 +539,6 @@ public class KQFCtrl implements Initializable {
 		}
 	}
 
-	@FXML
 	protected void locateFile(final ActionEvent event, final String title, final TextField textField) {
 		final FileChooser chooser = new FileChooser();
 		if (textField.getText() != null && textField.getText().length() > 0) {
@@ -350,7 +562,6 @@ public class KQFCtrl implements Initializable {
 		}
 	}
 
-	@FXML
 	protected void locateDir(final ActionEvent event, final String title, final TextField textField) {
 		final DirectoryChooser chooser = new DirectoryChooser();
 
@@ -401,14 +612,14 @@ public class KQFCtrl implements Initializable {
 	// }
 	// }
 
-	private String getFileName(final File file) {
-		final StringBuffer sbuf = new StringBuffer(file.getName());
-		final int idx = sbuf.lastIndexOf(".");
-		if (idx >= 0) {
-			final int idxL = sbuf.length() - idx;
-			sbuf.setLength(sbuf.length() - idxL);
-		}
-		return sbuf.toString();
-	}
+	// private String getFileName(final File file) {
+	// final StringBuffer sbuf = new StringBuffer(file.getName());
+	// final int idx = sbuf.lastIndexOf(".");
+	// if (idx >= 0) {
+	// final int idxL = sbuf.length() - idx;
+	// sbuf.setLength(sbuf.length() - idxL);
+	// }
+	// return sbuf.toString();
+	// }
 
 }

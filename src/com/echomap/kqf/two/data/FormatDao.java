@@ -1,6 +1,8 @@
-package com.echomap.kqf.two;
+package com.echomap.kqf.two.data;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.echomap.kqf.looper.FileLooper;
 
 /**
  * 
@@ -8,7 +10,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class FormatDao {
 	public static final String DEFAULToutputEncoding = "Cp1252";
 	private String inputFilename = null;
+
 	private String outputFilename = null;
+	private String outputCountFile = null;
+	private String outputOutlineFile = null;
+
 	private String storyTitle1 = null;
 	private String storyTitle2 = null;
 	private String formatMode = null;
@@ -23,14 +29,23 @@ public class FormatDao {
 	private Boolean dropCapChapter = false;
 	private String writeChapters = null;
 
+	private String docTagStart = null;
+	private String docTagEnd = null;
+
 	private String chapterHeaderTag = "h1";
 	private String sectionHeaderTag = "h1";
+
+	private Integer countOutputDigits = null;
 
 	public String prettyPrint() {
 		final StringBuilder sbuf = new StringBuilder();
 		addLine(sbuf, "InputFilename", this.inputFilename);
 		addLine(sbuf, "InputFilename", this.inputFilename);
+
 		addLine(sbuf, "OutputFilename", this.outputFilename);
+		addLine(sbuf, "OutputCountFile", this.outputCountFile);
+		addLine(sbuf, "OutputOutlineFile", this.outputOutlineFile);
+
 		addLine(sbuf, "OutputEncoding", this.outputEncoding);
 		addLine(sbuf, "StoryTitle1", this.storyTitle1);
 		addLine(sbuf, "StoryTitle2", this.storyTitle2);
@@ -43,6 +58,12 @@ public class FormatDao {
 		addLine(sbuf, "WriteChapters:", this.writeChapters);
 		addLine(sbuf, "ChapterHeaderTag:", this.getChapterHeaderTag());
 		addLine(sbuf, "SectionHeaderTag:", this.getSectionHeaderTag());
+
+		addLine(sbuf, "DocTagStart:", this.getDocTagStart());
+		addLine(sbuf, "DocTagEnd:", this.getDocTagEnd());
+
+		addLine(sbuf, "CountOutputDigits:",
+				(getCountOutputDigits() == null ? "" : this.getCountOutputDigits().toString()));
 
 		sbuf.setLength(sbuf.length() - 1);
 		return sbuf.toString();
@@ -75,6 +96,22 @@ public class FormatDao {
 
 	public void setOutputFilename(String outputFilename) {
 		this.outputFilename = outputFilename;
+	}
+
+	public String getOutputCountFile() {
+		return outputCountFile;
+	}
+
+	public void setOutputCountFile(String outputCountFile) {
+		this.outputCountFile = outputCountFile;
+	}
+
+	public String getOutputOutlineFile() {
+		return outputOutlineFile;
+	}
+
+	public void setOutputOutlineFile(String outputOutlineFile) {
+		this.outputOutlineFile = outputOutlineFile;
 	}
 
 	public String getStoryTitle1() {
@@ -166,6 +203,8 @@ public class FormatDao {
 	}
 
 	public String getOutputEncoding() {
+		if (outputEncoding == null)
+			outputEncoding = FileLooper.DEFAULToutputEncoding;
 		return outputEncoding;
 	}
 
@@ -187,6 +226,33 @@ public class FormatDao {
 
 	public void setSectionHeaderTag(String sectionHeaderTag) {
 		this.sectionHeaderTag = sectionHeaderTag;
+	}
+
+	public String getDocTagStart() {
+		if (docTagStart == null)
+			docTagStart = "1234567890-!@#$%^&*()";// Impossible text, because im
+													// lazy
+		return docTagStart;
+	}
+
+	public void setDocTagStart(String docTagStart) {
+		this.docTagStart = docTagStart;
+	}
+
+	public String getDocTagEnd() {
+		return docTagEnd;
+	}
+
+	public void setDocTagEnd(String docTagEnd) {
+		this.docTagEnd = docTagEnd;
+	}
+
+	public Integer getCountOutputDigits() {
+		return countOutputDigits;
+	}
+
+	public void setCountOutputDigits(Integer countOutputDigits) {
+		this.countOutputDigits = countOutputDigits;
 	}
 
 }

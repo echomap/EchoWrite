@@ -1,4 +1,4 @@
-package com.echomap.kqf.two;
+package com.echomap.kqf.two.biz;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,43 +14,59 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import com.echomap.kqf.data.LineTracker;
+import com.echomap.kqf.data.MobiMode;
+import com.echomap.kqf.data.SigilMode;
+import com.echomap.kqf.two.data.FormatDao;
+import com.echomap.kqf.two.data.FormatMode;
 
 /**
  * Not thread safe
  */
-public class FormatBiz {
+public class FormatBiz extends BaseBiz {
+	private final static Logger LOGGER = LogManager.getLogger(FormatBiz.class);
+	final LineTracker lineTracker = new LineTracker();
 
 	final static String newLine = System.getProperty("line.separator");
-
+	//
 	final static String special1 = "* * * * * * * *";
-
+	final String formatOutputNumber = "%03d";
 	private FormatMode formatMode = null;
-
-	boolean inSpecial = false;
-	boolean lastLineWasChapter = false;
-	String htmlLine = null;
-	Integer thisLineCharacterCount = 0;
+	//
+	// boolean inSpecial = false;
+	// boolean inLongDocTag = false;
+	// boolean lastLineWasChapter = false;
+	// String htmlLine = null;
+	// Integer thisLineCharacterCount = 0;
 	final Map<String, String> filterMap = new HashMap<String, String>();
-
+	//
 	Integer chapterCounter = 0;
 	File outputChapterDir = null;
 	FileWriter chapterWriter = null;
-
+	//
 	Integer sectionCounter = 0;
 	File outputSectionDir = null;
 	FileWriter sectionWriter = null;
 
 	public void format(final FormatDao formatDao) throws IOException {
-		System.out.println("Formatter...>");
-		System.out.println(formatDao);
-		System.out.println(formatDao.prettyPrint());
-		System.out.println("..>");
+		LOGGER.info("Formatter...>");
+		LOGGER.info(formatDao);
+		LOGGER.info("\n" + formatDao.prettyPrint());
+		LOGGER.info("..>");
+
+		// FormatMode formatMode = null;
 
 		if (formatDao.getFormatMode() == null) {
 			formatMode = new MobiMode();
 		} else if (formatDao.getFormatMode().toLowerCase().compareTo("sigil") == 0) {
 			formatMode = new SigilMode();
 		}
+
+		lineTracker.clear();
+		// lineTracker.setFormatMode(formatMode);
 
 		final File inputFile = new File(formatDao.getInputFilename());
 		final File outputFile = new File(formatDao.getOutputFilename());
@@ -75,17 +91,18 @@ public class FormatBiz {
 			if (formatDao.getWriteChapters() != null && !StringUtils.isBlank(formatDao.getWriteChapters())) {
 				outputChapterDir = new File(formatDao.getWriteChapters());
 				outputChapterDir.mkdirs();
+				// lineTracker.setOutputChapterDir(outputChapterDir);
 
 				outputSectionDir = new File(formatDao.getWriteChapters());
 				outputSectionDir.mkdirs();
-
+				// lineTracker.setOutputSectionDir(outputSectionDir);
 			}
 
 			if (outputDir != null)
 				fWriter = new FileWriter(outputFile, false);
 
 			if (!inputFile.exists() && inputFile.length() < 0) {
-				System.out.println("The specified file does not exist");
+				LOGGER.error("The specified file does not exist");
 			} else {
 				if (fWriter != null) {
 					outputHeader(fWriter);
@@ -98,10 +115,13 @@ public class FormatBiz {
 					// reader = new BufferedReader(fr);
 
 					String st = "";
-					inSpecial = false;
-					htmlLine = null;
+					// inSpecial = false;
+					// inLongDocTag = false;
+					// htmlLine = null;
 					while ((st = reader.readLine()) != null) {
+						lineTracker.preReadLine();
 						writeLine(st, fWriter, formatDao);
+						lineTracker.postReadLine();
 					}
 					outputFooter(fWriter);
 					fWriter.flush();
@@ -121,7 +141,19 @@ public class FormatBiz {
 		}
 	}
 
-	private String filterLine(String st) {
+	enum LINETYPE {
+		PLAIN, CHAPTER, SECTION
+	};
+
+	enum SECTIONTYPE {
+		PLAIN, INSPECIAL, NOTSPECIAL
+	};
+
+	enum DOCTAGTYPE {
+		NONE, ALLDOCTAG, INDOCTAG, LONGDOCTAG
+	};
+
+	String filterLine(String st) {
 		final Set<String> keys = filterMap.keySet();
 		for (final String key : keys) {
 			final String val = filterMap.get(key);
@@ -138,37 +170,6 @@ public class FormatBiz {
 		// if (st.indexOf("@TITLE@") > -1) {
 		// return st.replace("@TITLE@", storyTitle1);
 		// }
-		return st;
-	}
-
-	enum LINETYPE {
-		PLAIN, CHAPTER, SECTION
-	};
-
-	enum SECTIONTYPE {
-		PLAIN, INSPECIAL, NOTSPECIAL
-	};
-
-	private String cleanText(String st, Boolean removeSectDiv, String sectionDivider, SECTIONTYPE sectionType) {
-		String st2 = st.replaceAll("Section: ", "");
-		return cleanText(st2, removeSectDiv, sectionDivider);
-	}
-
-	private String cleanText(final String st, final boolean remChapterDiv, final String miscChapterDiv) {
-		if (remChapterDiv) {
-			String st2 = st.replaceAll("--", "");
-			st2 = st2.replaceAll("--", "");
-			st2 = st2.replaceAll("-=", "");
-			st2 = st2.replaceAll("=-", "");
-			if (miscChapterDiv != null)
-				st2 = st2.replaceAll(miscChapterDiv, "");
-			if (st2.startsWith(" "))
-				st2 = st2.substring(1, st2.length());
-			if (st2.endsWith(" "))
-				st2 = st2.substring(0, st2.length() - 1);
-			System.out.println("  Cleaned Chapter-Divs: " + st2);
-			return st2.trim();
-		}
 		return st;
 	}
 
@@ -192,10 +193,10 @@ public class FormatBiz {
 		} else if (line.indexOf("Section:") > -1) {
 			// preTag = "<p class=MsoSection>";
 			return SECTIONTYPE.PLAIN;
-		} else if (line.startsWith(special1) && !inSpecial) {
+		} else if (line.startsWith(special1) && !lineTracker.isInSpecial()) {
 			// preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
 			return SECTIONTYPE.NOTSPECIAL;
-		} else if (line.indexOf("Section") > -1 && inSpecial) {
+		} else if (line.indexOf("Section") > -1 && lineTracker.isInSpecial()) {
 			// preTag = "<p class=MsoSection>";
 			return SECTIONTYPE.INSPECIAL;
 		}
@@ -203,13 +204,6 @@ public class FormatBiz {
 		// if (line.contains(miscDiv))// && line.contains("Section"))
 		// return SECTIONTYPE.PLAIN;
 		// }
-		return null;
-	}
-
-	private String isAnHtmlLine(final String line) {
-		String line2 = line.toLowerCase();
-		if (line2.startsWith("<div"))
-			return "div";
 		return null;
 	}
 
@@ -223,6 +217,7 @@ public class FormatBiz {
 
 	private void writeLine(String st, final FileWriter fWriter, final FormatDao formatDao) throws IOException {
 		// st = st.replace("<", "&lt;");
+		lineTracker.inReadLine();
 		String preTag = "";
 		String postTag = null;
 		// String postTag = "";
@@ -230,11 +225,12 @@ public class FormatBiz {
 		// return;
 		// }
 		boolean htmlIsClosed = false;
-		if (htmlLine == null) {
-			htmlLine = isAnHtmlLine(st);
+		if (lineTracker.getHtmlLine() == null) {
+			lineTracker.setHtmlLine(isAnHtmlLine(st));
+			// htmlLine = isAnHtmlLine(st);
 		} else {
 			final String htmlLineNew = isAnHtmlLine(st);
-			if (htmlLineNew != null && htmlLineNew.equalsIgnoreCase(htmlLine)) {
+			if (htmlLineNew != null && htmlLineNew.equalsIgnoreCase(lineTracker.getHtmlLine())) {
 				htmlIsClosed = true;
 			}
 		}
@@ -254,12 +250,12 @@ public class FormatBiz {
 			// preTag = formatMode.getFirstChapterPreTag();// "<p
 			// class=\"MsoChapter\">";
 			postTag = "<p class=\"" + formatMode.getPlainTextTag() + "\">&nbsp;</p>";
-		} else if (htmlLine != null) {
+		} else if (lineTracker.getHtmlLine() != null) {
 			preTag = " ";
 		} else {
 			sectionType = isSection(st, formatDao.getSectionDivider());
 			if (sectionType != null)
-				System.out.println("sectionType: " + sectionType + " for line: " + st);
+				LOGGER.debug("sectionType: " + sectionType + " for line: " + st);
 			if (sectionType != null) {
 				// closeSectionWriter(sectionCounter);
 				sectionCounter++;
@@ -283,6 +279,9 @@ public class FormatBiz {
 				}
 			}
 		}
+		DOCTAGTYPE docTagType = null;
+		docTagType = isDocTag(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+
 		if (st.compareTo(formatDao.getStoryTitle1()) == 0 || (!StringUtils.isEmpty(formatDao.getStoryTitle2())
 				&& st.compareTo(formatDao.getStoryTitle2()) == 0)) {
 			preTag = "<p class=\"MsoTitle\">";
@@ -290,14 +289,21 @@ public class FormatBiz {
 
 		st = filterLine(st);
 
+		if (st.startsWith(formatDao.getDocTagStart())) {
+			lineTracker.setInLongDocTag(true);
+			// inLongDocTag = true;
+		}
+
 		if (st.startsWith(special1)) {
-			if (inSpecial) {
-				System.out.println("inSpecial flipped to false on: " + st);
+			if (lineTracker.isInSpecial()) {
+				LOGGER.debug("inSpecial flipped to false on: " + st);
 				// System.out.println("preTag: " + preTag);
-				inSpecial = false;
+				lineTracker.setInSpecial(false);
+				// inSpecial = false;
 			} else {
-				inSpecial = true;
-				System.out.println("inSpecial flipped to true on: " + st);
+				// inSpecial = true;
+				lineTracker.setInSpecial(true);
+				LOGGER.debug("inSpecial flipped to true on: " + st);
 			}
 		}
 		boolean centerThisLine = centerCheck(formatDao, st);
@@ -317,90 +323,129 @@ public class FormatBiz {
 			st = stL;
 		}
 
-		fWriter.write(preTag);
-		String textToWrite = null;
-		if (isChapter) {
-			textToWrite = cleanText(st, formatDao.getRemoveChptDiv(), formatDao.getChapterDivider());
-			// fWriter.write(cleanText(st, formatDao.getRemoveChptDiv(),
-			// formatDao.getChapterDivider()));
-		} else if (sectionType != null) {
-			textToWrite = cleanText(st, formatDao.getRemoveSectDiv(), formatDao.getSectionDivider(), sectionType);
-			// fWriter.write(cleanText(st, formatDao.getRemoveSectDiv(),
-			// formatDao.getSectionDivider()));
-		} else if (lastLineWasChapter && st != null && st.length() > 1) {
-			// TODO doDropCaps(st, fWriter);
-			// <span class="dropcaps">I</span>
-			textToWrite = cleanPlainText(st);
-			// fWriter.write(st);
-			lastLineWasChapter = false;
-		} else {
-			textToWrite = cleanPlainText(st);
-			// fWriter.write(st);
-		}
-		if (!StringUtils.isBlank(textToWrite))
-			thisLineCharacterCount += textToWrite.length();
-		fWriter.write(textToWrite);
-
-		if (sectionType != null) {
-			openNewSectionWriter(sectionCounter, chapterCounter);
-			writeToSectionWriter(textToWrite, formatDao.getSectionHeaderTag());
-			closeSectionWriter(sectionCounter, chapterCounter);
-		} else {
-			// writeToChapterWriter(formatDao.get);
-			// final String stTSt = "<"+formatDao.getChapterHeaderTag()+">";
-			writeToChapterWriter(preTag);
-			writeToChapterWriter(textToWrite);
+		String docTagText = null;
+		if (docTagType == DOCTAGTYPE.INDOCTAG) {
+			docTagText = parseForDocTags(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 		}
 
-		if (htmlLine == null) {
+		if (docTagType == DOCTAGTYPE.LONGDOCTAG) {
+
+		} else {
+			// if (docTagType != DOCTAGTYPE.ALLDOCTAG)
+			fWriter.write(preTag);
+
+			String textToWrite = null;
+
 			if (isChapter) {
-				final String stTEnd = createPostTag(formatDao.getChapterHeaderTag());
-				fWriter.write(stTEnd);
-				writeToChapterWriter(stTEnd);
-				// fWriter.write(formatMode.getChapterPostTag());
-				// writeToChapterWriter(formatMode.getChapterPostTag());
+				textToWrite = cleanText(st, formatDao.getRemoveChptDiv(), formatDao.getChapterDivider(),
+						formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				// fWriter.write(cleanText(st, formatDao.getRemoveChptDiv(),
+				// formatDao.getChapterDivider()));
+			} else if (sectionType != null) {
+				textToWrite = cleanText(st, formatDao.getRemoveSectDiv(), formatDao.getSectionDivider(), sectionType,
+						formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				// fWriter.write(cleanText(st, formatDao.getRemoveSectDiv(),
+				// formatDao.getSectionDivider()));
+			} else if (lineTracker.isLastLineWasChapter() && st != null && st.length() > 1 && !lineEmpty(st)
+					&& !formatDao.getDropCapChapter()) {
+				textToWrite = cleanPlainText(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				lineTracker.setLastLineWasChapter(false);
+			} else if (lineTracker.isLastLineWasChapter() && st != null && st.length() > 1 && !lineEmpty(st)
+					&& docTagType == DOCTAGTYPE.NONE) {
+				// <span class="dropcaps">I</span>
+				textToWrite = doDropCaps(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				lineTracker.setLastLineWasChapter(false);
 			} else {
-				if (!StringUtils.isBlank(textToWrite)) {
-					if (thisLineCharacterCount == 0)
-						fWriter.write("&nbsp;");
-					fWriter.write("</p>");
-					writeToChapterWriter("</p>");
-					thisLineCharacterCount = 0;
+				textToWrite = cleanPlainText(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				// fWriter.write(st);
+			}
+			// if (docTagType != DOCTAGTYPE.ALLDOCTAG) {
+			if (!StringUtils.isBlank(textToWrite))
+				lineTracker.addThisLineCharacterCount(textToWrite.length());
+			// lineTracker.setThisLineCharacterCount(
+			// (
+			// lineTracker.getThisLineCharacterCount()
+			// += textToWrite.length()
+			// )
+			// )
+			// ;
+			fWriter.write(textToWrite);
+
+			if (sectionType != null) {
+				openNewSectionWriter(sectionCounter, chapterCounter);
+				writeToSectionWriter(textToWrite, formatDao.getSectionHeaderTag());
+				closeSectionWriter(sectionCounter, chapterCounter);
+			} else {
+				// writeToChapterWriter(formatDao.get);
+				// final String stTSt =
+				// "<"+formatDao.getChapterHeaderTag()+">";
+				writeToChapterWriter(preTag);
+				writeToChapterWriter(textToWrite);
+			}
+			// }
+			if (lineTracker.getHtmlLine() == null) {
+				// if (docTagType != DOCTAGTYPE.ALLDOCTAG) {
+				if (isChapter) {
+					final String stTEnd = createPostTag(formatDao.getChapterHeaderTag());
+					fWriter.write(stTEnd);
+					writeToChapterWriter(stTEnd);
+					// fWriter.write(formatMode.getChapterPostTag());
+					// writeToChapterWriter(formatMode.getChapterPostTag());
 				} else {
-					if (thisLineCharacterCount == 0)
-						fWriter.write("&nbsp;");
-					fWriter.write("</p>");
-					writeToChapterWriter("</p>");
-					thisLineCharacterCount = 0;
+					if (!StringUtils.isBlank(textToWrite)) {
+						if (lineTracker.getThisLineCharacterCount() == 0)
+							fWriter.write("&nbsp;");
+						fWriter.write("</p>");
+						writeToChapterWriter("</p>");
+						// thisLineCharacterCount = 0;
+						lineTracker.setThisLineCharacterCount(0);
+					} else {
+						if (lineTracker.getThisLineCharacterCount() == 0)
+							fWriter.write("&nbsp;");
+						fWriter.write("</p>");
+						writeToChapterWriter("</p>");
+						// thisLineCharacterCount = 0;
+						lineTracker.setThisLineCharacterCount(0);
+					}
+				}
+
+				fWriter.write(newLine);
+				writeToChapterWriter(newLine);
+				if (postTag != null) {
+					fWriter.write(postTag);
+					fWriter.write(newLine);
+
+					writeToChapterWriter(postTag);
+					writeToChapterWriter(newLine);
+
+					lineTracker.setThisLineCharacterCount(0);
+					// thisLineCharacterCount = 0;
 				}
 			}
-		}
+			// }
 
-		fWriter.write(newLine);
-		writeToChapterWriter(newLine);
-		if (postTag != null) {
-			fWriter.write(postTag);
-			fWriter.write(newLine);
-
-			writeToChapterWriter(postTag);
-			writeToChapterWriter(newLine);
-
-			thisLineCharacterCount = 0;
-		}
+		} // LONGDOCTAG
 
 		if (htmlIsClosed) {
-			htmlLine = null;
+			// htmlLine = null;
+			lineTracker.setHtmlLine(null);
 		}
 		if (isChapter) {
-			lastLineWasChapter = true;
+			lineTracker.setLastLineWasChapter(true);
+			// lastLineWasChapter = true;
+		}
+		if (lineTracker.isInLongDocTag() && st.contains(formatDao.getDocTagEnd())) {
+			// inLongDocTag = false;
+			lineTracker.setInLongDocTag(false);
 		}
 	}
 
-	private String cleanPlainText(String st) {
-		// String st2 = st.replaceAll("\x", ""\"x");
-		if (StringUtils.isEmpty(st))
-			st = "&nbsp;";
-		return st.trim();
+	private boolean lineEmpty(String st) {
+		if (StringUtils.isBlank(st))
+			return true;
+		if (st.compareTo("&nbsp;") == 0)
+			return true;
+		return false;
 	}
 
 	private boolean checkHTMLCenterLine(FormatDao formatDao, String st) {
@@ -436,19 +481,20 @@ public class FormatBiz {
 		if (chapterWriter == null) {
 			return;
 		}
-		System.out.println("closeChapterWriter");
+		LOGGER.debug("closeChapterWriter");
 		chapterWriter.flush();
 		outputFooter(chapterWriter);
 		chapterWriter.flush();
 		chapterWriter.close();
 	}
 
-	private void openNewChapterWriter(final Integer count) throws IOException {
+	private void openNewChapterWriter(final Integer chapterCounter) throws IOException {
 		if (outputChapterDir == null) {
 			return;
 		}
-		System.out.println("openNewChapterWriter: count: " + count);
-		chapterWriter = new FileWriter(new File(outputChapterDir, "chapter" + count + ".html"));
+		LOGGER.debug("openNewChapterWriter: count: " + chapterCounter);
+		chapterWriter = new FileWriter(
+				new File(outputChapterDir, "chapter" + String.format(formatOutputNumber, chapterCounter) + ".html"));
 		outputHeader(chapterWriter);
 		chapterWriter.flush();
 	}
@@ -457,9 +503,9 @@ public class FormatBiz {
 		if (outputSectionDir == null) {
 			return;
 		}
-		System.out.println("openNewSectionWriter: count: " + count);
-		sectionWriter = new FileWriter(
-				new File(outputSectionDir, "chapter" + chapterCounter + " _section" + count + ".html"));
+		LOGGER.debug("openNewSectionWriter: count: " + count);
+		sectionWriter = new FileWriter(new File(outputSectionDir,
+				"chapter" + String.format(formatOutputNumber, chapterCounter) + "_section" + count + ".html"));
 		outputHeader(sectionWriter);
 		sectionWriter.flush();
 	}
@@ -468,34 +514,46 @@ public class FormatBiz {
 		if (sectionWriter == null) {
 			return;
 		}
-		System.out.println("closeSectionWriter");
+		LOGGER.debug("closeSectionWriter");
 		sectionWriter.flush();
 		outputFooter(sectionWriter);
 		sectionWriter.flush();
 		sectionWriter.close();
 	}
 
-	void doDropCaps(final String st, final FileWriter fWriter) throws IOException {
-		// <span class="dropcaps">I</span>
-		System.out.println("st = " + st);
-		final String str1 = st.substring(0, 1);
-		System.out.println("str1 = '" + str1 + "'");
-		final String str2 = st.substring(1);
-		System.out.println("str2 = '" + str2 + "'");
-		fWriter.write("<span class=\"dropcaps\">");
-		fWriter.write(str1);
-		fWriter.write("</span>");
-		fWriter.write(str2);
+	// void doDropCaps(final String st, final FileWriter fWriter) throws
+	// IOException {
+	// // <span class="dropcaps">I</span>
+	// String st2 = cleanPlainText(st, formatDao.getDocTagStart(),
+	// formatDao.getDocTagEnd());
+	// System.out.println("st = " + st2);
+	// final String str1 = st.substring(0, 1);
+	// System.out.println("str1 = '" + str1 + "'");
+	// final String str2 = st.substring(1);
+	// System.out.println("str2 = '" + str2 + "'");
+	// fWriter.write("<span class=\"dropcaps\">");
+	// fWriter.write(str1);
+	// fWriter.write("</span>");
+	// fWriter.write(str2);
+	// }
+	String doDropCaps(final String st, final String docTagStart, final String docTagEnd) throws IOException {
+		String st2 = "";
+		List<String> dropCapsList = doDropCapsList(st, docTagStart, docTagEnd);
+		for (String dct : dropCapsList) {
+			st2 += dct;
+		}
+		return st2;
 	}
 
-	List<String> doDropCaps(final String st) throws IOException {
+	List<String> doDropCapsList(final String st, final String docTagStart, final String docTagEnd) throws IOException {
 		final List<String> slist = new ArrayList<String>();
 		// <span class="dropcaps">I</span>
-		System.out.println("st = " + st);
-		final String str1 = st.substring(0, 1);
-		System.out.println("str1 = '" + str1 + "'");
-		final String str2 = st.substring(1);
-		System.out.println("str2 = '" + str2 + "'");
+		String st2 = cleanPlainText(st, docTagStart, docTagEnd);
+		LOGGER.debug("st = '" + st2 + "'");
+		final String str1 = st2.substring(0, 1);
+		LOGGER.debug("str1 = '" + str1 + "'");
+		final String str2 = st2.substring(1);
+		LOGGER.debug("str2 = '" + str2 + "'");
 
 		slist.add("<span class=\"dropcaps\">");
 		slist.add(str1);
@@ -504,28 +562,13 @@ public class FormatBiz {
 		return slist;
 	}
 
-	boolean centerCheck(final FormatDao formatDao, final String st) {
-		if (formatDao.getCenterableLineText() != null && st.compareTo(formatDao.getCenterableLineText()) == 0)
-			return true;
-		if (formatDao.getCenterStars()) {
-			if (st.startsWith("*")) {
-				String stIn = st.trim();
-				stIn = stIn.replace("", "");
-				if (stIn.matches(".*[**]")) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	private boolean outputFooter(final FileWriter fWriter) {
-		System.out.println("Outputting file: footer.html");
+		LOGGER.debug("Outputting file: footer.html");
 		return outputFromFile(fWriter, "/footer.html");
 	}
 
 	private boolean outputHeader(final FileWriter fWriter) {
-		System.out.println("Outputting file: header.html");
+		LOGGER.debug("Outputting file: header.html");
 		return outputFromFile(fWriter, formatMode.getHeaderFile());// "/header.html");
 	}
 
