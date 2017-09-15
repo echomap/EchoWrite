@@ -19,7 +19,7 @@ public class FileLooper {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooper.class);
 	final static String newLine = System.getProperty("line.separator");
 	public static final String DEFAULToutputEncoding = "Cp1252";
-	
+
 	private void loop(final FormatDao formatDao, final LooperDao ldao, final FileLooperHandler flHandler)
 			throws IOException {
 		LOGGER.info("Loop: Called");
@@ -93,6 +93,7 @@ public class FileLooper {
 
 		LOGGER.info("Total Words: " + dao.getTotalCount().getNumWords());
 		// LOGGER.info("Version: " + props.getProperty("version"));
+		LOGGER.info("Written to: " + formatDao.getOutputCountFile());
 	}
 
 	public void outline(final FormatDao formatDao) throws IOException {

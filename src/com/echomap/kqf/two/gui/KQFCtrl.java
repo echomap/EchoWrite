@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.FileLooper;
+import com.echomap.kqf.looper.TextBiz;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -184,9 +185,36 @@ public class KQFCtrl implements Initializable {
 		}
 	}
 
+	public void handleClearSettings(final ActionEvent event) {
+		titleOneText.getSelectionModel().clearSelection();
+
+		titleOneText.setValue("");
+		titleTwoText.setText("");
+		titleThreeText.setText("");
+		inputFileText.setText("");
+		outputFileText.setText("");
+		outputDirText.setText("");
+
+		outputOutlineFileText.setText("");
+		outputOutlineFileText1.setText("");
+
+		chpDivText.setText("");
+		secDivText.setText("");
+
+		docTagStartText.setText("");
+		docTagEndText.setText("");
+
+		fmtModeText.setText("");
+		outputEncoding.setText("");
+
+		outputCountFileText.setText("");
+		outputCountDir = null;
+		outputCountFileText.setText("");
+	}
+
 	public void handleInputFile(final ActionEvent event) {
 		locateFile(event, "Open Input File", inputFileText);
-		// automaticFromInput();
+		automaticFromInput();
 	}
 
 	public void handleLoadOutputDir(final ActionEvent event) {
@@ -386,9 +414,9 @@ public class KQFCtrl implements Initializable {
 	}
 
 	private void lockGui() {
-		inputFileBtn.setDisable(true);
-		loadOutputDirBtn.setDisable(true);
-		loadOutputFileBtn.setDisable(true);
+		// inputFileBtn.setDisable(true);
+		// loadOutputDirBtn.setDisable(true);
+		// loadOutputFileBtn.setDisable(true);
 		wordCountBtn.setDisable(true);
 		countOutputBtn.setDisable(true);
 		outlineBtn.setDisable(true);
@@ -464,6 +492,27 @@ public class KQFCtrl implements Initializable {
 		return txt;
 	}
 
+	private void automaticFromInput() {
+		final File inputFile = new File(inputFileText.getText());
+		final File inputDir = inputFile.getParentFile();
+		final File outputDir = inputDir;
+		final String fileName = inputFile.getName();
+		final String filenameOnly = TextBiz.getFileNameOnly(fileName);
+
+		// Count
+		outputCountDir = outputDir;
+		outputCountFileText.setText(outputDir + "\\ChapterCount1.csv");
+
+		// Outline
+		outputOutlineFileText.setText(outputDir + "\\Outline1.csv");
+		outputOutlineFileText1.setText(outputDir + "\\DocTags.csv");
+
+		// Format
+		outputFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + ".html");
+		outputDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapters\\");
+
+	}
+
 	protected void loadProps() {
 		final String key = titleOneText.getValue();
 		final Preferences child = getPrefs().node(key);
@@ -489,28 +538,29 @@ public class KQFCtrl implements Initializable {
 
 		outputCountFileText.setText(child.get("ouputCountFile", ""));
 
-		if (outputCountFileText.getText().length() < 1) {
-			outputCountDir = new File(inputFileText.getText()).getParentFile();
-			outputCountFileText.setText(outputCountDir + "\\ChapterCount1.csv");
-		} else {
-			outputCountDir = new File(outputCountFileText.getText()).getParentFile();
-		}
-		if (outputOutlineFileText.getText().length() < 1) {
-			// outputOutlineDir = new
-			// File(inputFileText.getText()).getParentFile();
-			outputOutlineFileText.setText(outputCountDir + "\\Outline1.csv");
-		} else {
-			// outputOutlineDir = new
-			// File(outputOutlineFileText.getText()).getParentFile();
-		}
-		if (outputOutlineFileText1.getText().length() < 1) {
-			// outputOutlineDir = new
-			// File(inputFileText.getText()).getParentFile();
-			outputOutlineFileText1.setText(outputCountDir + "\\DocTags.csv");
-		} else {
-			// outputOutlineDir = new
-			// File(outputOutlineFileText.getText()).getParentFile();
-		}
+		// if (outputCountFileText.getText().length() < 1) {
+		outputCountDir = new File(inputFileText.getText()).getParentFile();
+		outputCountFileText.setText(outputCountDir + "\\ChapterCount1.csv");
+		// } else {
+		// outputCountDir = new
+		// File(outputCountFileText.getText()).getParentFile();
+		// }
+		// if (outputOutlineFileText.getText().length() < 1) {
+		// outputOutlineDir = new
+		// File(inputFileText.getText()).getParentFile();
+		outputOutlineFileText.setText(outputCountDir + "\\Outline1.csv");
+		// } else {
+		// // outputOutlineDir = new
+		// // File(outputOutlineFileText.getText()).getParentFile();
+		// }
+		// if (outputOutlineFileText1.getText().length() < 1) {
+		// outputOutlineDir = new
+		// File(inputFileText.getText()).getParentFile();
+		outputOutlineFileText1.setText(outputCountDir + "\\DocTags.csv");
+		// } else {
+		// // outputOutlineDir = new
+		// // File(outputOutlineFileText.getText()).getParentFile();
+		// }
 		// counterDigitChoice.getSelectionModel().select(3);
 		unlockGui();
 	}

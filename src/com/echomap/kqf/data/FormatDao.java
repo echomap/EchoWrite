@@ -41,11 +41,11 @@ public class FormatDao {
 	public String prettyPrint() {
 		final StringBuilder sbuf = new StringBuilder();
 		addLine(sbuf, "InputFilename", this.inputFilename);
-		addLine(sbuf, "InputFilename", this.inputFilename);
 
 		addLine(sbuf, "OutputFilename", this.outputFilename);
 		addLine(sbuf, "OutputCountFile", this.outputCountFile);
 		addLine(sbuf, "OutputOutlineFile", this.outputOutlineFile);
+		addLine(sbuf, "OutputOutlineFile1", this.outputOutlineFile1);
 
 		addLine(sbuf, "OutputEncoding", this.outputEncoding);
 		addLine(sbuf, "StoryTitle1", this.storyTitle1);
@@ -249,6 +249,8 @@ public class FormatDao {
 	}
 
 	public Integer getCountOutputDigits() {
+		if (countOutputDigits == null)
+			countOutputDigits = 1;
 		return countOutputDigits;
 	}
 

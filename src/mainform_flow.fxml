@@ -40,21 +40,22 @@
                                     </HBox>
                                     <HBox fx:id="profileButtonBox" alignment="CENTER" fillHeight="false" spacing="4.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
                                        <children>
-                                          <Button id="loadPrefsBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadPrefs" prefWidth="50.0" text="_Load">
+                                          <Button id="loadPrefsBtn" mnemonicParsing="true" onAction="#handleLoadPrefs" text="_Load" HBox.hgrow="SOMETIMES">
                                              <HBox.margin>
                                                 <Insets fx:id="x3bi" />
                                              </HBox.margin>
                                           </Button>
-                                          <Button id="savePrefsBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleSavePrefs" prefWidth="50.0" text="_Save">
+                                          <Button id="savePrefsBtn" mnemonicParsing="true" onAction="#handleSavePrefs" text="_Save" HBox.hgrow="SOMETIMES">
                                              <HBox.margin>
                                                 <Insets />
                                              </HBox.margin>
                                           </Button>
-                                          <Button mnemonicParsing="false" onAction="#handleDeletePrefs" text="Delete">
+                                          <Button mnemonicParsing="false" onAction="#handleDeletePrefs" text="Delete" HBox.hgrow="SOMETIMES">
                                              <HBox.margin>
                                                 <Insets />
                                              </HBox.margin>
                                           </Button>
+                                          <Button onAction="#handleClearSettings" text="C_lear" />
                                        </children>
                                        <padding>
                                           <Insets left="6.0" right="6.0" />
@@ -160,7 +161,7 @@
                       </GridPane>
                     </content>
                     <FlowPane.margin>
-                      <Insets fx:id="x3" />
+                      <Insets fx:id="x333" />
                     </FlowPane.margin>
                   </TitledPane>
                   <TitledPane collapsible="false" minWidth="550.0" prefWidth="-1.0" text="DocTag Outliner Output:">
@@ -218,10 +219,10 @@
                             </TextField>
                           </children>
                           <padding>
-                            <Insets top="4.0" fx:id="x5" />
+                            <Insets top="4.0" fx:id="x533" />
                           </padding>
                         </HBox>
-                        <HBox maxWidth="1.7976931348623157E308" padding="$x5" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                        <HBox maxWidth="1.7976931348623157E308" padding="$x533" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
                           <children>
                             <Label minWidth="-Infinity" prefWidth="90.0" text="Format Mode:" />
                             <TextField id="fmtModeText" fx:id="fmtModeText" prefWidth="-1.0" text="Sigil" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
@@ -233,7 +234,7 @@
                             <TextField id="secDivText" fx:id="secDivText" prefWidth="-1.0" text="-=" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
-                            <Insets top="4.0" fx:id="x5" />
+                            <Insets top="4.0" fx:id="x534" />
                           </padding>
                         </HBox>
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="3">
@@ -242,7 +243,7 @@
                             <TextField id="docTagStartText" fx:id="docTagStartText" prefWidth="-1.0" text="[[*" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
-                            <Insets top="4.0" fx:id="x5" />
+                            <Insets top="4.0" fx:id="x535" />
                           </padding>
                         </HBox>
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="4">
@@ -251,7 +252,7 @@
                             <TextField id="docTagEndText" fx:id="docTagEndText" prefWidth="-1.0" text="*]]" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
-                            <Insets top="4.0" fx:id="x5" />
+                            <Insets top="4.0" fx:id="x536" />
                           </padding>
                         </HBox>
                       </children>
@@ -279,7 +280,7 @@
                             <TextField id="outputEncoding" fx:id="outputEncoding" prefWidth="-1.0" promptText="Encoding of output file" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
-                            <Insets top="4.0" fx:id="x5" />
+                            <Insets top="4.0" fx:id="x537" />
                           </padding>
                         </HBox>
                         <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
@@ -318,7 +319,7 @@
                             <children>
                               <Label minWidth="-Infinity" prefWidth="70.0" text="Single File:">
                                 <textFill>
-                                  <Color blue="0.478" green="0.000" red="1.000" fx:id="x1" />
+                                  <Color blue="0.478" green="0.000" red="1.000" fx:id="x133" />
                                 </textFill>
                                 <HBox.margin>
                                   <Insets right="4.0" />
@@ -340,7 +341,7 @@
                             <children>                          
                              <Label minWidth="-Infinity" prefWidth="70.0" text="Dir:">
                                 <textFill>
-                                  <Color blue="0.478" green="0.000" red="1.000" fx:id="x1" />
+                                  <Color blue="0.478" green="0.000" red="1.000" fx:id="x134" />
                                 </textFill>
                                 <HBox.margin>
                                   <Insets right="4.0" />
@@ -394,7 +395,7 @@
                       </GridPane>
                     </content>
                     <FlowPane.margin>
-                      <Insets fx:id="x3" />
+                      <Insets fx:id="x334" />
                     </FlowPane.margin>
                   </TitledPane>
                      </children>
@@ -413,7 +414,7 @@
                   </FlowPane>
           </children>
           <BorderPane.margin>
-            <Insets fx:id="x3" />
+            <Insets fx:id="x335" />
           </BorderPane.margin>
         </FlowPane>
       </center>
@@ -430,7 +431,7 @@
             </Label>
           </children>
           <BorderPane.margin>
-            <Insets fx:id="x3" />
+            <Insets fx:id="x336" />
           </BorderPane.margin>
         </FlowPane>
       </top>

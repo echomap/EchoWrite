@@ -210,6 +210,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		} else {
 
 			String textToWrite = null;
+			String textToWrite2 = null;
 			boolean cancelLine = false;
 
 			if (isChapter) {
@@ -227,7 +228,8 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 				// && (docTagType == DOCTAGTYPE.NONE || docTagType ==
 				// DOCTAGTYPE.HASDOCTAG)) {
 				// <span class="dropcaps">I</span>
-				textToWrite = TextBiz.doDropCaps(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				textToWrite2 = st;
+				textToWrite = TextBiz.doDropCaps(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());				
 				ldao.setLastLineWasChapter(false);
 			} else {
 				textToWrite = TextBiz.cleanPlainText(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
@@ -250,11 +252,14 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			if (!cancelLine) {
 				fWriter.write(preTag);
 				fWriter.write(textToWrite);
+				
+				if(textToWrite2==null)
+					textToWrite2 = textToWrite;
 
-				if (TextBiz.lineEmpty(textToWrite))
+				if (TextBiz.lineEmpty(textToWrite2))
 					fWriterPlain.write("");
 				else
-					fWriterPlain.write(textToWrite);
+					fWriterPlain.write(textToWrite2);
 				fWriterPlain.write(TextBiz.newLine);
 			}
 
@@ -393,6 +398,8 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 
 	@Override
 	public void postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
+		closeSectionWriter(sectionCounter, chapterCounter);
+		closeChapterWriter(chapterCounter);
 		if (fWriter != null) {
 			outputFooter(fWriter);
 			fWriter.flush();

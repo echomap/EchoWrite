@@ -36,8 +36,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao, final String st) throws IOException {
-		LOGGER.info("handleLine-->");
-
+		// LOGGER.info("handleLine-->");
 		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getChapterDivider());
 
 		final CountDao cdao = ldao.getChaptCount();
@@ -61,7 +60,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 			cdao.setChapterNumber(tdao.getNumChapters());
 
 		} else {
-			TextBiz.countWords(st, cdao);
+			TextBiz.countWords(st, cdao, formatDao);
 		}
 
 		// parseLine(st, fWriter, chapterDivider, storyTitle1,
@@ -120,7 +119,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 			if (null != summaryOut && summaryOut.length() > 0) {
 				summaryOutputFile = new File(summaryOut);
 			} else {
-				summaryOutputFile = new File(outputDir, "Chapter Count.csv");
+				summaryOutputFile = new File(outputDir, "ChapterCount1.csv");
 			}
 			LOGGER.info("Writing summary data to " + summaryOutputFile);
 			fWriter = new FileWriter(summaryOutputFile, false);

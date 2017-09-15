@@ -39,6 +39,21 @@ public class TextBiz {
 		return false;
 	}
 
+	public static String getFileNameOnly(final String filename) {
+		String outFilename = null;
+		// final String filenameOnly = outputFile.getName();
+		final int extIdx = filename.lastIndexOf(".");
+		String ext = "";
+		if (extIdx >= 1) {
+			ext = filename.substring(extIdx + 1);
+			// outFilename = filename.replaceAll(ext, "txt");
+			outFilename = filename.substring(0, extIdx);
+		} else {
+			outFilename = filename;
+		}
+		return outFilename;
+	}
+
 	public static String createPreTag(final String tagname) {
 		return "<" + tagname + ">";
 	}
@@ -160,30 +175,35 @@ public class TextBiz {
 	}
 
 	public static String cleanPlainText(String st, final String docTagStart, final String docTagEnd) {
+		return cleanPlainText(st, docTagStart, docTagEnd, true);
+	}
+
+	public static String cleanPlainText(String st, final String docTagStart, final String docTagEnd, boolean htmlIfy) {
 		// String st2 = st.replaceAll("\x", ""\"x");
-		if (StringUtils.isEmpty(st))
-			st = "&nbsp;";
-		else {
-			int idx1 = st.indexOf(docTagStart);
-			if (idx1 > -1) {
-				String st2 = st.substring(0, st.indexOf(docTagStart));
-				// int idx2 = st.indexOf(docTagEnd);
-				String st3 = st.substring(st.indexOf(docTagEnd) + docTagEnd.length());
-				// st = st.substring(0, st.indexOf(docTagStart) +
-				// docTagStart.length());
-				st = st2 + st3;
-				// st = st.substring(st.indexOf(docTagEnd));
+		if (htmlIfy)
+			if (StringUtils.isEmpty(st))
+				st = "&nbsp;";
+			else {
+				int idx1 = st.indexOf(docTagStart);
+				if (idx1 > -1) {
+					String st2 = st.substring(0, st.indexOf(docTagStart));
+					// int idx2 = st.indexOf(docTagEnd);
+					String st3 = st.substring(st.indexOf(docTagEnd) + docTagEnd.length());
+					// st = st.substring(0, st.indexOf(docTagStart) +
+					// docTagStart.length());
+					st = st2 + st3;
+					// st = st.substring(st.indexOf(docTagEnd));
+				}
 			}
-		}
 		// if (StringUtils.isEmpty(st))
 		// st = "&nbsp;";
 		return st.trim();
 	}
 
-	public static void countWords(final String text, final CountDao dao) {
+	public static void countWords(final String text, final CountDao dao, final FormatDao fdao) {
 		boolean inWord = false;
 
-		String text2 = cleanPlainText(text, "[[", "]]");
+		String text2 = cleanPlainText(text, fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
 
 		final int len = text2.length();
 		for (int i = 0; i < len; i++) {
