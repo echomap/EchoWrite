@@ -1,9 +1,14 @@
 package com.echomap.kqf.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DocTag {
 	private String fullText;
 	private String name;
 	private String value;
+
+	private List<DocTag> sublist = null;
 
 	public DocTag(String docTagText) {
 		parseText(docTagText);
@@ -52,5 +57,19 @@ public class DocTag {
 
 	public void setFullText(String fullText) {
 		this.fullText = fullText;
+	}
+
+	public List<DocTag> getSublist() {
+		return sublist;
+	}
+
+	public void setSublist(List<DocTag> sublist) {
+		this.sublist = sublist;
+	}
+
+	public void addSubDocTag(final DocTag docTag) {
+		if (sublist == null)
+			sublist = new ArrayList<DocTag>();
+		this.sublist.add(docTag);
 	}
 }

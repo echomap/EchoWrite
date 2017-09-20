@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -68,7 +69,9 @@ public class KQFCtrl implements Initializable {
 	@FXML
 	private TextField outputFileText;
 	@FXML
-	private TextField outputDirText;
+	private TextField outputFormatChpHtmlDirText;
+	@FXML
+	private TextField outputFormatChpTextDirText;
 	@FXML
 	private TextField outputEncoding;
 	@FXML
@@ -79,6 +82,19 @@ public class KQFCtrl implements Initializable {
 	private TextField outputOutlineFileText;
 	@FXML
 	private TextField outputOutlineFileText1;
+	@FXML
+	private TextField outputDocTagsMaxLineLength; // length for doctag output
+
+	@FXML
+	private TextField outputDocTagsOutlineFileText;
+	@FXML
+	private TextField outputDocTagsSceneFileText;
+	@FXML
+	private TextField outputDocTagsOutlineTagsText;
+	@FXML
+	private TextField outputDocTagsSceneTagsText;
+	@FXML
+	private TextField outputDocTagsSceneCoTags;
 
 	@FXML
 	private ComboBox<String> titleOneText;
@@ -90,6 +106,8 @@ public class KQFCtrl implements Initializable {
 	private Button inputFileBtn;
 	@FXML
 	private Button loadOutputDirBtn;
+	@FXML
+	private Button loadOutputDirBtn1;
 	@FXML
 	private Button loadOutputFileBtn;
 	@FXML
@@ -111,6 +129,9 @@ public class KQFCtrl implements Initializable {
 	private CheckBox cbDropCapChapters;
 	@FXML
 	private CheckBox cbCenterable;
+	@FXML
+	private CheckBox cbWantTextChptOutput;
+
 	@FXML
 	private ChoiceBox<String> counterDigitChoice;
 
@@ -140,7 +161,7 @@ public class KQFCtrl implements Initializable {
 
 		assert inputFileText != null : "fx:id=\"inputFileText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputFileText != null : "fx:id=\"outputFileText\" was not injected: check your FXML file 'simple.fxml'.";
-		assert outputDirText != null : "fx:id=\"outputDirText\" was not injected: check your FXML file 'simple.fxml'.";
+		assert outputFormatChpHtmlDirText != null : "fx:id=\"outputDirText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputEncoding != null : "fx:id=\"outputEncoding\" was not injected: check your FXML file 'simple.fxml'.";
 
 		if (inputFileText.getText() != null && inputFileText.getText().length() > 0)
@@ -193,7 +214,8 @@ public class KQFCtrl implements Initializable {
 		titleThreeText.setText("");
 		inputFileText.setText("");
 		outputFileText.setText("");
-		outputDirText.setText("");
+		outputFormatChpHtmlDirText.setText("");
+		outputFormatChpHtmlDirText.setText("");
 
 		outputOutlineFileText.setText("");
 		outputOutlineFileText1.setText("");
@@ -210,6 +232,8 @@ public class KQFCtrl implements Initializable {
 		outputCountFileText.setText("");
 		outputCountDir = null;
 		outputCountFileText.setText("");
+
+		outputDocTagsMaxLineLength.setText("70");
 	}
 
 	public void handleInputFile(final ActionEvent event) {
@@ -217,11 +241,19 @@ public class KQFCtrl implements Initializable {
 		automaticFromInput();
 	}
 
-	public void handleLoadOutputDir(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputDirText);
-		if (!outputDirText.getText().endsWith("chapters")) {
-			final File file = new File(outputDirText.getText(), "chapters");
-			outputDirText.setText(file.getAbsolutePath());
+	public void handleLoadFormatChptHtmlOutputDir(final ActionEvent event) {
+		locateDir(event, "Open Output Dir ", outputFormatChpHtmlDirText);
+		if (!outputFormatChpHtmlDirText.getText().endsWith("chapters")) {
+			final File file = new File(outputFormatChpHtmlDirText.getText(), "chapters");
+			outputFormatChpHtmlDirText.setText(file.getAbsolutePath());
+		}
+	}
+
+	public void handleLoadFormatChptTextOutputDir(final ActionEvent event) {
+		locateDir(event, "Open Output Dir ", outputFormatChpTextDirText);
+		if (!outputFormatChpTextDirText.getText().endsWith("chapters")) {
+			final File file = new File(outputFormatChpTextDirText.getText(), "chapterstext");
+			outputFormatChpTextDirText.setText(file.getAbsolutePath());
 		}
 	}
 
@@ -380,8 +412,8 @@ public class KQFCtrl implements Initializable {
 		formatDao.setOutputOutlineFile(outputOutlineFileText.getText());
 		formatDao.setOutputOutlineFile1(outputOutlineFileText1.getText());
 
-		// formatDao.setou
-		formatDao.setWriteChapters(outputDirText.getText());
+		formatDao.setWriteChapters(outputFormatChpHtmlDirText.getText());
+		formatDao.setWriteChaptersText(outputFormatChpTextDirText.getText());
 
 		formatDao.setStoryTitle1(titleTwoText.getText());
 		formatDao.setStoryTitle2(titleThreeText.getText());
@@ -404,13 +436,29 @@ public class KQFCtrl implements Initializable {
 			formatDao.setRemoveChptDiv(true);
 			formatDao.setRemoveSectDiv(true);
 		}
+		if (cbWantTextChptOutput.isSelected())
+			formatDao.setWantTextChptOutput(true);
 
 		if (outputEncoding.getText() != null && outputEncoding.getText().length() > 0)
 			formatDao.setOutputEncoding(outputEncoding.getText());
 
 		final Integer itm = new Integer((String) counterDigitChoice.getSelectionModel().getSelectedItem());
-		formatDao.setCountOutputDigits(itm);
+		formatDao.setOutputFormatDigits(itm);
 
+		//
+		formatDao.setOutputDocTagsOutlineFile(outputDocTagsOutlineFileText.getText());
+		formatDao.setOutputDocTagsSceneFile(outputDocTagsSceneFileText.getText());
+		formatDao.setDocTagsOutlineTags(outputDocTagsOutlineTagsText.getText());
+		formatDao.setDocTagsSceneTags(outputDocTagsSceneTagsText.getText());
+		formatDao.setDocTagsSceneCoTags(outputDocTagsSceneCoTags.getText());
+
+		final String dtmllS = outputDocTagsMaxLineLength.getText();
+		Integer dtmllI = 70;
+		if (StringUtils.isBlank(dtmllS))
+			dtmllI = -1;
+		else
+			dtmllI = Integer.parseInt(dtmllS);
+		formatDao.setDocTagsMaxLineLength(dtmllI);
 	}
 
 	private void lockGui() {
@@ -509,7 +557,12 @@ public class KQFCtrl implements Initializable {
 
 		// Format
 		outputFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + ".html");
-		outputDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapters\\");
+		outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapters\\");
+		outputFormatChpTextDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapterstext\\");
+
+		outputDocTagsOutlineFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + "_outline.txt");
+
+		outputDocTagsSceneFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + "_scenes.txt");
 
 	}
 
@@ -522,10 +575,8 @@ public class KQFCtrl implements Initializable {
 		titleThreeText.setText(child.get("titleThree", ""));
 		inputFileText.setText(child.get("inputFile", ""));
 		outputFileText.setText(child.get("ouputFile", ""));
-		outputDirText.setText(child.get("outputDir", ""));
-
-		outputOutlineFileText.setText(child.get("ouputOutlineFile", ""));
-		outputOutlineFileText1.setText(child.get("ouputOutlineFile1", ""));
+		outputFormatChpHtmlDirText.setText(child.get("outputDir", ""));
+		outputFormatChpTextDirText.setText(child.get("outputFormatChpTextDirText", ""));
 
 		chpDivText.setText(child.get("chpDiv", ""));
 		secDivText.setText(child.get("secDiv", ""));
@@ -536,32 +587,50 @@ public class KQFCtrl implements Initializable {
 		fmtModeText.setText(child.get("fmtMode", ""));
 		outputEncoding.setText(child.get("outputEncoding", ""));
 
-		outputCountFileText.setText(child.get("ouputCountFile", ""));
+		// outputCountFileText.setText(child.get("ouputCountFile", ""));
 
 		// if (outputCountFileText.getText().length() < 1) {
 		outputCountDir = new File(inputFileText.getText()).getParentFile();
-		outputCountFileText.setText(outputCountDir + "\\ChapterCount1.csv");
-		// } else {
-		// outputCountDir = new
-		// File(outputCountFileText.getText()).getParentFile();
-		// }
-		// if (outputOutlineFileText.getText().length() < 1) {
-		// outputOutlineDir = new
-		// File(inputFileText.getText()).getParentFile();
-		outputOutlineFileText.setText(outputCountDir + "\\Outline1.csv");
-		// } else {
-		// // outputOutlineDir = new
-		// // File(outputOutlineFileText.getText()).getParentFile();
-		// }
-		// if (outputOutlineFileText1.getText().length() < 1) {
-		// outputOutlineDir = new
-		// File(inputFileText.getText()).getParentFile();
-		outputOutlineFileText1.setText(outputCountDir + "\\DocTags.csv");
-		// } else {
-		// // outputOutlineDir = new
-		// // File(outputOutlineFileText.getText()).getParentFile();
-		// }
-		// counterDigitChoice.getSelectionModel().select(3);
+
+		outputCountFileText.setText(child.get("ouputCountFile", outputCountDir + "\\ChapterCount1.csv"));
+
+		outputOutlineFileText.setText(child.get("ouputOutlineFile", outputCountDir + "\\Outline1.csv"));
+
+		outputOutlineFileText1.setText(child.get("ouputOutlineFile1", outputCountDir + "\\DocTags.csv"));
+
+		final String filenameOnly = TextBiz.getFileNameOnly(new File(inputFileText.getText()).getName());
+
+		outputDocTagsOutlineFileText
+				.setText(child.get("outputDocTagsOutlineFile", outputCountDir + "\\" + filenameOnly + "_outline.txt"));
+		outputDocTagsSceneFileText
+				.setText(child.get("outputDocTagsSceneFile", outputCountDir + "\\" + filenameOnly + "_scenes.txt"));
+
+		outputDocTagsOutlineTagsText.setText(child.get("outputDocTagsOutlineTags",
+				"outline, outlinedata, scene, subscene, info, pattern, date, time, loc"));
+		outputDocTagsSceneTagsText.setText(child.get("outputDocTagsSceneTags", "scene, subscene,"));
+		outputDocTagsSceneCoTags
+				.setText(child.get("outputDocTagsSceneCoTags", "description, changes, starttime, scene, pattern"));
+
+		final String cbDropCapChaptersSel = child.get("cbDropCapChapters", "1");
+		if (!StringUtils.isBlank(cbDropCapChaptersSel) || cbDropCapChaptersSel.compareTo("selected") == 0)
+			cbDropCapChapters.setSelected(true);
+		else
+			cbDropCapChapters.setSelected(false);
+
+		final String cbWantTextChptOutputSel = child.get("cbWantTextChptOutput", "1");
+		if (StringUtils.isBlank(cbWantTextChptOutputSel) || cbWantTextChptOutputSel.compareTo("selected") == 0)
+			cbWantTextChptOutput.setSelected(true);
+		else
+			cbWantTextChptOutput.setSelected(false);
+
+		counterDigitChoice.getSelectionModel().select(child.get("counterDigitChoice", "1"));
+
+		final String outputDocTagsMaxLineLengthSel = child.get("outputDocTagsMaxLineLength", "-1");
+		if (StringUtils.isBlank(outputDocTagsMaxLineLengthSel))
+			outputDocTagsMaxLineLength.setText("");
+		else
+			outputDocTagsMaxLineLength.setText(outputDocTagsMaxLineLengthSel);
+
 		unlockGui();
 	}
 
@@ -576,7 +645,9 @@ public class KQFCtrl implements Initializable {
 
 			child.put("inputFile", inputFileText.getText());
 			child.put("ouputFile", outputFileText.getText());
-			child.put("outputDir", outputDirText.getText());
+			child.put("outputDir", outputFormatChpHtmlDirText.getText());
+			child.put("outputFormatChpHtmlDirText", outputFormatChpHtmlDirText.getText());
+			child.put("outputFormatChpTextDirText", outputFormatChpTextDirText.getText());
 
 			child.put("ouputCountFile", outputCountFileText.getText());
 			child.put("ouputOutlineFile", outputOutlineFileText.getText());
@@ -592,6 +663,27 @@ public class KQFCtrl implements Initializable {
 			child.put("outputEncoding", outputEncoding.getText());
 
 			// counterDigitChoice.getSelectionModel().select(3);
+
+			child.put("outputDocTagsOutlineFile", outputDocTagsOutlineFileText.getText());
+			child.put("outputDocTagsSceneFile", outputDocTagsSceneFileText.getText());
+			child.put("outputDocTagsOutlineTags", outputDocTagsOutlineTagsText.getText());
+			child.put("outputDocTagsSceneTags", outputDocTagsSceneTagsText.getText());
+			child.put("outputDocTagsSceneCoTags", outputDocTagsSceneCoTags.getText());
+
+			if (cbDropCapChapters.isSelected())
+				child.put("cbDropCapChapters", "selected");
+			else
+				child.put("cbDropCapChapters", "");
+
+			if (cbWantTextChptOutput.isSelected())
+				child.put("cbWantTextChptOutput", "selected");
+			else
+				child.put("cbWantTextChptOutput", "");
+
+			final String counterDigitChoiceSel = counterDigitChoice.getSelectionModel().getSelectedItem();
+			child.put("counterDigitChoice", counterDigitChoiceSel);
+
+			child.put("outputDocTagsMaxLineLength", outputDocTagsMaxLineLength.getText());
 
 			try {
 				child.flush();

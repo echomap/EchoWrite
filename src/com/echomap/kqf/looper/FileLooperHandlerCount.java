@@ -30,37 +30,35 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
-	public void preLine(FormatDao formatDao, LooperDao ldao, String st) {
+	public void preLine(FormatDao formatDao, LooperDao ldao) throws IOException {
 		// LOGGER.info("preLine-->");
 	}
 
 	@Override
-	public void handleLine(final FormatDao formatDao, final LooperDao ldao, final String st) throws IOException {
-		// LOGGER.info("handleLine-->");
-		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getChapterDivider());
-
+	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		final SimpleChapterDao chpt = ldao.getCurrentChapter();
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
 		if (chpt.isChapter) {
-			if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0) {
-				// System.out.println(cdao.getChapterName() + "\t\t"
-				// + cdao.getNumWords() + "\t" + chpt.title);
-				tdao.addNumWords(cdao.getNumWords());
-				// totalWordCount += cdao.getNumWords();
-				// tdao.copy(cdao);
-				ldao.getChapters().add(new ChapterDao(cdao));
-				// tdao = new CountDao();
-				cdao.clear();
-				tdao.addChapterCount(1);
-				// chapterCount++;
-			}
-			cdao.setChapterName(chpt.name);
-			cdao.setChapterTitle(chpt.title);
-			// cdao.setChapterNumber(chapterCount);
+//			if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0) {
+//				// System.out.println(cdao.getChapterName() + "\t\t"
+//				// + cdao.getNumWords() + "\t" + chpt.title);
+//				tdao.addNumWords(cdao.getNumWords());
+//				// totalWordCount += cdao.getNumWords();
+//				// tdao.copy(cdao);
+//				ldao.getChapters().add(new ChapterDao(cdao));
+//				// tdao = new CountDao();
+//				cdao.clear();
+//				tdao.addChapterCount(1);
+//				// chapterCount++;
+//			}
+//			cdao.setChapterName(chpt.name);
+//			cdao.setChapterTitle(chpt.title);
+//			// cdao.setChapterNumber(chapterCount);
 			cdao.setChapterNumber(tdao.getNumChapters());
 
 		} else {
-			TextBiz.countWords(st, cdao, formatDao);
+			TextBiz.countWords(ldao, cdao, formatDao);
 		}
 
 		// parseLine(st, fWriter, chapterDivider, storyTitle1,
@@ -69,7 +67,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
-	public void postLine(FormatDao formatDao, LooperDao ldao, String st) {
+	public void postLine(FormatDao formatDao, LooperDao ldao) throws IOException {
 		// LOGGER.info("postLine-->");
 	}
 
@@ -104,7 +102,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
-	public void postLastLine(FormatDao formatDao, LooperDao ldao, String st) {
+	public void postLastLine(FormatDao formatDao, LooperDao ldao) throws IOException {
 		// tdao.copy(cdao);
 		ldao.getChapters().add(new ChapterDao(ldao.getChaptCount()));
 		// tdao = new CountDao();

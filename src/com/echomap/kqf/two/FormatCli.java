@@ -27,7 +27,7 @@ public class FormatCli {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// final FormatBiz biz = new FormatBiz();
+		LOGGER.info("KQF Cli started....");
 		try {
 			Options options = setupOptions();
 			final CommandLineParser parser = new PosixParser();

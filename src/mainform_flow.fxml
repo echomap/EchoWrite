@@ -9,135 +9,169 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1070.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
-  <children>
-    <BorderPane prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <center>
-        <FlowPane hgap="4.0" minWidth="500.0" prefHeight="-1.0" prefWidth="600.0" vgap="4.0" BorderPane.alignment="TOP_LEFT">
+<GridPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="800.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
+        <columnConstraints>
+          <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="-Infinity" prefHeight="25.0" valignment="CENTER" vgrow="SOMETIMES" />
+          <RowConstraints valignment="TOP" vgrow="ALWAYS" />
+          <RowConstraints maxHeight="-Infinity" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+      <FlowPane id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="380.0" prefWrapLength="800.0" style="-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;" vgap="10.0" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="TOP">
+        <children>
+          <Button id="formatBtn" fx:id="formatBtn" mnemonicParsing="true" onAction="#handleDoFormatAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!" />
+          <Button id="wordCountBtn" fx:id="wordCountBtn" mnemonicParsing="true" onAction="#handleDoCountAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Word Count" />
+          <Button id="outlineBtn" fx:id="outlineBtn" mnemonicParsing="true" onAction="#handleDoOutlineAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Outline" />
+          <Button cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" text="_Close" textFill="#fefefe" />
+        </children>
+        <padding>
+          <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+        </padding>
+      </FlowPane>
+        <FlowPane alignment="CENTER" columnHalignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="340.0" prefWrapLength="500.0" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 5, 0); -fx-border-color: #2e8b57; -fx-border-width: 2;" GridPane.halignment="CENTER" GridPane.valignment="TOP">
           <children>
-            <TitledPane alignment="TOP_LEFT" animated="false" collapsible="false" minWidth="500.0" text="Input:" FlowPane.margin="$x3">
-                     <content>
-                        <GridPane fx:id="asdf2" prefWidth="250.0">
-                           <children>
-                              <HBox prefHeight="50.0" prefWidth="-1.0" spacing="6.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
-                                 <children>
-                                    <HBox fillHeight="false" minWidth="200.0">
-                                       <children>
-                                          <Label minWidth="-Infinity" prefWidth="70.0" text="Profile:" textFill="#ff007a" />
-                                          <ComboBox fx:id="titleOneText" editable="true" minWidth="120.0" HBox.hgrow="SOMETIMES">
-                                             <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                   <String fx:value="Item 1" />
-                                                   <String fx:value="Item 2" />
-                                                   <String fx:value="Item 3" />
-                                                </FXCollections>
-                                             </items>
-                                             <HBox.margin>
-                                                <Insets right="4.0" fx:id="x3bi1" />
-                                             </HBox.margin>
-                                          </ComboBox>
-                                       </children>
-                                    </HBox>
-                                    <HBox fx:id="profileButtonBox" alignment="CENTER" fillHeight="false" spacing="4.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
-                                       <children>
-                                          <Button id="loadPrefsBtn" mnemonicParsing="true" onAction="#handleLoadPrefs" text="_Load" HBox.hgrow="SOMETIMES">
-                                             <HBox.margin>
-                                                <Insets fx:id="x3bi" />
-                                             </HBox.margin>
-                                          </Button>
-                                          <Button id="savePrefsBtn" mnemonicParsing="true" onAction="#handleSavePrefs" text="_Save" HBox.hgrow="SOMETIMES">
-                                             <HBox.margin>
-                                                <Insets />
-                                             </HBox.margin>
-                                          </Button>
-                                          <Button mnemonicParsing="false" onAction="#handleDeletePrefs" text="Delete" HBox.hgrow="SOMETIMES">
-                                             <HBox.margin>
-                                                <Insets />
-                                             </HBox.margin>
-                                          </Button>
-                                          <Button onAction="#handleClearSettings" text="C_lear" />
-                                       </children>
-                                       <padding>
-                                          <Insets left="6.0" right="6.0" />
-                                       </padding>
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                 </children>
-                                 <GridPane.margin>
-                                    <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
-                                 </GridPane.margin>
-                              </HBox>
-                              <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
-                                 <children>
-                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Main Title:">
-                                       <textFill>
-                                          <Color blue="0.478" green="0.000" red="1.000" fx:id="x6" />
-                                       </textFill>
-                                    </Label>
-                                    <TextField fx:id="titleTwoText" maxWidth="-1.0" prefWidth="-1.0" promptText="Main-title" HBox.hgrow="ALWAYS">
-                                       <HBox.margin>
-                                          <Insets right="54.0" fx:id="x52" />
-                                       </HBox.margin>
-                                    </TextField>
-                                 </children>
-                              </HBox>
-                              <HBox maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="TOP">
-                                 <children>
-                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Input File:" textFill="$x6" />
-                                    <TextField fx:id="inputFileText" prefWidth="-1.0" promptText="Input text file" HBox.hgrow="ALWAYS">
-                                       <HBox.margin>
-                                          <Insets right="4.0" fx:id="x2123" />
-                                       </HBox.margin>
-                                    </TextField>
-                                    <Button fx:id="inputFileBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleInputFile" prefWidth="45.0" text="_In">
-                                       <HBox.margin>
-                                          <Insets right="5.0" fx:id="x3b" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                              </HBox>
-                              <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2">
-                                 <children>
-                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Sub Title:">
-                                       <textFill>
-                                          <Color blue="0.478" green="0.000" red="1.000" fx:id="x61" />
-                                       </textFill>
-                                    </Label>
-                                    <TextField fx:id="titleThreeText" maxWidth="-1.0" prefWidth="-1.0" promptText="Sub-title" HBox.hgrow="ALWAYS">
-                                       <HBox.margin>
-                                          <Insets right="54.0" fx:id="x51" />
-                                       </HBox.margin>
-                                    </TextField>
-                                 </children>
-                              </HBox>
-                           </children>
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                           </columnConstraints>
-                           <padding>
-                              <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                           </padding>
-                           <rowConstraints>
-                              <RowConstraints />
-                              <RowConstraints />
-                              <RowConstraints />
-                              <RowConstraints />
-                           </rowConstraints>
-                        </GridPane>
-                     </content>
-            </TitledPane>
-                  <FlowPane minWidth="500.0">
+            <Label alignment="CENTER" text="Kindle Quick Formatter" textAlignment="CENTER" textFill="#0066ff">
+              <font>
+                <Font size="14.0" />
+              </font>
+            </Label>
+          </children>
+        </FlowPane>
+            <GridPane hgap="4.0" vgap="4.0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints valignment="TOP" vgrow="SOMETIMES" />
+                  <RowConstraints fillHeight="false" valignment="TOP" vgrow="SOMETIMES" />
+                  <RowConstraints valignment="TOP" vgrow="ALWAYS" />
+              </rowConstraints>
+               <children>
+                  <VBox>
                      <children>
-                  <TitledPane animated="false" collapsible="false" minWidth="550.0" text="Word Counter Output:">
+                  <TitledPane alignment="TOP_LEFT" animated="false" collapsible="false" prefWidth="500.0" text="Input:">
+                           <content>
+                              <GridPane fx:id="asdf2" prefWidth="250.0">
+                                 <children>
+                                    <FlowPane rowValignment="TOP">
+                                       <children>
+                                          <HBox fillHeight="false" minWidth="200.0">
+                                             <children>
+                                                <Label minWidth="-Infinity" prefWidth="70.0" text="Profile:" textFill="#ff007a" />
+                                                <ComboBox fx:id="titleOneText" editable="true" minWidth="120.0" HBox.hgrow="SOMETIMES">
+                                                   <items>
+                                                      <FXCollections fx:factory="observableArrayList">
+                                                         <String fx:value="Item 1" />
+                                                         <String fx:value="Item 2" />
+                                                         <String fx:value="Item 3" />
+                                                      </FXCollections>
+                                                   </items>
+                                                   <HBox.margin>
+                                                      <Insets right="4.0" fx:id="x3bi1" />
+                                                   </HBox.margin>
+                                                </ComboBox>
+                                             </children>
+                                          </HBox>
+                                          <HBox fx:id="profileButtonBox" alignment="CENTER" fillHeight="false" spacing="4.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
+                                             <children>
+                                                <Button id="loadPrefsBtn" mnemonicParsing="true" onAction="#handleLoadPrefs" text="_Load" HBox.hgrow="SOMETIMES">
+                                                   <HBox.margin>
+                                                      <Insets fx:id="x3bi" />
+                                                   </HBox.margin>
+                                                </Button>
+                                                <Button id="savePrefsBtn" mnemonicParsing="true" onAction="#handleSavePrefs" text="_Save" HBox.hgrow="SOMETIMES">
+                                                   <HBox.margin>
+                                                      <Insets />
+                                                   </HBox.margin>
+                                                </Button>
+                                                <Button mnemonicParsing="false" onAction="#handleDeletePrefs" text="Delete" HBox.hgrow="SOMETIMES">
+                                                   <HBox.margin>
+                                                      <Insets />
+                                                   </HBox.margin>
+                                                </Button>
+                                                <Button onAction="#handleClearSettings" text="C_lear" />
+                                             </children>
+                                             <padding>
+                                                <Insets left="6.0" right="6.0" />
+                                             </padding>
+                                          </HBox>
+                                       </children>
+                                    </FlowPane>
+                                    <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                                       <children>
+                                          <Label minWidth="-Infinity" prefWidth="70.0" text="Main Title:">
+                                             <textFill>
+                                                <Color blue="0.478" green="0.000" red="1.000" fx:id="x6" />
+                                             </textFill>
+                                          </Label>
+                                          <TextField fx:id="titleTwoText" maxWidth="-1.0" prefWidth="-1.0" promptText="Main-title" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets right="54.0" fx:id="x52" />
+                                             </HBox.margin>
+                                          </TextField>
+                                       </children>
+                                    </HBox>
+                                    
+                                    <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2">
+                                       <children>
+                                          <Label minWidth="-Infinity" prefWidth="70.0" text="Sub Title:">
+                                             <textFill>
+                                                <Color blue="0.478" green="0.000" red="1.000" fx:id="x61" />
+                                             </textFill>
+                                          </Label>
+                                          <TextField fx:id="titleThreeText" maxWidth="-1.0" prefWidth="-1.0" promptText="Sub-title" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets right="54.0" fx:id="x51" />
+                                             </HBox.margin>
+                                          </TextField>
+                                       </children>
+                                    </HBox>
+                                    
+                                    <HBox maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="TOP">
+                                       <children>
+                                          <Label minWidth="-Infinity" prefWidth="70.0" text="Input File:" textFill="$x6" />
+                                          <TextField fx:id="inputFileText" prefWidth="-1.0" promptText="Input text file" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets right="4.0" fx:id="x2123" />
+                                             </HBox.margin>
+                                          </TextField>
+                                          <Button fx:id="inputFileBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleInputFile" prefWidth="45.0" text="_In">
+                                             <HBox.margin>
+                                                <Insets right="5.0" fx:id="x3b" />
+                                             </HBox.margin>
+                                          </Button>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                 </columnConstraints>
+                                 <padding>
+                                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                                 </padding>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                              </GridPane>
+                           </content>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </TitledPane>
+                  <TitledPane animated="false" collapsible="false" prefWidth="500.0" text="Word Counter Output:">
                     <content>
-                      <GridPane>
+                      <GridPane maxHeight="-Infinity">
                         <children>
                           <HBox GridPane.hgrow="SOMETIMES">
                             <children>
                               <Label minWidth="-Infinity" prefWidth="70.0" text="Output File:" />
-                              <TextField id="outputCountFileText" fx:id="outputCountFileText" promptText="Output Chapter Count File" HBox.hgrow="SOMETIMES" />
+                              <TextField id="outputCountFileText" fx:id="outputCountFileText" promptText="Output Chapter Count File" HBox.hgrow="ALWAYS" />
                               <Button id="countOutputBtn" fx:id="countOutputBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputCountFile" prefWidth="70.0" text="Browse">
                                 <HBox.margin>
                                   <Insets left="5.0" />
@@ -145,74 +179,297 @@
                               </Button>
                             </children>
                           </HBox>
-                          <ChoiceBox id="counterDigitChoice" fx:id="counterDigitChoice" prefWidth="150.0" GridPane.rowIndex="1">
-                            <GridPane.margin>
-                              <Insets fx:id="x3" />
-                            </GridPane.margin>
-                          </ChoiceBox>
                         </children>
                         <columnConstraints>
                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         </columnConstraints>
                         <rowConstraints>
                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        </rowConstraints>
-                      </GridPane>
-                    </content>
-                    <FlowPane.margin>
-                      <Insets fx:id="x333" />
-                    </FlowPane.margin>
-                  </TitledPane>
-                  <TitledPane collapsible="false" minWidth="550.0" prefWidth="-1.0" text="DocTag Outliner Output:">
-                    <content>
-                      <GridPane>
-                        <children>
-                          <HBox>
-                            <children>
-                              <Label minWidth="-Infinity" prefWidth="70.0" text="Ouline:" />
-                              <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText" promptText="Output Ouline File" HBox.hgrow="SOMETIMES" />
-                              <Button id="outlineOutputBtn" fx:id="outlineOutputBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile" prefWidth="70.0" text="Browse">
-                                <HBox.margin>
-                                  <Insets left="5.0" />
-                                </HBox.margin>
-                              </Button>
-                            </children>
-                          </HBox>
-                                    <HBox layoutX="20.0" layoutY="20.0" GridPane.rowIndex="1">
-                                       <children>
-                                          <Label minWidth="-Infinity" prefWidth="70.0" text="All File:" />
-                                          <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText1" promptText="Output All DocTags File" HBox.hgrow="SOMETIMES" />
-                                          <Button id="outlineOutputBtn" fx:id="outlineOutputBtn1" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                        </children>
-                        <columnConstraints>
-                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        </columnConstraints>
-                        <rowConstraints>
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                       </GridPane>
                     </content>
                   </TitledPane>
                      </children>
-                  </FlowPane>
-                  <FlowPane minWidth="500.0">
+                  </VBox>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+                     <content>
+                        <TextArea fx:id="lastRunText" editable="false" wrapText="true" />
+                     </content>
+                  </ScrollPane>
+            <TitledPane collapsible="false" text="DocTag Outliner Output:" GridPane.columnIndex="1">
+              <content>
+                <GridPane>
+                  <children>
+                    <HBox>
+                      <children>
+                        <Label minWidth="-Infinity" prefWidth="70.0" text="Ouline:" />
+                        <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText" promptText="Output Ouline File" HBox.hgrow="ALWAYS" />
+                        <Button id="outlineOutputBtn" fx:id="outlineOutputBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile" prefWidth="70.0" text="Browse">
+                          <HBox.margin>
+                            <Insets left="5.0" />
+                          </HBox.margin>
+                        </Button>
+                      </children>
+                    </HBox>
+                              <HBox layoutX="20.0" layoutY="20.0" GridPane.rowIndex="1">
+                                 <children>
+                                    <Label minWidth="-Infinity" prefWidth="70.0" text="All File:" />
+                                    <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText1" promptText="Output All DocTags File" HBox.hgrow="ALWAYS" />
+                                    <Button id="outlineOutputBtn" fx:id="outlineOutputBtn1" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
+                                       <HBox.margin>
+                                          <Insets left="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                              <HBox layoutX="20.0" layoutY="50.0" GridPane.rowIndex="2">
+                                 <children>
+                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Outline File:" />
+                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsOutlineFileText" promptText="Output Outline DocTags File" HBox.hgrow="ALWAYS" />
+                                    <Button id="outlineOutputBtn" fx:id="outlineOutputBtn11" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
+                                       <HBox.margin>
+                                          <Insets left="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                              <HBox layoutX="20.0" layoutY="20.0" GridPane.rowIndex="3">
+                                 <children>
+                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsOutlineTagsText" promptText="List of tags to use" text="outline, scene, subscene, info, " HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets left="70.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                              </HBox>
+                              <HBox GridPane.rowIndex="4">
+                                 <children>
+                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Scene File:" />
+                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsSceneFileText" promptText="Output Scenes DocTags File" HBox.hgrow="ALWAYS" />
+                                    <Button id="outlineOutputBtn" fx:id="outlineOutputBtn111" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
+                                       <HBox.margin>
+                                          <Insets left="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                              <HBox GridPane.rowIndex="5">
+                                 <children>
+                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsSceneTagsText" promptText="List of tags to use" text="scene, subscene" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets left="70.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                              </HBox>
+                              <HBox layoutX="20.0" layoutY="170.0" GridPane.rowIndex="6">
+                                 <children>
+                                    <Label prefWidth="70.0" text="Coalate:" />
+                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsSceneCoTags" promptText="List of tags to coalate" text="description, changes, starttime" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                              </HBox>
+                        <HBox layoutX="20.0" layoutY="200.0" GridPane.rowIndex="7">
+                           <children>
+                              <Label prefWidth="70.0" text="Options:" />
+                              <Label text="Max Line Length:" />
+                              <TextField fx:id="outputDocTagsMaxLineLength" prefHeight="25.0" prefWidth="57.0" promptText="Columns before wrap, or -1 or blank for none." text="70" />
+                           </children>
+                        </HBox>
+                  </children>
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                </GridPane>
+              </content>
+            </TitledPane>
+            <TitledPane animated="false" collapsible="false" maxHeight="-Infinity" prefWidth="550.0" text="Formatting Output:" GridPane.columnIndex="1" GridPane.rowIndex="1">
+              <content>
+                <GridPane maxHeight="-Infinity">
+                  <children>
+                    <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.valignment="TOP">
+                      <children>
+                        <Label minWidth="-Infinity" prefWidth="75.0" text="Single File:" HBox.hgrow="ALWAYS">
+                          <textFill>
+                            <Color blue="0.478" green="0.000" red="1.000" fx:id="x133" />
+                          </textFill>
+                          <HBox.margin>
+                            <Insets right="4.0" />
+                          </HBox.margin>
+                        </Label>
+                        <TextField id="outputFileText" fx:id="outputFileText" maxWidth="-1.0" prefWidth="-1.0" promptText="Single HTML File" text="" HBox.hgrow="ALWAYS">
+                          <HBox.margin>
+                            <Insets right="4.0" />
+                          </HBox.margin>
+                        </TextField>
+                        <Button id="loadOutputFileBtn" fx:id="loadOutputFileBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadOutputFile" prefWidth="70.0" text="_Out">
+                          <HBox.margin>
+                            <Insets right="5.0" />
+                          </HBox.margin>
+                        </Button>
+                      </children>
+                    </HBox>
+                    <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                      <children>                          
+                       <Label minWidth="-Infinity" prefWidth="75.0" text="Chp. Html Dir:">
+                          <textFill>
+                            <Color blue="0.478" green="0.000" red="1.000" fx:id="x134" />
+                          </textFill>
+                          <HBox.margin>
+                            <Insets right="4.0" />
+                          </HBox.margin>
+                        </Label>                              
+                       <TextField id="outputDirText" fx:id="outputFormatChpHtmlDirText" maxWidth="-1.0" prefWidth="-1.0" promptText="Dir to put seperate files for each chapter" HBox.hgrow="ALWAYS">
+                          <HBox.margin>
+                            <Insets right="4.0" />
+                          </HBox.margin>
+                        </TextField>                              
+                 		  <Button id="loadOutputDirBtn" fx:id="loadOutputDirBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadFormatChptHtmlOutputDir" prefWidth="70.0" text="Load">
+                          <HBox.margin>
+                            <Insets right="5.0" />
+                          </HBox.margin>
+                        </Button>		                      
+                      </children>
+                    </HBox>
+                    <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="TOP">
+                      <children>
+                        <CheckBox id="cbRemoveDiv" fx:id="cbRemoveDiv" disable="false" mnemonicParsing="false" selected="true" text="Remove Div?">
+                          <HBox.margin>
+                            <Insets right="5.0" />
+                          </HBox.margin>
+                        </CheckBox>
+                        <CheckBox id="cbCenterStars" fx:id="cbCenterStars" disable="false" mnemonicParsing="false" text="Center Stars?">
+                          <HBox.margin>
+                            <Insets right="5.0" />
+                          </HBox.margin>
+                        </CheckBox>
+                        <CheckBox id="cbDropCapChapters" fx:id="cbDropCapChapters" disable="false" mnemonicParsing="false" text="Dropcap Chapter?">
+                          <HBox.margin>
+                            <Insets right="5.0" />
+                          </HBox.margin>
+                        </CheckBox>
+                        <CheckBox id="cbCenterable" fx:id="cbCenterable" disable="true" mnemonicParsing="false" text="Centerable?">
+                          <HBox.margin>
+                            <Insets right="5.0" />
+                          </HBox.margin>
+                        </CheckBox>
+                                    <CheckBox fx:id="cbWantTextChptOutput" mnemonicParsing="false" text="Text Chapters Too?" />
+                      </children>
+                    </HBox>
+                              <HBox prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="4">
+                                 <children>
+                          <ChoiceBox id="counterDigitChoice" fx:id="counterDigitChoice" prefWidth="150.0" />
+                                 </children>
+                              </HBox>
+                        <HBox layoutX="20.0" layoutY="50.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="2">
+                           <children>
+                              <Label minWidth="-Infinity" prefWidth="75.0" text="Chp. Text Dir:">
+                                 <textFill>
+                                    <Color blue="0.478" green="0.000" red="1.000" fx:id="x1341" />
+                                 </textFill>
+                                 <HBox.margin>
+                                    <Insets right="4.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField id="outputDirText" fx:id="outputFormatChpTextDirText" maxWidth="-1.0" prefWidth="-1.0" promptText="Dir to put seperate files for each chapter" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets right="4.0" />
+                                 </HBox.margin>
+                              </TextField>
+                              <Button id="loadOutputDirBtn" fx:id="loadOutputDirBtn1" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadFormatChptTextOutputDir" prefWidth="70.0" text="Load">
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                  </children>
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                </GridPane>
+              </content>
+            </TitledPane>
+                  <GridPane GridPane.rowIndex="1">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints fillHeight="false" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
-                <TitledPane animated="false" collapsible="false" expanded="true" minWidth="220.0" text="Input">
+                <TitledPane animated="false" collapsible="false" expanded="true" text="Output" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.valignment="TOP">
+                  <content>
+                    <GridPane>
+                      <children>
+                        <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="0" GridPane.valignment="TOP">
+                          <children>
+                            <Label text="Output Encoding:" />
+                            <TextField id="outputEncoding" fx:id="outputEncoding" prefWidth="106.0" promptText="Encoding of output file" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                          </children>
+                          <padding>
+                            <Insets top="4.0" fx:id="x537" />
+                          </padding>
+                        </HBox>
+                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
+                          <children>
+                            <Label text="Chapter Label:" />
+                            <TextField id="outputEncoding" fx:id="chapterHeaderTag" prefWidth="106.0" promptText="Output Header" text="h1" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                          </children>
+                        </HBox>
+                        <HBox GridPane.columnIndex="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2">
+                          <children>
+                            <Label text="Section Label:" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin></Label>
+                            <TextField id="outputEncoding" fx:id="sectionHeaderTag" prefWidth="106.0" promptText="Output Header" text="h1" HBox.hgrow="SOMETIMES">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin></TextField>
+                          </children>
+                        </HBox>
+                      </children>
+                      <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      </columnConstraints>
+                      <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      </rowConstraints>
+                    </GridPane>
+                  </content>
+                </TitledPane>
+                <TitledPane animated="false" collapsible="false" expanded="true" text="Input" GridPane.halignment="LEFT" GridPane.valignment="TOP">
                   <content>
                     <GridPane id="fff23" maxHeight="1.7976931348623157E308">
                       <children>
                         <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" style="" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
                           <children>
-                            <Label minWidth="-Infinity" prefWidth="90.0" text="Chapter Divider:" />
-                            <TextField id="chpDivText" fx:id="chpDivText" prefWidth="-1.0" text="-=" HBox.hgrow="SOMETIMES">
+                            <Label text="Chapter Divider:" />
+                            <TextField id="chpDivText" fx:id="chpDivText" prefWidth="106.0" text="-=" HBox.hgrow="SOMETIMES">
                               <HBox.margin>
                                 <Insets left="6.0" fx:id="x4" />
                               </HBox.margin>
@@ -224,14 +481,14 @@
                         </HBox>
                         <HBox maxWidth="1.7976931348623157E308" padding="$x533" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
                           <children>
-                            <Label minWidth="-Infinity" prefWidth="90.0" text="Format Mode:" />
-                            <TextField id="fmtModeText" fx:id="fmtModeText" prefWidth="-1.0" text="Sigil" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                            <Label minWidth="-Infinity" text="Format Mode:" />
+                            <TextField id="fmtModeText" fx:id="fmtModeText" prefWidth="106.0" text="Sigil" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                         </HBox>
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP">
                           <children>
-                            <Label minWidth="-Infinity" prefWidth="90.0" text="Section Divider:" />
-                            <TextField id="secDivText" fx:id="secDivText" prefWidth="-1.0" text="-=" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                            <Label minWidth="-Infinity" text="Section Divider:" />
+                            <TextField id="secDivText" fx:id="secDivText" prefWidth="106.0" text="-=" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
                             <Insets top="4.0" fx:id="x534" />
@@ -239,8 +496,8 @@
                         </HBox>
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="3">
                           <children>
-                            <Label minWidth="-Infinity" prefWidth="90.0" text="Doc Tag (Start):" />
-                            <TextField id="docTagStartText" fx:id="docTagStartText" prefWidth="-1.0" text="[[*" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                            <Label minWidth="-Infinity" text="Doc Tag (Start):" />
+                            <TextField id="docTagStartText" fx:id="docTagStartText" prefWidth="106.0" text="[[*" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
                             <Insets top="4.0" fx:id="x535" />
@@ -248,8 +505,8 @@
                         </HBox>
                         <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="4">
                           <children>
-                            <Label minWidth="-Infinity" prefWidth="90.0" text="Doc Tag(End):" />
-                            <TextField id="docTagEndText" fx:id="docTagEndText" prefWidth="-1.0" text="*]]" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
+                            <Label minWidth="-Infinity" text="Doc Tag(End):" />
+                            <TextField id="docTagEndText" fx:id="docTagEndText" prefWidth="106.0" text="*]]" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
                           </children>
                           <padding>
                             <Insets top="4.0" fx:id="x536" />
@@ -257,197 +514,22 @@
                         </HBox>
                       </children>
                       <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" />
                       </columnConstraints>
                       <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                      </rowConstraints>
-                    </GridPane>
-                  </content>
-                </TitledPane>
-                <TitledPane animated="false" collapsible="false" expanded="true" maxHeight="1.7976931348623157E308" minWidth="265.0" text="Output">
-                  <content>
-                    <GridPane>
-                      <children>
-                        <HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.valignment="TOP">
-                          <children>
-                            <Label prefWidth="100.0" text="Output Encoding:" />
-                            <TextField id="outputEncoding" fx:id="outputEncoding" prefWidth="-1.0" promptText="Encoding of output file" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
-                          </children>
-                          <padding>
-                            <Insets top="4.0" fx:id="x537" />
-                          </padding>
-                        </HBox>
-                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                          <children>
-                            <Label prefWidth="100.0" text="Chapter Label:" />
-                            <TextField id="outputEncoding" fx:id="chapterHeaderTag" prefWidth="-1.0" promptText="Output Header" text="h1" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
-                          </children>
-                        </HBox>
-                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                          <children>
-                            <Label prefWidth="100.0" text="Section Label:" />
-                            <TextField id="outputEncoding" fx:id="sectionHeaderTag" prefWidth="-1.0" promptText="Output Header" text="h1" HBox.hgrow="SOMETIMES" HBox.margin="$x4" />
-                          </children>
-                        </HBox>
-                      </children>
-                      <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                      </columnConstraints>
-                      <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
                       </rowConstraints>
                     </GridPane>
                   </content>
                 </TitledPane>
                      </children>
-                  </FlowPane>
-                  <FlowPane minWidth="550.0">
-                     <children>
-                  <TitledPane animated="false" collapsible="false" minWidth="550.0" text="Formatting Output:">
-                    <content>
-                      <GridPane>
-                        <children>
-                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.valignment="TOP">
-                            <children>
-                              <Label minWidth="-Infinity" prefWidth="70.0" text="Single File:">
-                                <textFill>
-                                  <Color blue="0.478" green="0.000" red="1.000" fx:id="x133" />
-                                </textFill>
-                                <HBox.margin>
-                                  <Insets right="4.0" />
-                                </HBox.margin>
-                              </Label>
-                              <TextField id="outputFileText" fx:id="outputFileText" maxWidth="-1.0" prefWidth="-1.0" promptText="Single HTML File" text="" HBox.hgrow="ALWAYS">
-                                <HBox.margin>
-                                  <Insets right="4.0" />
-                                </HBox.margin>
-                              </TextField>
-                              <Button id="loadOutputFileBtn" fx:id="loadOutputFileBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadOutputFile" prefWidth="45.0" text="_Out">
-                                <HBox.margin>
-                                  <Insets right="5.0" />
-                                </HBox.margin>
-                              </Button>
-                            </children>
-                          </HBox>
-                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
-                            <children>                          
-                             <Label minWidth="-Infinity" prefWidth="70.0" text="Dir:">
-                                <textFill>
-                                  <Color blue="0.478" green="0.000" red="1.000" fx:id="x134" />
-                                </textFill>
-                                <HBox.margin>
-                                  <Insets right="4.0" />
-                                </HBox.margin>
-                              </Label>                              
-                             <TextField id="outputDirText" fx:id="outputDirText" maxWidth="-1.0" prefWidth="-1.0" promptText="Dir to put seperate files for each chapter" HBox.hgrow="ALWAYS">
-                                <HBox.margin>
-                                  <Insets right="4.0" />
-                                </HBox.margin>
-                              </TextField>                              
-                       		  <Button id="loadOutputDirBtn" fx:id="loadOutputDirBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadOutputDir" prefWidth="45.0" text="Load">
-                                <HBox.margin>
-                                  <Insets right="5.0" />
-                                </HBox.margin>
-                              </Button>		                      
-                            </children>
-                          </HBox>
-                          <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.halignment="LEFT" GridPane.rowIndex="2" GridPane.valignment="TOP">
-                            <children>
-                              <CheckBox id="cbRemoveDiv" fx:id="cbRemoveDiv" disable="false" mnemonicParsing="false" selected="true" text="Remove Div?">
-                                <HBox.margin>
-                                  <Insets right="5.0" />
-                                </HBox.margin>
-                              </CheckBox>
-                              <CheckBox id="cbCenterStars" fx:id="cbCenterStars" disable="false" mnemonicParsing="false" text="Center Stars?">
-                                <HBox.margin>
-                                  <Insets right="5.0" />
-                                </HBox.margin>
-                              </CheckBox>
-                              <CheckBox id="cbDropCapChapters" fx:id="cbDropCapChapters" disable="false" mnemonicParsing="false" text="Dropcap Chapter?">
-                                <HBox.margin>
-                                  <Insets right="5.0" />
-                                </HBox.margin>
-                              </CheckBox>
-                              <CheckBox id="cbCenterable" fx:id="cbCenterable" disable="true" mnemonicParsing="false" text="Centerable?">
-                                <HBox.margin>
-                                  <Insets right="5.0" />
-                                </HBox.margin>
-                              </CheckBox>
-                            </children>
-                          </HBox>
-                        </children>
-                        <columnConstraints>
-                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        </columnConstraints>
-                        <rowConstraints>
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        </rowConstraints>
-                      </GridPane>
-                    </content>
-                    <FlowPane.margin>
-                      <Insets fx:id="x334" />
-                    </FlowPane.margin>
-                  </TitledPane>
-                     </children>
-                  </FlowPane>
-                  <FlowPane minWidth="500.0" prefHeight="100.0">
-                     <children>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" minHeight="50.0" minWidth="500.0" pannable="true" prefHeight="100.0">
-                           <content>
-                              <TextArea fx:id="lastRunText" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="50.0" prefWidth="500.0" wrapText="true" />
-                           </content>
-                           <FlowPane.margin>
-                              <Insets />
-                           </FlowPane.margin>
-                        </ScrollPane>
-                     </children>
-                  </FlowPane>
-          </children>
-          <BorderPane.margin>
-            <Insets fx:id="x335" />
-          </BorderPane.margin>
-        </FlowPane>
-      </center>
-      <padding>
-        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-      </padding>
-      <top>
-        <FlowPane alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="340.0" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 5, 0); -fx-border-color: #2e8b57; -fx-border-width: 2;" BorderPane.alignment="CENTER">
-          <children>
-            <Label alignment="CENTER" text="Kindle Quick Formatter" textAlignment="CENTER" textFill="#0066ff">
-              <font>
-                <Font size="14.0" />
-              </font>
-            </Label>
-          </children>
-          <BorderPane.margin>
-            <Insets fx:id="x336" />
-          </BorderPane.margin>
-        </FlowPane>
-      </top>
-         <bottom>
-      <FlowPane id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="340.0" style="-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;" vgap="10.0" BorderPane.alignment="CENTER">
-        <children>
-          <Button id="formatBtn" fx:id="formatBtn" mnemonicParsing="true" onAction="#handleDoFormatAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!" />
-          <Button id="wordCountBtn" fx:id="wordCountBtn" mnemonicParsing="true" onAction="#handleDoCountAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Word Count" />
-          <Button id="outlineBtn" fx:id="outlineBtn" mnemonicParsing="true" onAction="#handleDoOutlineAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Outline" />
-          <Button cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" text="_Close" textFill="#fefefe" />
-        </children>
-        <padding>
-          <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
-        </padding>
-      </FlowPane>
-         </bottom>
-    </BorderPane>
-  </children>
-</AnchorPane>
+                  </GridPane>
+               </children>
+            </GridPane>
+         </children>
+      </GridPane>

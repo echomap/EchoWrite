@@ -8,9 +8,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.CountDao;
+import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 
 public class TextBiz {
@@ -43,9 +45,8 @@ public class TextBiz {
 		String outFilename = null;
 		// final String filenameOnly = outputFile.getName();
 		final int extIdx = filename.lastIndexOf(".");
-		String ext = "";
 		if (extIdx >= 1) {
-			ext = filename.substring(extIdx + 1);
+			// String ext = filename.substring(extIdx + 1);
 			// outFilename = filename.replaceAll(ext, "txt");
 			outFilename = filename.substring(0, extIdx);
 		} else {
@@ -178,32 +179,43 @@ public class TextBiz {
 		return cleanPlainText(st, docTagStart, docTagEnd, true);
 	}
 
-	public static String cleanPlainText(String st, final String docTagStart, final String docTagEnd, boolean htmlIfy) {
+	public static String cleanPlainText(final String stIn, final String docTagStart, final String docTagEnd,
+			boolean htmlIfy) {
 		// String st2 = st.replaceAll("\x", ""\"x");
-		if (htmlIfy)
-			if (StringUtils.isEmpty(st))
+		String st = stIn;
+		if (StringUtils.isEmpty(st))
+			if (htmlIfy)
 				st = "&nbsp;";
-			else {
-				int idx1 = st.indexOf(docTagStart);
-				if (idx1 > -1) {
-					String st2 = st.substring(0, st.indexOf(docTagStart));
-					// int idx2 = st.indexOf(docTagEnd);
-					String st3 = st.substring(st.indexOf(docTagEnd) + docTagEnd.length());
-					// st = st.substring(0, st.indexOf(docTagStart) +
-					// docTagStart.length());
-					st = st2 + st3;
-					// st = st.substring(st.indexOf(docTagEnd));
-				}
-			}
+			else
+				st = "";
+
+		int idx1 = st.indexOf(docTagStart);
+		while (idx1 > -1) {
+			// final int idx2 = st.indexOf(docTagEnd);
+			final String st2 = st.substring(0, st.indexOf(docTagStart));
+			// int idx2 = st.indexOf(docTagEnd);
+			final String st3 = st.substring(st.indexOf(docTagEnd) + docTagEnd.length());
+			// st = st.substring(0, st.indexOf(docTagStart) +
+			// docTagStart.length());
+			st = st2 + st3;
+			// st = st.substring(st.indexOf(docTagEnd));
+			idx1 = st.indexOf(docTagStart);
+			// if (st.length() > idx2)
+			// idx1 = st.substring(idx2).indexOf(docTagStart);
+			// else
+			// idx1 = -1;
+		}
+
 		// if (StringUtils.isEmpty(st))
 		// st = "&nbsp;";
 		return st.trim();
+
 	}
 
-	public static void countWords(final String text, final CountDao dao, final FormatDao fdao) {
+	public static void countWords(final LooperDao ldao, final CountDao dao, final FormatDao fdao) {
 		boolean inWord = false;
 
-		String text2 = cleanPlainText(text, fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
+		String text2 = cleanPlainText(ldao.getCurrentLine(), fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
 
 		final int len = text2.length();
 		for (int i = 0; i < len; i++) {
@@ -272,27 +284,53 @@ public class TextBiz {
 	}
 
 	static DocTagLine isDocTag(final String line, final String startTag, final String endTag) {
+
 		final DocTagLine dtl = new DocTagLine();
-		if (StringUtils.isBlank(startTag) || StringUtils.isBlank(endTag))
+		if (StringUtils.isBlank(startTag) || StringUtils.isBlank(endTag)) {
 			dtl.setupNotADocTag(line);
-		// return DOCTAGTYPE.NONE;
+			// return DOCTAGTYPE.NONE;
+			return dtl;
+		}
+
 		if (line.contains(startTag) && line.contains(endTag)) {
 			int idx1 = line.indexOf(startTag);
 			int idx2 = line.indexOf(endTag);
-			if (idx1 == 0 && idx2 == line.length() - endTag.length())
+			if (idx1 == 0 && idx2 == line.length() - endTag.length()) {
 				dtl.setupOnlyDocTag(line.substring(idx1 + startTag.length(), idx2));
-			// return DOCTAGTYPE.ALLDOCTAG;
-			else
+				// return DOCTAGTYPE.ALLDOCTAG;
+			} else {
 				dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
-			// return DOCTAGTYPE.HASDOCTAG;
+
+				String line2 = line.substring(idx2 + endTag.length());
+				DocTag dt = findNextDocTag(startTag, endTag, line2);
+				while (dt != null) {
+					dtl.addDocTag(dt);
+					if (line2.length() > idx2 + endTag.length()) {
+						line2 = line2.substring(idx2 + endTag.length());
+						dt = findNextDocTag(startTag, endTag, line2);
+					} else
+						dt = null;
+				}
+				// return DOCTAGTYPE.HASDOCTAG;
+			}
 		} else if (line.contains(startTag)) {
 			int idx1 = line.indexOf(startTag);
 			dtl.setupLongDocTag(line, line.substring(idx1 + startTag.length()));
 			// return DOCTAGTYPE.LONGDOCTAG;
 		}
 		// return DOCTAGTYPE.NONE;
-
 		return dtl;
+	}
+
+	private static DocTag findNextDocTag(final String startTag, final String endTag, final String line) {
+		DocTag dt = null;
+		int idx1 = line.indexOf(startTag);
+		int idx2 = line.indexOf(endTag);
+		if (idx1 > -1 && idx2 > -1) {
+			final String str = line.substring(idx1 + startTag.length(), idx2);
+			dt = new DocTag(str);
+		}
+		return dt;
 	}
 
 	public static String parseForDocTags(final String st, final String docTagStart, final String docTagEnd) {

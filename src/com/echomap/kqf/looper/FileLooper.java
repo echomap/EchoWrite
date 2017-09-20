@@ -8,8 +8,13 @@ import java.io.IOException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
+import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
+import com.echomap.kqf.looper.data.ChapterDao;
+import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
+import com.echomap.kqf.looper.data.SimpleChapterDao;
 
 /**
  * 
@@ -20,6 +25,13 @@ public class FileLooper {
 	final static String newLine = System.getProperty("line.separator");
 	public static final String DEFAULToutputEncoding = "Cp1252";
 
+	/**
+	 * 
+	 * @param formatDao
+	 * @param ldao
+	 * @param flHandler
+	 * @throws IOException
+	 */
 	private void loop(final FormatDao formatDao, final LooperDao ldao, final FileLooperHandler flHandler)
 			throws IOException {
 		LOGGER.info("Loop: Called");
@@ -38,13 +50,15 @@ public class FileLooper {
 			String st = "";
 			// System.out.println("Chapter\t\t\tWords\tTitle");
 			while ((st = reader.readLine()) != null) {
-				flHandler.preLine(formatDao, ldao, st);
+				setupLine(st, ldao, formatDao);
 				//
-				flHandler.handleLine(formatDao, ldao, st);
+				flHandler.preLine(formatDao, ldao);
+				//
+				flHandler.handleLine(formatDao, ldao);
 				// cdao.addOneToNumLines();
-				flHandler.postLine(formatDao, ldao, st);
+				flHandler.postLine(formatDao, ldao);
 			}
-			flHandler.postLastLine(formatDao, ldao, st);
+			flHandler.postLastLine(formatDao, ldao);
 
 			// tdao.copy(cdao);
 			// chapters.add(tdao);
@@ -58,6 +72,35 @@ public class FileLooper {
 			flHandler.postHandler(formatDao, ldao);
 		}
 		LOGGER.info("Loop: Done");
+	}
+
+	private void setupLine(String st, LooperDao ldao, FormatDao formatDao) {
+		//
+		ldao.setOriginalLine(st);
+		ldao.setCurrentLine(st);
+		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getChapterDivider());
+		final SECTIONTYPE sectionType = TextBiz.isSection(st, formatDao.getSectionDivider(), false);// TODO
+		ldao.setCurrentChapter(chpt);
+		ldao.setCurrentSection(sectionType);
+
+		//
+		final CountDao cdao = ldao.getChaptCount();
+		final CountDao tdao = ldao.getTotalCount();
+		if (chpt.isChapter) {
+			if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0) {
+				tdao.addNumWords(cdao.getNumWords());
+				ldao.getChapters().add(new ChapterDao(cdao));
+				cdao.clear();
+				tdao.addChapterCount(1);
+			}
+			cdao.setChapterName(chpt.name);
+			cdao.setChapterTitle(chpt.title);
+			cdao.setChapterNumber(tdao.getNumChapters());
+		}
+		//
+		final DocTagLine currentDocTagLine = TextBiz.isDocTag(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+		ldao.setCurrentDocTagLine(currentDocTagLine);
+
 	}
 
 	public void count(final FormatDao formatDao) throws IOException {

@@ -3,6 +3,10 @@ add tag support like:
 [[def:... ]]  / [[pov:... ]] / [[loc:... ]] / [[date:...]]
 
 
+2017 09 18
+	start refactor looper to do more repeated tasks
+	pass object rather than just line to loopers
+	added chapter text and html separate
 
 2017 09 12
 	- fixed up some doctags

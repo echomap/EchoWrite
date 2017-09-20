@@ -1,20 +1,15 @@
 package com.echomap.kqf.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DocTagLine {
 
-	private DocTag docTag = null;
+	private List<DocTag> docTags = null;
 	private String line = null;
 	private boolean onlyDoctag = false;
 	private boolean hasDocTag = false;
 	private boolean longDocTag = false;
-
-	public DocTag getDocTag() {
-		return docTag;
-	}
-
-	public void setDocTag(DocTag docTag) {
-		this.docTag = docTag;
-	}
 
 	public String getLine() {
 		return line;
@@ -48,8 +43,16 @@ public class DocTagLine {
 		this.onlyDoctag = onlyDoctag;
 	}
 
+	public List<DocTag> getDocTags() {
+		return docTags;
+	}
+
+	public void setDocTags(List<DocTag> docTags) {
+		this.docTags = docTags;
+	}
+
 	public void setupNotADocTag(String line2) {
-		this.docTag = null;
+		this.setDocTags(null);
 		this.line = null;
 		this.onlyDoctag = false;
 		this.hasDocTag = false;
@@ -57,7 +60,9 @@ public class DocTagLine {
 	}
 
 	public void setupOnlyDocTag(String docTagText) {
-		this.docTag = new DocTag(docTagText);
+		if (getDocTags() == null)
+			setDocTags(new ArrayList<DocTag>());
+		this.getDocTags().add(new DocTag(docTagText));
 		this.line = docTagText;
 		this.onlyDoctag = true;
 		this.hasDocTag = true;
@@ -65,7 +70,10 @@ public class DocTagLine {
 	}
 
 	public void setupContainsDocTag(String line, String docTagText) {
-		this.docTag = new DocTag(docTagText);
+		if (getDocTags() == null)
+			setDocTags(new ArrayList<DocTag>());
+		this.getDocTags().add(new DocTag(docTagText));
+
 		this.line = line;
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
@@ -73,11 +81,20 @@ public class DocTagLine {
 	}
 
 	public void setupLongDocTag(String line, String docTagText) {
-		this.docTag = new DocTag(docTagText);
+		if (getDocTags() == null)
+			setDocTags(new ArrayList<DocTag>());
+		this.getDocTags().add(new DocTag(docTagText));
+
 		this.line = line;
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
 		this.longDocTag = true;
+	}
+
+	public void addDocTag(final DocTag docTag) {
+		if (getDocTags() == null)
+			setDocTags(new ArrayList<DocTag>());
+		this.getDocTags().add(docTag);
 	}
 
 }

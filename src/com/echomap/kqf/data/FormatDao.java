@@ -29,6 +29,8 @@ public class FormatDao {
 	private Boolean centerStars = false;
 	private Boolean dropCapChapter = false;
 	private String writeChapters = null;
+	private String writeChaptersText = null;
+	private Boolean wantTextChptOutput = false;
 
 	private String docTagStart = null;
 	private String docTagEnd = null;
@@ -36,7 +38,15 @@ public class FormatDao {
 	private String chapterHeaderTag = "h1";
 	private String sectionHeaderTag = "h1";
 
-	private Integer countOutputDigits = null;
+	private Integer outputFormatDigits = null;
+
+	private String outputDocTagsOutlineFile;
+	private String outputDocTagsSceneFile;
+	private String docTagsOutlineTags;
+	private String docTagsSceneTags;
+	private String outputDocTagsSceneCoTags;
+
+	private Integer docTagsMaxLineLength = 70;
 
 	public String prettyPrint() {
 		final StringBuilder sbuf = new StringBuilder();
@@ -55,16 +65,24 @@ public class FormatDao {
 		addLine(sbuf, "Centerablevalues", this.centerableLineText);
 		addLine(sbuf, "CenterStars", this.centerStars.toString());
 		addLine(sbuf, "DropCapChapter", this.dropCapChapter.toString());
+		addLine(sbuf, "WantTextOutput", this.wantTextChptOutput.toString());
 		addLine(sbuf, "FormatMode:", this.formatMode);
-		addLine(sbuf, "WriteChapters:", this.writeChapters);
+		addLine(sbuf, "WriteChapters:", this.getWriteChapters());
+		addLine(sbuf, "WriteChaptersText:", this.getWriteChaptersText());
 		addLine(sbuf, "ChapterHeaderTag:", this.getChapterHeaderTag());
 		addLine(sbuf, "SectionHeaderTag:", this.getSectionHeaderTag());
 
 		addLine(sbuf, "DocTagStart:", this.getDocTagStart());
 		addLine(sbuf, "DocTagEnd:", this.getDocTagEnd());
 
+		addLine(sbuf, "OutputDocTagsOutlineFile:", this.getOutputDocTagsOutlineFile());
+		addLine(sbuf, "OutputDocTagsSceneFile:", this.getOutputDocTagsSceneFile());
+		addLine(sbuf, "DocTagsOutlineTags:", this.getDocTagsOutlineTags());
+		addLine(sbuf, "DocTagsSceneTags:", this.getDocTagsSceneTags());
+		addLine(sbuf, "DocTagsSceneCoTags:", this.getDocTagsSceneCoTags());
+
 		addLine(sbuf, "CountOutputDigits:",
-				(getCountOutputDigits() == null ? "" : this.getCountOutputDigits().toString()));
+				(getOutputFormatDigits() == null ? "" : this.getOutputFormatDigits().toString()));
 
 		sbuf.setLength(sbuf.length() - 1);
 		return sbuf.toString();
@@ -248,14 +266,14 @@ public class FormatDao {
 		this.docTagEnd = docTagEnd;
 	}
 
-	public Integer getCountOutputDigits() {
-		if (countOutputDigits == null)
-			countOutputDigits = 1;
-		return countOutputDigits;
+	public Integer getOutputFormatDigits() {
+		if (outputFormatDigits == null)
+			outputFormatDigits = 1;
+		return outputFormatDigits;
 	}
 
-	public void setCountOutputDigits(Integer countOutputDigits) {
-		this.countOutputDigits = countOutputDigits;
+	public void setOutputFormatDigits(Integer countOutputDigits) {
+		this.outputFormatDigits = countOutputDigits;
 	}
 
 	public String getOutputOutlineFile1() {
@@ -264,6 +282,70 @@ public class FormatDao {
 
 	public void setOutputOutlineFile1(String outputOutlineFile1) {
 		this.outputOutlineFile1 = outputOutlineFile1;
+	}
+
+	public Boolean getWantTextChptOutput() {
+		return wantTextChptOutput;
+	}
+
+	public void setWantTextChptOutput(Boolean wantTextOutput) {
+		this.wantTextChptOutput = wantTextOutput;
+	}
+
+	public String getOutputDocTagsOutlineFile() {
+		return outputDocTagsOutlineFile;
+	}
+
+	public void setOutputDocTagsOutlineFile(String outputDocTagsOutlineFile) {
+		this.outputDocTagsOutlineFile = outputDocTagsOutlineFile;
+	}
+
+	public String getOutputDocTagsSceneFile() {
+		return outputDocTagsSceneFile;
+	}
+
+	public void setOutputDocTagsSceneFile(String outputDocTagsSceneFile) {
+		this.outputDocTagsSceneFile = outputDocTagsSceneFile;
+	}
+
+	public String getDocTagsOutlineTags() {
+		return docTagsOutlineTags;
+	}
+
+	public void setDocTagsOutlineTags(String docTagsOutlineTags) {
+		this.docTagsOutlineTags = docTagsOutlineTags;
+	}
+
+	public String getDocTagsSceneTags() {
+		return docTagsSceneTags;
+	}
+
+	public void setDocTagsSceneTags(String docTagsSceneTags) {
+		this.docTagsSceneTags = docTagsSceneTags;
+	}
+
+	public String getDocTagsSceneCoTags() {
+		return outputDocTagsSceneCoTags;
+	}
+
+	public void setDocTagsSceneCoTags(String outputDocTagsSceneCoTags) {
+		this.outputDocTagsSceneCoTags = outputDocTagsSceneCoTags;
+	}
+
+	public String getWriteChaptersText() {
+		return writeChaptersText;
+	}
+
+	public void setWriteChaptersText(String writeChaptersText) {
+		this.writeChaptersText = writeChaptersText;
+	}
+
+	public Integer getDocTagsMaxLineLength() {
+		return docTagsMaxLineLength;
+	}
+
+	public void setDocTagsMaxLineLength(Integer docTagsMaxLineLength) {
+		this.docTagsMaxLineLength = docTagsMaxLineLength;
 	}
 
 }

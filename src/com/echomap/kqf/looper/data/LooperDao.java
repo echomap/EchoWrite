@@ -4,6 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.echomap.kqf.data.DocTagLine;
+import com.echomap.kqf.looper.TextBiz;
+import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
+
 public class LooperDao {
 
 	private File inputFile;
@@ -17,6 +21,12 @@ public class LooperDao {
 	private String htmlLine = null;
 	private boolean lastLineWasChapter = false;
 	private Integer thisLineCharacterCount = 0;
+
+	private String originalLine = null;
+	private String currentLine = null;
+	private SimpleChapterDao currentChapter = null;
+	private SECTIONTYPE currentSection = null;
+	private DocTagLine currentDocTagLine = null;
 
 	public LooperDao() {
 
@@ -121,6 +131,46 @@ public class LooperDao {
 
 	public List<ChapterDao> getChapters() {
 		return chapters;
+	}
+
+	public String getOriginalLine() {
+		return originalLine;
+	}
+
+	public void setOriginalLine(String originalLine) {
+		this.originalLine = originalLine;
+	}
+
+	public String getCurrentLine() {
+		return currentLine;
+	}
+
+	public void setCurrentLine(String currentLine) {
+		this.currentLine = currentLine;
+	}
+
+	public SimpleChapterDao getCurrentChapter() {
+		return currentChapter;
+	}
+
+	public void setCurrentChapter(SimpleChapterDao currentChapter) {
+		this.currentChapter = currentChapter;
+	}
+
+	public SECTIONTYPE getCurrentSection() {
+		return currentSection;
+	}
+
+	public void setCurrentSection(TextBiz.SECTIONTYPE currentSection) {
+		this.currentSection = currentSection;
+	}
+
+	public DocTagLine getCurrentDocTagLine() {
+		return currentDocTagLine;
+	}
+
+	public void setCurrentDocTagLine(DocTagLine currentDocTagLine) {
+		this.currentDocTagLine = currentDocTagLine;
 	}
 
 }
