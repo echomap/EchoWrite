@@ -16,11 +16,12 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.FileLooper;
+import com.echomap.kqf.two.gui.WorkDoneNotify;
 
 /**
  * 
  */
-public class FormatCli {
+public class FormatCli implements WorkDoneNotify {
 	private final static Logger LOGGER = LogManager.getLogger(FormatCli.class);
 
 	/**
@@ -114,7 +115,7 @@ public class FormatCli {
 
 			// biz.format(formatDao);
 			// setupDao(formatDao);
-			final FileLooper fileLooper = new FileLooper();
+			final FileLooper fileLooper = new FileLooper(new FormatCli());
 			if (line.hasOption("action")) {
 				if (line.getOptionValue("action").compareToIgnoreCase("outline") == 0) {
 					fileLooper.outline(formatDao);
@@ -184,4 +185,21 @@ public class FormatCli {
 
 		return options;
 	}
+
+	@Override
+	public void finishedWithWork(String msg) {
+		LOGGER.info("Done with process " + msg);
+	}
+
+	@Override
+	public void errorWithWork(String msg, Exception e) {
+		LOGGER.error("Errorwith process " + msg);
+		LOGGER.info(e);
+	}
+
+	@Override
+	public void statusUpdateForWork(String header, String msg) {
+		LOGGER.info("----process " + header + ", " + msg);
+	}
+
 }

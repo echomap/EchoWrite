@@ -42,7 +42,8 @@ public class FormatDao {
 
 	private String outputDocTagsOutlineFile;
 	private String outputDocTagsSceneFile;
-	private String docTagsOutlineTags;
+	private String docTagsOutlineCompressTags;
+	private String docTagsOutlineExpandTags;
 	private String docTagsSceneTags;
 	private String outputDocTagsSceneCoTags;
 
@@ -77,7 +78,8 @@ public class FormatDao {
 
 		addLine(sbuf, "OutputDocTagsOutlineFile:", this.getOutputDocTagsOutlineFile());
 		addLine(sbuf, "OutputDocTagsSceneFile:", this.getOutputDocTagsSceneFile());
-		addLine(sbuf, "DocTagsOutlineTags:", this.getDocTagsOutlineTags());
+		addLine(sbuf, "DocTagsOutlineCTags:", this.getDocTagsOutlineCompressTags());
+		addLine(sbuf, "DocTagsOutlineETags:", this.getDocTagsOutlineExpandTags());
 		addLine(sbuf, "DocTagsSceneTags:", this.getDocTagsSceneTags());
 		addLine(sbuf, "DocTagsSceneCoTags:", this.getDocTagsSceneCoTags());
 
@@ -308,14 +310,6 @@ public class FormatDao {
 		this.outputDocTagsSceneFile = outputDocTagsSceneFile;
 	}
 
-	public String getDocTagsOutlineTags() {
-		return docTagsOutlineTags;
-	}
-
-	public void setDocTagsOutlineTags(String docTagsOutlineTags) {
-		this.docTagsOutlineTags = docTagsOutlineTags;
-	}
-
 	public String getDocTagsSceneTags() {
 		return docTagsSceneTags;
 	}
@@ -346,6 +340,22 @@ public class FormatDao {
 
 	public void setDocTagsMaxLineLength(Integer docTagsMaxLineLength) {
 		this.docTagsMaxLineLength = docTagsMaxLineLength;
+	}
+
+	public String getDocTagsOutlineCompressTags() {
+		return docTagsOutlineCompressTags;
+	}
+
+	public void setDocTagsOutlineCompressTags(String docTagsOutlineCompressTags) {
+		this.docTagsOutlineCompressTags = docTagsOutlineCompressTags;
+	}
+
+	public String getDocTagsOutlineExpandTags() {
+		return docTagsOutlineExpandTags;
+	}
+
+	public void setDocTagsOutlineExpandTags(String docTagsOutlineExpandTags) {
+		this.docTagsOutlineExpandTags = docTagsOutlineExpandTags;
 	}
 
 }

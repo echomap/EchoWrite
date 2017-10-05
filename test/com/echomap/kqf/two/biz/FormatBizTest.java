@@ -1,13 +1,16 @@
 /**
  * 
  */
-package com.echomap.kqf.two;
+package com.echomap.kqf.two.biz;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.echomap.kqf.data.FormatDao;
+import com.echomap.kqf.looper.TextBiz;
 
 /**
  * @author mkatz
@@ -17,11 +20,11 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter1a() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "* * * ";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			// Assert.fail("Should not be centerable!");
 			System.out.println("testCenter1a: Ok! Centerable!");
@@ -32,11 +35,11 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter1b() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "And this is what *i say*. ";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			Assert.fail("testCenter1b: Should not be centerable!");
 		} else {
@@ -47,11 +50,11 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter1c() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "**And this is what *i say*. ";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			Assert.fail("testCenter1c: Should not be centerable!");
 		} else {
@@ -62,11 +65,11 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter1d() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "**...";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			Assert.fail("testCenter1d: Should not be centerable!");
 		} else {
@@ -77,11 +80,11 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter1e() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "** ";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			// Assert.fail("Should not be centerable!");
 			System.out.println("testCenter1e: Ok! Centerable!");
@@ -92,12 +95,12 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter2a() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		dao.setCenterableLineText("~~~");
 		final String st = "~~~";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			// Assert.fail("Should not be centerable!");
 			System.out.println("testCenter2a: Ok! Centerable!");
@@ -108,12 +111,12 @@ public class FormatBizTest {
 
 	@Test
 	public void testCenter2b() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		dao.setCenterableLineText("~~~");
 		final String st = "~~~Pie in the sky~~~";
-		boolean centerThisLine = biz.centerCheck(dao, st);
+		boolean centerThisLine = TextBiz.centerCheck(dao, st);
 		if (centerThisLine) {
 			Assert.fail("testCenter2b: Should not be centerable!");
 		} else {
@@ -124,13 +127,13 @@ public class FormatBizTest {
 
 	@Test
 	public void testDropCap1a() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "Mary had a little lamb,";
 		try {
 			final StringBuilder sbuf = new StringBuilder();
-			final List<String> slist = biz.doDropCaps(st);
+			final List<String> slist = TextBiz.doDropCapsList(st, "[[", "]]");
 			System.out.println("Slist>>>");
 			for (String str : slist) {
 				System.out.println(str);
@@ -138,8 +141,7 @@ public class FormatBizTest {
 			}
 			System.out.println("<<<Slist");
 			System.out.println("sbuf: '" + sbuf + "'");
-			if (sbuf.toString().compareTo(
-					"<span class=\"dropcaps\">M</span>ary had a little lamb,") == 0)
+			if (sbuf.toString().compareTo("<span class=\"dropcaps\">M</span>ary had a little lamb,") == 0)
 				// Assert.fail("testDropCap1a: OK!");
 				System.out.println("testDropCap1a: OK!");
 			else
@@ -152,13 +154,13 @@ public class FormatBizTest {
 
 	@Test
 	public void testDropCap1b() {
-		final FormatBiz biz = new FormatBiz();
+		// final FormatBiz biz = new FormatBiz();
 		final FormatDao dao = new FormatDao();
 		dao.setCenterStars(true);
 		final String st = "\tMary had a little lamb,";
 		try {
 			final StringBuilder sbuf = new StringBuilder();
-			final List<String> slist = biz.doDropCaps(st);
+			final List<String> slist = TextBiz.doDropCapsList(st, "[[", "]]");
 			System.out.println("Slist>>>");
 			for (String str : slist) {
 				System.out.println(str);
@@ -166,8 +168,7 @@ public class FormatBizTest {
 			}
 			System.out.println("<<<Slist");
 			System.out.println("sbuf: '" + sbuf + "'");
-			if (sbuf.toString().compareTo(
-					"<span class=\"dropcaps\">M</span>ary had a little lamb,") == 0)
+			if (sbuf.toString().compareTo("<span class=\"dropcaps\">M</span>ary had a little lamb,") == 0)
 				// Assert.fail("testDropCap1a: OK!");
 				System.out.println("testDropCap1a: OK!");
 			else
@@ -175,6 +176,38 @@ public class FormatBizTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 			Assert.fail(" testDropCap1a: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testDocTags1() {
+		// final FormatBiz biz = new FormatBiz();
+		final FormatDao dao = new FormatDao();
+		dao.setDocTagStart("[[");
+		dao.setDocTagEnd("]]");
+		final String st = "asdf1 [[def: one=two]] asdf2";
+		String testRes = TextBiz.parseForDocTags(st, dao.getDocTagStart(), dao.getDocTagEnd());
+		System.out.println("testRes: '" + testRes + "'");
+		if ("def: one=two".compareTo(testRes) == 0) {
+			System.out.println("testDocTags1: Ok!");
+		} else {
+			Assert.fail("testDocTags1: didn't find proper docTag!");
+		}
+	}
+
+	@Test
+	public void testDocTags2() {
+		// final FormatBiz biz = new FormatBiz();
+		final FormatDao dao = new FormatDao();
+		dao.setDocTagStart("[[");
+		dao.setDocTagEnd("]]");
+		final String st = "asdf1 [[time: onetwo]] asdf2";
+		String testRes = TextBiz.parseForDocTags(st, dao.getDocTagStart(), dao.getDocTagEnd());
+		System.out.println("testRes: '" + testRes + "'");
+		if ("time: onetwo".compareTo(testRes) == 0) {
+			System.out.println("testDocTags2: Ok!");
+		} else {
+			Assert.fail("testDocTags2: didn't find proper docTag!");
 		}
 	}
 }

@@ -308,6 +308,7 @@ public class TextBiz {
 					if (line2.length() > idx2 + endTag.length()) {
 						line2 = line2.substring(idx2 + endTag.length());
 						dt = findNextDocTag(startTag, endTag, line2);
+						idx2 = line2.indexOf(endTag);
 					} else
 						dt = null;
 				}

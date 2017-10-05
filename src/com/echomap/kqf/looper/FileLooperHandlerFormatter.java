@@ -63,6 +63,11 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	}
 
 	@Override
+	public String getWorkType() {
+		return "Formatter";
+	}
+
+	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.info("handleLine-->");
 

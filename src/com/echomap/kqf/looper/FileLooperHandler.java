@@ -7,6 +7,8 @@ import com.echomap.kqf.looper.data.LooperDao;
 
 public interface FileLooperHandler {
 
+	String getWorkType();
+
 	void preLine(FormatDao formatDao, LooperDao ldao) throws IOException;
 
 	void handleLine(FormatDao formatDao, LooperDao ldao) throws IOException;

@@ -3,6 +3,9 @@ package com.echomap.kqf.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public class DocTag {
 	private String fullText;
 	private String name;
@@ -12,6 +15,12 @@ public class DocTag {
 
 	public DocTag(String docTagText) {
 		parseText(docTagText);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+		// return super.toString();
 	}
 
 	public void parseText(String docTagText) {

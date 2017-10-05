@@ -36,7 +36,7 @@ public class KQFFrame extends Application {
 			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
 			parent = (Parent) fxmlLoader.load(location.openStream());
 
-			primaryStage.setTitle("EBook Kindle Formatter (MYK)");
+			primaryStage.setTitle("Kindle (Ebook) Quick Formatter (MYKFEQF)");
 			// primaryStage.setWidth(1024);
 			// primaryStage.setHeight(200);
 

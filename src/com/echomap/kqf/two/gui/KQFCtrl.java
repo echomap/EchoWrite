@@ -36,7 +36,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-public class KQFCtrl implements Initializable {
+public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
 	private File lastSelectedDirectory = null;
@@ -90,7 +90,9 @@ public class KQFCtrl implements Initializable {
 	@FXML
 	private TextField outputDocTagsSceneFileText;
 	@FXML
-	private TextField outputDocTagsOutlineTagsText;
+	private TextField outputDocTagsOutlineCTagsText;
+	@FXML
+	private TextField outputDocTagsOutlineETagsText;
 	@FXML
 	private TextField outputDocTagsSceneTagsText;
 	@FXML
@@ -177,6 +179,24 @@ public class KQFCtrl implements Initializable {
 		loadChoices();
 		loadProfiles();
 		lockGui();
+	}
+
+	@Override
+	public void finishedWithWork(final String msg) {
+		setLastRunText("Done running " + msg + " Process (" + getCurrentDateFmt() + ")");
+		unlockGui();
+	}
+
+	@Override
+	public void errorWithWork(final String msg, final Exception e) {
+		setLastRunText("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e);
+		LOGGER.error(e);
+		unlockGui();
+	}
+
+	@Override
+	public void statusUpdateForWork(String header, String msg) {
+		setLastRunText("---" + header + " Process, " + msg);
 	}
 
 	private void loadChoices() {
@@ -334,73 +354,73 @@ public class KQFCtrl implements Initializable {
 	}
 
 	public void handleDoCountAction(final ActionEvent event) {
-		// lastRunText.setText("Running word count...");
-		setLastRunText("Running word count...");
+		LOGGER.info("Running count action");
+		setLastRunText("Running Count Process (" + getCurrentDateFmt() + ")");
 		lockGui();
 		// timer.cancel();
 		// timer = new Timer();
 		try {
-			// final CountBiz biz = new CountBiz();
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
-			// biz.format(inputFileText.getText(),
-			// outputCountDir.getAbsolutePath(), outputCountFileText.getText(),
-			// formatDao);
-			final FileLooper fileLooper = new FileLooper();
+
+			final FileLooper fileLooper = new FileLooper(this);
 			fileLooper.count(formatDao);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			unlockGui();
-			String fmtt = "Done running COUNT ( " + getCurrentDateFmt() + ")";
-			LOGGER.debug("fmtt: " + fmtt);
-			setLastRunText(fmtt);
-			startTimerTask();
+			// unlockGui();
+			// String fmtt = "Done running COUNT ( " + getCurrentDateFmt() +
+			// ")";
+			// LOGGER.debug("fmtt: " + fmtt);
+			// setLastRunText(fmtt);
+			// startTimerTask();
 		}
 	}
 
 	public void handleDoOutlineAction(final ActionEvent event) {
-		// lastRunText.setText("Running word count...");
-		setLastRunText("Running OUTLINE...");
+		LOGGER.info("Running outline action");
+		setLastRunText("Running Outline Process (" + getCurrentDateFmt() + ")");
 		lockGui();
 		try {
-			// final OutlineBiz biz = new OutlineBiz();
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
-			//
-			// biz.runOutline(inputFileText.getText(),
-			// outputOutlineFileText.getText(), formatDao.getDocTagStart(),
-			// formatDao.getDocTagEnd());
-			final FileLooper fileLooper = new FileLooper();
+
+			final FileLooper fileLooper = new FileLooper(this);
 			fileLooper.outline(formatDao);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			unlockGui();
-			setLastRunText("Done running OUTLINE (" + getCurrentDateFmt() + ")");
-			startTimerTask();
+			// unlockGui();
+			// setLastRunText("Done running OUTLINE (" + getCurrentDateFmt() +
+			// ")");
+			// startTimerTask();
 		}
 	}
 
 	public void handleDoFormatAction(final ActionEvent event) {
-		LOGGER.info("That was easy, wasn't it?");
-		setLastRunText("Running...");
+		LOGGER.info("Running format action");
+		setLastRunText("Running Format Process (" + getCurrentDateFmt() + ")");
 		lockGui();
 		try {
-			// final FormatBiz biz = new FormatBiz();
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
-			// biz.format(formatDao);
-			final FileLooper fileLooper = new FileLooper();
+
+			final FileLooper fileLooper = new FileLooper(this);
 			fileLooper.format(formatDao);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			unlockGui();
-			setLastRunText("Done running FORMAT (" + getCurrentDateFmt() + ")");
-			startTimerTask();
+			// unlockGui();
+			// setLastRunText("Done running FORMAT (" + getCurrentDateFmt() +
+			// ")");
+			// startTimerTask();
 		}
+	}
+
+	public void handleDoClearLogAction(final ActionEvent event) {
+		this.lastRunText.clear();
 	}
 
 	private void setupDao(final FormatDao formatDao) {
@@ -448,7 +468,8 @@ public class KQFCtrl implements Initializable {
 		//
 		formatDao.setOutputDocTagsOutlineFile(outputDocTagsOutlineFileText.getText());
 		formatDao.setOutputDocTagsSceneFile(outputDocTagsSceneFileText.getText());
-		formatDao.setDocTagsOutlineTags(outputDocTagsOutlineTagsText.getText());
+		formatDao.setDocTagsOutlineCompressTags(outputDocTagsOutlineCTagsText.getText());
+		formatDao.setDocTagsOutlineExpandTags(outputDocTagsOutlineETagsText.getText());
 		formatDao.setDocTagsSceneTags(outputDocTagsSceneTagsText.getText());
 		formatDao.setDocTagsSceneCoTags(outputDocTagsSceneCoTags.getText());
 
@@ -605,11 +626,15 @@ public class KQFCtrl implements Initializable {
 		outputDocTagsSceneFileText
 				.setText(child.get("outputDocTagsSceneFile", outputCountDir + "\\" + filenameOnly + "_scenes.txt"));
 
-		outputDocTagsOutlineTagsText.setText(child.get("outputDocTagsOutlineTags",
-				"outline, outlinedata, scene, subscene, info, pattern, date, time, loc"));
-		outputDocTagsSceneTagsText.setText(child.get("outputDocTagsSceneTags", "scene, subscene,"));
-		outputDocTagsSceneCoTags
-				.setText(child.get("outputDocTagsSceneCoTags", "description, changes, starttime, scene, pattern"));
+		final String outC = "info, subscene, outlinedata, outlinesub, suboutline";
+		final String outE = "outline, scene, pattern, date, time, loc";
+		outputDocTagsOutlineCTagsText.setText(child.get("outputDocTagsOutlineCTags", outC));
+		outputDocTagsOutlineETagsText.setText(child.get("outputDocTagsOutlineTags", outE));
+
+		final String sceneM = "scene, subscene";
+		final String sceneC = "description, changes, starttime, scene, pattern";
+		outputDocTagsSceneTagsText.setText(child.get("outputDocTagsSceneTags", sceneM));
+		outputDocTagsSceneCoTags.setText(child.get("outputDocTagsSceneCoTags", sceneC));
 
 		final String cbDropCapChaptersSel = child.get("cbDropCapChapters", "1");
 		if (!StringUtils.isBlank(cbDropCapChaptersSel) || cbDropCapChaptersSel.compareTo("selected") == 0)
@@ -666,7 +691,8 @@ public class KQFCtrl implements Initializable {
 
 			child.put("outputDocTagsOutlineFile", outputDocTagsOutlineFileText.getText());
 			child.put("outputDocTagsSceneFile", outputDocTagsSceneFileText.getText());
-			child.put("outputDocTagsOutlineTags", outputDocTagsOutlineTagsText.getText());
+			child.put("outputDocTagsOutlineCTags", outputDocTagsOutlineCTagsText.getText());
+			child.put("outputDocTagsOutlineTags", outputDocTagsOutlineETagsText.getText());
 			child.put("outputDocTagsSceneTags", outputDocTagsSceneTagsText.getText());
 			child.put("outputDocTagsSceneCoTags", outputDocTagsSceneCoTags.getText());
 

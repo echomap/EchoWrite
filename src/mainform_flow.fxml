@@ -19,11 +19,25 @@
           <RowConstraints maxHeight="-Infinity" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-      <FlowPane id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="380.0" prefWrapLength="800.0" style="-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;" vgap="10.0" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="TOP">
+      <FlowPane id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="480.0" prefWrapLength="800.0" style="-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;" vgap="10.0" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="TOP">
         <children>
-          <Button id="formatBtn" fx:id="formatBtn" mnemonicParsing="true" onAction="#handleDoFormatAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!" />
-          <Button id="wordCountBtn" fx:id="wordCountBtn" mnemonicParsing="true" onAction="#handleDoCountAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Word Count" />
-          <Button id="outlineBtn" fx:id="outlineBtn" mnemonicParsing="true" onAction="#handleDoOutlineAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Outline" />
+          <Button id="formatBtn" fx:id="formatBtn" mnemonicParsing="true" onAction="#handleDoFormatAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!">
+               <tooltip>
+                  <Tooltip text="Runs the &quot;Formating&quot; function" />
+               </tooltip></Button>
+          <Button id="wordCountBtn" fx:id="wordCountBtn" mnemonicParsing="true" onAction="#handleDoCountAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Word Count">
+               <tooltip>
+                  <Tooltip text="Runs the &quot;Word Counter function" />
+               </tooltip></Button>
+          <Button id="outlineBtn" fx:id="outlineBtn" mnemonicParsing="true" onAction="#handleDoOutlineAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Outline">
+               <tooltip>
+                  <Tooltip text="Runs the &quot;DocTag Outliner&quot; function" />
+               </tooltip></Button>
+            <Button id="outlineBtn" fx:id="outlineBtn1" layoutX="229.0" layoutY="23.0" mnemonicParsing="true" onAction="#handleDoClearLogAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Clear Log">
+               <tooltip>
+                  <Tooltip text="Runs the &quot;DocTag Outliner&quot; function" />
+               </tooltip>
+            </Button>
           <Button cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" text="_Close" textFill="#fefefe" />
         </children>
         <padding>
@@ -198,11 +212,14 @@
                   </ScrollPane>
             <TitledPane collapsible="false" text="DocTag Outliner Output:" GridPane.columnIndex="1">
               <content>
-                <GridPane>
+                <GridPane vgap="1.0">
                   <children>
                     <HBox>
                       <children>
-                        <Label minWidth="-Infinity" prefWidth="70.0" text="Ouline:" />
+                        <Label minWidth="-Infinity" prefWidth="70.0" text="OutlineCSV:">
+                                 <font>
+                                    <Font name="Arial" size="12.0" />
+                                 </font></Label>
                         <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText" promptText="Output Ouline File" HBox.hgrow="ALWAYS" />
                         <Button id="outlineOutputBtn" fx:id="outlineOutputBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile" prefWidth="70.0" text="Browse">
                           <HBox.margin>
@@ -213,7 +230,7 @@
                     </HBox>
                               <HBox layoutX="20.0" layoutY="20.0" GridPane.rowIndex="1">
                                  <children>
-                                    <Label minWidth="-Infinity" prefWidth="70.0" text="All File:" />
+                                    <Label minWidth="-Infinity" prefWidth="70.0" text="All CSV:" />
                                     <TextField id="outputOutlineFileText" fx:id="outputOutlineFileText1" promptText="Output All DocTags File" HBox.hgrow="ALWAYS" />
                                     <Button id="outlineOutputBtn" fx:id="outlineOutputBtn1" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
                                        <HBox.margin>
@@ -222,9 +239,12 @@
                                     </Button>
                                  </children>
                               </HBox>
-                              <HBox layoutX="20.0" layoutY="50.0" GridPane.rowIndex="2">
+                              <HBox layoutX="20.0" layoutY="50.0" spacing="2.0" GridPane.rowIndex="2">
                                  <children>
-                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Outline File:" />
+                                    <Label minWidth="-Infinity" text="Outline:">
+                                 <font>
+                                    <Font name="Arial Black" size="12.0" />
+                                 </font></Label>
                                     <TextField id="outputOutlineFileText" fx:id="outputDocTagsOutlineFileText" promptText="Output Outline DocTags File" HBox.hgrow="ALWAYS" />
                                     <Button id="outlineOutputBtn" fx:id="outlineOutputBtn11" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
                                        <HBox.margin>
@@ -235,16 +255,48 @@
                               </HBox>
                               <HBox layoutX="20.0" layoutY="20.0" GridPane.rowIndex="3">
                                  <children>
-                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsOutlineTagsText" promptText="List of tags to use" text="outline, scene, subscene, info, " HBox.hgrow="ALWAYS">
+	                              <Label minWidth="60.0" text="Expand" HBox.hgrow="ALWAYS">
+	                                 <font>
+	                                    <Font size="11.0" />
+	                                 </font>
+	                                 <HBox.margin>
+	                                    <Insets left="8.0" />
+	                                 </HBox.margin>
+	                              </Label>
+                                    <TextField id="outputOutlineFileText" fx:id="outputDocTagsOutlineETagsText" promptText="List of tags to use" text="outline, scene, subscene, info, " HBox.hgrow="ALWAYS">
                                        <HBox.margin>
-                                          <Insets left="70.0" />
+                                          <Insets />
                                        </HBox.margin>
                                     </TextField>
                                  </children>
                               </HBox>
-                              <HBox GridPane.rowIndex="4">
+                                 <HBox layoutX="20.0" layoutY="110.0" GridPane.rowIndex="4">
+		                           <children>
+		                              <Label minWidth="70.0" text="Compress:" HBox.hgrow="SOMETIMES">
+		                                 <font>
+		                                    <Font size="11.0" />
+		                                 </font>
+		                                 <HBox.margin>
+		                                    <Insets left="8.0" />
+		                                 </HBox.margin>
+		                              </Label>
+		                              <TextField id="outputOutlineFileText" fx:id="outputDocTagsOutlineCTagsText" promptText="List of tags to use" text="outline, scene, subscene, info, " HBox.hgrow="ALWAYS">
+		                                 <HBox.margin>
+		                                    <Insets />
+		                                 </HBox.margin>
+		                              </TextField>
+		                           </children>
+		                           <GridPane.margin>
+		                              <Insets bottom="2.0" />
+		                           </GridPane.margin>
+		                        </HBox>
+
+                              <HBox spacing="2.0" GridPane.rowIndex="5">
                                  <children>
-                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Scene File:" />
+                                    <Label minWidth="-Infinity" text="Scene File:" HBox.hgrow="ALWAYS">
+                                 <font>
+                                    <Font name="Arial Black" size="12.0" />
+                                 </font></Label>
                                     <TextField id="outputOutlineFileText" fx:id="outputDocTagsSceneFileText" promptText="Output Scenes DocTags File" HBox.hgrow="ALWAYS" />
                                     <Button id="outlineOutputBtn" fx:id="outlineOutputBtn111" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOutputOutlineFile1" prefWidth="70.0" text="Browse">
                                        <HBox.margin>
@@ -253,45 +305,61 @@
                                     </Button>
                                  </children>
                               </HBox>
-                              <HBox GridPane.rowIndex="5">
+                              <HBox GridPane.rowIndex="6">
                                  <children>
+                              <Label text="Tags:">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets left="6.0" />
+                                 </HBox.margin>
+                              </Label>
                                     <TextField id="outputOutlineFileText" fx:id="outputDocTagsSceneTagsText" promptText="List of tags to use" text="scene, subscene" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
-                                          <Insets left="70.0" />
+                                          <Insets left="6.0" />
                                        </HBox.margin>
                                     </TextField>
                                  </children>
                               </HBox>
-                              <HBox layoutX="20.0" layoutY="170.0" GridPane.rowIndex="6">
+                              <HBox layoutX="20.0" layoutY="170.0" GridPane.rowIndex="7">
                                  <children>
-                                    <Label prefWidth="70.0" text="Coalate:" />
+                                    <Label text="Coalate:">
+                                 <HBox.margin>
+                                    <Insets left="6.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="Arial" size="11.0" />
+                                 </font></Label>
                                     <TextField id="outputOutlineFileText" fx:id="outputDocTagsSceneCoTags" promptText="List of tags to coalate" text="description, changes, starttime" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
-                                          <Insets />
+                                          <Insets left="6.0" />
                                        </HBox.margin>
                                     </TextField>
                                  </children>
                               </HBox>
-                        <HBox layoutX="20.0" layoutY="200.0" GridPane.rowIndex="7">
+                        <HBox layoutX="20.0" layoutY="200.0" GridPane.rowIndex="8">
                            <children>
                               <Label prefWidth="70.0" text="Options:" />
                               <Label text="Max Line Length:" />
                               <TextField fx:id="outputDocTagsMaxLineLength" prefHeight="25.0" prefWidth="57.0" promptText="Columns before wrap, or -1 or blank for none." text="70" />
                            </children>
                         </HBox>
+                     
                   </children>
                   <columnConstraints>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   </columnConstraints>
                   <rowConstraints>
-                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                              <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
                   </rowConstraints>
                 </GridPane>
               </content>
@@ -303,12 +371,12 @@
                     <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.valignment="TOP">
                       <children>
                         <Label minWidth="-Infinity" prefWidth="75.0" text="Single File:" HBox.hgrow="ALWAYS">
-                          <textFill>
-                            <Color blue="0.478" green="0.000" red="1.000" fx:id="x133" />
-                          </textFill>
                           <HBox.margin>
                             <Insets right="4.0" />
                           </HBox.margin>
+                                 <font>
+                                    <Font name="Arial" size="12.0" />
+                                 </font>
                         </Label>
                         <TextField id="outputFileText" fx:id="outputFileText" maxWidth="-1.0" prefWidth="-1.0" promptText="Single HTML File" text="" HBox.hgrow="ALWAYS">
                           <HBox.margin>
@@ -325,9 +393,6 @@
                     <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
                       <children>                          
                        <Label minWidth="-Infinity" prefWidth="75.0" text="Chp. Html Dir:">
-                          <textFill>
-                            <Color blue="0.478" green="0.000" red="1.000" fx:id="x134" />
-                          </textFill>
                           <HBox.margin>
                             <Insets right="4.0" />
                           </HBox.margin>
@@ -371,15 +436,15 @@
                     </HBox>
                               <HBox prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="4">
                                  <children>
-                          <ChoiceBox id="counterDigitChoice" fx:id="counterDigitChoice" prefWidth="150.0" />
+                          <ChoiceBox id="counterDigitChoice" fx:id="counterDigitChoice" prefWidth="150.0">
+                                 <tooltip>
+                                    <Tooltip text="Select the format of the numbers used in the output filenames" />
+                                 </tooltip></ChoiceBox>
                                  </children>
                               </HBox>
                         <HBox layoutX="20.0" layoutY="50.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="2">
                            <children>
                               <Label minWidth="-Infinity" prefWidth="75.0" text="Chp. Text Dir:">
-                                 <textFill>
-                                    <Color blue="0.478" green="0.000" red="1.000" fx:id="x1341" />
-                                 </textFill>
                                  <HBox.margin>
                                     <Insets right="4.0" />
                                  </HBox.margin>

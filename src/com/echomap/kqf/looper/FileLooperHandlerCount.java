@@ -30,6 +30,11 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
+	public String getWorkType() {
+		return "Counter";
+	}
+
+	@Override
 	public void preLine(FormatDao formatDao, LooperDao ldao) throws IOException {
 		// LOGGER.info("preLine-->");
 	}
@@ -40,21 +45,22 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
 		if (chpt.isChapter) {
-//			if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0) {
-//				// System.out.println(cdao.getChapterName() + "\t\t"
-//				// + cdao.getNumWords() + "\t" + chpt.title);
-//				tdao.addNumWords(cdao.getNumWords());
-//				// totalWordCount += cdao.getNumWords();
-//				// tdao.copy(cdao);
-//				ldao.getChapters().add(new ChapterDao(cdao));
-//				// tdao = new CountDao();
-//				cdao.clear();
-//				tdao.addChapterCount(1);
-//				// chapterCount++;
-//			}
-//			cdao.setChapterName(chpt.name);
-//			cdao.setChapterTitle(chpt.title);
-//			// cdao.setChapterNumber(chapterCount);
+			// if (cdao.getChapterName() != null &&
+			// cdao.getChapterName().length() > 0) {
+			// // System.out.println(cdao.getChapterName() + "\t\t"
+			// // + cdao.getNumWords() + "\t" + chpt.title);
+			// tdao.addNumWords(cdao.getNumWords());
+			// // totalWordCount += cdao.getNumWords();
+			// // tdao.copy(cdao);
+			// ldao.getChapters().add(new ChapterDao(cdao));
+			// // tdao = new CountDao();
+			// cdao.clear();
+			// tdao.addChapterCount(1);
+			// // chapterCount++;
+			// }
+			// cdao.setChapterName(chpt.name);
+			// cdao.setChapterTitle(chpt.title);
+			// // cdao.setChapterNumber(chapterCount);
 			cdao.setChapterNumber(tdao.getNumChapters());
 
 		} else {
