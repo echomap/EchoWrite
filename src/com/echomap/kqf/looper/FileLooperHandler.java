@@ -15,7 +15,7 @@ public interface FileLooperHandler {
 
 	void postLine(FormatDao formatDao, LooperDao ldao) throws IOException;
 
-	void postHandler(FormatDao formatDao, LooperDao ldao) throws IOException;
+	String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException;
 
 	void preHandler(FormatDao formatDao, LooperDao ldao) throws IOException;
 

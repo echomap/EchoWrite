@@ -9,6 +9,7 @@ import com.echomap.kqf.looper.FileLooper;
  */
 public class FormatDao {
 	public static final String DEFAULToutputEncoding = "Cp1252";
+	private String version = null;
 	private String inputFilename = null;
 
 	private String outputFilename = null;
@@ -356,6 +357,14 @@ public class FormatDao {
 
 	public void setDocTagsOutlineExpandTags(String docTagsOutlineExpandTags) {
 		this.docTagsOutlineExpandTags = docTagsOutlineExpandTags;
+	}
+
+	public void setVersion(final String property) {
+		this.version = property;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 }

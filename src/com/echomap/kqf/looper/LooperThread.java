@@ -25,6 +25,10 @@ public class LooperThread extends Thread {
 
 	private WorkDoneNotify notifyCtrl = null;
 
+	private final static Logger LOGGER = LogManager.getLogger(LooperThread.class);
+	final static String newLine = System.getProperty("line.separator");
+	public static final String DEFAULToutputEncoding = "Cp1252";
+
 	public LooperThread(final FormatDao formatDao, final FileLooperHandler flHandler, final LooperDao ldao,
 			final WorkDoneNotify notifyCtrl) {
 		this.formatDao = formatDao;
@@ -61,10 +65,6 @@ public class LooperThread extends Thread {
 			e.printStackTrace();
 		}
 	}
-
-	private final static Logger LOGGER = LogManager.getLogger(LooperThread.class);
-	final static String newLine = System.getProperty("line.separator");
-	public static final String DEFAULToutputEncoding = "Cp1252";
 
 	/**
 	 * 
@@ -118,8 +118,10 @@ public class LooperThread extends Thread {
 			if (reader != null) {
 				reader.close();
 			}
-			flHandler.postHandler(formatDao, ldao);
+			final String finalMsg = flHandler.postHandler(formatDao, ldao);
 			notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finished.");
+			if (finalMsg != null)
+				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
 		}
 		LOGGER.info("Loop: Done");
 	}

@@ -1,7 +1,14 @@
 package com.echomap.kqf.two.gui;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import com.echomap.kqf.looper.FileLooperHandlerFormatter;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -13,13 +20,28 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class KQFFrame extends Application {
+	private final static Logger LOGGER = LogManager.getLogger(KQFFrame.class);
 
 	private static final String FXML_FILE1 = "/mainform.fxml";
 	private static final String FXML_FILE2 = "/mainform_flow.fxml";
 	private static final String FXML_FILE = FXML_FILE2;
+	final static Properties props = new Properties();
 
 	public static void main(String[] args) {
 		Application.launch(KQFFrame.class, args);
+	}
+
+	public KQFFrame() {
+		try {
+			final InputStream asdf = FileLooperHandlerFormatter.class.getClassLoader()
+					.getResourceAsStream("cwc.properties");
+			if (asdf != null)
+				props.load(asdf);
+		} catch (IOException e) {
+			e.printStackTrace();
+			props.setProperty("version", "0.0.0");
+		}
+		LOGGER.info("Version: " + props.getProperty("version"));
 	}
 
 	@Override
@@ -36,7 +58,7 @@ public class KQFFrame extends Application {
 			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
 			parent = (Parent) fxmlLoader.load(location.openStream());
 
-			primaryStage.setTitle("Kindle (Ebook) Quick Formatter (MYKFEQF)");
+			primaryStage.setTitle("Kindle (Ebook) Quick Formatter (MYKFEQF v" + props.getProperty("version") + ")");
 			// primaryStage.setWidth(1024);
 			// primaryStage.setHeight(200);
 
@@ -45,6 +67,7 @@ public class KQFFrame extends Application {
 
 			//
 			final KQFCtrl myController = (KQFCtrl) fxmlLoader.getController();
+			myController.setProps(props);
 
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we) {

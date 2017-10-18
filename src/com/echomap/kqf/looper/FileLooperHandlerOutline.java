@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,9 +24,12 @@ import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 
+/**
+ * 
+ * @author mkatz
+ */
 public class FileLooperHandlerOutline implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerOutline.class);
-	final static Properties props = new Properties();
 
 	private Writer fWriterOutline = null;
 	private Writer fWriterAll = null;
@@ -36,27 +37,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private FileWriter fWriterOutlineFile;
 	private FileWriter fWriterSceneFile;
 	private FileWriter fWriterNotUsedFile;
-	// private String docTagsOutlineTags;
-	// private String docTagsSceneTags;
+
+	private int levelledCount = 0;
+	private String lastLevelledText = null;
 
 	final List<String> outlineTags = new ArrayList<String>();
 
 	final Map<String, List<DocTag>> coalateTextMap = new TreeMap<String, List<DocTag>>();
 	final List<DocTag> sceneDTList = new ArrayList<DocTag>();
-
-	// final
+	final List<DocTag> unusedTagList = new ArrayList<DocTag>();
 
 	public FileLooperHandlerOutline() {
-		try {
-			final InputStream asdf = FileLooperHandlerOutline.class.getClassLoader()
-					.getResourceAsStream("oo.properties");
-			if (asdf != null)
-				props.load(asdf);
-		} catch (IOException e) {
-			e.printStackTrace();
-			props.setProperty("version", "0.0.0");
-		}
-		LOGGER.info("Version: " + props.getProperty("version"));
+		//
 	}
 
 	@Override
@@ -66,40 +58,19 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	@Override
 	public void preLine(FormatDao formatDao, LooperDao ldao) {
-
+		//
 	}
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		// final SimpleChapterDao chpt =
-		// TextBiz.isChapter(st,formatDao.getChapterDivider());
 		final SimpleChapterDao chpt = ldao.getCurrentChapter();
 		final CountDao cdao = ldao.getChaptCount();
-		// final CountDao tdao = ldao.getTotalCount();
 		if (chpt.isChapter) {
-			// if (cdao.getChapterName() != null &&
-			// cdao.getChapterName().length() > 0) {
-			// // System.out.println(cdao.getChapterName() + "\t\t"
-			// // + cdao.getNumWords() + "\t" + chpt.title);
-			// tdao.addNumWords(cdao.getNumWords());
-			// // totalWordCount += cdao.getNumWords();
-			// // tdao.copy(cdao);
-			// ldao.getChapters().add(new ChapterDao(cdao));
-			// // tdao = new CountDao();
-			// cdao.clear();
-			// tdao.addChapterCount(1);
-			// // chapterCount++;
-			// }
-			// cdao.setChapterName(chpt.name);
-			// cdao.setChapterTitle(chpt.title);
-			// cdao.setChapterNumber(tdao.getNumChapters());
 			writeChapterData(formatDao, ldao, cdao);
+			levelledCount = 0;
 		} else {
 			outlineLine(ldao, cdao, formatDao);
 		}
-
-		// parseLine(st, fWriter, chapterDivider, storyTitle1,
-		// storyTitle2);
 		cdao.addOneToNumLines();
 	}
 
@@ -232,6 +203,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 							fWriterNotUsedFile.write(docTag.getName());
 							fWriterNotUsedFile.write(TextBiz.newLine);
 						}
+						unusedTagList.add(docTag);
 					}
 				}
 			}
@@ -254,15 +226,34 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			return;
 
 		if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())) {
-			if (docTag.getName().startsWith("sub") || docTag.getName().endsWith("sub"))
+			if ("scene".compareToIgnoreCase(docTag.getName()) == 0) {
+				this.levelledCount = 0;
+			}
+		}
+		if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())) {
+			if ("subscene".compareToIgnoreCase(docTag.getName()) == 0
+					|| "scenesub".compareToIgnoreCase(docTag.getName()) == 0) {
+				this.levelledCount = 1;
+			}
+		}
+
+		if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())) {
+			if (docTag.getName().startsWith("sub") || docTag.getName().endsWith("sub")) {
 				fWriterL.write("\t");
+				// lastLevelledText = docTag.getName();
+			} else if (levelledCount == 1)
+				fWriterL.write("\t\t");
 			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL, false);
+			// writeDataToFileWithCrop(" [" + levelledCount + "]", formatDao,
+			// fWriterL, false);
 			// fWriterL.write(docTag.getValue());
 			// fWriterL.write(TextBiz.newLine);
 		} else if (formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
 			fWriterL.write(docTag.getName());
 			fWriterL.write(": ");
 			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL, false);
+			// writeDataToFileWithCrop(" [" + levelledCount + "]", formatDao,
+			// fWriterL, false);
 			// fWriterL.write(docTag.getValue());
 			// fWriterL.write(TextBiz.newLine);
 		}
@@ -318,7 +309,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	}
 
 	@Override
-	public void postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
+
+		// todo formatDao.getVersion()
+		// if (fWriterOutlineFile != null) {
+		// fWriterOutlineFile.write(TextBiz.newLine);
+		// fWriterOutlineFile.write(TextBiz.newLine);
+		// if (unusedTagList.size() > 0) {
+		// fWriterOutlineFile.write("Unused Tags: ");
+		// for (DocTag dt1 : unusedTagList) {
+		// fWriterOutlineFile.write(dt1.getName());
+		// fWriterOutlineFile.write(",");
+		// }
+		// fWriterOutlineFile.write(TextBiz.newLine);
+		// fWriterOutlineFile.write(TextBiz.newLine);
+		// }
+		// }
 
 		if (fWriterAll != null) {
 			fWriterAll.flush();
@@ -340,7 +346,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterNotUsedFile.flush();
 			fWriterNotUsedFile.close();
 		}
-
+		return null;
 	}
 
 	@Override
@@ -400,7 +406,6 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterOutlineFile.write(formatDao.getDocTagsOutlineExpandTags());
 			fWriterOutlineFile.write(TextBiz.newLine);
 			fWriterOutlineFile.write(TextBiz.newLine);
-			//
 		}
 
 		if (!StringUtils.isBlank(formatDao.getOutputDocTagsSceneFile())) {

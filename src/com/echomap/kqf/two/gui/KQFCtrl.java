@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,6 +42,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	private File lastSelectedDirectory = null;
 	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	Properties props = new Properties();
 	// final Preferences userPrefs =
 	// Preferences.userNodeForPackage(KQFCtrl.class);
 
@@ -480,6 +482,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		else
 			dtmllI = Integer.parseInt(dtmllS);
 		formatDao.setDocTagsMaxLineLength(dtmllI);
+
+		formatDao.setVersion(props.getProperty("version"));
 	}
 
 	private void lockGui() {
@@ -774,6 +778,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			textField.setText(file.getAbsolutePath());
 			lastSelectedDirectory = file;
 		}
+	}
+
+	public void setProps(final Properties props) {
+		this.props = props;
 	}
 
 	// private void automaticFromInput() {

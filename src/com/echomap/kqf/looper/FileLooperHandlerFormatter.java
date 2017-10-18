@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,9 +25,12 @@ import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 
+/**
+ * 
+ * @author mkatz
+ */
 public class FileLooperHandlerFormatter implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerFormatter.class);
-	final static Properties props = new Properties();
 
 	FileWriter fWriter = null;
 	FileWriter fWriterPlain = null;
@@ -50,16 +52,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	String formatOutputNumber = "%03d"; // TODO Param
 
 	public FileLooperHandlerFormatter() {
-		try {
-			final InputStream asdf = FileLooperHandlerFormatter.class.getClassLoader()
-					.getResourceAsStream("fmt.properties");
-			if (asdf != null)
-				props.load(asdf);
-		} catch (IOException e) {
-			e.printStackTrace();
-			props.setProperty("version", "0.0.0");
-		}
-		LOGGER.info("Version: " + props.getProperty("version"));
+
 	}
 
 	@Override
@@ -371,6 +364,9 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		if (chapterWriterPlain == null) {
 			return;
 		}
+
+		// formatDao.getVersion()
+
 		LOGGER.debug("closeChapterWriterPlain");
 		chapterWriterPlain.flush();
 		// outputFooter(chapterWriter);
@@ -405,6 +401,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		if (sectionWriter == null) {
 			return;
 		}
+		// formatDao.getVersion()
 		LOGGER.debug("closeSectionWriter");
 		sectionWriter.flush();
 		outputFooter(sectionWriter);
@@ -417,6 +414,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		if (chapterWriter == null) {
 			return;
 		}
+		// formatDao.getVersion()
 		LOGGER.debug("closeChapterWriter");
 		chapterWriter.flush();
 		outputFooter(chapterWriter);
@@ -459,7 +457,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	}
 
 	@Override
-	public void postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		closeSectionWriter(sectionCounter, chapterCounter);
 		closeChapterWriter(chapterCounter);
 		if (fWriter != null) {
@@ -478,6 +476,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			chapterWriterPlain.flush();
 			chapterWriterPlain.close();
 		}
+		return "Chapters: " + chapterCounter + "  Sections: " + sectionCounter;
 	}
 
 	@Override
