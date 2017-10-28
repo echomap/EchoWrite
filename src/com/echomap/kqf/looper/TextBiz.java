@@ -301,7 +301,7 @@ public class TextBiz {
 			} else {
 				dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
 
-				String line2 = line.substring(idx2 + endTag.length());
+				String line2 = line;//.substring(idx2 + endTag.length());
 				DocTag dt = findNextDocTag(startTag, endTag, line2);
 				while (dt != null) {
 					dtl.addDocTag(dt);

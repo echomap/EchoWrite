@@ -4,6 +4,7 @@ add tag support like:
 
 2017 10 28
 	updated threading error
+	bug in doctag finding routing
 	
 2017 09 18
 	start refactor looper to do more repeated tasks
