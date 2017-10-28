@@ -85,7 +85,8 @@ public class LooperThread extends Thread {
 				LOGGER.error("The specified input file does not exist");
 				return;
 			}
-			notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Starting up...");
+			if (notifyCtrl != null)
+				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Starting up...");
 			final FileReader fr = new FileReader(inputFile);
 			reader = new BufferedReader(fr);
 			String st = "";
@@ -97,7 +98,8 @@ public class LooperThread extends Thread {
 				if (lineCount % 1000 == 0) {
 					long nowReport = System.currentTimeMillis();
 					if ((nowReport - lastReport) > 999)
-						notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Continuing on line " + lineCount);
+						if (notifyCtrl != null)
+							notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Continuing on line " + lineCount);
 				}
 				setupLine(st, ldao, formatDao);
 				//
@@ -108,7 +110,8 @@ public class LooperThread extends Thread {
 				flHandler.postLine(formatDao, ldao);
 			}
 			flHandler.postLastLine(formatDao, ldao);
-			notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finishing up.");
+			if (notifyCtrl != null)
+				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finishing up.");
 			// tdao.copy(cdao);
 			// chapters.add(tdao);
 			// tdao = new CountDao();
@@ -119,9 +122,11 @@ public class LooperThread extends Thread {
 				reader.close();
 			}
 			final String finalMsg = flHandler.postHandler(formatDao, ldao);
-			notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finished.");
+			if (notifyCtrl != null)
+				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finished.");
 			if (finalMsg != null)
-				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
+				if (notifyCtrl != null)
+					notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
 		}
 		LOGGER.info("Loop: Done");
 	}

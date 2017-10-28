@@ -20,6 +20,7 @@ import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.FileLooper;
 import com.echomap.kqf.looper.TextBiz;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,8 +42,9 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
 	private File lastSelectedDirectory = null;
-	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private static final DateFormat myDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	Properties props = new Properties();
+
 	// final Preferences userPrefs =
 	// Preferences.userNodeForPackage(KQFCtrl.class);
 
@@ -146,6 +148,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	Timer timer = new Timer();
 	private MyTimerTask myTimerTask;
 
+	private boolean runningMutex = false;
+
+	public KQFCtrl() {
+	}
+
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
 
@@ -185,20 +192,37 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	@Override
 	public void finishedWithWork(final String msg) {
-		setLastRunText("Done running " + msg + " Process (" + getCurrentDateFmt() + ")");
-		unlockGui();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				setLastRunText("Done running " + msg + " Process (" + getCurrentDateFmt() + ")");
+				unlockGui();
+				runningMutex = false;
+			}
+		});
 	}
 
 	@Override
 	public void errorWithWork(final String msg, final Exception e) {
-		setLastRunText("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e);
-		LOGGER.error(e);
-		unlockGui();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				setLastRunText("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e);
+				LOGGER.error(e);
+				unlockGui();
+				runningMutex = false;
+			}
+		});
 	}
 
 	@Override
-	public void statusUpdateForWork(String header, String msg) {
-		setLastRunText("---" + header + " Process, " + msg);
+	public void statusUpdateForWork(final String header, final String msg) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				setLastRunText("---" + header + " Process, " + msg);
+			}
+		});
 	}
 
 	private void loadChoices() {
@@ -356,9 +380,15 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleDoCountAction(final ActionEvent event) {
+		if (runningMutex) {
+			LOGGER.debug("Something is already running!!");
+			return;
+		}
+		lockGui();
+		this.runningMutex = true;
+
 		LOGGER.info("Running count action");
 		setLastRunText("Running Count Process (" + getCurrentDateFmt() + ")");
-		lockGui();
 		// timer.cancel();
 		// timer = new Timer();
 		try {
@@ -380,9 +410,15 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleDoOutlineAction(final ActionEvent event) {
+		if (runningMutex) {
+			LOGGER.debug("Something is already running!!");
+			return;
+		}
+		lockGui();
+		this.runningMutex = true;
+
 		LOGGER.info("Running outline action");
 		setLastRunText("Running Outline Process (" + getCurrentDateFmt() + ")");
-		lockGui();
 		try {
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
@@ -401,9 +437,15 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleDoFormatAction(final ActionEvent event) {
+		if (runningMutex) {
+			LOGGER.debug("Something is already running!!");
+			return;
+		}
+		lockGui();
+		this.runningMutex = true;
+
 		LOGGER.info("Running format action");
 		setLastRunText("Running Format Process (" + getCurrentDateFmt() + ")");
-		lockGui();
 		try {
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
@@ -423,6 +465,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	public void handleDoClearLogAction(final ActionEvent event) {
 		this.lastRunText.clear();
+		this.unlockGui();
 	}
 
 	private void setupDao(final FormatDao formatDao) {
@@ -487,6 +530,9 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	private void lockGui() {
+		if (runningMutex) {
+			return;
+		}
 		// inputFileBtn.setDisable(true);
 		// loadOutputDirBtn.setDisable(true);
 		// loadOutputFileBtn.setDisable(true);
@@ -559,8 +605,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	private String getCurrentDateFmt() {
 		final Calendar cal = Calendar.getInstance();
-		dateFormat.setTimeZone(cal.getTimeZone());
-		String txt = dateFormat.format(cal.getTime());
+		myDateFormat.setTimeZone(cal.getTimeZone());
+		String txt = myDateFormat.format(cal.getTime());
 		LOGGER.debug("date = " + txt);
 		return txt;
 	}

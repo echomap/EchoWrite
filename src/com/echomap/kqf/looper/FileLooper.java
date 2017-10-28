@@ -141,7 +141,12 @@ public class FileLooper {
 		final LooperThread p = new LooperThread(formatDao, flHandler, dao, notifyCtrl);
 		p.start();
 
-		LOGGER.info("Total Words: " + dao.getTotalCount().getNumWords());
+		try {
+			LOGGER.info("Total Words: " + dao.getTotalCount().getNumWords());
+		} catch (Exception e) {
+			LOGGER.error(e);
+			// e.printStackTrace();
+		}
 		// LOGGER.info("Version: " + props.getProperty("version"));
 		LOGGER.info("Written to: " + formatDao.getOutputCountFile());
 	}
