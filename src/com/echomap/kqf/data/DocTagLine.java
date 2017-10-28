@@ -72,12 +72,14 @@ public class DocTagLine {
 	public void setupContainsDocTag(String line, String docTagText) {
 		if (getDocTags() == null)
 			setDocTags(new ArrayList<DocTag>());
-		this.getDocTags().add(new DocTag(docTagText));
+		// final DocTag dt = new DocTag(docTagText);
+		// this.getDocTags().add(dt);
 
 		this.line = line;
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
 		this.longDocTag = false;
+		// return dt;
 	}
 
 	public void setupLongDocTag(String line, String docTagText) {
