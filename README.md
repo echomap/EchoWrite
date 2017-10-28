@@ -1,9 +1,8 @@
 # KindleQuickFormatter
 
-Binarys in:
+Programed in Java.
+Made for me, as I write my novels/stories in plain text, and then need to get them into Sigil for Kindle or general EPUB publishing.
 
-https://drive.google.com/drive/folders/0By_pGGcW1cRGbVpPdnNQRnp3VTA?usp=sharing
+Recently added support for me to make comments in the text, which are used to create outlines and are stripped out of the final product.
 
-(Copy to your drive)
-
-or just use ant or eclipse to build...
+-
