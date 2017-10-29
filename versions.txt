@@ -2,9 +2,11 @@ TODO
 add tag support like:
 [[def:... ]]  / [[pov:... ]] / [[loc:... ]] / [[date:...]]
 
-2017 10 28
+2017 10 28 - 1.0.4
 	updated threading error
 	bug in doctag finding routing
+	wasn't outputting last chapter
+	long DocTags might be working...?
 	
 2017 09 18
 	start refactor looper to do more repeated tasks

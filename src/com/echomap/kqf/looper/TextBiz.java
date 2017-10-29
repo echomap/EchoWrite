@@ -283,8 +283,7 @@ public class TextBiz {
 		return dao;
 	}
 
-	static DocTagLine isDocTag(final String line, final String startTag, final String endTag) {
-
+	static DocTagLine isDocTag(final String line, final String startTag, final String endTag) {		
 		final DocTagLine dtl = new DocTagLine();
 		if (StringUtils.isBlank(startTag) || StringUtils.isBlank(endTag)) {
 			dtl.setupNotADocTag(line);
@@ -301,7 +300,7 @@ public class TextBiz {
 			} else {
 				dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
 
-				String line2 = line;//.substring(idx2 + endTag.length());
+				String line2 = line;// .substring(idx2 + endTag.length());
 				DocTag dt = findNextDocTag(startTag, endTag, line2);
 				while (dt != null) {
 					dtl.addDocTag(dt);
@@ -317,6 +316,9 @@ public class TextBiz {
 		} else if (line.contains(startTag)) {
 			int idx1 = line.indexOf(startTag);
 			dtl.setupLongDocTag(line, line.substring(idx1 + startTag.length()));
+			// return DOCTAGTYPE.LONGDOCTAG;
+		} else if (line.contains(endTag)) {
+			dtl.setEndDocTag(true);		
 			// return DOCTAGTYPE.LONGDOCTAG;
 		}
 		// return DOCTAGTYPE.NONE;

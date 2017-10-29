@@ -43,9 +43,12 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	final List<String> outlineTags = new ArrayList<String>();
 
-	final Map<String, List<DocTag>> coalateTextMap = new TreeMap<String, List<DocTag>>();
-	final List<DocTag> sceneDTList = new ArrayList<DocTag>();
-	final List<DocTag> unusedTagList = new ArrayList<DocTag>();
+	private final Map<String, List<DocTag>> coalateTextMap = new TreeMap<String, List<DocTag>>();
+	private final List<DocTag> sceneDTList = new ArrayList<DocTag>();
+	private final List<DocTag> unusedTagList = new ArrayList<DocTag>();
+
+	private boolean inLongDocTag = false;
+	private StringBuilder longDocTagText = new StringBuilder();
 
 	public FileLooperHandlerOutline() {
 		//
@@ -77,7 +80,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private void writeChapterData(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao)
 			throws IOException {
 		// format chapter number
-		if (fWriterOutlineFile != null) {
+		if (fWriterOutlineFile != null && cdao != null) {
 			if (cdao.getChapterNumber() > 1)
 				fWriterOutlineFile.write(TextBiz.newLine);
 
@@ -86,26 +89,27 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterOutlineFile.write(TextBiz.newLine);
 		}
 		if (fWriterSceneFile != null) {
-			for (Map.Entry<String, List<DocTag>> entry : coalateTextMap.entrySet()) {
-				System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
-				final String key = entry.getKey();
-				final List<DocTag> vals = entry.getValue();
-				fWriterSceneFile.write(key);
-				fWriterSceneFile.write(":");
-				fWriterSceneFile.write(TextBiz.newLine);
-
-				for (final DocTag docTag : vals) {
-					fWriterSceneFile.write("\t");
-					fWriterSceneFile.write(docTag.getValue());
-					fWriterSceneFile.write(TextBiz.newLine);
-				}
-			}
+			writeToSceneFileCo();
 		}
 		coalateTextMap.clear();
 
 		// TODO use sublist of doctags to put sub(s) into mains
-		DocTag docTagLast = null;
+
+		// DocTag docTagLast = null;
+		writeToSceneFileMain(formatDao);
 		// boolean inScene = false;
+
+		if (fWriterSceneFile != null && cdao != null) {
+			if (cdao.getChapterNumber() > 1)
+				fWriterSceneFile.write(TextBiz.newLine);
+
+			fWriterSceneFile
+					.write("-= Chapter: " + cdao.getChapterNumber() + " (1." + cdao.getChapterNumber() + ") =-");
+			fWriterSceneFile.write(TextBiz.newLine);
+		}
+	}
+
+	private void writeToSceneFileMain(final FormatDao formatDao) throws IOException {
 		for (final DocTag docTag : sceneDTList) {
 			// if (docTag.getName().compareTo("scene") != 0) inScene = true;
 			// if (inScene && docTag.getName().compareTo("subscene") != 0) {
@@ -119,17 +123,25 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile, true);
 			}
 
-			docTagLast = docTag;
+			// docTagLast = docTag;
 		}
 		sceneDTList.clear();
+	}
 
-		if (fWriterSceneFile != null) {
-			if (cdao.getChapterNumber() > 1)
-				fWriterSceneFile.write(TextBiz.newLine);
-
-			fWriterSceneFile
-					.write("-= Chapter: " + cdao.getChapterNumber() + " (1." + cdao.getChapterNumber() + ") =-");
+	private void writeToSceneFileCo() throws IOException {
+		for (Map.Entry<String, List<DocTag>> entry : coalateTextMap.entrySet()) {
+			System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
+			final String key = entry.getKey();
+			final List<DocTag> vals = entry.getValue();
+			fWriterSceneFile.write(key);
+			fWriterSceneFile.write(":");
 			fWriterSceneFile.write(TextBiz.newLine);
+
+			for (final DocTag docTag : vals) {
+				fWriterSceneFile.write("\t");
+				fWriterSceneFile.write(docTag.getValue());
+				fWriterSceneFile.write(TextBiz.newLine);
+			}
 		}
 	}
 
@@ -171,9 +183,32 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	private void outlineLine(final LooperDao ldao, final CountDao cdao, final FormatDao formatDao) throws IOException {
+		//
 		DocTagLine dtt = TextBiz.isDocTag(ldao.getCurrentLine(), formatDao.getDocTagStart(), formatDao.getDocTagEnd());
-		if (dtt.isHasDocTag()) {
+		//
+		if (dtt.isLongDocTag() || inLongDocTag) {
+			inLongDocTag = true;
+			//
+			final String longtext = ldao.getCurrentLine().replace(formatDao.getDocTagEnd(), "")
+					.replace(formatDao.getDocTagStart(), "");
+			longDocTagText.append(longtext);
+
+			if (dtt.isEndDocTag()) {
+				inLongDocTag = false;
+				if (dtt.getDocTags() != null)
+					dtt.getDocTags().clear();
+				final DocTag dt = new DocTag(longDocTagText.toString().trim());
+				dtt.addDocTag(dt);
+				dtt.setHasDocTag(true);
+				dtt.setLongDocTag(false);
+			}
+		}
+
+		if (dtt.isHasDocTag() && !dtt.isLongDocTag()) {
 			// if (dtt != TextBiz.DOCTAGTYPE.NONE) {
 			final List<DocTag> docTags = dtt.getDocTags();
 			if (docTags != null) {
@@ -325,6 +360,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// fWriterOutlineFile.write(TextBiz.newLine);
 		// }
 		// }
+
+		writeChapterData(formatDao, ldao, null);
 
 		if (fWriterAll != null) {
 			fWriterAll.flush();

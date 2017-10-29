@@ -10,6 +10,7 @@ public class DocTagLine {
 	private boolean onlyDoctag = false;
 	private boolean hasDocTag = false;
 	private boolean longDocTag = false;
+	private boolean endDocTag = false;
 
 	public String getLine() {
 		return line;
@@ -25,6 +26,14 @@ public class DocTagLine {
 
 	public void setHasDocTag(boolean hasDocTag) {
 		this.hasDocTag = hasDocTag;
+	}
+
+	public boolean isEndDocTag() {
+		return endDocTag;
+	}
+
+	public void setEndDocTag(boolean endDocTag) {
+		this.endDocTag = endDocTag;
 	}
 
 	public boolean isLongDocTag() {
