@@ -159,6 +159,21 @@
                                           </Button>
                                        </children>
                                     </HBox>
+                              <HBox maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="4">
+                                 <children>
+                                    <Label minWidth="-Infinity" prefWidth="70.0" text="File Prefix:" textFill="$x6" />
+                                    <TextField fx:id="inputFilePrefixText" minWidth="160.0" prefWidth="-1.0" promptText="File Prefix to Use" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets right="4.0" fx:id="x21231" />
+                                       </HBox.margin>
+                                    </TextField>
+                                    <Button fx:id="computeFromFilePrefixBtn" mnemonicParsing="true" onAction="#handleComputeFromFilePrefix" text="_Recompute Filenames">
+                                       <HBox.margin>
+                                          <Insets right="5.0" fx:id="x3b1" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
                                  </children>
                                  <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
@@ -171,6 +186,7 @@
                                     <RowConstraints />
                                     <RowConstraints />
                                     <RowConstraints />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" />
                                  </rowConstraints>
                               </GridPane>
                            </content>

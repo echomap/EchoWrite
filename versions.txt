@@ -1,7 +1,9 @@
 TODO
-add tag support like:
-[[def:... ]]  / [[pov:... ]] / [[loc:... ]] / [[date:...]]
+update title or someting with loaded PROFILE?
 
+2017 11 10
+	update gui to add FilePrefix Field
+	
 2017 10 28 - 1.0.4
 	updated threading error
 	bug in doctag finding routing
@@ -22,6 +24,7 @@ add tag support like:
 		- DocTags.csv-> All
 2017 09 11
 	need to refactor now that added some docTag support!!
+		[[def:... ]]  / [[pov:... ]] / [[loc:... ]] / [[date:...]]
 2014 08 23
 	- added fix for <center>....</center> for sigil validation
 	- Sigil doc type

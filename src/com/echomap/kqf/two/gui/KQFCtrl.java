@@ -88,6 +88,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private TextField outputOutlineFileText1;
 	@FXML
 	private TextField outputDocTagsMaxLineLength; // length for doctag output
+	@FXML
+	private TextField inputFilePrefixText;
 
 	@FXML
 	private TextField outputDocTagsOutlineFileText;
@@ -126,6 +128,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private Button outlineOutputBtn;
 	@FXML
 	private Button formatBtn;
+	@FXML
+	private Button computeFromFilePrefixBtn;
 
 	@FXML
 	private CheckBox cbRemoveDiv;
@@ -284,7 +288,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	public void handleInputFile(final ActionEvent event) {
 		locateFile(event, "Open Input File", inputFileText);
-		automaticFromInput();
+		automaticFromInput(false);
 	}
 
 	public void handleLoadFormatChptHtmlOutputDir(final ActionEvent event) {
@@ -358,6 +362,28 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		final File nFile = new File(outputOutlineFileText1.getText(), outFilename);
 		outputOutlineFileText1.setText(nFile.getAbsolutePath());
 		// outputOutlineDir1 = nFile.getParentFile();
+	}
+
+	public void handleComputeFromFilePrefix(final ActionEvent event) {
+		final String filePrefixText = inputFilePrefixText.getText();
+		if (!StringUtils.isBlank(filePrefixText)) {
+			automaticFromInput(true);
+			// String oldText = inputFilePrefixText.getText();
+			// if (StringUtils.isBlank(oldText))
+			// inputFilePrefixText.setText(recomputeNewFile(oldText,
+			// filePrefixText));
+
+			// inputFilePrefixText
+			// outputCountFileText
+			// outputOutlineFileText
+			// outputOutlineFileText1
+			// outputDocTagsOutlineFileText
+			// not used?
+			// outputDocTagsSceneFileText
+			// outputFileText
+			// outputFormatChpHtmlDirText
+			// outputFormatChpTextDirText
+		}
 	}
 
 	public void handleClose(final ActionEvent event) {
@@ -472,6 +498,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		// Setup the argument passed
 		formatDao.setInputFilename(inputFileText.getText());
 		formatDao.setOutputFilename(outputFileText.getText());
+		formatDao.setFilePrefix(inputFilePrefixText.getText());
 
 		formatDao.setOutputCountFile(outputCountFileText.getText());
 		formatDao.setOutputOutlineFile(outputOutlineFileText.getText());
@@ -611,29 +638,53 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		return txt;
 	}
 
-	private void automaticFromInput() {
+	private void automaticFromInput(final boolean keepPreexisting) {
 		final File inputFile = new File(inputFileText.getText());
 		final File inputDir = inputFile.getParentFile();
 		final File outputDir = inputDir;
 		final String fileName = inputFile.getName();
 		final String filenameOnly = TextBiz.getFileNameOnly(fileName);
+		final String filePrefixText = inputFilePrefixText.getText();
+		final boolean filePrefixExists = !StringUtils.isBlank(filePrefixText);
+
+		// final File oldFile = new File(oldText);
+		// final File oldDir = oldFile.getParentFile();
+		// final File newFile = new File(oldDir, filePrefixText+"");
+
+		// TODO keepPreexisting
 
 		// Count
 		outputCountDir = outputDir;
-		outputCountFileText.setText(outputDir + "\\ChapterCount1.csv");
+		if (filePrefixExists)
+			outputCountFileText.setText(outputDir + "\\" + filePrefixText + "ChapterCount.csv");
+		else
+			outputCountFileText.setText(outputDir + "\\ChapterCount1.csv");
 
 		// Outline
-		outputOutlineFileText.setText(outputDir + "\\Outline1.csv");
-		outputOutlineFileText1.setText(outputDir + "\\DocTags.csv");
+		if (filePrefixExists) {
+			outputOutlineFileText.setText(outputDir + "\\" + filePrefixText + "Outline.csv");
+			outputOutlineFileText1.setText(outputDir + "\\" + filePrefixText + "DocTags.csv");
+
+			outputDocTagsOutlineFileText.setText(outputDir + "\\" + filePrefixText + "_outline.txt");
+			outputDocTagsSceneFileText.setText(outputDir + "\\" + filePrefixText + "_scenes.txt");
+		} else {
+			outputOutlineFileText.setText(outputDir + "\\Outline1.csv");
+			outputOutlineFileText1.setText(outputDir + "\\DocTags.csv");
+
+			outputDocTagsOutlineFileText.setText(outputDir + "\\" + filenameOnly + "_outline.txt");
+			outputDocTagsSceneFileText.setText(outputDir + "\\" + filenameOnly + "_scenes.txt");
+		}
 
 		// Format
-		outputFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + ".html");
-		outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapters\\");
-		outputFormatChpTextDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapterstext\\");
-
-		outputDocTagsOutlineFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + "_outline.txt");
-
-		outputDocTagsSceneFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + "_scenes.txt");
+		if (filePrefixExists) {
+			outputFileText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixText + "\\" + filenameOnly + ".html");
+			outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixText + "\\chapters\\");
+			outputFormatChpTextDirText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixText + "\\chapterstext\\");
+		} else {
+			outputFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + ".html");
+			outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapters\\");
+			outputFormatChpTextDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapterstext\\");
+		}
 
 	}
 

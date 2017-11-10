@@ -20,6 +20,7 @@ public class FormatDao {
 	private String storyTitle1 = null;
 	private String storyTitle2 = null;
 	private String formatMode = null;
+	private String filePrefix = null;
 	private String outputEncoding = DEFAULToutputEncoding;
 
 	private String chapterDivider = null;
@@ -365,6 +366,14 @@ public class FormatDao {
 
 	public String getVersion() {
 		return version;
+	}
+
+	public void setFilePrefix(final String property) {
+		this.filePrefix = property;
+	}
+
+	public String getFilePrefix() {
+		return filePrefix;
 	}
 
 }

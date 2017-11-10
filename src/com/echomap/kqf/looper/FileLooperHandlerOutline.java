@@ -470,7 +470,12 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		final File inFile = new File(formatDao.getInputFilename());
 		final File inFilePath = inFile.getParentFile();
-		final File notUsedFile = new File(inFilePath, "DocTagsNotUsed.txt");
+		final String filePrefix = formatDao.getFilePrefix();
+		File notUsedFile = null;
+		if (!StringUtils.isBlank(filePrefix))
+			notUsedFile = new File(inFilePath, filePrefix + "DocTagsNotUsed.txt");
+		else
+			notUsedFile = new File(inFilePath, "DocTagsNotUsed.txt");
 		fWriterNotUsedFile = new FileWriter(notUsedFile, false);
 
 		ldao.InitializeCount();
