@@ -3,7 +3,6 @@ package com.echomap.kqf.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class DocTag {

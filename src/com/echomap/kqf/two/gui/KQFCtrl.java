@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Timer;
@@ -20,31 +23,43 @@ import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.FileLooper;
 import com.echomap.kqf.looper.TextBiz;
 
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
 	private File lastSelectedDirectory = null;
 	private static final DateFormat myDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	Properties props = new Properties();
-
+	Properties appProps = new Properties();
+	final Preferences userPrefs;
 	// final Preferences userPrefs =
 	// Preferences.userNodeForPackage(KQFCtrl.class);
 
@@ -109,6 +124,14 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	@FXML
 	private HBox profileButtonBox;
+	@FXML
+	private GridPane sectionDocTag;
+	@FXML
+	private GridPane sectionFormatting;
+	@FXML
+	private GridPane sectionWordCount;
+	@FXML
+	private GridPane sectionMain;
 
 	@FXML
 	private Button inputFileBtn;
@@ -119,15 +142,29 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	@FXML
 	private Button loadOutputFileBtn;
 	@FXML
-	private Button wordCountBtn;
-	@FXML
 	private Button countOutputBtn;
-	@FXML
-	private Button outlineBtn;
 	@FXML
 	private Button outlineOutputBtn;
 	@FXML
-	private Button formatBtn;
+	private Button outlineCSVOutputBtn;
+	@FXML
+	private Button outlineAllOutputBtn;
+	@FXML
+	private Button sceneOutputBtn;
+	@FXML
+	private Button clearProfileBtn;
+	@FXML
+	private Button deleteProfileBtn;
+	@FXML
+	private Button saveProfileBtn;
+	@FXML
+	private Button doFormatBtn;
+	@FXML
+	private Button doWordCountBtn;
+	@FXML
+	private Button doOutlineBtn;
+	@FXML
+	private Button doClearLogBtn;
 	@FXML
 	private Button computeFromFilePrefixBtn;
 
@@ -141,6 +178,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private CheckBox cbCenterable;
 	@FXML
 	private CheckBox cbWantTextChptOutput;
+	@FXML
+	private CheckBox filePrefixCheckbox;
+
+	@FXML
+	private Label chosenProfileText;
 
 	@FXML
 	private ChoiceBox<String> counterDigitChoice;
@@ -155,12 +197,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private boolean runningMutex = false;
 
 	public KQFCtrl() {
+		userPrefs = Preferences.userNodeForPackage(KQFCtrl.class);
 	}
 
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
 
-		assert wordCountBtn != null : "fx:id=\"wordCountBtn1\" was not injected: check your FXML file 'simple.fxml'.";
+		assert doWordCountBtn != null : "fx:id=\"wordCountBtn1\" was not injected: check your FXML file 'simple.fxml'.";
 		assert lastRunText != null : "fx:id=\"lastRunText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert fmtModeText != null : "fx:id=\"fmtModeText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert chpDivText != null : "fx:id=\"chpDivText\" was not injected: check your FXML file 'simple.fxml'.";
@@ -192,6 +235,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		loadChoices();
 		loadProfiles();
 		lockGui();
+		fixFocus();
+
 	}
 
 	@Override
@@ -199,7 +244,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				setLastRunText("Done running " + msg + " Process (" + getCurrentDateFmt() + ")");
+				showMessage("Done running " + msg + " Process (" + getCurrentDateFmt() + ")", false);
 				unlockGui();
 				runningMutex = false;
 			}
@@ -211,7 +256,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				setLastRunText("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e);
+				showMessage("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e, false);
 				LOGGER.error(e);
 				unlockGui();
 				runningMutex = false;
@@ -224,7 +269,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				setLastRunText("---" + header + " Process, " + msg);
+				showMessage("---" + header + " Process, " + msg, false);
 			}
 		});
 	}
@@ -235,55 +280,146 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		counterDigitChoice.getSelectionModel().select(3);
 	}
 
-	public void handleDeletePrefs(final ActionEvent event) {
-		deleteSelectedProp();
+	protected void doCleanup() {
+		LOGGER.info("Ctrl is cleaning up...");
+		myTimerTask.cancel();
+		timer.cancel();
+		myTimerTask = null;
+		timer = null;
 	}
 
-	public void handleLoadPrefs(final ActionEvent event) {
+	// private void setLastRunText(String fmtt) {
+	// lastRunText.setText(fmtt + "\r\n" + lastRunText.getText());
+	// }
+
+	public void handleProfileSelectAction(final ActionEvent event) {
 		if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
-			loadProps();
-			showMessage("Loaded profiles");
+			// showMessage("profile action idx: " +
+			// titleOneText.getSelectionModel().getSelectedIndex(), false);
+			// showMessage("profile action item: " +
+			// titleOneText.getSelectionModel().getSelectedItem(), false);
+			deleteProfileBtn.setDisable(false);
 		}
 	}
 
+	/**
+	 * Profile/Prefs
+	 */
+	public void handleDeletePrefs(final ActionEvent event) {
+		boolean childDeleted = false;
+		try {
+			final Preferences userPrefs = getPrefs();
+			if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
+				final String key = titleOneText.getSelectionModel().getSelectedItem();
+				final Preferences child = userPrefs.node(key);
+				if (child != null ) {// && child.keys().length > 0
+					showMessage("Child '" + child + "'", false);
+					child.removeNode();
+					showMessage("Deleted profile '" + key + "'", false);
+					childDeleted = true;
+				}
+			} else {
+				showMessage("Select a profile name to DELETE.", false);
+			}
+			userPrefs.flush();
+		} catch (BackingStoreException e) {
+			showMessage("Error Deleting profile: " + e, false);
+		}
+		if (!childDeleted)
+			showMessage("That profile doesn't exist.", false);
+
+		clearSettings();
+		loadProfiles();
+	}
+
+	/**
+	 * Profile/Prefs
+	 */
+	public void handleProfileBeingEntered(final ActionEvent event) {
+		saveProfileBtn.setDisable(false);
+	}
+
+	/**
+	 * Profile/Prefs
+	 */
+	public void handleLoadPrefs(final ActionEvent event) {
+		try {
+			if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
+				if (!getPrefs().nodeExists(titleOneText.getValue())) {
+					showMessage("That profile doesn't exist.", false);
+					return;
+				}
+				loadProps();
+				showMessage("Loaded profile '" + titleOneText.getValue() + "'", true);
+				chosenProfileText.setText(titleOneText.getSelectionModel().getSelectedItem());
+			} else {
+				showMessage("Enter or select a profile name to LOAD.", true);
+			}
+		} catch (BackingStoreException e) {
+			showMessage("Error Deleting profile: " + e, false);
+		}
+	}
+
+	/**
+	 * Profile/Prefs
+	 */
 	public void handleSavePrefs(final ActionEvent event) {
 		final String nowTextOne = titleOneText.getValue();
 		if (nowTextOne != null && nowTextOne.length() > 0) {
 			saveProps();
 			loadProfiles();
 			titleOneText.getSelectionModel().select(nowTextOne);
-			showMessage("Saved Profile '" + nowTextOne + "'");
+			showMessage("Saved Profile '" + nowTextOne + "'", false);
 		}
 	}
 
-	public void handleClearSettings(final ActionEvent event) {
+	private void clearSettings() {
 		titleOneText.getSelectionModel().clearSelection();
 
-		titleOneText.setValue("");
-		titleTwoText.setText("");
-		titleThreeText.setText("");
-		inputFileText.setText("");
-		outputFileText.setText("");
-		outputFormatChpHtmlDirText.setText("");
-		outputFormatChpHtmlDirText.setText("");
+		final List<TextField> foundComponents1 = getNodesOfType(sectionDocTag, TextField.class);
+		if (foundComponents1 != null)
+			for (TextField textField : foundComponents1) {
+				textField.setText("");
+			}
+		outputDocTagsOutlineETagsText.setText("outline, scene, subscene, info");
+		outputDocTagsOutlineCTagsText.setText("outline, scene, subscene, info");
+		outputDocTagsSceneTagsText.setText("scene, subscene");
+		outputDocTagsSceneCoTags.setText("description, changes, starttime");
 
-		outputOutlineFileText.setText("");
-		outputOutlineFileText1.setText("");
+		final List<TextField> foundComponents2 = getNodesOfType(sectionFormatting, TextField.class);
+		if (foundComponents2 != null)
+			for (TextField textField : foundComponents2) {
+				textField.setText("");
+			}
 
-		chpDivText.setText("");
-		secDivText.setText("");
+		final List<TextField> foundComponents3 = getNodesOfType(sectionWordCount, TextField.class);
+		if (foundComponents3 != null)
+			for (TextField textField : foundComponents3) {
+				textField.setText("");
+			}
 
-		docTagStartText.setText("");
-		docTagEndText.setText("");
+		final List<TextField> foundComponents4 = getNodesOfType(sectionMain, TextField.class);
+		if (foundComponents4 != null)
+			for (TextField textField : foundComponents4) {
+				textField.setText("");
+			}
 
-		fmtModeText.setText("");
-		outputEncoding.setText("");
-
-		outputCountFileText.setText("");
-		outputCountDir = null;
-		outputCountFileText.setText("");
+		chosenProfileText.setText("NO PROFILE");
 
 		outputDocTagsMaxLineLength.setText("70");
+
+		lockGui();
+		fixFocus();
+
+		// showMessage("Cleared Profile Data", true);
+	}
+
+	/**
+	 * Profile/Prefs
+	 */
+	public void handleClearSettings(final ActionEvent event) {
+		clearSettings();
+		showMessage("Cleared Profile Data", true);
 	}
 
 	public void handleInputFile(final ActionEvent event) {
@@ -329,20 +465,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	public void handleOutputCountFile(final ActionEvent event) {
 		locateDir(event, "Open Output Dir ", outputCountFileText);
-		// final String inFilename = outputCountFileText.getText();
 		String outFilename = "\\ChapterCount1.csv";
-		// if (inFilename != null && inFilename.length() > 0) {
-		// final File inFile = new File(inFilename);
-		// final String filenameOnly = inFile.getName();
-		// final int extIdx = filenameOnly.lastIndexOf(".");
-		// String ext = "";
-		// if (extIdx >= 1) {
-		// ext = filenameOnly.substring(extIdx + 1);
-		// outFilename = filenameOnly.replaceAll(ext, "html");
-		// } else {
-		// outFilename = filenameOnly + ".html";
-		// }
-		// }
 		final File nFile = new File(outputCountFileText.getText(), outFilename);
 		outputCountFileText.setText(nFile.getAbsolutePath());
 		outputCountDir = nFile.getParentFile();
@@ -353,7 +476,6 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		String outFilename = "/Outline1.csv";
 		final File nFile = new File(outputOutlineFileText.getText(), outFilename);
 		outputOutlineFileText.setText(nFile.getAbsolutePath());
-		// outputOutlineDir = nFile.getParentFile();
 	}
 
 	public void handleOutputOutlineFile1(final ActionEvent event) {
@@ -361,28 +483,12 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		String outFilename = "/Outline1.csv";
 		final File nFile = new File(outputOutlineFileText1.getText(), outFilename);
 		outputOutlineFileText1.setText(nFile.getAbsolutePath());
-		// outputOutlineDir1 = nFile.getParentFile();
 	}
 
 	public void handleComputeFromFilePrefix(final ActionEvent event) {
 		final String filePrefixText = inputFilePrefixText.getText();
 		if (!StringUtils.isBlank(filePrefixText)) {
 			automaticFromInput(true);
-			// String oldText = inputFilePrefixText.getText();
-			// if (StringUtils.isBlank(oldText))
-			// inputFilePrefixText.setText(recomputeNewFile(oldText,
-			// filePrefixText));
-
-			// inputFilePrefixText
-			// outputCountFileText
-			// outputOutlineFileText
-			// outputOutlineFileText1
-			// outputDocTagsOutlineFileText
-			// not used?
-			// outputDocTagsSceneFileText
-			// outputFileText
-			// outputFormatChpHtmlDirText
-			// outputFormatChpTextDirText
 		}
 	}
 
@@ -391,18 +497,6 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		final Stage stage = (Stage) source.getScene().getWindow();
 		doCleanup();
 		stage.close();
-	}
-
-	protected void doCleanup() {
-		LOGGER.info("Ctrl is cleaning up...");
-		myTimerTask.cancel();
-		timer.cancel();
-		myTimerTask = null;
-		timer = null;
-	}
-
-	private void setLastRunText(String fmtt) {
-		lastRunText.setText(fmtt + "\r\n" + lastRunText.getText());
 	}
 
 	public void handleDoCountAction(final ActionEvent event) {
@@ -414,7 +508,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		this.runningMutex = true;
 
 		LOGGER.info("Running count action");
-		setLastRunText("Running Count Process (" + getCurrentDateFmt() + ")");
+		showMessage("Running Count Process (" + getCurrentDateFmt() + ")", false);
 		// timer.cancel();
 		// timer = new Timer();
 		try {
@@ -444,7 +538,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		this.runningMutex = true;
 
 		LOGGER.info("Running outline action");
-		setLastRunText("Running Outline Process (" + getCurrentDateFmt() + ")");
+		showMessage("Running Outline Process (" + getCurrentDateFmt() + ")", false);
 		try {
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
@@ -471,7 +565,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		this.runningMutex = true;
 
 		LOGGER.info("Running format action");
-		setLastRunText("Running Format Process (" + getCurrentDateFmt() + ")");
+		showMessage("Running Format Process (" + getCurrentDateFmt() + ")", false);
 		try {
 			final FormatDao formatDao = new FormatDao();
 			setupDao(formatDao);
@@ -553,38 +647,73 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			dtmllI = Integer.parseInt(dtmllS);
 		formatDao.setDocTagsMaxLineLength(dtmllI);
 
-		formatDao.setVersion(props.getProperty("version"));
+		formatDao.setVersion(appProps.getProperty("version"));
+	}
+
+	private void fixFocus() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				titleOneText.requestFocus();
+			}
+		});
 	}
 
 	private void lockGui() {
 		if (runningMutex) {
 			return;
 		}
-		// inputFileBtn.setDisable(true);
-		// loadOutputDirBtn.setDisable(true);
-		// loadOutputFileBtn.setDisable(true);
-		wordCountBtn.setDisable(true);
+		deleteProfileBtn.setDisable(true);
+		saveProfileBtn.setDisable(true);
+		computeFromFilePrefixBtn.setDisable(true);
+		clearProfileBtn.setDisable(true);
+
+		doFormatBtn.setDisable(true);
+		doWordCountBtn.setDisable(true);
+		doOutlineBtn.setDisable(true);
+
 		countOutputBtn.setDisable(true);
-		outlineBtn.setDisable(true);
-		formatBtn.setDisable(true);
+
+		outlineCSVOutputBtn.setDisable(true);
+		outlineAllOutputBtn.setDisable(true);
+		outlineOutputBtn.setDisable(true);
+		sceneOutputBtn.setDisable(true);
+		loadOutputFileBtn.setDisable(true);
+		loadOutputDirBtn.setDisable(true);
+		loadOutputDirBtn1.setDisable(true);
+
+		filePrefixCheckbox.setDisable(true);
 	}
 
 	private void unlockGui() {
-		inputFileBtn.setDisable(false);
-		loadOutputDirBtn.setDisable(false);
-		loadOutputFileBtn.setDisable(false);
-		wordCountBtn.setDisable(false);
+		deleteProfileBtn.setDisable(false);
+		saveProfileBtn.setDisable(false);
+		computeFromFilePrefixBtn.setDisable(false);
+		clearProfileBtn.setDisable(false);
+
+		doFormatBtn.setDisable(false);
+		doWordCountBtn.setDisable(false);
+		doOutlineBtn.setDisable(false);
+
 		countOutputBtn.setDisable(false);
-		outlineBtn.setDisable(false);
-		formatBtn.setDisable(false);
+
+		outlineCSVOutputBtn.setDisable(false);
+		outlineAllOutputBtn.setDisable(false);
+		outlineOutputBtn.setDisable(false);
+		sceneOutputBtn.setDisable(false);
+		loadOutputFileBtn.setDisable(false);
+		loadOutputDirBtn.setDisable(false);
+		loadOutputDirBtn1.setDisable(false);
+
+		filePrefixCheckbox.setDisable(false);
 	}
 
-	private void startTimerTask() {
-		this.myTimerTask = new MyTimerTask(this.lastRunText);
-		timer.cancel();
-		timer = new Timer();
-		timer.schedule(myTimerTask, 5000);
-	}
+	// private void startTimerTask() {
+	// this.myTimerTask = new MyTimerTask(this.lastRunText);
+	// timer.cancel();
+	// timer = new Timer();
+	// timer.schedule(myTimerTask, 5000);
+	// }
 
 	class MyTimerTask extends TimerTask {
 		TextInputControl textF = null;
@@ -600,8 +729,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	private Preferences getPrefs() {
-		final Preferences userPrefs = Preferences.userNodeForPackage(KQFCtrl.class);
 		return userPrefs;
+		// final Preferences userPrefs =
+		// Preferences.userNodeForPackage(KQFCtrl.class);
+		// return userPrefs;
 	}
 
 	private void loadProfiles() {
@@ -610,24 +741,36 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			final String[] prefkeys = getPrefs().childrenNames();
 			if (prefkeys != null && prefkeys.length > 0) {
 				for (final String str1 : prefkeys) {
-					titleOneText.getItems().add(str1);
+					if (!StringUtils.isBlank(str1))
+						titleOneText.getItems().add(str1);
 				}
 			}
 		} catch (BackingStoreException e) {
-			// TODO Auto-generated catch block
+			showMessage("Error Deleting profile: " + e, false);
 			e.printStackTrace();
 		}
 	}
 
-	private void deleteSelectedProp() {
-		final String key = titleOneText.getValue();
-		// final Preferences child = userPrefs.node(titleOneText.getValue());
-		getPrefs().remove(key);
+	private void showMessage(final String msg, final boolean clearPrevious) {
+		final Animation animation = new Transition() {
+			{
+				setCycleDuration(Duration.millis(1000));
+				setInterpolator(Interpolator.EASE_OUT);
+			}
 
-	}
+			@Override
+			protected void interpolate(double frac) {
+				Color vColor = new Color(1, 0, 0, 1 - frac);
+				lastRunText.setBackground(new Background(new BackgroundFill(vColor, CornerRadii.EMPTY, Insets.EMPTY)));
+			}
+		};
+		animation.play();
 
-	private void showMessage(final String msg) {
-		lastRunText.setText(msg);
+		if (clearPrevious) {
+			lastRunText.setText(msg);
+		} else {
+			lastRunText.setText(msg + "\r\n" + lastRunText.getText());
+		}
 	}
 
 	private String getCurrentDateFmt() {
@@ -692,7 +835,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		final String key = titleOneText.getValue();
 		final Preferences child = getPrefs().node(key);
 
-		titleOneText.setValue(child.get("titleOne", ""));
+		titleOneText.setValue(child.get("titleOne", key));
 		titleTwoText.setText(child.get("titleTwo", ""));
 		titleThreeText.setText(child.get("titleThree", ""));
 		inputFileText.setText(child.get("inputFile", ""));
@@ -762,7 +905,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	protected void saveProps() {
 		final String key = titleOneText.getValue();
-		if (key != null && key.trim().length() > 0) {
+		if (!StringUtils.isBlank(key)) {
 			final Preferences child = getPrefs().node(key);
 
 			child.put("titleOne", key);
@@ -815,6 +958,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			try {
 				child.flush();
 			} catch (BackingStoreException e) {
+				showMessage("Error Deleting profile: " + e, false);
 				e.printStackTrace();
 			}
 		}
@@ -877,8 +1021,23 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		}
 	}
 
+	private <T> List<T> getNodesOfType(Pane parent, Class<T> type) {
+		if (parent == null)
+			return null;
+		List<T> elements = new ArrayList<>();
+		for (Node node : parent.getChildren()) {
+			if (node instanceof Pane) {
+				elements.addAll(getNodesOfType((Pane) node, type));
+			} else if (type.isAssignableFrom(node.getClass())) {
+				// noinspection unchecked
+				elements.add((T) node);
+			}
+		}
+		return Collections.unmodifiableList(elements);
+	}
+
 	public void setProps(final Properties props) {
-		this.props = props;
+		this.appProps = props;
 	}
 
 	// private void automaticFromInput() {
