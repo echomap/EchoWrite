@@ -1,6 +1,8 @@
 TODO
 update title or someting with loaded PROFILE?
 
+2017 11 13 - 1.0.5
+	update 'underscore' checkbox to work
 2017 11 12 - 1.0.5
 	java 1.7+
 	update Properties and deleting

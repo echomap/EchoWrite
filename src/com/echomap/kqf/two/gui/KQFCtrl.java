@@ -86,7 +86,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	@FXML
 	private TextField inputFileText;
 	@FXML
-	private TextField outputFileText;
+	private TextField outputFormatSingleFileText;
 	@FXML
 	private TextField outputFormatChpHtmlDirText;
 	@FXML
@@ -218,14 +218,14 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		assert loadOutputFileBtn != null : "fx:id=\"loadOutputFileBtn\" was not injected: check your FXML file 'simple.fxml'.";
 
 		assert inputFileText != null : "fx:id=\"inputFileText\" was not injected: check your FXML file 'simple.fxml'.";
-		assert outputFileText != null : "fx:id=\"outputFileText\" was not injected: check your FXML file 'simple.fxml'.";
+		assert outputFormatSingleFileText != null : "fx:id=\"outputFileText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputFormatChpHtmlDirText != null : "fx:id=\"outputDirText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert outputEncoding != null : "fx:id=\"outputEncoding\" was not injected: check your FXML file 'simple.fxml'.";
 
 		if (inputFileText.getText() != null && inputFileText.getText().length() > 0)
 			lastSelectedDirectory = new File(inputFileText.getText()).getParentFile();
-		else if (outputFileText.getText() != null && outputFileText.getText().length() > 0)
-			lastSelectedDirectory = new File(outputFileText.getText());
+		else if (outputFormatSingleFileText.getText() != null && outputFormatSingleFileText.getText().length() > 0)
+			lastSelectedDirectory = new File(outputFormatSingleFileText.getText());
 		if (lastSelectedDirectory == null || !lastSelectedDirectory.isDirectory())
 			lastSelectedDirectory = null;
 
@@ -312,7 +312,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
 				final String key = titleOneText.getSelectionModel().getSelectedItem();
 				final Preferences child = userPrefs.node(key);
-				if (child != null ) {// && child.keys().length > 0
+				if (child != null) {// && child.keys().length > 0
 					showMessage("Child '" + child + "'", false);
 					child.removeNode();
 					showMessage("Deleted profile '" + key + "'", false);
@@ -444,7 +444,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleLoadOutputFile(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputFileText);
+		locateDir(event, "Open Output Dir ", outputFormatSingleFileText);
 		final String inFilename = inputFileText.getText();
 		String outFilename = "";
 		if (inFilename != null && inFilename.length() > 0) {
@@ -459,8 +459,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 				outFilename = filenameOnly + ".html";
 			}
 		}
-		final File nFile = new File(outputFileText.getText(), outFilename);
-		outputFileText.setText(nFile.getAbsolutePath());
+		final File nFile = new File(outputFormatSingleFileText.getText(), outFilename);
+		outputFormatSingleFileText.setText(nFile.getAbsolutePath());
 	}
 
 	public void handleOutputCountFile(final ActionEvent event) {
@@ -591,8 +591,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private void setupDao(final FormatDao formatDao) {
 		// Setup the argument passed
 		formatDao.setInputFilename(inputFileText.getText());
-		formatDao.setOutputFilename(outputFileText.getText());
-		formatDao.setFilePrefix(inputFilePrefixText.getText());
+		formatDao.setOutputFilename(outputFormatSingleFileText.getText());
+
+		String filePrefixText = inputFilePrefixText.getText();
+
+		if (filePrefixCheckbox.isSelected())
+			filePrefixText = filePrefixText + "_";
+		formatDao.setFilePrefix(filePrefixText);
 
 		formatDao.setOutputCountFile(outputCountFileText.getText());
 		formatDao.setOutputOutlineFile(outputOutlineFileText.getText());
@@ -787,8 +792,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		final File outputDir = inputDir;
 		final String fileName = inputFile.getName();
 		final String filenameOnly = TextBiz.getFileNameOnly(fileName);
-		final String filePrefixText = inputFilePrefixText.getText();
+		final String filePrefixTextOrig = inputFilePrefixText.getText();
+		String filePrefixText = filePrefixTextOrig;
 		final boolean filePrefixExists = !StringUtils.isBlank(filePrefixText);
+		if (filePrefixCheckbox.isSelected())
+			filePrefixText = filePrefixText + "_";
 
 		// final File oldFile = new File(oldText);
 		// final File oldDir = oldFile.getParentFile();
@@ -820,11 +828,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 		// Format
 		if (filePrefixExists) {
-			outputFileText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixText + "\\" + filenameOnly + ".html");
-			outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixText + "\\chapters\\");
-			outputFormatChpTextDirText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixText + "\\chapterstext\\");
+			outputFormatSingleFileText
+					.setText(outputDir + "\\ebook\\sigil\\" + filePrefixTextOrig + "\\" + filenameOnly + ".html");
+			outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\" + filePrefixTextOrig + "\\chapters\\");
+			outputFormatChpTextDirText
+					.setText(outputDir + "\\ebook\\sigil\\" + filePrefixTextOrig + "\\chapterstext\\");
 		} else {
-			outputFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + ".html");
+			outputFormatSingleFileText.setText(outputDir + "\\ebook\\sigil\\src1\\" + filenameOnly + ".html");
 			outputFormatChpHtmlDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapters\\");
 			outputFormatChpTextDirText.setText(outputDir + "\\ebook\\sigil\\src1\\chapterstext\\");
 		}
@@ -839,9 +849,12 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		titleTwoText.setText(child.get("titleTwo", ""));
 		titleThreeText.setText(child.get("titleThree", ""));
 		inputFileText.setText(child.get("inputFile", ""));
-		outputFileText.setText(child.get("ouputFile", ""));
+		outputFormatSingleFileText.setText(child.get("ouputFile", ""));
 		outputFormatChpHtmlDirText.setText(child.get("outputDir", ""));
 		outputFormatChpTextDirText.setText(child.get("outputFormatChpTextDirText", ""));
+
+		inputFilePrefixText.setText(child.get("inputFilePrefix", ""));
+		filePrefixCheckbox.setSelected(child.getBoolean("appendUnderscoreToPrefix", false));
 
 		chpDivText.setText(child.get("chpDiv", ""));
 		secDivText.setText(child.get("secDiv", ""));
@@ -913,10 +926,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			child.put("titleThree", titleThreeText.getText());
 
 			child.put("inputFile", inputFileText.getText());
-			child.put("ouputFile", outputFileText.getText());
+			child.put("ouputFile", outputFormatSingleFileText.getText());
 			child.put("outputDir", outputFormatChpHtmlDirText.getText());
 			child.put("outputFormatChpHtmlDirText", outputFormatChpHtmlDirText.getText());
 			child.put("outputFormatChpTextDirText", outputFormatChpTextDirText.getText());
+
+			child.put("inputFilePrefix", inputFilePrefixText.getText());
+			child.putBoolean("appendUnderscoreToPrefix", filePrefixCheckbox.isSelected());
 
 			child.put("ouputCountFile", outputCountFileText.getText());
 			child.put("ouputOutlineFile", outputOutlineFileText.getText());
