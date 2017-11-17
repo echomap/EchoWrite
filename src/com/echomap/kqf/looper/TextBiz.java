@@ -286,10 +286,11 @@ public class TextBiz {
 				mNum = matcher.group("cnum");
 				mNumI = Integer.valueOf(mNum);
 			} catch (NumberFormatException e1) {
-				e1.printStackTrace();
+				e1.printStackTrace(); // TODO report exception
 			}
 			dao.chpNum = mNum;
-			dao.numerical = mNumI;
+			if (mNumI != null)
+				dao.numerical = mNumI;
 
 			try {
 				final String mName = matcher.group("cname");
@@ -298,13 +299,13 @@ public class TextBiz {
 				else
 					dao.name = mName;
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.printStackTrace(); // TODO report exception
 			}
 			try {
 				final String mTitle = matcher.group("ctitle");
 				dao.title = mTitle;
 			} catch (Exception e) {
-				e.printStackTrace();
+				e.printStackTrace(); // TODO report exception
 			}
 			return dao;
 		}
