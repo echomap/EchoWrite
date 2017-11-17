@@ -84,9 +84,11 @@ public class FormatCli implements WorkDoneNotify {
 					formatDao.setOutputEncoding(line.getOptionValue("outputencoding"));
 			}
 			if (line.hasOption("chapterdivider"))
-				formatDao.setChapterDivider(line.getOptionValue("chapterdivider"));
+				// formatDao.setChapterDivider(line.getOptionValue("chapterdivider"));
+				formatDao.setRegexpChapter(line.getOptionValue("chapterdivider"));
 			if (line.hasOption("sectiondivider"))
-				formatDao.setSectionDivider(line.getOptionValue("sectiondivider"));
+				// formatDao.setSectionDivider(line.getOptionValue("sectiondivider"));
+				formatDao.setRegexpSection(line.getOptionValue("sectiondivider"));
 			if (line.hasOption("removechptdiv"))
 				formatDao.setRemoveChptDiv(true);
 			if (line.hasOption("removesectdiv"))

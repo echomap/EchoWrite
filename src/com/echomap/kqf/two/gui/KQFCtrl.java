@@ -67,10 +67,14 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private TextArea lastRunText;
 	@FXML
 	private TextField fmtModeText;
+	// @FXML
+	// private TextField chpDivText;
+	// @FXML
+	// private TextField secDivText;
 	@FXML
-	private TextField chpDivText;
+	private TextField regexpChapterText;
 	@FXML
-	private TextField secDivText;
+	private TextField regexpSectionText;
 	@FXML
 	private TextField docTagStartText;
 	@FXML
@@ -113,7 +117,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	@FXML
 	private TextField outputDocTagsOutlineCTagsText;
 	@FXML
-	private TextField outputDocTagsOutlineETagsText;
+	private TextArea outputDocTagsOutlineETagsText;
 	@FXML
 	private TextField outputDocTagsSceneTagsText;
 	@FXML
@@ -206,8 +210,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		assert doWordCountBtn != null : "fx:id=\"wordCountBtn1\" was not injected: check your FXML file 'simple.fxml'.";
 		assert lastRunText != null : "fx:id=\"lastRunText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert fmtModeText != null : "fx:id=\"fmtModeText\" was not injected: check your FXML file 'simple.fxml'.";
-		assert chpDivText != null : "fx:id=\"chpDivText\" was not injected: check your FXML file 'simple.fxml'.";
-		assert secDivText != null : "fx:id=\"secDivText\" was not injected: check your FXML file 'simple.fxml'.";
+		// assert chpDivText != null : "fx:id=\"chpDivText\" was not injected:
+		// check your FXML file 'simple.fxml'.";
+		// assert secDivText != null : "fx:id=\"secDivText\" was not injected:
+		// check your FXML file 'simple.fxml'.";
 
 		assert docTagStartText != null : "fx:id=\"docTagStartText\" was not injected: check your FXML file 'simple.fxml'.";
 		assert docTagEndText != null : "fx:id=\"docTagEndText\" was not injected: check your FXML file 'simple.fxml'.";
@@ -407,6 +413,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		chosenProfileText.setText("NO PROFILE");
 
 		outputDocTagsMaxLineLength.setText("70");
+
+		// -=\s+(?<cname>Chapter)\s+(?<cnum>\d+):\s+(?<ctitle>\w+)\s+=-
+		regexpChapterText.setText("-=\\s+(?<cname>Chapter)\\s+(?<cnum>\\d+):\\s+(?<stitle>\\w+)\\s+=-");
+		regexpSectionText.setText("-=\\s+(?<sname>Section):\\s+(?<stitle>\\w+)\\s+=-");
 
 		lockGui();
 		fixFocus();
@@ -610,8 +620,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		formatDao.setStoryTitle2(titleThreeText.getText());
 		formatDao.setFormatMode(fmtModeText.getText());// "Sigil"
 
-		formatDao.setChapterDivider(chpDivText.getText());// "-=");
-		formatDao.setSectionDivider(secDivText.getText());// "-=");
+		// formatDao.setChapterDivider(regexpChapterText.getText());
+		// formatDao.setSectionDivider(regexpSectionText.getText());
+		formatDao.setRegexpChapter(regexpChapterText.getText());
+		formatDao.setRegexpSection(regexpSectionText.getText());
 
 		formatDao.setDocTagStart(docTagStartText.getText());
 		formatDao.setDocTagEnd(docTagEndText.getText());
@@ -856,8 +868,15 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		inputFilePrefixText.setText(child.get("inputFilePrefix", ""));
 		filePrefixCheckbox.setSelected(child.getBoolean("appendUnderscoreToPrefix", false));
 
-		chpDivText.setText(child.get("chpDiv", ""));
-		secDivText.setText(child.get("secDiv", ""));
+		// chpDivText.setText(child.get("chpDiv", ""));
+		// secDivText.setText(child.get("secDiv", ""));
+		regexpChapterText.setText(child.get("regexpChapter", ""));
+		regexpSectionText.setText(child.get("regexpSection", ""));
+
+		if (regexpChapterText.getText().length() < 1)
+			regexpChapterText.setText("-=\\s+(?<cname>Chapter)\\s+(?<cnum>\\d+):\\s+(?<ctitle>\\w+)\\s+=-");
+		if (regexpSectionText.getText().length() < 1)
+			regexpSectionText.setText("-=\\s+(?<sname>Section):\\s+(?<stitle>\\w+)\\s+=-");
 
 		docTagStartText.setText(child.get("docTagStart", "[[*"));
 		docTagEndText.setText(child.get("docTagEnd", "*]]"));
@@ -938,8 +957,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			child.put("ouputOutlineFile", outputOutlineFileText.getText());
 			child.put("ouputOutlineFile1", outputOutlineFileText1.getText());
 
-			child.put("chpDiv", chpDivText.getText());
-			child.put("secDiv", secDivText.getText());
+			// child.put("chpDiv", chpDivText.getText());
+			// child.put("secDiv", secDivText.getText());
+			child.put("regexpChapter", regexpChapterText.getText());
+			child.put("regexpSection", regexpSectionText.getText());
 
 			child.put("docTagStart", docTagStartText.getText());
 			child.put("docTagEnd", docTagEndText.getText());
@@ -1003,7 +1024,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		}
 	}
 
-	protected void locateDir(final ActionEvent event, final String title, final TextField textField) {
+	protected void locateDir(final ActionEvent event, final String title, final TextInputControl textField) {
 		final DirectoryChooser chooser = new DirectoryChooser();
 
 		final File lastDir1 = new File(textField.getText());

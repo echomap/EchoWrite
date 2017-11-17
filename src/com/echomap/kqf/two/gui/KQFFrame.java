@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.echomap.kqf.looper.FileLooperHandlerFormatter;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -32,14 +33,20 @@ public class KQFFrame extends Application {
 	}
 
 	public KQFFrame() {
+		InputStream asdf = null;
 		try {
-			final InputStream asdf = FileLooperHandlerFormatter.class.getClassLoader()
-					.getResourceAsStream("cwc.properties");
+			asdf = FileLooperHandlerFormatter.class.getClassLoader().getResourceAsStream("cwc.properties");
 			if (asdf != null)
 				props.load(asdf);
 		} catch (IOException e) {
 			e.printStackTrace();
 			props.setProperty("version", "0.0.0");
+		} finally {
+			try {
+				asdf.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		LOGGER.info("Version: " + props.getProperty("version"));
 	}
@@ -81,7 +88,11 @@ public class KQFFrame extends Application {
 			primaryStage.show();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+			Platform.exit();
+		} catch (Throwable e) {
+			e.printStackTrace();
+
+			Platform.exit();
 		}
 	}
-
 }

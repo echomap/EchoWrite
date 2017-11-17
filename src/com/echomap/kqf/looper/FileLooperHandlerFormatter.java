@@ -73,7 +73,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		if (numDigits != 3 && numDigits > 0)
 			formatOutputNumber = "%0" + numDigits + "d";
 
-		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getChapterDivider());
+		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
 
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
@@ -136,7 +136,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		} else if (ldao.getHtmlLine() != null) {
 			preTag = " ";
 		} else {
-			sectionType = TextBiz.isSection(st, formatDao.getSectionDivider(), false);// TODO
+			sectionType = TextBiz.isSection(st, formatDao.getRegexpSection(), false);// TODO
 			if (sectionType != null)
 				LOGGER.debug("sectionType: " + sectionType + " for line: " + st);
 			if (sectionType != null) {
@@ -213,10 +213,10 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 
 			String textPClean = TextBiz.cleanPlainText(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 			if (isChapter) {
-				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveChptDiv(), formatDao.getChapterDivider(),
+				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveChptDiv(), null,//formatDao.getChapterDivider(),
 						formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 			} else if (sectionType != null) {
-				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveSectDiv(), formatDao.getSectionDivider(),
+				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveSectDiv(), null,//formatDao.getSectionDivider(),
 						sectionType, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 			} else if (ldao.isLastLineWasChapter() && st != null && st.length() > 1 && !TextBiz.lineEmpty(st)
 					&& !formatDao.getDropCapChapter()) {

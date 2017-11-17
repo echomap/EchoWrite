@@ -135,8 +135,8 @@ public class LooperThread extends Thread {
 		//
 		ldao.setOriginalLine(st);
 		ldao.setCurrentLine(st);
-		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getChapterDivider());
-		final SECTIONTYPE sectionType = TextBiz.isSection(st, formatDao.getSectionDivider(), false);// TODO
+		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getRegexpChapter());
+		final SECTIONTYPE sectionType = TextBiz.isSection(st, formatDao.getRegexpSection(), false);// TODO
 		ldao.setCurrentChapter(chpt);
 		ldao.setCurrentSection(sectionType);
 

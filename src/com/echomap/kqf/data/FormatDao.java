@@ -10,47 +10,58 @@ import com.echomap.kqf.looper.FileLooper;
 public class FormatDao {
 	public static final String DEFAULToutputEncoding = "Cp1252";
 	private String version = null;
+
+	// Profile
 	private String inputFilename = null;
-
-	private String outputFilename = null;
-	private String outputCountFile = null;
-	private String outputOutlineFile = null;
-	private String outputOutlineFile1 = null;
-
 	private String storyTitle1 = null;
 	private String storyTitle2 = null;
 	private String formatMode = null;
 	private String filePrefix = null;
 	private String outputEncoding = DEFAULToutputEncoding;
 
-	private String chapterDivider = null;
-	private String sectionDivider = null;
-	private String centerableLineText = null;
-	private Boolean removeChptDiv = false;
-	private Boolean removeSectDiv = false;
-	private Boolean centerStars = false;
-	private Boolean dropCapChapter = false;
-	private String writeChapters = null;
-	private String writeChaptersText = null;
-	private Boolean wantTextChptOutput = false;
+	// Count
 
+	// Input
 	private String docTagStart = null;
 	private String docTagEnd = null;
-
 	private String chapterHeaderTag = "h1";
 	private String sectionHeaderTag = "h1";
+	private String regexpChapter = null;
+	private String regexpSection = null;
+	// private String chapterDivider = null;
+	// private String sectionDivider = null;
 
+	// Outputs
+	private String outputFilename = null;
+	private String outputCountFile = null;
+	private String outputOutlineFile = null;
+	private String outputOutlineFile1 = null;
+
+	// Formatting Options
+	private Boolean removeChptDiv = false;
+	private Boolean removeSectDiv = false;
+	private String centerableLineText = null;
+	private Boolean centerStars = false;
+	private Boolean dropCapChapter = false;
+	private Boolean wantTextChptOutput = false;
 	private Integer outputFormatDigits = null;
 
+	//
+	private String writeChapters = null;
+	private String writeChaptersText = null;
+
+	// DocTags
 	private String outputDocTagsOutlineFile;
 	private String outputDocTagsSceneFile;
 	private String docTagsOutlineCompressTags;
 	private String docTagsOutlineExpandTags;
 	private String docTagsSceneTags;
 	private String outputDocTagsSceneCoTags;
-
 	private Integer docTagsMaxLineLength = 70;
 
+	/**
+	 *  
+	 */
 	public String prettyPrint() {
 		final StringBuilder sbuf = new StringBuilder();
 		addLine(sbuf, "InputFilename", this.inputFilename);
@@ -63,8 +74,10 @@ public class FormatDao {
 		addLine(sbuf, "OutputEncoding", this.outputEncoding);
 		addLine(sbuf, "StoryTitle1", this.storyTitle1);
 		addLine(sbuf, "StoryTitle2", this.storyTitle2);
-		addLine(sbuf, "ChapterDivider", this.chapterDivider);
-		addLine(sbuf, "SectionDivider", this.sectionDivider);
+		// addLine(sbuf, "ChapterDivider", this.chapterDivider);
+		// addLine(sbuf, "SectionDivider", this.sectionDivider);
+		addLine(sbuf, "ChapterDivider", this.regexpChapter);
+		addLine(sbuf, "SectionDivider", this.regexpSection);
 		addLine(sbuf, "Centerablevalues", this.centerableLineText);
 		addLine(sbuf, "CenterStars", this.centerStars.toString());
 		addLine(sbuf, "DropCapChapter", this.dropCapChapter.toString());
@@ -153,21 +166,21 @@ public class FormatDao {
 		this.storyTitle2 = storyTitle2;
 	}
 
-	public String getChapterDivider() {
-		return chapterDivider;
-	}
-
-	public void setChapterDivider(String chapterDivider) {
-		this.chapterDivider = chapterDivider;
-	}
-
-	public String getSectionDivider() {
-		return sectionDivider;
-	}
-
-	public void setSectionDivider(String sectionDivider) {
-		this.sectionDivider = sectionDivider;
-	}
+	// public String getChapterDivider() {
+	// return chapterDivider;
+	// }
+	//
+	// public void setChapterDivider(String chapterDivider) {
+	// this.chapterDivider = chapterDivider;
+	// }
+	//
+	// public String getSectionDivider() {
+	// return sectionDivider;
+	// }
+	//
+	// public void setSectionDivider(String sectionDivider) {
+	// this.sectionDivider = sectionDivider;
+	// }
 
 	public String getCenterableLineText() {
 		return centerableLineText;
@@ -374,6 +387,22 @@ public class FormatDao {
 
 	public String getFilePrefix() {
 		return filePrefix;
+	}
+
+	public String getRegexpChapter() {
+		return regexpChapter;
+	}
+
+	public void setRegexpChapter(String regexpChapter) {
+		this.regexpChapter = regexpChapter;
+	}
+
+	public String getRegexpSection() {
+		return regexpSection;
+	}
+
+	public void setRegexpSection(String regexpSection) {
+		this.regexpSection = regexpSection;
 	}
 
 }

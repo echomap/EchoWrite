@@ -3,6 +3,8 @@ package com.echomap.kqf.looper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -142,19 +144,36 @@ public class TextBiz {
 	}
 
 	public static SECTIONTYPE isSection(final String line, final String miscDiv, final boolean isInSpecial) {
-		if (line.startsWith("Section")) {
-			// preTag = "<mbp:pagebreak/>\n" + "<p class=MsoSection>";
-			return SECTIONTYPE.PLAIN;
-		} else if (line.indexOf("Section:") > -1) {
-			// preTag = "<p class=MsoSection>";
-			return SECTIONTYPE.PLAIN;
-		} else if (line.startsWith(special1) && !isInSpecial) {
-			// preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
-			return SECTIONTYPE.NOTSPECIAL;
-		} else if (line.indexOf("Section") > -1 && isInSpecial) {
-			// preTag = "<p class=MsoSection>";
-			return SECTIONTYPE.INSPECIAL;
+		// Create a Pattern object
+		final Pattern r = Pattern.compile(miscDiv);
+
+		// Now create matcher object.
+		final Matcher matcher = r.matcher(line);
+		if (matcher.find()) {
+			final String mNum = matcher.group("snum");
+			final String mName = matcher.group("sname");
+			final String mTitle = matcher.group("stitle");
+			final Integer mNumI = Integer.valueOf(mNum);
+
+			if (isInSpecial)
+				return SECTIONTYPE.INSPECIAL;
+			else
+				return SECTIONTYPE.PLAIN;
 		}
+
+		// if (line.startsWith("Section")) {
+		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoSection>";
+		// return SECTIONTYPE.PLAIN;
+		// } else if (line.indexOf("Section:") > -1) {
+		// // preTag = "<p class=MsoSection>";
+		// return SECTIONTYPE.PLAIN;
+		// } else if (line.startsWith(special1) && !isInSpecial) {
+		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
+		// return SECTIONTYPE.NOTSPECIAL;
+		// } else if (line.indexOf("Section") > -1 && isInSpecial) {
+		// // preTag = "<p class=MsoSection>";
+		// return SECTIONTYPE.INSPECIAL;
+		// }
 		// if (miscDiv != null) {
 		// if (line.contains(miscDiv))// && line.contains("Section"))
 		// return SECTIONTYPE.PLAIN;
@@ -254,36 +273,73 @@ public class TextBiz {
 
 	public static SimpleChapterDao isChapter(final String line, final String chapterDivider) {
 		SimpleChapterDao dao = new SimpleChapterDao();
-		if (line.startsWith("Chapter")) {
+		// Create a Pattern object
+		final Pattern r = Pattern.compile(chapterDivider);
+
+		// Now create matcher object.
+		final Matcher matcher = r.matcher(line);
+		if (matcher.find()) {
 			dao.isChapter = true;
-			// dao.name = parseChapterName(line, null);
-			dao = parseChapterName(line, null);
+			String mNum = null;
+			Integer mNumI = null;
+			try {
+				mNum = matcher.group("cnum");
+				mNumI = Integer.valueOf(mNum);
+			} catch (NumberFormatException e1) {
+				e1.printStackTrace();
+			}
+			dao.chpNum = mNum;
+			dao.numerical = mNumI;
+
+			try {
+				final String mName = matcher.group("cname");
+				if (mNum != null)
+					dao.name = mName + " " + mNum;
+				else
+					dao.name = mName;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			try {
+				final String mTitle = matcher.group("ctitle");
+				dao.title = mTitle;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return dao;
 		}
-		if (line.contains("--") && line.contains("Chapter")) {
-			dao.isChapter = true;
-			// dao.name = parseChapterName(line, "--");
-			dao = parseChapterName(line, "--");
-			return dao;
-		}
-		if (line.contains("-=") && line.contains("Chapter")) {
-			dao.isChapter = true;
-			// dao.name = parseChapterName(line, "-=");
-			dao = parseChapterName(line, "-=");
-			return dao;
-		}
-		if (chapterDivider != null && line.contains(chapterDivider) && line.contains("Chapter")) {
-			dao.isChapter = true;
-			// dao.name = parseChapterName(line, chapterDivider);
-			dao = parseChapterName(line, chapterDivider);
-			return dao;
-		}
+
+		// if (line.startsWith("Chapter")) {
+		// dao.isChapter = true;
+		// // dao.name = parseChapterName(line, null);
+		// dao = parseChapterName(line, null);
+		// return dao;
+		// }
+		// if (line.contains("--") && line.contains("Chapter")) {
+		// dao.isChapter = true;
+		// // dao.name = parseChapterName(line, "--");
+		// dao = parseChapterName(line, "--");
+		// return dao;
+		// }
+		// if (line.contains("-=") && line.contains("Chapter")) {
+		// dao.isChapter = true;
+		// // dao.name = parseChapterName(line, "-=");
+		// dao = parseChapterName(line, "-=");
+		// return dao;
+		// }
+		// if (chapterDivider != null && line.contains(chapterDivider) &&
+		// line.contains("Chapter")) {
+		// dao.isChapter = true;
+		// // dao.name = parseChapterName(line, chapterDivider);
+		// dao = parseChapterName(line, chapterDivider);
+		// return dao;
+		// }
 		dao.isChapter = false;
 		dao.name = null;
 		return dao;
 	}
 
-	static DocTagLine isDocTag(final String line, final String startTag, final String endTag) {		
+	static DocTagLine isDocTag(final String line, final String startTag, final String endTag) {
 		final DocTagLine dtl = new DocTagLine();
 		if (StringUtils.isBlank(startTag) || StringUtils.isBlank(endTag)) {
 			dtl.setupNotADocTag(line);
@@ -318,7 +374,7 @@ public class TextBiz {
 			dtl.setupLongDocTag(line, line.substring(idx1 + startTag.length()));
 			// return DOCTAGTYPE.LONGDOCTAG;
 		} else if (line.contains(endTag)) {
-			dtl.setEndDocTag(true);		
+			dtl.setEndDocTag(true);
 			// return DOCTAGTYPE.LONGDOCTAG;
 		}
 		// return DOCTAGTYPE.NONE;
