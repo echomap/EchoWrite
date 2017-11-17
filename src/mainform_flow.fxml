@@ -642,7 +642,7 @@
       								<HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" style="">
       									<children>
       										<Label text="Chapter Pattern:" />
-      										<TextField id="chpDivText" fx:id="regexpChapterText" text="-=\s+(?&lt;cname&gt;Chapter)\s+(?&lt;cnum&gt;\d+):\s+(?&lt;ctitle&gt;\w+)\s+=-" HBox.hgrow="SOMETIMES">
+      										<TextField id="chpDivText" fx:id="regexpChapterText" text="-=\s+(?&lt;cname&gt;Chapter)\s+(?&lt;cnum&gt;\w+):\s+(?&lt;ctitle&gt;.*)\s+=-" HBox.hgrow="SOMETIMES">
       											<HBox.margin>
       												<Insets left="6.0" fx:id="x537" />
       											</HBox.margin>

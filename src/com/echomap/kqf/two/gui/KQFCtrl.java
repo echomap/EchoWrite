@@ -415,7 +415,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		outputDocTagsMaxLineLength.setText("70");
 
 		// -=\s+(?<cname>Chapter)\s+(?<cnum>\d+):\s+(?<ctitle>\w+)\s+=-
-		regexpChapterText.setText("-=\\s+(?<cname>Chapter)\\s+(?<cnum>\\w+):\\s+(?<stitle>\\w+)\\s+=-");
+		// Default REGEXP
+		regexpChapterText.setText("-=\\s+(?<cname>Chapter)\\s+(?<cnum>\\w+):\\s+(?<stitle>.*)\\s+=-");
 		regexpSectionText.setText("-=\\s+(?<sname>Section):\\s+(?<stitle>\\w+)\\s+=-");
 
 		lockGui();
@@ -873,8 +874,9 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		regexpChapterText.setText(child.get("regexpChapter", ""));
 		regexpSectionText.setText(child.get("regexpSection", ""));
 
+		// Default REGEXP
 		if (regexpChapterText.getText().length() < 1)
-			regexpChapterText.setText("-=\\s+(?<cname>Chapter)\\s+(?<cnum>\\w+):\\s+(?<ctitle>\\w+)\\s+=-");
+			regexpChapterText.setText("-=\\s+(?<cname>Chapter)\\s+(?<cnum>\\w+):\\s+(?<ctitle>.*)\\s+=-");
 		if (regexpSectionText.getText().length() < 1)
 			regexpSectionText.setText("-=\\s+(?<sname>Section):\\s+(?<stitle>\\w+)\\s+=-");
 
