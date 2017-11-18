@@ -62,8 +62,8 @@
 				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
 			</columnConstraints>
 			<rowConstraints>
-				<RowConstraints valignment="TOP" vgrow="SOMETIMES" />
-				<RowConstraints fillHeight="false" maxHeight="1.7976931348623157E308" minHeight="216.0" valignment="TOP" vgrow="SOMETIMES" />
+				<RowConstraints fillHeight="false" valignment="TOP" vgrow="SOMETIMES" />
+				<RowConstraints fillHeight="false" maxHeight="1.7976931348623157E308" valignment="TOP" vgrow="SOMETIMES" />
 				<RowConstraints maxHeight="198.0" minHeight="135.0" prefHeight="135.0" valignment="TOP" vgrow="ALWAYS" />
 			</rowConstraints>
 			<children>
@@ -241,7 +241,7 @@
 						</TitledPane>
 					</children>
 				</VBox>
-				<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+				<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
 					<content>
 						<TextArea fx:id="lastRunText" editable="false" wrapText="true" />
 					</content>
@@ -639,7 +639,7 @@
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-      								<HBox maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" style="">
+      								<HBox prefHeight="-1.0" prefWidth="-1.0" style="">
       									<children>
       										<Label text="Chapter Pattern:" />
       										<TextField id="chpDivText" fx:id="regexpChapterText" text="-=\s+(?&lt;cname&gt;Chapter)\s+(?&lt;cnum&gt;\w+):\s+(?&lt;ctitle&gt;.*)\s+=-" HBox.hgrow="SOMETIMES">
