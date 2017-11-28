@@ -436,6 +436,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	public void handleInputFile(final ActionEvent event) {
 		locateFile(event, "Open Input File", inputFileText);
 		automaticFromInput(false);
+		unlockGui();
 	}
 
 	public void handleLoadFormatChptHtmlOutputDir(final ActionEvent event) {
