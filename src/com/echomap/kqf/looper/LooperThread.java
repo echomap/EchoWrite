@@ -43,9 +43,10 @@ public class LooperThread extends Thread {
 			loop(formatDao, ldao, flHandler);
 			// TODO done callback.
 			// final Object objret =
-			if (notifyCtrl != null)
+			if (notifyCtrl != null) {
 				notifyCtrl.finishedWithWork(flHandler.getWorkType());
-			else
+				//notifyCtrl.finalResultFromWork(flHandler.getWorkResult());
+			} else
 				LOGGER.error("NO Notifier setup!!");
 		} catch (IOException e) {
 			// TODO Error callback!
@@ -122,11 +123,14 @@ public class LooperThread extends Thread {
 				reader.close();
 			}
 			final String finalMsg = flHandler.postHandler(formatDao, ldao);
-			if (notifyCtrl != null)
+			if (notifyCtrl != null) {
 				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finished.");
-			if (finalMsg != null)
-				if (notifyCtrl != null)
+
+				if (finalMsg != null) {
+					notifyCtrl.finalResultFromWork(finalMsg);
 					notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
+				}
+			}
 		}
 		LOGGER.info("Loop: Done");
 	}

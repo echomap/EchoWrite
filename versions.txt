@@ -2,6 +2,8 @@ TODO
 update title or someting with loaded PROFILE?
 regexp for chapter and section finding?
 
+2017 12 04 1.0.7
+	update summary log display
 2017 11 17 1.0.6
 	update from static text markers for chapter and section to REGEXP!
 2017 11 13 - 1.0.5

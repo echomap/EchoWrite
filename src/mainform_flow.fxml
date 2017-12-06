@@ -67,6 +67,15 @@
 				<RowConstraints valignment="TOP" vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
+            <TitledPane maxHeight="1.7976931348623157E308" text="Log:" GridPane.rowIndex="2">
+               <content>
+      				<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
+      					<content>
+      						<TextArea fx:id="lastRunText" editable="false" wrapText="true" />
+      					</content>
+      				</ScrollPane>
+               </content>
+            </TitledPane>
 				<VBox>
 					<children>
 						<TitledPane alignment="TOP_LEFT" animated="false" collapsible="false" text="Input:">
@@ -686,17 +695,14 @@
                   </GridPane>
                </children>
             </GridPane>
-            <TitledPane maxHeight="1.7976931348623157E308" text="Log:" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <TitledPane prefHeight="200.0" prefWidth="200.0" text="Summary" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <content>
-      				<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
-      					<content>
-      						<TextArea fx:id="lastRunText" editable="false" wrapText="true" />
-      					</content>
-      				</ScrollPane>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
+                     <content>
+                        <TextArea fx:id="summaryRunText" editable="false" maxHeight="1.7976931348623157E308" wrapText="true" />
+                     </content>
+                  </ScrollPane>
                </content>
-               <GridPane.margin>
-                  <Insets />
-               </GridPane.margin>
             </TitledPane>
 			</children>
 		</GridPane>

@@ -3,7 +3,9 @@ package com.echomap.kqf.looper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.logging.SimpleFormatter;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -21,6 +23,8 @@ import com.echomap.kqf.looper.data.SimpleChapterDao;
 public class FileLooperHandlerCount implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerCount.class);
 
+	// String workResult = null;
+
 	public FileLooperHandlerCount() {
 
 	}
@@ -29,6 +33,11 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	public String getWorkType() {
 		return "Counter";
 	}
+
+	// @Override
+	// public String getWorkResult() {
+	// return workResult;
+	// }
 
 	@Override
 	public void preLine(FormatDao formatDao, LooperDao ldao) throws IOException {
@@ -65,7 +74,8 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		LOGGER.debug("TotalWords: " + totalWords.toString());
 		outputSummaryOutputFile(formatDao.getOutputCountFile(), null, ldao.getChapters(), formatDao);
 		LOGGER.debug("Version:, " + formatDao.getVersion());
-		// TODO output to gui?
+		// TODO format with commas...
+		
 		return "TotalWords: " + totalWords.toString();
 	}
 

@@ -39,7 +39,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private FileWriter fWriterNotUsedFile;
 
 	private int levelledCount = 0;
-	private String lastLevelledText = null;
+	// private String lastLevelledText = null;
 
 	final List<String> outlineTags = new ArrayList<String>();
 
@@ -53,6 +53,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	public FileLooperHandlerOutline() {
 		//
 	}
+
+	// @Override
+	// public String getWorkResult() {
+	// return workResult;
+	// }
 
 	@Override
 	public String getWorkType() {
@@ -346,22 +351,17 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	@Override
 	public String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
 
-		// todo formatDao.getVersion()
-		// if (fWriterOutlineFile != null) {
-		// fWriterOutlineFile.write(TextBiz.newLine);
-		// fWriterOutlineFile.write(TextBiz.newLine);
-		// if (unusedTagList.size() > 0) {
-		// fWriterOutlineFile.write("Unused Tags: ");
-		// for (DocTag dt1 : unusedTagList) {
-		// fWriterOutlineFile.write(dt1.getName());
-		// fWriterOutlineFile.write(",");
-		// }
-		// fWriterOutlineFile.write(TextBiz.newLine);
-		// fWriterOutlineFile.write(TextBiz.newLine);
-		// }
-		// }
-
 		writeChapterData(formatDao, ldao, null);
+
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Outline: ");
+		sb.append("Unused#: ");
+		sb.append(unusedTagList.size());
+		if (unusedTagList.size() > 0) {
+			sb.append("(");
+			sb.append(getDoctagNameList(unusedTagList));
+			sb.append(")");
+		}
 
 		if (fWriterAll != null) {
 			fWriterAll.flush();
@@ -383,7 +383,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterNotUsedFile.flush();
 			fWriterNotUsedFile.close();
 		}
-		return null;
+
+		return sb.toString();
+	}
+
+	private Object getDoctagNameList(final List<DocTag> docTagList) {
+		final StringBuilder sb = new StringBuilder();
+		for (final DocTag docTag : docTagList) {
+			sb.append(docTag.getName());
+			sb.append(",");
+		}
+		sb.setLength(sb.length() - 1);
+		return sb.toString();
 	}
 
 	@Override
@@ -432,8 +443,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 			fWriterOutlineFile = new FileWriter(outputFileO2, false);
 			//
-			fWriterOutlineFile.write("-= Outline: ");
+			fWriterOutlineFile.write("-= Outline: \"");
 			fWriterOutlineFile.write(formatDao.getStoryTitle1());
+			fWriterOutlineFile.write("\"");
+			if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
+				fWriterOutlineFile.write(" : \"");
+				fWriterOutlineFile.write(formatDao.getStoryTitle2());
+				fWriterOutlineFile.write("\"");
+			}
 			fWriterOutlineFile.write(" =-");
 			fWriterOutlineFile.write(TextBiz.newLine);
 			fWriterOutlineFile.write("Compressed Tags: ");
@@ -454,8 +471,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 			fWriterSceneFile = new FileWriter(outputFileS2, false);
 			//
-			fWriterSceneFile.write("-= Scenes: ");
+			fWriterSceneFile.write("-= Scenes: \"");
 			fWriterSceneFile.write(formatDao.getStoryTitle1());
+			fWriterSceneFile.write("\"");
+			if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
+				fWriterSceneFile.write(" : \"");
+				fWriterSceneFile.write(formatDao.getStoryTitle2());
+				fWriterSceneFile.write("\"");
+			}
 			fWriterSceneFile.write(" =-");
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.write("Captured Tags: ");

@@ -66,6 +66,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	@FXML
 	private TextArea lastRunText;
 	@FXML
+	private TextArea summaryRunText;
+	@FXML
 	private TextField fmtModeText;
 	// @FXML
 	// private TextField chpDivText;
@@ -243,6 +245,18 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		lockGui();
 		fixFocus();
 
+	}
+
+	@Override
+	public void finalResultFromWork(final String msg) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				showSummaryMessage(msg, false);
+				unlockGui();
+				runningMutex = false;
+			}
+		});
 	}
 
 	@Override
@@ -597,6 +611,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	public void handleDoClearLogAction(final ActionEvent event) {
 		this.lastRunText.clear();
+		this.summaryRunText.clear();
 		this.unlockGui();
 	}
 
@@ -767,6 +782,31 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		} catch (BackingStoreException e) {
 			showMessage("Error Deleting profile: " + e, false);
 			e.printStackTrace();
+		}
+	}
+
+	private void showSummaryMessage(final String msg, final boolean clearPrevious) {
+		if (msg == null || StringUtils.isBlank(msg))
+			return;
+		final Animation animation = new Transition() {
+			{
+				setCycleDuration(Duration.millis(1000));
+				setInterpolator(Interpolator.EASE_OUT);
+			}
+
+			@Override
+			protected void interpolate(double frac) {
+				Color vColor = new Color(1, 0, 0, 1 - frac);
+				summaryRunText
+						.setBackground(new Background(new BackgroundFill(vColor, CornerRadii.EMPTY, Insets.EMPTY)));
+			}
+		};
+		animation.play();
+
+		if (clearPrevious) {
+			summaryRunText.setText(msg);
+		} else {
+			summaryRunText.setText(msg + "\r\n" + summaryRunText.getText());
 		}
 	}
 

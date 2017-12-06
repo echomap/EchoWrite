@@ -1,6 +1,9 @@
 package com.echomap.kqf.two.gui;
 
 public interface WorkDoneNotify {
+
+	public void finalResultFromWork(final String msg);
+
 	public void finishedWithWork(final String msg);
 
 	public void errorWithWork(final String msg, final Exception e);

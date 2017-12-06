@@ -189,6 +189,11 @@ public class FormatCli implements WorkDoneNotify {
 	}
 
 	@Override
+	public void finalResultFromWork(String msg) {
+		LOGGER.info("Final result from process " + msg);
+	}
+
+	@Override
 	public void finishedWithWork(String msg) {
 		LOGGER.info("Done with process " + msg);
 	}
