@@ -870,8 +870,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			outputOutlineFileText.setText(outputDir + "\\" + filePrefixText + "Outline.csv");
 			outputOutlineFileText1.setText(outputDir + "\\" + filePrefixText + "DocTags.csv");
 
-			outputDocTagsOutlineFileText.setText(outputDir + "\\" + filePrefixText + "_outline.txt");
-			outputDocTagsSceneFileText.setText(outputDir + "\\" + filePrefixText + "_scenes.txt");
+			outputDocTagsOutlineFileText.setText(outputDir + "\\" + filePrefixText + "outline.txt");
+			outputDocTagsSceneFileText.setText(outputDir + "\\" + filePrefixText + "scenes.txt");
 		} else {
 			outputOutlineFileText.setText(outputDir + "\\Outline1.csv");
 			outputOutlineFileText1.setText(outputDir + "\\DocTags.csv");

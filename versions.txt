@@ -1,10 +1,11 @@
 TODO
 update title or someting with loaded PROFILE?
 regexp for chapter and section finding?
-add ability to force 'newline' in doctag (+n)
+
 
 2017 12 11
 	fixed bug on newline at overlength in doctag
+	add ability to force 'newline' in doctag (+n)
 2017 12 04 1.0.7
 	update summary log display
 2017 11 17 1.0.6

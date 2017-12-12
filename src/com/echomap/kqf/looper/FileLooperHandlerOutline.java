@@ -164,7 +164,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			StringBuilder strToWrite = new StringBuilder();
 			for (int j = 0; j < words.length; j++) {
 				final String wd = words[j];
-				if ((strToWrite.length() + wd.length()) > maxLineLen) {
+				if ("(+n)".compareTo(wd) == 0) {
+					fWriterFile2.write(pre);
+					fWriterFile2.write(strToWrite.toString());
+					fWriterFile2.write(TextBiz.newLine);
+					strToWrite.setLength(0);
+					pre = "\t";
+					// no strToWrite.append(wd);
+				} else if ((strToWrite.length() + wd.length()) > maxLineLen) {
 					fWriterFile2.write(pre);
 					fWriterFile2.write(strToWrite.toString());
 					fWriterFile2.write(TextBiz.newLine);
