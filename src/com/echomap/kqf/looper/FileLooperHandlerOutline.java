@@ -170,6 +170,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					fWriterFile2.write(TextBiz.newLine);
 					strToWrite.setLength(0);
 					pre = "\t";
+					strToWrite.append(wd);
 				} else {
 					if (strToWrite.length() > 0)
 						strToWrite.append(mid);
