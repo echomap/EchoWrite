@@ -145,7 +145,7 @@ public class FileLooper {
 			LOGGER.info("Total Words: " + dao.getTotalCount().getNumWords());
 		} catch (Exception e) {
 			LOGGER.error(e);
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 		// LOGGER.info("Version: " + props.getProperty("version"));
 		LOGGER.info("Written to: " + formatDao.getOutputCountFile());

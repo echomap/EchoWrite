@@ -513,7 +513,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		outlineTags.add("time");
 		outlineTags.add("loc");
-		outlineTags.add("Date");
+		outlineTags.add("date");
 		outlineTags.add("loc");
 		outlineTags.add("eventnote");
 	}

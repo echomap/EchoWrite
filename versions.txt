@@ -1,8 +1,10 @@
-TODO
-update title or someting with loaded PROFILE?
-regexp for chapter and section finding?
+-=TODO=-
+add other pre (+x) tags in doctag
+export settings
+other pre (+x) tags to control tabbing and stuff?
 
-
+2017 12 16
+	Bug fix parsing
 2017 12 11
 	fixed bug on newline at overlength in doctag
 	add ability to force 'newline' in doctag (+n)

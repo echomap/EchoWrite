@@ -205,6 +205,12 @@ public class FormatCli implements WorkDoneNotify {
 	}
 
 	@Override
+	public void errorWithWork(String msg, Throwable e) {
+		LOGGER.error("Errorwith process " + msg);
+		LOGGER.info(e);
+	}
+
+	@Override
 	public void statusUpdateForWork(String header, String msg) {
 		LOGGER.info("----process " + header + ", " + msg);
 	}

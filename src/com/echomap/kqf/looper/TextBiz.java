@@ -386,26 +386,34 @@ public class TextBiz {
 		DocTag dt = null;
 		int idx1 = line.indexOf(startTag);
 		int idx2 = line.indexOf(endTag);
-		if (idx1 > -1 && idx2 > -1) {
-			final String str = line.substring(idx1 + startTag.length(), idx2);
-			dt = new DocTag(str);
+		LOGGER.debug("line: <" + line + "> idx1:" + idx1 + " idx2:" + idx2);
+		if (idx1 > -1 && idx2 > -1 && line.length() > idx2) {
+			try {
+				final String str = line.substring(idx1 + startTag.length(), idx2);
+				dt = new DocTag(str);
+			} catch (java.lang.StringIndexOutOfBoundsException e) {
+				LOGGER.error(e);
+				LOGGER.error(e.getMessage(), e);
+				throw new RuntimeException("Probably a errant tag in line: <" + line + ">");
+			}
 		}
 		return dt;
 	}
 
-	public static String parseForDocTags(final String st, final String docTagStart, final String docTagEnd) {
-		String st2 = st;
-		int idx1 = st2.indexOf(docTagStart);
-		if (idx1 > -1) {
-			st2 = st2.substring(idx1 + docTagStart.length());
-			int idx2 = st2.indexOf(docTagEnd);
-			if (idx2 < -1)
-				idx2 = st2.length();
-			st2 = st2.substring(0, idx2);
-			LOGGER.debug("parseForDocTags: '" + st2 + "'");
-		}
-		return st2;
-	}
+	// public static String parseForDocTags(final String st, final String
+	// docTagStart, final String docTagEnd) {
+	// String st2 = st;
+	// int idx1 = st2.indexOf(docTagStart);
+	// if (idx1 > -1) {
+	// st2 = st2.substring(idx1 + docTagStart.length());
+	// int idx2 = st2.indexOf(docTagEnd);
+	// if (idx2 < -1)
+	// idx2 = st2.length();
+	// st2 = st2.substring(0, idx2);
+	// LOGGER.debug("parseForDocTags: '" + st2 + "'");
+	// }
+	// return st2;
+	// }
 
 	private static SimpleChapterDao parseChapterName(final String line, final String div) {
 		final SimpleChapterDao dao = new SimpleChapterDao();

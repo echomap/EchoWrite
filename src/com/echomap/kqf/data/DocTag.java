@@ -30,6 +30,10 @@ public class DocTag {
 			String twot = docTagText.substring(idx1 + 1);
 			this.setName(onet);
 			this.setValue(twot);
+
+			// TODO REGEX Collect # from twot: "[+in#]"
+			// TODO REGEX Collect # from twot: "[+out#]"
+
 		} else {
 
 		}
@@ -42,8 +46,10 @@ public class DocTag {
 	}
 
 	public void setName(String name) {
-		if (name != null)
+		if (name != null) {
 			name = name.trim();
+			name = name.toLowerCase();
+		}
 		this.name = name;
 	}
 

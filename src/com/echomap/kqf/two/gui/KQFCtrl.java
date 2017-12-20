@@ -117,13 +117,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	@FXML
 	private TextField outputDocTagsSceneFileText;
 	@FXML
-	private TextField outputDocTagsOutlineCTagsText;
+	private TextArea outputDocTagsOutlineCTagsText;
 	@FXML
 	private TextArea outputDocTagsOutlineETagsText;
 	@FXML
-	private TextField outputDocTagsSceneTagsText;
+	private TextArea outputDocTagsSceneTagsText;
 	@FXML
-	private TextField outputDocTagsSceneCoTags;
+	private TextArea outputDocTagsSceneCoTags;
 
 	@FXML
 	private ComboBox<String> titleOneText;
@@ -273,6 +273,19 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	@Override
 	public void errorWithWork(final String msg, final Exception e) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				showMessage("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e, false);
+				LOGGER.error(e);
+				unlockGui();
+				runningMutex = false;
+			}
+		});
+	}
+
+	@Override
+	public void errorWithWork(final String msg, final Throwable e) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {

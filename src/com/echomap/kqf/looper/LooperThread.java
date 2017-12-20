@@ -64,6 +64,12 @@ public class LooperThread extends Thread {
 			LOGGER.error("!!!!");
 			LOGGER.error(e);
 			e.printStackTrace();
+		} catch(Throwable e){
+			if (notifyCtrl != null)
+				notifyCtrl.errorWithWork(flHandler.getWorkType(), e);
+			LOGGER.error("!!!!");
+			LOGGER.error(e);
+			e.printStackTrace();
 		}
 	}
 

@@ -8,5 +8,7 @@ public interface WorkDoneNotify {
 
 	public void errorWithWork(final String msg, final Exception e);
 
+	public void errorWithWork(final String msg, final Throwable e);
+
 	public void statusUpdateForWork(final String header, final String msg);
 }
