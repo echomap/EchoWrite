@@ -4,12 +4,11 @@ public class CountDao {
 	private int numChars = 0;
 	private int numWords = 0;
 	private int numLines = 0;
-	private int numChapters = 0;
-	
+	private int numChapters = -1;
+
 	private String chapterName = "";
 	private String chapterTitle = "";
-	private int chapterNumber = 0;
-	
+	private int chapterNumber = -1;
 
 	public CountDao() {
 		clear();
@@ -56,6 +55,10 @@ public class CountDao {
 	}
 
 	public String getChapterTitle() {
+		return chapterTitle;
+	}
+
+	public String getQuotedChapterTitle() {
 		if (chapterTitle != null) {
 			chapterTitle = chapterTitle.trim();
 			if (!chapterTitle.startsWith("\"")) {

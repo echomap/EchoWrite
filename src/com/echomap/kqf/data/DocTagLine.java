@@ -3,14 +3,23 @@ package com.echomap.kqf.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public class DocTagLine {
 
 	private List<DocTag> docTags = null;
 	private String line = null;
+	private long lineCount = 0;
 	private boolean onlyDoctag = false;
 	private boolean hasDocTag = false;
 	private boolean longDocTag = false;
 	private boolean endDocTag = false;
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+		// return super.toString();
+	}
 
 	public String getLine() {
 		return line;
@@ -56,19 +65,19 @@ public class DocTagLine {
 		return docTags;
 	}
 
-	public void setDocTags(List<DocTag> docTags) {
+	public void setDocTags(final List<DocTag> docTags) {
 		this.docTags = docTags;
 	}
 
-	public void setupNotADocTag(String line2) {
+	public void setupNotADocTag(final String docTagText) {
 		this.setDocTags(null);
-		this.line = null;
+		this.line = docTagText;
 		this.onlyDoctag = false;
 		this.hasDocTag = false;
 		this.longDocTag = false;
 	}
 
-	public void setupOnlyDocTag(String docTagText) {
+	public void setupOnlyDocTag(final String docTagText) {
 		if (getDocTags() == null)
 			setDocTags(new ArrayList<DocTag>());
 		this.getDocTags().add(new DocTag(docTagText));
@@ -78,7 +87,7 @@ public class DocTagLine {
 		this.longDocTag = false;
 	}
 
-	public void setupContainsDocTag(String line, String docTagText) {
+	public void setupContainsDocTag(final String line, final String docTagText) {
 		if (getDocTags() == null)
 			setDocTags(new ArrayList<DocTag>());
 		// final DocTag dt = new DocTag(docTagText);
@@ -106,6 +115,39 @@ public class DocTagLine {
 		if (getDocTags() == null)
 			setDocTags(new ArrayList<DocTag>());
 		this.getDocTags().add(docTag);
+	}
+
+	public void addDocTag(final List<DocTag> docTagsl) {
+		if (getDocTags() == null)
+			setDocTags(new ArrayList<DocTag>());
+		if (docTagsl == null)
+			return;
+		for (DocTag docTag : docTagsl) {
+			this.getDocTags().add(docTag);
+		}
+		this.onlyDoctag = false;
+		this.hasDocTag = true;
+	}
+
+	public void appendTextToLast(String line2) {
+		DocTag lastDt = null;
+		if (getDocTags() == null) {
+			lastDt = new DocTag(line2);
+			List<DocTag> dtList = new ArrayList<DocTag>();
+			dtList.add(lastDt);
+			setDocTags(dtList);
+		} else {
+			lastDt = getDocTags().get(getDocTags().size() - 1);
+		}
+		lastDt.parseText(lastDt.getFullText() + line2);
+	}
+
+	public void setLineNumber(long lineCount) {
+		this.lineCount = lineCount;
+	}
+
+	public long getLineCount() {
+		return lineCount;
 	}
 
 }

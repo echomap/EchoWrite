@@ -2,7 +2,12 @@
 add other pre (+x) tags in doctag
 export settings
 other pre (+x) tags to control tabbing and stuff?
+find out why Sections not writing out.
 
+2017 12 27
+	fix counting error	
+2017 12 21
+	fixing long doctags
 2017 12 16
 	Bug fix parsing
 2017 12 11

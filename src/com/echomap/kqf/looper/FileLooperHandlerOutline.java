@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -48,7 +49,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private final List<DocTag> unusedTagList = new ArrayList<DocTag>();
 
 	private boolean inLongDocTag = false;
-	private StringBuilder longDocTagText = new StringBuilder();
+	// private StringBuilder longDocTagText = new StringBuilder();
 
 	public FileLooperHandlerOutline() {
 		//
@@ -77,20 +78,86 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			writeChapterData(formatDao, ldao, cdao);
 			levelledCount = 0;
 		} else {
-			outlineLine(ldao, cdao, formatDao);
+			// TODO outlineLine(ldao, cdao, formatDao);
 		}
 		cdao.addOneToNumLines();
+	}
+
+	@Override
+	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
+
+		dttGL = ldao.getCurrentDocTagLine();
+		final CountDao cdao = ldao.getChaptCount();
+
+		if (dttGL.isHasDocTag()) {
+			// if (dtt != TextBiz.DOCTAGTYPE.NONE) {
+			final List<DocTag> docTags = dttGL.getDocTags();
+			if (docTags != null) {
+				for (final DocTag docTag : docTags) {
+					boolean wroteTag = false;
+					if (outlineTags.contains(docTag.getName())) {
+						wroteTag = true;
+						writeEntryToCSV(fWriterOutline, docTag, cdao, ldao, dttGL);
+					}
+					writeEntryToCSV(fWriterAll, docTag, cdao, ldao, dttGL);
+
+					if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())
+							|| formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
+						wroteTag = true;
+						writeEntryToOutline(fWriterOutlineFile, docTag, cdao, formatDao);
+					}
+					if (formatDao.getDocTagsSceneTags().contains(docTag.getName())) {
+						wroteTag = true;
+						sceneDTList.add(docTag);
+					}
+					if (formatDao.getDocTagsSceneCoTags().contains(docTag.getName())) {
+						wroteTag = true;
+						addToCoalateTextMap(docTag, cdao, formatDao, ldao);
+					}
+					if (!wroteTag) {
+						if (fWriterNotUsedFile != null) {
+							fWriterNotUsedFile.write(docTag.getName());
+							fWriterNotUsedFile.write(TextBiz.newLine);
+						}
+						unusedTagList.add(docTag);
+					}
+				}
+			}
+			dttGL = null;
+		} else {
+			// LOGGER.debug("not writing list -------> ");
+		}
+
+	}
+
+	@Override
+	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+
+	}
+
+	@Override
+	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+
 	}
 
 	private void writeChapterData(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao)
 			throws IOException {
 		// format chapter number
+		final CountDao tdao = ldao.getTotalCount();
 		if (fWriterOutlineFile != null && cdao != null) {
-			if (cdao.getChapterNumber() > 1)
-				fWriterOutlineFile.write(TextBiz.newLine);
-
-			fWriterOutlineFile
-					.write("-= Chapter: " + cdao.getChapterNumber() + " (1." + cdao.getChapterNumber() + ") =-");
+			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
+			// tdao.getChapterNumber() > -1)
+			fWriterOutlineFile.write(TextBiz.newLine);
+			int cnum = cdao.getChapterNumber();
+			String cnumS = new Integer(cnum).toString();
+			if (cnum < 0) {
+				cnumS = cdao.getChapterTitle();
+				cnum = 0;
+			} else if (cnum < 10) {
+				cnumS = "0" + new Integer(cnum).toString();
+			}
+			fWriterOutlineFile.write("-= Chapter " + cnum + " (1." + cnumS + ") =-");
 			fWriterOutlineFile.write(TextBiz.newLine);
 		}
 		if (fWriterSceneFile != null) {
@@ -105,12 +172,20 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// boolean inScene = false;
 
 		if (fWriterSceneFile != null && cdao != null) {
-			if (cdao.getChapterNumber() > 1)
-				fWriterSceneFile.write(TextBiz.newLine);
-
-			fWriterSceneFile
-					.write("-= Chapter: " + cdao.getChapterNumber() + " (1." + cdao.getChapterNumber() + ") =-");
+			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
+			// tdao.getChapterNumber() > -1)
 			fWriterSceneFile.write(TextBiz.newLine);
+			int cnum = cdao.getChapterNumber();
+			String cnumS = new Integer(cnum).toString();
+			if (cnum < 0) {
+				cnumS = cdao.getChapterTitle();
+				cnum = 0;
+			} else if (cnum < 10) {
+				cnumS = "0" + new Integer(cnum).toString();
+			}
+			fWriterSceneFile.write("-= Chapter " + cnum + " (1." + cnumS + ") =-");
+			fWriterSceneFile.write(TextBiz.newLine);
+			fWriterSceneFile.flush();
 		}
 	}
 
@@ -125,7 +200,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterSceneFile.write(docTag.getName());
 				fWriterSceneFile.write(": ");
 				final String val = docTag.getValue();
-				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile, true);
+				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile, false);
 			}
 
 			// docTagLast = docTag;
@@ -154,84 +229,122 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			final boolean pad) throws IOException {
 		int maxLineLen = 70; // param
 		maxLineLen = formatDao.getDocTagsMaxLineLength();
-		if (maxLineLen > 0 && val.length() > maxLineLen) {
-			if (pad)
-				fWriterFile2.write(TextBiz.newLine);
+		// if (maxLineLen > 0 && val.length() > maxLineLen) {
+		if (pad)
+			fWriterFile2.write(TextBiz.newLine);
 
-			final String[] words = val.split(" ");
-			String pre = (pad ? "\t" : "");
-			String mid = "";
-			StringBuilder strToWrite = new StringBuilder();
-			for (int j = 0; j < words.length; j++) {
-				final String wd = words[j];
-				if ("(+n)".compareTo(wd) == 0) {
-					fWriterFile2.write(pre);
-					fWriterFile2.write(strToWrite.toString());
-					fWriterFile2.write(TextBiz.newLine);
-					strToWrite.setLength(0);
-					pre = "\t";
-					// no strToWrite.append(wd);
-				} else if ((strToWrite.length() + wd.length()) > maxLineLen) {
-					fWriterFile2.write(pre);
-					fWriterFile2.write(strToWrite.toString());
-					fWriterFile2.write(TextBiz.newLine);
-					strToWrite.setLength(0);
-					pre = "\t";
-					strToWrite.append(wd);
-				} else {
-					if (strToWrite.length() > 0)
-						strToWrite.append(mid);
-					strToWrite.append(wd);
-				}
-				mid = " ";
-			}
-			if (strToWrite.length() > 0) {
+		String pre = (pad ? "\t" : "");
+		String mid = "";
+		StringBuilder strToWrite = new StringBuilder();
+
+		final StringTokenizer st = new StringTokenizer(val, " \t");
+		while (st.hasMoreTokens()) {
+			final String wd = st.nextToken();
+
+			// final String[] words = val.split(" \\t");
+			// String pre = (pad ? "\t" : "");
+			// String mid = "";
+			// StringBuilder strToWrite = new StringBuilder();
+			// for (int j = 0; j < words.length; j++) {
+			// final String wd = words[j];
+			if ("(+n)".compareTo(wd) == 0) {
 				fWriterFile2.write(pre);
 				fWriterFile2.write(strToWrite.toString());
 				fWriterFile2.write(TextBiz.newLine);
+				strToWrite.setLength(0);
+				pre = "\t";
+				// no strToWrite.append(wd);
+			} else if ((strToWrite.length() + wd.length()) > maxLineLen) {
+				fWriterFile2.write(pre);
+				fWriterFile2.write(strToWrite.toString());
+				fWriterFile2.write(TextBiz.newLine);
+				strToWrite.setLength(0);
+				pre = "\t";
+				strToWrite.append(wd);
+			} else {
+				if (strToWrite.length() > 0)
+					strToWrite.append(mid);
+				strToWrite.append(wd);
 			}
-		} else {
-			fWriterFile2.write(val);// docTag.getValue());
+			mid = " ";
+		}
+		if (strToWrite.length() > 0) {
+			fWriterFile2.write(pre);
+			fWriterFile2.write(strToWrite.toString());
 			fWriterFile2.write(TextBiz.newLine);
 		}
+		// } else {
+		// fWriterFile2.write(val);// docTag.getValue());
+		// fWriterFile2.write(TextBiz.newLine);
+		// }
 	}
 
+	DocTagLine dttGL = null;
+
 	/**
-	 * 
+	 * Called from Handle Line
 	 */
 	private void outlineLine(final LooperDao ldao, final CountDao cdao, final FormatDao formatDao) throws IOException {
 		//
+		LOGGER.debug("LINE: '" + ldao.getCurrentLine() + "'");
 		DocTagLine dtt = TextBiz.isDocTag(ldao.getCurrentLine(), formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 		//
+		LOGGER.debug("DTLE: '" + dtt.getLine() + "'");
+		LOGGER.debug("IS: END: " + dtt.isEndDocTag() + " HAS: " + dtt.isHasDocTag() + " LNG: " + dtt.isLongDocTag()
+				+ " ONY: " + dtt.isOnlyDoctag());
+		if (dttGL != null)
+			LOGGER.debug("GL: END: " + dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: "
+					+ dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
+
+		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
+
 		if (dtt.isLongDocTag() || inLongDocTag) {
 			inLongDocTag = true;
-			//
-			final String longtext = ldao.getCurrentLine().replace(formatDao.getDocTagEnd(), "")
-					.replace(formatDao.getDocTagStart(), "");
-			longDocTagText.append(longtext);
+			// final String longtext =
+			// ldao.getCurrentLine().replace(formatDao.getDocTagEnd(), "")
+			// .replace(formatDao.getDocTagStart(), "");
+			// longDocTagText.append(longtext);
 
 			if (dtt.isEndDocTag()) {
 				inLongDocTag = false;
-				if (dtt.getDocTags() != null)
-					dtt.getDocTags().clear();
-				final DocTag dt = new DocTag(longDocTagText.toString().trim());
-				dtt.addDocTag(dt);
-				dtt.setHasDocTag(true);
-				dtt.setLongDocTag(false);
-			}
-		}
+				// if (dtt.getDocTags() != null)
+				// dtt.getDocTags().clear();
+				// final DocTag dt = new
+				// DocTag(longDocTagText.toString().trim());
+				// dtt.addDocTag(dt);
+				// dtt.setHasDocTag(true);
+				// dtt.setLongDocTag(false);
 
-		if (dtt.isHasDocTag() && !dtt.isLongDocTag()) {
+				dttGL.addDocTag(dtt.getDocTags());
+				if (!dtt.isHasDocTag()) {
+					dttGL.appendTextToLast(dtt.getLine());
+				}
+				dttGL.setHasDocTag(true);
+				dttGL.setLongDocTag(false);
+				dtt = null;
+			} else {
+				if (dttGL == null) {
+					dttGL = new DocTagLine();
+				}
+				dttGL.addDocTag(dtt.getDocTags());
+				if (!dtt.isHasDocTag()) {
+					dttGL.appendTextToLast(dtt.getLine());
+				}
+			}
+		} else
+			dttGL = dtt;
+
+		if (dttGL.isHasDocTag() && !dttGL.isLongDocTag() && !inLongDocTag) {
 			// if (dtt != TextBiz.DOCTAGTYPE.NONE) {
-			final List<DocTag> docTags = dtt.getDocTags();
+			final List<DocTag> docTags = dttGL.getDocTags();
 			if (docTags != null) {
 				for (final DocTag docTag : docTags) {
 					boolean wroteTag = false;
 					if (outlineTags.contains(docTag.getName())) {
 						wroteTag = true;
-						writeEntryToCSV(fWriterOutline, docTag, cdao);
+						writeEntryToCSV(fWriterOutline, docTag, cdao, ldao, dttGL);
 					}
-					writeEntryToCSV(fWriterAll, docTag, cdao);
+					writeEntryToCSV(fWriterAll, docTag, cdao, ldao, dttGL);
 
 					if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())
 							|| formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
@@ -255,6 +368,9 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					}
 				}
 			}
+			dttGL = null;
+		} else {
+			// LOGGER.debug("not writing list -------> ");
 		}
 	}
 
@@ -337,7 +453,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// }
 	}
 
-	private void writeEntryToCSV(final Writer fWriterL, final DocTag docTag, final CountDao cdao) throws IOException {
+	private void writeEntryToCSV(final Writer fWriterL, final DocTag docTag, final CountDao cdao, final LooperDao ldao,
+			final DocTagLine docTagLine) throws IOException {
 		if (fWriterL == null)
 			return;
 		fWriterL.write("\"");
@@ -347,13 +464,20 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		fWriterL.write("\",");
 		fWriterL.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
 		fWriterL.write(",");
-		fWriterL.write(String.valueOf(cdao.getNumLines()));// lineCount));
+		fWriterL.write(String.valueOf(docTagLine.getLineCount()));
+		// fWriterL.write(String.valueOf(cdao.getNumLines()));// lineCount));
 		fWriterL.write(TextBiz.newLine);
 	}
 
 	@Override
 	public void postLine(FormatDao formatDao, LooperDao ldao) {
-
+		if (fWriterOutlineFile != null)
+			try {
+				fWriterOutlineFile.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	@Override

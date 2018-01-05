@@ -188,6 +188,15 @@ public class TextBiz {
 		return null;
 	}
 
+	public static String fixedLengthString(final String str, final int length) {
+		return String.format("%1$" + length + "s", str);
+	}
+
+	public static String fixedLengthString(final int intv, final int length) {
+		final String str = new Integer(intv).toString();
+		return fixedLengthString(str, length);
+	}
+
 	public static String wrapString(final String str) {
 		if (null == str)
 			return "<null>";
@@ -375,8 +384,13 @@ public class TextBiz {
 			dtl.setupLongDocTag(line, line.substring(idx1 + startTag.length()));
 			// return DOCTAGTYPE.LONGDOCTAG;
 		} else if (line.contains(endTag)) {
+			int idx1 = line.indexOf(endTag);
+			// dtl.setupLongDocTag(line, line.substring(0, idx1));
+			dtl.setLine(line.substring(0, idx1));
 			dtl.setEndDocTag(true);
 			// return DOCTAGTYPE.LONGDOCTAG;
+		} else {
+			dtl.setupNotADocTag(line);
 		}
 		// return DOCTAGTYPE.NONE;
 		return dtl;

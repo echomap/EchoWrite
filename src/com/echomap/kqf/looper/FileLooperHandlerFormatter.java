@@ -102,6 +102,21 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		cdao.addOneToNumLines();
 	}
 
+	@Override
+	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		// LOGGER.debug("handleDocTag: xx ");
+	}
+
+	@Override
+	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+
+	}
+
+	@Override
+	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+
+	}
+
 	private void formatLine(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao,
 			final SimpleChapterDao chpt) throws IOException {
 		ldao.inReadLine();

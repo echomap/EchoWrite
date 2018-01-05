@@ -45,7 +45,7 @@ public class LooperThread extends Thread {
 			// final Object objret =
 			if (notifyCtrl != null) {
 				notifyCtrl.finishedWithWork(flHandler.getWorkType());
-				//notifyCtrl.finalResultFromWork(flHandler.getWorkResult());
+				// notifyCtrl.finalResultFromWork(flHandler.getWorkResult());
 			} else
 				LOGGER.error("NO Notifier setup!!");
 		} catch (IOException e) {
@@ -64,7 +64,7 @@ public class LooperThread extends Thread {
 			LOGGER.error("!!!!");
 			LOGGER.error(e);
 			e.printStackTrace();
-		} catch(Throwable e){
+		} catch (Throwable e) {
 			if (notifyCtrl != null)
 				notifyCtrl.errorWithWork(flHandler.getWorkType(), e);
 			LOGGER.error("!!!!");
@@ -102,6 +102,7 @@ public class LooperThread extends Thread {
 			// System.out.println("Chapter\t\t\tWords\tTitle");
 			while ((st = reader.readLine()) != null) {
 				lineCount++;
+				ldao.setLineCount(lineCount);
 				if (lineCount % 1000 == 0) {
 					long nowReport = System.currentTimeMillis();
 					if ((nowReport - lastReport) > 999)
@@ -113,7 +114,18 @@ public class LooperThread extends Thread {
 				flHandler.preLine(formatDao, ldao);
 				//
 				flHandler.handleLine(formatDao, ldao);
-				// cdao.addOneToNumLines();
+
+				if (dttGL != null) {
+					flHandler.handleDocTagMaybeTag(formatDao, ldao);
+
+					if (dttGL.isHasDocTag()) {
+						if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
+							flHandler.handleDocTag(formatDao, ldao);
+						}
+					} else
+						flHandler.handleDocTagNotTag(formatDao, ldao);
+				}
+
 				flHandler.postLine(formatDao, ldao);
 			}
 			flHandler.postLastLine(formatDao, ldao);
@@ -141,7 +153,16 @@ public class LooperThread extends Thread {
 		LOGGER.info("Loop: Done");
 	}
 
-	private void setupLine(String st, LooperDao ldao, FormatDao formatDao) {
+	private DocTagLine dttGL = null;
+	private boolean inLongDocTag = false;
+
+	/**
+	 * 
+	 * @param st
+	 * @param ldao
+	 * @param formatDao
+	 */
+	private void setupLine(final String st, final LooperDao ldao, final FormatDao formatDao) {
 		//
 		ldao.setOriginalLine(st);
 		ldao.setCurrentLine(st);
@@ -162,11 +183,58 @@ public class LooperThread extends Thread {
 			}
 			cdao.setChapterName(chpt.name);
 			cdao.setChapterTitle(chpt.title);
-			cdao.setChapterNumber(tdao.getNumChapters());
+			cdao.setChapterNumber(chpt.numerical);// tdao.getNumChapters());
 		}
 		//
-		final DocTagLine currentDocTagLine = TextBiz.isDocTag(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
-		ldao.setCurrentDocTagLine(currentDocTagLine);
+		// final DocTagLine currentDocTagLine = TextBiz.isDocTag(st,
+		// formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+		// ldao.setCurrentDocTagLine(currentDocTagLine);
+
+		//
+		LOGGER.debug("LINE: '" + ldao.getCurrentLine() + "'");
+		DocTagLine dtt = TextBiz.isDocTag(ldao.getCurrentLine(), formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+		//
+		LOGGER.debug("DTLE: '" + dtt.getLine() + "'");
+		LOGGER.debug("IS: END: " + dtt.isEndDocTag() + " HAS: " + dtt.isHasDocTag() + " LNG: " + dtt.isLongDocTag()
+				+ " ONY: " + dtt.isOnlyDoctag());
+		if (dttGL != null)
+			LOGGER.debug("GL: END: " + dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: "
+					+ dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
+
+		if (dtt.isLongDocTag() || inLongDocTag) {
+			inLongDocTag = true;
+			dttGL.setLongDocTag(true);
+			// dttGL.setHasDocTag(true);
+			dttGL.setLongDocTag(true);
+			dttGL.setEndDocTag(false);
+
+			if (dtt.isEndDocTag()) {
+				inLongDocTag = false;
+
+				dttGL.addDocTag(dtt.getDocTags());
+				if (!dtt.isHasDocTag()) {
+					dttGL.appendTextToLast(dtt.getLine());
+				}
+				dttGL.setHasDocTag(true);
+				dttGL.setLongDocTag(true);
+				dttGL.setEndDocTag(true);
+				dtt = null;
+			} else {
+				if (dttGL == null) {
+					dttGL = new DocTagLine();
+					dttGL.setLineNumber(ldao.getLineCount());
+				}
+				dttGL.addDocTag(dtt.getDocTags());
+				if (!dtt.isHasDocTag()) {
+					dttGL.appendTextToLast(dtt.getLine());
+				}
+			}
+		} else {
+			dttGL = dtt;
+			dttGL.setLineNumber(ldao.getLineCount());
+		}
+
+		ldao.setCurrentDocTagLine(dttGL);
 
 	}
 

@@ -11,8 +11,9 @@ import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
 public class LooperDao {
 
 	private File inputFile;
-	private CountDao totalCount = null;
 	private CountDao chaptCount = null;
+	private CountDao totalCount = new CountDao();
+	private long lineCount = 0;
 
 	private final List<ChapterDao> chapters = new ArrayList<ChapterDao>();
 
@@ -171,6 +172,14 @@ public class LooperDao {
 
 	public void setCurrentDocTagLine(DocTagLine currentDocTagLine) {
 		this.currentDocTagLine = currentDocTagLine;
+	}
+
+	public long getLineCount() {
+		return lineCount;
+	}
+
+	public void setLineCount(long lineCount) {
+		this.lineCount = lineCount;
 	}
 
 }

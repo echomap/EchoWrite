@@ -3,13 +3,12 @@ package com.echomap.kqf.looper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.logging.SimpleFormatter;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
@@ -46,15 +45,44 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		// final SimpleChapterDao chpt = ldao.getCurrentChapter();
+		// final CountDao cdao = ldao.getChaptCount();
+		// final CountDao tdao = ldao.getTotalCount();
+		// if (chpt.isChapter) {
+		// cdao.setChapterNumber(tdao.getNumChapters());
+		// } else {
+		// TextBiz.countWords(ldao, cdao, formatDao);
+		// }
+		// cdao.addOneToNumLines();
+	}
+
+	@Override
+	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+
+	}
+
+	@Override
+	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
+
 		final SimpleChapterDao chpt = ldao.getCurrentChapter();
+		final DocTagLine dttGL = ldao.getCurrentDocTagLine();
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
+		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
+
 		if (chpt.isChapter) {
 			cdao.setChapterNumber(tdao.getNumChapters());
 		} else {
 			TextBiz.countWords(ldao, cdao, formatDao);
 		}
 		cdao.addOneToNumLines();
+
+	}
+
+	@Override
+	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+
 	}
 
 	@Override
@@ -75,7 +103,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		outputSummaryOutputFile(formatDao.getOutputCountFile(), null, ldao.getChapters(), formatDao);
 		LOGGER.debug("Version:, " + formatDao.getVersion());
 		// TODO format with commas...
-		
+
 		return "TotalWords: " + totalWords.toString();
 	}
 
