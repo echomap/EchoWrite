@@ -9,7 +9,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
+<GridPane fx:id="OuterMostContainer" maxHeight="-1.0" maxWidth="-1.0" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.two.gui.KQFCtrl">
 	<columnConstraints>
 		<ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" />
 	</columnConstraints>
@@ -426,11 +426,43 @@
 								</HBox>
 								<HBox layoutX="20.0" layoutY="200.0" GridPane.rowIndex="8">
 									<children>
-										<Label prefWidth="70.0" text="Options:" />
-										<Label text="Max Line Length:" />
-										<TextField fx:id="outputDocTagsMaxLineLength" prefHeight="25.0" prefWidth="57.0" promptText="Columns before wrap, or -1 or blank for none." text="70" />
+										<Label prefWidth="70.0" text="Options:">
+                                 <font>
+                                    <Font name="Arial Bold" size="15.0" />
+                                 </font></Label>
+										<Label text="Max Line Len:" />
+										<TextField fx:id="outputDocTagsMaxLineLength" prefWidth="55.0" promptText="Columns before wrap, or -1 or blank for none." text="70" />
+                              <Label text="Prefix Scene:">
+                                 <padding>
+                                    <Insets left="6.0" />
+                                 </padding>
+                              </Label>
+                              <TextField fx:id="outputDocTagsScenePrefix" prefWidth="50.0" promptText="Prefix for output of Scene" text="-" />
+                              <Label text="SubScene:">
+                                 <padding>
+                                    <Insets left="6.0" />
+                                 </padding>
+                              </Label>
+                              <TextField fx:id="outputDocTagsSubScenePrefix" prefWidth="55.0" promptText="Prefix for output of SubScene" text="-" />
 									</children>
+                           <padding>
+                              <Insets left="6.0" right="6.0" />
+                           </padding>
 								</HBox>
+                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="9">
+                           <children>
+                              <Label text="Coalate Div:">
+                                 <HBox.margin>
+                                    <Insets left="76.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField fx:id="sceneCoalateDiv" prefWidth="55.0" promptText="Char to use between Scene Coalation entries and main scene list">
+                                 <HBox.margin>
+                                    <Insets left="8.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                        </HBox>
 
 							</children>
 							<columnConstraints>
@@ -446,6 +478,8 @@
 								<RowConstraints vgrow="SOMETIMES" />
 								<RowConstraints vgrow="SOMETIMES" />
 								<RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 							</rowConstraints>
 						</GridPane>
 					</content>

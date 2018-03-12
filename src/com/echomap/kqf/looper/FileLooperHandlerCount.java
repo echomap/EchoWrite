@@ -1,8 +1,11 @@
 package com.echomap.kqf.looper;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.log4j.LogManager;
@@ -122,7 +125,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	private void outputSummaryOutputFile(final String summaryOut, final File outputDir, final List<ChapterDao> chapters,
 			final FormatDao formatDao) throws IOException {
-		FileWriter fWriter = null;
+		Writer fWriter = null;
 		try {
 			Integer totalWords = 0;
 			File summaryOutputFile = null;
@@ -132,7 +135,12 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 				summaryOutputFile = new File(outputDir, "ChapterCount1.csv");
 			}
 			LOGGER.info("Writing summary data to " + summaryOutputFile);
-			fWriter = new FileWriter(summaryOutputFile, false);
+
+			Charset selCharSet = formatDao.getCharSet();
+			LOGGER.debug("preHandler: Charset chosen: " + selCharSet);
+			fWriter = new OutputStreamWriter(new FileOutputStream(summaryOutputFile), selCharSet);
+
+			// fWriter = new FileWriter(summaryOutputFile, false);
 			fWriter.write("Chapter,Words,Title,Chars,Lines");
 			fWriter.write(TextBiz.newLine);
 			for (ChapterDao countDao : chapters) {

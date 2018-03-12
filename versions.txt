@@ -4,6 +4,24 @@ export settings
 other pre (+x) tags to control tabbing and stuff?
 find out why Sections not writing out.
 
+2018 02 25
+	added option for char to be used as the Prefix for the scene, and subscene
+2018 02 22
+	update to some default values
+2018 02 18 - 1.0.12
+	update doctag searching functions and subscene handling
+2018 02 11 - 1.0.11
+	add parsing of tags inside doctag for CSV files.
+	ie: [[*intro: billy todd; hair: brown. eyes: brown.*]]
+2018 02 02/02 - 1.0.10
+	Default "UTF-8"
+	Changed output files to allow the encoding option to be used
+	UTF/ANSI/<blank>/UTF8/UTF16
+	Choices:
+		"ISO_8859_1", "iso_8859_1", "8859_1"
+		"ASCII", "ascii"
+		"UTF", "utf", "UTF-8", "UTF8", "utf-8","utf8"
+		"UTF-16", "UTF16", "utf-16", "utf16"
 2017 12 27
 	fix counting error	
 2017 12 21

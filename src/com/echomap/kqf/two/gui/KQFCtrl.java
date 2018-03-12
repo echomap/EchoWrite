@@ -41,6 +41,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -54,6 +56,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class KQFCtrl implements Initializable, WorkDoneNotify {
+	private static final String PROP_KEY_VERSION = "version";
+
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
 	private File lastSelectedDirectory = null;
@@ -62,6 +66,9 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	final Preferences userPrefs;
 	// final Preferences userPrefs =
 	// Preferences.userNodeForPackage(KQFCtrl.class);
+
+	@FXML
+	private GridPane OuterMostContainer;
 
 	@FXML
 	private TextArea lastRunText;
@@ -124,6 +131,12 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private TextArea outputDocTagsSceneTagsText;
 	@FXML
 	private TextArea outputDocTagsSceneCoTags;
+	@FXML
+	private TextField outputDocTagsScenePrefix;
+	@FXML
+	private TextField outputDocTagsSubScenePrefix;
+	@FXML
+	private TextField sceneCoalateDiv;
 
 	@FXML
 	private ComboBox<String> titleOneText;
@@ -239,11 +252,54 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 		myTimerTask = new MyTimerTask(this.lastRunText);
 
-		// tooltips
+		setTooltips();
+		loadDefaults();
 		loadChoices();
 		loadProfiles();
 		lockGui();
 		fixFocus();
+
+	}
+
+	private void setTooltips() {
+		setTooltips(OuterMostContainer);
+	}
+
+	private void setTooltips(final Pane pane) {
+		for (Node node : pane.getChildren()) {
+			if (node instanceof TextField) {
+				final TextField tf = (TextField) node;
+				if (tf.getTooltip() == null && !StringUtils.isBlank(tf.getPromptText())) {
+					tf.setTooltip(new Tooltip(tf.getPromptText()));
+				}
+			} else if (node instanceof Pane) {
+				setTooltips((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					setTooltips((Pane) nd2);
+				}
+			}
+		}
+	}
+
+	private void loadDefaults() {
+		LOGGER.debug("loadDefaults: Called ");
+		final String outC = loadPropFromAppOrDefault("outlineCompress",
+				"subscene, outlinedata, outlinesub, suboutline");
+		final String outE = loadPropFromAppOrDefault("outineExpand", "outline, scene");
+		outputDocTagsOutlineCTagsText.setText(outC);
+		outputDocTagsOutlineETagsText.setText(outE);
+
+		final String sceneM = loadPropFromAppOrDefault("sceneMain", "scene, subscene");
+		final String sceneC = loadPropFromAppOrDefault("sceneCoalate", "description, scene");
+		outputDocTagsSceneTagsText.setText(sceneM);
+		outputDocTagsSceneCoTags.setText(sceneC);
+
+		final String regExpChp = loadPropFromAppOrDefault("regexpChapterText", "");
+		final String regExpSec = loadPropFromAppOrDefault("regexpSectionText", "");
+		regexpChapterText.setText(regExpChp);
+		regexpSectionText.setText(regExpSec);
 
 	}
 
@@ -685,6 +741,9 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		formatDao.setDocTagsOutlineExpandTags(outputDocTagsOutlineETagsText.getText());
 		formatDao.setDocTagsSceneTags(outputDocTagsSceneTagsText.getText());
 		formatDao.setDocTagsSceneCoTags(outputDocTagsSceneCoTags.getText());
+		formatDao.setDocTagsScenePrefix(outputDocTagsScenePrefix.getText());
+		formatDao.setDocTagsSubScenePrefix(outputDocTagsSubScenePrefix.getText());
+		formatDao.setSceneCoalateDivider(sceneCoalateDiv.getText());
 
 		final String dtmllS = outputDocTagsMaxLineLength.getText();
 		Integer dtmllI = 70;
@@ -694,7 +753,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			dtmllI = Integer.parseInt(dtmllS);
 		formatDao.setDocTagsMaxLineLength(dtmllI);
 
-		formatDao.setVersion(appProps.getProperty("version"));
+		formatDao.setVersion(appProps.getProperty(PROP_KEY_VERSION));
 	}
 
 	private void fixFocus() {
@@ -958,13 +1017,14 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		outputDocTagsSceneFileText
 				.setText(child.get("outputDocTagsSceneFile", outputCountDir + "\\" + filenameOnly + "_scenes.txt"));
 
-		final String outC = "info, subscene, outlinedata, outlinesub, suboutline";
-		final String outE = "outline, scene, pattern, date, time, loc";
+		final String outC = loadPropFromAppOrDefault("outlineCompress",
+				"subscene, outlinedata, outlinesub, suboutline");
+		final String outE = loadPropFromAppOrDefault("outineExpand", "outline, scene");
 		outputDocTagsOutlineCTagsText.setText(child.get("outputDocTagsOutlineCTags", outC));
 		outputDocTagsOutlineETagsText.setText(child.get("outputDocTagsOutlineTags", outE));
 
-		final String sceneM = "scene, subscene";
-		final String sceneC = "description, changes, starttime, scene, pattern";
+		final String sceneM = loadPropFromAppOrDefault("sceneMain", "scene, subscene");
+		final String sceneC = loadPropFromAppOrDefault("sceneCoalate", "description, scene");
 		outputDocTagsSceneTagsText.setText(child.get("outputDocTagsSceneTags", sceneM));
 		outputDocTagsSceneCoTags.setText(child.get("outputDocTagsSceneCoTags", sceneC));
 
@@ -988,7 +1048,20 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		else
 			outputDocTagsMaxLineLength.setText(outputDocTagsMaxLineLengthSel);
 
+		outputDocTagsScenePrefix.setText(child.get("outputDocTagsScenePrefix", ""));
+		outputDocTagsSubScenePrefix.setText(child.get("outputDocTagsSubScenePrefix", ""));
+		sceneCoalateDiv.setText(child.get("sceneCoalateDiv", ""));
+
+		//
 		unlockGui();
+	}
+
+	private String loadPropFromAppOrDefault(final String key, final String defaultValue) {
+		if (appProps != null && appProps.containsKey(PROP_KEY_VERSION)) {
+			final String value = appProps.getProperty(key);
+			return value;
+		}
+		return defaultValue;
 	}
 
 	protected void saveProps() {
@@ -1047,7 +1120,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			child.put("counterDigitChoice", counterDigitChoiceSel);
 
 			child.put("outputDocTagsMaxLineLength", outputDocTagsMaxLineLength.getText());
+			child.put("outputDocTagsScenePrefix", outputDocTagsScenePrefix.getText());
+			child.put("outputDocTagsSubScenePrefix", outputDocTagsSubScenePrefix.getText());
+			child.put("sceneCoalateDiv", sceneCoalateDiv.getText());
 
+			//
 			try {
 				child.flush();
 			} catch (BackingStoreException e) {
@@ -1131,6 +1208,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	public void setProps(final Properties props) {
 		this.appProps = props;
+		loadDefaults();
 	}
 
 	// private void automaticFromInput() {

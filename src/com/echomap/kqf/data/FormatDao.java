@@ -1,5 +1,11 @@
 package com.echomap.kqf.data;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.echomap.kqf.looper.FileLooper;
@@ -58,6 +64,12 @@ public class FormatDao {
 	private String docTagsSceneTags;
 	private String outputDocTagsSceneCoTags;
 	private Integer docTagsMaxLineLength = 70;
+	private String docTagsScenePrefix = "";
+	private String docTagsSubScenePrefix = "";
+	private String sceneCoalateDivider = "";
+
+	// Calculated once at set of string list
+	private List<String> docTagsOutlineCompressTagsList;
 
 	/**
 	 *  
@@ -93,10 +105,12 @@ public class FormatDao {
 
 		addLine(sbuf, "OutputDocTagsOutlineFile:", this.getOutputDocTagsOutlineFile());
 		addLine(sbuf, "OutputDocTagsSceneFile:", this.getOutputDocTagsSceneFile());
-		addLine(sbuf, "DocTagsOutlineCTags:", this.getDocTagsOutlineCompressTags());
+		addLine(sbuf, "DocTagsOutlineCTags:", this.getDocTagsOutlineCompressTagsAsString());
 		addLine(sbuf, "DocTagsOutlineETags:", this.getDocTagsOutlineExpandTags());
 		addLine(sbuf, "DocTagsSceneTags:", this.getDocTagsSceneTags());
 		addLine(sbuf, "DocTagsSceneCoTags:", this.getDocTagsSceneCoTags());
+		addLine(sbuf, "DocTagsScenePrefix:", this.getDocTagsScenePrefix());
+		addLine(sbuf, "DocTagsSubScenePrefix:", this.getDocTagsSubScenePrefix());
 
 		addLine(sbuf, "CountOutputDigits:",
 				(getOutputFormatDigits() == null ? "" : this.getOutputFormatDigits().toString()));
@@ -248,6 +262,46 @@ public class FormatDao {
 		this.outputEncoding = outputEncoding;
 	}
 
+	// TODO Add encodings?
+	public Charset getCharSet() {
+		Charset selCharSet = StandardCharsets.UTF_8;
+		switch (this.getOutputEncoding()) {
+		case "ISO_8859_1":
+		case "iso_8859_1":
+		case "8859_1":
+		case "Cp1252":
+		case "CP1252":
+		case "1252":
+			selCharSet = StandardCharsets.ISO_8859_1;
+			break;
+		case "ASCII":
+		case "ascii":
+			selCharSet = StandardCharsets.US_ASCII;
+			break;
+		case "UTF":
+		case "utf":
+			selCharSet = StandardCharsets.UTF_8;
+			break;
+		case "UTF-8":
+		case "UTF8":
+		case "utf-8":
+		case "utf8":
+			selCharSet = StandardCharsets.UTF_8;
+			break;
+		case "UTF-16":
+		case "UTF16":
+		case "utf-16":
+		case "utf16":
+			selCharSet = StandardCharsets.UTF_16;
+			break;
+		default:
+			selCharSet = StandardCharsets.US_ASCII;
+			break;
+		}
+		// LOGGER.debug("preHandler: Charset chosen: " + selCharSet);
+		return selCharSet;
+	}
+
 	public String getChapterHeaderTag() {
 		return chapterHeaderTag;
 	}
@@ -325,6 +379,8 @@ public class FormatDao {
 		this.outputDocTagsSceneFile = outputDocTagsSceneFile;
 	}
 
+	// TODO create list like for other Lists, to prevent string matches when
+	// shouldn't be?
 	public String getDocTagsSceneTags() {
 		return docTagsSceneTags;
 	}
@@ -333,6 +389,8 @@ public class FormatDao {
 		this.docTagsSceneTags = docTagsSceneTags;
 	}
 
+	// TODO create list like for other Lists, to prevent string matches when
+	// shouldn't be?
 	public String getDocTagsSceneCoTags() {
 		return outputDocTagsSceneCoTags;
 	}
@@ -357,14 +415,22 @@ public class FormatDao {
 		this.docTagsMaxLineLength = docTagsMaxLineLength;
 	}
 
-	public String getDocTagsOutlineCompressTags() {
+	public String getDocTagsOutlineCompressTagsAsString() {
 		return docTagsOutlineCompressTags;
+	}
+
+	public List<String> getDocTagsOutlineCompressTags() {
+		return docTagsOutlineCompressTagsList;
 	}
 
 	public void setDocTagsOutlineCompressTags(String docTagsOutlineCompressTags) {
 		this.docTagsOutlineCompressTags = docTagsOutlineCompressTags;
+		final String[] strs = StringUtils.split(docTagsOutlineCompressTags, ", ");
+		this.docTagsOutlineCompressTagsList = Arrays.asList(strs);
 	}
 
+	// TODO create list like for other Lists, to prevent string matches when
+	// shouldn't be?
 	public String getDocTagsOutlineExpandTags() {
 		return docTagsOutlineExpandTags;
 	}
@@ -403,6 +469,30 @@ public class FormatDao {
 
 	public void setRegexpSection(String regexpSection) {
 		this.regexpSection = regexpSection;
+	}
+
+	public String getDocTagsScenePrefix() {
+		return docTagsScenePrefix;
+	}
+
+	public void setDocTagsScenePrefix(String docTagsScenePrefix) {
+		this.docTagsScenePrefix = docTagsScenePrefix;
+	}
+
+	public String getDocTagsSubScenePrefix() {
+		return docTagsSubScenePrefix;
+	}
+
+	public void setDocTagsSubScenePrefix(String docTagsSubScenePrefix) {
+		this.docTagsSubScenePrefix = docTagsSubScenePrefix;
+	}
+
+	public void setSceneCoalateDivider(String text) {
+		sceneCoalateDivider = text;
+	}
+
+	public String getSceneCoalateDivider() {
+		return sceneCoalateDivider;
 	}
 
 }
