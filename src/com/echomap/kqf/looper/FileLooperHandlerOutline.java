@@ -28,6 +28,7 @@ import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
+import com.echomap.kqf.looper.data.SimpleSectionDao;
 
 /**
  * 
@@ -76,15 +77,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		if (ldao.getCurrentSection() != null && ldao.getCurrentSection().isSection) {
+			writeChapterData(formatDao, ldao, null);
+			writeSectionData(formatDao, ldao);
+		}
 		final SimpleChapterDao chpt = ldao.getCurrentChapter();
 		final CountDao cdao = ldao.getChaptCount();
 		if (chpt.isChapter) {
 			writeChapterData(formatDao, ldao, cdao);
 			levelledCount = 0;
-		} else {
-			// TODO outlineLine(ldao, cdao, formatDao);
 		}
 		cdao.addOneToNumLines();
+
 	}
 
 	@Override
@@ -145,6 +149,28 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	}
 
+	private void writeSectionData(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		final SimpleSectionDao ssd = ldao.getCurrentSection();
+		if (!ssd.isSection)
+			return;
+		// String nameS = ssd.sname;
+		// String numS = ssd.snum;
+		String titleS = ssd.title;
+
+		if (fWriterOutlineFile != null) {
+			fWriterOutlineFile.write(TextBiz.newLine);
+			fWriterOutlineFile.write("-= Section " + titleS + " =-");
+			fWriterOutlineFile.write(TextBiz.newLine);
+			fWriterOutlineFile.flush();
+		}
+		if (fWriterSceneFile != null) {
+			fWriterSceneFile.write(TextBiz.newLine);
+			fWriterSceneFile.write("-= Section " + titleS + " =-");
+			fWriterSceneFile.write(TextBiz.newLine);
+			fWriterSceneFile.flush();
+		}
+	}
+
 	private void writeChapterData(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao)
 			throws IOException {
 		// format chapter number
@@ -153,15 +179,16 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
 			// tdao.getChapterNumber() > -1)
 			fWriterOutlineFile.write(TextBiz.newLine);
-			int cnum = cdao.getChapterNumber();
-			String cnumS = new Integer(cnum).toString();
-			if (cnum < 0) {
-				cnumS = cdao.getChapterTitle();
-				cnum = 0;
-			} else if (cnum < 10) {
-				cnumS = "0" + new Integer(cnum).toString();
-			}
-			fWriterOutlineFile.write("-= Chapter " + cnum + " (1." + cnumS + ") =-");
+			String cnumS = cdao.getChapterNumber();
+			// int cnum = cdao.getChapterNumber();
+			// String cnumS = new Integer(cnum).toString();
+			// if (cnum < 0) {
+			// cnumS = cdao.getChapterTitle();
+			// cnum = 0;
+			// } else if (cnum < 10) {
+			// cnumS = "0" + new Integer(cnum).toString();
+			// }
+			fWriterOutlineFile.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
 			fWriterOutlineFile.write(TextBiz.newLine);
 		}
 		if (fWriterSceneFile != null) {
@@ -177,15 +204,16 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
 			// tdao.getChapterNumber() > -1)
 			fWriterSceneFile.write(TextBiz.newLine);
-			int cnum = cdao.getChapterNumber();
-			String cnumS = new Integer(cnum).toString();
-			if (cnum < 0) {
-				cnumS = cdao.getChapterTitle();
-				cnum = 0;
-			} else if (cnum < 10) {
-				cnumS = "0" + new Integer(cnum).toString();
-			}
-			fWriterSceneFile.write("-= Chapter " + cnum + " (1." + cnumS + ") =-");
+			String cnumS = cdao.getChapterNumber();
+			// int cnum = cdao.getChapterNumber();
+			// String cnumS = new Integer(cnum).toString();
+			// if (cnum < 0) {
+			// cnumS = cdao.getChapterTitle();
+			// cnum = 0;
+			// } else if (cnum < 10) {
+			// cnumS = "0" + new Integer(cnum).toString();
+			// }
+			fWriterSceneFile.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.flush();
 		}

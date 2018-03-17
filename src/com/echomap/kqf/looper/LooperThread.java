@@ -10,11 +10,11 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
-import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
+import com.echomap.kqf.looper.data.SimpleSectionDao;
 import com.echomap.kqf.two.gui.WorkDoneNotify;
 
 public class LooperThread extends Thread {
@@ -167,7 +167,7 @@ public class LooperThread extends Thread {
 		ldao.setOriginalLine(st);
 		ldao.setCurrentLine(st);
 		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getRegexpChapter());
-		final SECTIONTYPE sectionType = TextBiz.isSection(st, formatDao.getRegexpSection(), false);// TODO
+		final SimpleSectionDao sectionType = TextBiz.isSection(st, formatDao.getRegexpSection());
 		ldao.setCurrentChapter(chpt);
 		ldao.setCurrentSection(sectionType);
 
@@ -183,7 +183,8 @@ public class LooperThread extends Thread {
 			}
 			cdao.setChapterName(chpt.name);
 			cdao.setChapterTitle(chpt.title);
-			cdao.setChapterNumber(chpt.numerical);// tdao.getNumChapters());
+			cdao.setChapterNumber(chpt.chpNum);// numerical);//
+												// tdao.getNumChapters());
 		}
 		//
 		// final DocTagLine currentDocTagLine = TextBiz.isDocTag(st,

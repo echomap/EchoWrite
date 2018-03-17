@@ -42,7 +42,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	// }
 
 	@Override
-	public void preLine(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public void preLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		// LOGGER.info("preLine-->");
 	}
 
@@ -61,11 +61,11 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-
+		//
 	}
 
 	@Override
-	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public void handleDocTagNotTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
 
 		final SimpleChapterDao chpt = ldao.getCurrentChapter();
@@ -75,17 +75,17 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
 
 		if (chpt.isChapter) {
-			cdao.setChapterNumber(tdao.getNumChapters());
+			final String cn = Integer.toString(tdao.getCounter());
+			cdao.setChapterNumber(cn);
 		} else {
 			TextBiz.countWords(ldao, cdao, formatDao);
 		}
 		cdao.addOneToNumLines();
-
 	}
 
 	@Override
-	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
-
+	public void handleDocTagMaybeTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		//
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
-	public String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.info("postHandler-->");
 		// outputSummaryOutputFile(summaryOut, outputDir, chapters);
 		Integer totalWords = 0;
@@ -111,7 +111,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
-	public void preHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public void preHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.info("preHandler-->");
 		ldao.InitializeCount();
 	}
@@ -149,7 +149,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 				fWriter.write(TextBiz.newLine);
 				totalWords += countDao.getNumWords();
 			}
-			fWriter.write(TextBiz.newLine);
+			// fWriter.write(TextBiz.newLine);
 			fWriter.write(TextBiz.newLine);
 			fWriter.write(TextBiz.newLine);
 			fWriter.write("TotalWords:,");

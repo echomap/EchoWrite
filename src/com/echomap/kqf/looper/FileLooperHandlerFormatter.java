@@ -22,11 +22,11 @@ import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.FormatMode;
 import com.echomap.kqf.data.MobiMode;
 import com.echomap.kqf.data.SigilMode;
-import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
+import com.echomap.kqf.looper.data.SimpleSectionDao;
 
 /**
  * 
@@ -94,11 +94,14 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			}
 			cdao.setChapterName(chpt.name);
 			cdao.setChapterTitle(chpt.title);
-			cdao.setChapterNumber(tdao.getNumChapters());
+			String cn = Integer.toString(tdao.getCounter());
+			cdao.setChapterNumber(cn);// tdao.getNumChapters());
 			// formatLine(st, cdao, formatDao);
 		} else {
+			// TextBiz.isSection(line, miscDiv, isInSpecial);
 			// formatLine(st, cdao, formatDao);
 		}
+
 		formatLine(formatDao, ldao, cdao, chpt);
 		// parseLine(st, fWriter, chapterDivider, storyTitle1,
 		// storyTitle2);
@@ -139,7 +142,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 
 		boolean isChapter = chpt.isChapter;
 
-		SECTIONTYPE sectionType = null;
+		SimpleSectionDao sectionType = null;
 		if (isChapter) {
 			closeChapterWriter(chapterCounter, formatDao);
 			closeChapterWriterPlain(chapterCounter);
@@ -159,24 +162,28 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		} else if (ldao.getHtmlLine() != null) {
 			preTag = " ";
 		} else {
-			sectionType = TextBiz.isSection(st, formatDao.getRegexpSection(), false);// TODO
-			if (sectionType != null)
+			sectionType = TextBiz.isSection(st, formatDao.getRegexpSection());
+			if (sectionType != null && sectionType.isSection) {
 				LOGGER.debug("sectionType: " + sectionType + " for line: " + st);
-			if (sectionType != null) {
+				// if (sectionType != null) {
 				sectionCounter++;
-				switch (sectionType) {
-				case PLAIN:
-					preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
-					break;
-				case INSPECIAL:
-					preTag = "<p class=MsoSection>";
-					break;
-				case NOTSPECIAL:
-					preTag = "<mbp:pagebreak/>\n" + "<p class=\"" + formatMode.getPlainTextTag() + "\">";
-					break;
-				default:
-					break;
-				}
+				// if (sectionType.isSection) {
+				preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
+				// }
+				// switch (sectionType) {
+				// case PLAIN:
+				// preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
+				// break;
+				// case INSPECIAL:
+				// preTag = "<p class=MsoSection>";
+				// break;
+				// case NOTSPECIAL:
+				// preTag = "<mbp:pagebreak/>\n" + "<p class=\"" +
+				// formatMode.getPlainTextTag() + "\">";
+				// break;
+				// default:
+				// break;
+				// }
 			}
 		}
 		// DOCTAGTYPE docTagType = null;
@@ -238,7 +245,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			if (isChapter) {
 				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveChptDiv(), null, // formatDao.getChapterDivider(),
 						formatDao.getDocTagStart(), formatDao.getDocTagEnd());
-			} else if (sectionType != null) {
+			} else if (sectionType != null && sectionType.isSection) {
 				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveSectDiv(), null, // formatDao.getSectionDivider(),
 						sectionType, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 			} else if (ldao.isLastLineWasChapter() && st != null && st.length() > 1 && !TextBiz.lineEmpty(st)
@@ -295,7 +302,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			}
 
 			if (!cancelLine) {
-				if (sectionType != null) {
+				if (sectionType != null && sectionType.isSection) {
 					openNewSectionWriter(sectionCounter, chapterCounter, formatDao);
 					writeToSectionWriter(textToWrite, formatDao.getSectionHeaderTag());
 					closeSectionWriter(sectionCounter, chapterCounter, formatDao);

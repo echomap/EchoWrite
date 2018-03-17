@@ -4,11 +4,12 @@ public class CountDao {
 	private int numChars = 0;
 	private int numWords = 0;
 	private int numLines = 0;
-	private int numChapters = -1;
+	private int counter = -1;
+	// private int numChapters = -1;
 
 	private String chapterName = "";
 	private String chapterTitle = "";
-	private int chapterNumber = -1;
+	private String chapterNumber = "";
 
 	public CountDao() {
 		clear();
@@ -46,11 +47,11 @@ public class CountDao {
 		this.chapterName = chapterName;
 	}
 
-	public int getChapterNumber() {
+	public String getChapterNumber() {
 		return chapterNumber;
 	}
 
-	public void setChapterNumber(int chapterNumber) {
+	public void setChapterNumber(String chapterNumber) {
 		this.chapterNumber = chapterNumber;
 	}
 
@@ -78,11 +79,11 @@ public class CountDao {
 	public void clear() {
 		this.chapterName = null;
 		this.chapterTitle = null;
-		this.chapterNumber = 0;
+		this.chapterNumber = "";
 		this.numChars = 0;
 		this.numLines = 0;
 		this.numWords = 0;
-		this.numChapters = 0;
+		// this.numChapters = 0;
 	}
 
 	public void copy(CountDao cdao) {
@@ -92,7 +93,7 @@ public class CountDao {
 		this.numChars = cdao.numChars;
 		this.numLines = cdao.numLines;
 		this.numWords = cdao.numWords;
-		this.numChapters = cdao.numChapters;
+		// this.numChapters = cdao.numChapters;
 	}
 
 	public void addOneToNumChars() {
@@ -112,14 +113,21 @@ public class CountDao {
 	}
 
 	public void addChapterCount(int i) {
-		setNumChapters(getNumChapters() + i);
+		setCounter(getCounter() + i);
 	}
 
-	public int getNumChapters() {
-		return numChapters;
+	public int getCounter() {
+		return counter;
 	}
 
-	public void setNumChapters(int numChapters) {
-		this.numChapters = numChapters;
+	public void setCounter(int counter) {
+		this.counter = counter;
 	}
+	// public int getNumChapters() {
+	// return numChapters;
+	// }
+	//
+	// public void setNumChapters(int numChapters) {
+	// this.numChapters = numChapters;
+	// }
 }

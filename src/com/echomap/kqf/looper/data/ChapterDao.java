@@ -2,7 +2,7 @@ package com.echomap.kqf.looper.data;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class ChapterDao {
+public class ChapterDao implements PartitionDao {
 
 	private int numChars = 0;
 	private int numWords = 0;
@@ -10,7 +10,7 @@ public class ChapterDao {
 
 	private String chapterName = "";
 	private String chapterTitle = "";
-	private int chapterNumber = 0;
+	private String chapterNumber = "";
 
 	public ChapterDao() {
 		clear();
@@ -63,11 +63,11 @@ public class ChapterDao {
 		this.chapterName = chapterName;
 	}
 
-	public int getChapterNumber() {
+	public String getChapterNumber() {
 		return chapterNumber;
 	}
 
-	public void setChapterNumber(int chapterNumber) {
+	public void setChapterNumber(String chapterNumber) {
 		this.chapterNumber = chapterNumber;
 	}
 
@@ -91,7 +91,7 @@ public class ChapterDao {
 	public void clear() {
 		this.chapterName = null;
 		this.chapterTitle = null;
-		this.chapterNumber = 0;
+		this.chapterNumber = "";
 		this.numChars = 0;
 		this.numLines = 0;
 		this.numWords = 0;

@@ -16,6 +16,7 @@ import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
+import com.echomap.kqf.looper.data.SimpleSectionDao;
 
 public class TextBiz {
 	private final static Logger LOGGER = LogManager.getLogger(TextBiz.class);
@@ -31,9 +32,9 @@ public class TextBiz {
 		PLAIN, CHAPTER, SECTION
 	};
 
-	public static enum SECTIONTYPE {
-		PLAIN, INSPECIAL, NOTSPECIAL
-	};
+	// public static enum SECTIONTYPE {
+	// PLAIN, INSPECIAL, NOTSPECIAL
+	// };
 
 	public static boolean lineEmpty(String st) {
 		if (StringUtils.isBlank(st))
@@ -65,9 +66,9 @@ public class TextBiz {
 		return "</" + tagname + ">";
 	}
 
-	public static String cleanText(String st, Boolean removeSectDiv, String sectionDivider, SECTIONTYPE sectionType,
-			final String docTagStart, final String docTagEnd) {
-		String st2 = st.replaceAll("Section: ", "");
+	public static String cleanText(final String st, final Boolean removeSectDiv, final String sectionDivider,
+			final SimpleSectionDao sectionType, final String docTagStart, final String docTagEnd) {
+		final String st2 = st.replaceAll("Section: ", "");
 		return cleanText(st2, removeSectDiv, sectionDivider, docTagStart, docTagEnd);
 	}
 
@@ -143,44 +144,6 @@ public class TextBiz {
 		return false;
 	}
 
-	public static SECTIONTYPE isSection(final String line, final String miscDiv, final boolean isInSpecial) {
-		// Create a Pattern object
-		final Pattern r = Pattern.compile(miscDiv);
-
-		// Now create matcher object.
-		final Matcher matcher = r.matcher(line);
-		if (matcher.find()) {
-			final String mNum = matcher.group("snum");
-			final String mName = matcher.group("sname");
-			final String mTitle = matcher.group("stitle");
-			final Integer mNumI = Integer.valueOf(mNum);
-
-			if (isInSpecial)
-				return SECTIONTYPE.INSPECIAL;
-			else
-				return SECTIONTYPE.PLAIN;
-		}
-
-		// if (line.startsWith("Section")) {
-		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoSection>";
-		// return SECTIONTYPE.PLAIN;
-		// } else if (line.indexOf("Section:") > -1) {
-		// // preTag = "<p class=MsoSection>";
-		// return SECTIONTYPE.PLAIN;
-		// } else if (line.startsWith(special1) && !isInSpecial) {
-		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
-		// return SECTIONTYPE.NOTSPECIAL;
-		// } else if (line.indexOf("Section") > -1 && isInSpecial) {
-		// // preTag = "<p class=MsoSection>";
-		// return SECTIONTYPE.INSPECIAL;
-		// }
-		// if (miscDiv != null) {
-		// if (line.contains(miscDiv))// && line.contains("Section"))
-		// return SECTIONTYPE.PLAIN;
-		// }
-		return null;
-	}
-
 	public static String isAnHtmlLine(final String line) {
 		String line2 = line.toLowerCase();
 		if (line2.startsWith("<div"))
@@ -236,8 +199,20 @@ public class TextBiz {
 
 		// if (StringUtils.isEmpty(st))
 		// st = "&nbsp;";
+		st = stripHTMLTags(st);
 		return st.trim();
+	}
 
+	// TODO use a real library to do this
+	private static String stripHTMLTags(final String htmlText) {
+		final Pattern pattern = Pattern.compile("<[^>]*>");
+		final Matcher matcher = pattern.matcher(htmlText);
+		final StringBuffer sb = new StringBuffer(htmlText.length());
+		while (matcher.find()) {
+			matcher.appendReplacement(sb, "");
+		}
+		matcher.appendTail(sb);
+		return sb.toString().trim();
 	}
 
 	public static void countWords(final LooperDao ldao, final CountDao dao, final FormatDao fdao) {
@@ -280,6 +255,51 @@ public class TextBiz {
 	// return false;
 	// }
 
+	public static SimpleSectionDao isSection(final String line, final String miscDiv) {
+		final SimpleSectionDao ssd = new SimpleSectionDao();
+
+		// Create a Pattern object
+		final Pattern r = Pattern.compile(miscDiv);
+
+		// Now create matcher object.
+		final Matcher matcher = r.matcher(line);
+		if (matcher.find()) {
+			final String mNum = matcher.group("snum");
+			final String mName = matcher.group("sname");
+			final String mTitle = matcher.group("stitle");
+			// final Integer mNumI = Integer.valueOf(mNum);
+
+			ssd.isSection = true;
+			ssd.sname = mName;
+			ssd.snum = mNum;
+			ssd.title = mTitle;
+
+			// if (isInSpecial)
+			// return SECTIONTYPE.INSPECIAL;
+			// else
+			// return SECTIONTYPE.PLAIN;
+		}
+
+		// if (line.startsWith("Section")) {
+		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoSection>";
+		// return SECTIONTYPE.PLAIN;
+		// } else if (line.indexOf("Section:") > -1) {
+		// // preTag = "<p class=MsoSection>";
+		// return SECTIONTYPE.PLAIN;
+		// } else if (line.startsWith(special1) && !isInSpecial) {
+		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
+		// return SECTIONTYPE.NOTSPECIAL;
+		// } else if (line.indexOf("Section") > -1 && isInSpecial) {
+		// // preTag = "<p class=MsoSection>";
+		// return SECTIONTYPE.INSPECIAL;
+		// }
+		// if (miscDiv != null) {
+		// if (line.contains(miscDiv))// && line.contains("Section"))
+		// return SECTIONTYPE.PLAIN;
+		// }
+		return ssd;
+	}
+
 	public static SimpleChapterDao isChapter(final String line, final String chapterDivider) {
 		SimpleChapterDao dao = new SimpleChapterDao();
 		// Create a Pattern object
@@ -298,8 +318,8 @@ public class TextBiz {
 				e1.printStackTrace(); // TODO report exception
 			}
 			dao.chpNum = mNum;
-			if (mNumI != null)
-				dao.numerical = mNumI;
+			// if (mNumI != null)
+			// dao.numerical = mNumI;
 
 			try {
 				final String mName = matcher.group("cname");
@@ -439,7 +459,7 @@ public class TextBiz {
 		String divR = divBufR.toString();
 		String pre = line;
 		String post = null;
-		Integer num = null;
+		String num = null;
 		if (idxColon != -1) {
 			pre = line.substring(0, idxColon);
 			post = line.substring(idxColon + 1);
@@ -468,18 +488,19 @@ public class TextBiz {
 				temp = temp.trim();
 
 			if (temp != null) {
-				try {
-					num = Integer.valueOf(temp);
-				} catch (NumberFormatException e) {
-					// e.printStackTrace();
-					num = 0;
-				}
+				num = temp;
+				// try {
+				// num = Integer.valueOf(temp);
+				// } catch (NumberFormatException e) {
+				// // e.printStackTrace();
+				// num = 0;
+				// }
 			}
 		}
 
 		dao.name = pre;
 		dao.isChapter = true;
-		dao.numerical = num;
+		dao.chpNum = num;
 		dao.title = post;
 
 		// return ret;

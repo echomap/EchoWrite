@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.echomap.kqf.data.DocTagLine;
-import com.echomap.kqf.looper.TextBiz;
-import com.echomap.kqf.looper.TextBiz.SECTIONTYPE;
 
 public class LooperDao {
 
@@ -16,6 +14,7 @@ public class LooperDao {
 	private long lineCount = 0;
 
 	private final List<ChapterDao> chapters = new ArrayList<ChapterDao>();
+	private final List<PartitionDao> partitions = new ArrayList<PartitionDao>();
 
 	private boolean inSpecial = false;
 	private boolean inLongDocTag = false;
@@ -26,7 +25,7 @@ public class LooperDao {
 	private String originalLine = null;
 	private String currentLine = null;
 	private SimpleChapterDao currentChapter = null;
-	private SECTIONTYPE currentSection = null;
+	private SimpleSectionDao currentSection = null;
 	private DocTagLine currentDocTagLine = null;
 
 	public LooperDao() {
@@ -110,7 +109,7 @@ public class LooperDao {
 		setChaptCount(new CountDao());
 		getChapters().clear();
 
-		getTotalCount().setNumChapters(1);
+		getTotalCount().setCounter(1);
 		getChaptCount().addOneToNumLines();
 	}
 
@@ -158,11 +157,11 @@ public class LooperDao {
 		this.currentChapter = currentChapter;
 	}
 
-	public SECTIONTYPE getCurrentSection() {
+	public SimpleSectionDao getCurrentSection() {
 		return currentSection;
 	}
 
-	public void setCurrentSection(TextBiz.SECTIONTYPE currentSection) {
+	public void setCurrentSection(SimpleSectionDao currentSection) {
 		this.currentSection = currentSection;
 	}
 

@@ -4,6 +4,12 @@ export settings
 other pre (+x) tags to control tabbing and stuff?
 find out why Sections not writing out.
 
+2018 03 15
+	filter html tags from plain text file
+	fix for too many sections being created bug
+2018 03 13 - 1.0.13
+	change the way chapters and sections are handled and outputted.
+	no more numeric
 2018 02 25
 	added option for char to be used as the Prefix for the scene, and subscene
 2018 02 22
