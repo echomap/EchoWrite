@@ -23,7 +23,10 @@ import javafx.stage.WindowEvent;
 public class KQFFrame extends Application {
 	private final static Logger LOGGER = LogManager.getLogger(KQFFrame.class);
 
-	private static final String FXML_FILE1 = "/mainform.fxml";
+	public static final String FXML_SUB1_FILE1 = "/subform1.fxml";
+	public static final String FXML_SUB2_FILE1 = "/subexport1.fxml";
+	public static final String FXML_SUB2_FILE2 = "/subimport1.fxml";
+	// private static final String FXML_FILE1 = "/mainform.fxml";
 	private static final String FXML_FILE2 = "/mainform_flow.fxml";
 	private static final String FXML_FILE = FXML_FILE2;
 	final static Properties props = new Properties();
@@ -91,7 +94,6 @@ public class KQFFrame extends Application {
 			Platform.exit();
 		} catch (Throwable e) {
 			e.printStackTrace();
-
 			Platform.exit();
 		}
 	}

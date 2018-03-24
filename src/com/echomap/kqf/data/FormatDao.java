@@ -2,6 +2,7 @@ package com.echomap.kqf.data;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,10 +60,16 @@ public class FormatDao {
 	// DocTags
 	private String outputDocTagsOutlineFile;
 	private String outputDocTagsSceneFile;
+	// private String outputDocTagsOther1File;
+
 	private String docTagsOutlineCompressTags;
 	private String docTagsOutlineExpandTags;
 	private String docTagsSceneTags;
-	private String outputDocTagsSceneCoTags;
+	private String docTagsSceneCoTags;
+	// private String docTagsOther1Tags;
+
+	private List<OtherDocTagData> outputs = new ArrayList<>();
+
 	private Integer docTagsMaxLineLength = 70;
 	private String docTagsScenePrefix = "";
 	private String docTagsSubScenePrefix = "";
@@ -105,10 +112,15 @@ public class FormatDao {
 
 		addLine(sbuf, "OutputDocTagsOutlineFile:", this.getOutputDocTagsOutlineFile());
 		addLine(sbuf, "OutputDocTagsSceneFile:", this.getOutputDocTagsSceneFile());
+		// addLine(sbuf, "OutputDocTagsOther1File:",
+		// this.getOutputDocTagsOther1File());
+
 		addLine(sbuf, "DocTagsOutlineCTags:", this.getDocTagsOutlineCompressTagsAsString());
 		addLine(sbuf, "DocTagsOutlineETags:", this.getDocTagsOutlineExpandTags());
 		addLine(sbuf, "DocTagsSceneTags:", this.getDocTagsSceneTags());
 		addLine(sbuf, "DocTagsSceneCoTags:", this.getDocTagsSceneCoTags());
+		// addLine(sbuf, "DocTagsOther1Tags:", this.getDocTagsOther1Tags());
+
 		addLine(sbuf, "DocTagsScenePrefix:", this.getDocTagsScenePrefix());
 		addLine(sbuf, "DocTagsSubScenePrefix:", this.getDocTagsSubScenePrefix());
 
@@ -379,6 +391,14 @@ public class FormatDao {
 		this.outputDocTagsSceneFile = outputDocTagsSceneFile;
 	}
 
+	// public String getOutputDocTagsOther1File() {
+	// return outputDocTagsOther1File;
+	// }
+	//
+	// public void setOutputDocTagsOther1File(String outputDocTagsOther1File) {
+	// this.outputDocTagsOther1File = outputDocTagsOther1File;
+	// }
+
 	// TODO create list like for other Lists, to prevent string matches when
 	// shouldn't be?
 	public String getDocTagsSceneTags() {
@@ -389,14 +409,20 @@ public class FormatDao {
 		this.docTagsSceneTags = docTagsSceneTags;
 	}
 
-	// TODO create list like for other Lists, to prevent string matches when
-	// shouldn't be?
+	// public String getDocTagsOther1Tags() {
+	// return docTagsOther1Tags;
+	// }
+	//
+	// public void setDocTagsOther1Tags(String docTagsOther1Tags) {
+	// this.docTagsOther1Tags = docTagsOther1Tags;
+	// }
+
 	public String getDocTagsSceneCoTags() {
-		return outputDocTagsSceneCoTags;
+		return docTagsSceneCoTags;
 	}
 
-	public void setDocTagsSceneCoTags(String outputDocTagsSceneCoTags) {
-		this.outputDocTagsSceneCoTags = outputDocTagsSceneCoTags;
+	public void setDocTagsSceneCoTags(String docTagsSceneCoTags) {
+		this.docTagsSceneCoTags = docTagsSceneCoTags;
 	}
 
 	public String getWriteChaptersText() {
@@ -493,6 +519,14 @@ public class FormatDao {
 
 	public String getSceneCoalateDivider() {
 		return sceneCoalateDivider;
+	}
+
+	public List<OtherDocTagData> getOutputs() {
+		return outputs;
+	}
+
+	public void setOutputs(List<OtherDocTagData> outputs) {
+		this.outputs = outputs;
 	}
 
 }

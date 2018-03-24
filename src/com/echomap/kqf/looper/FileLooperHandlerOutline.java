@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -24,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
+import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
@@ -43,6 +45,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private BufferedWriter fWriterOutlineFile;
 	private BufferedWriter fWriterSceneFile;
 	private BufferedWriter fWriterNotUsedFile;
+	private BufferedWriter fWriterOther1File;
+	private Map<String, BufferedWriter> fWriterOthersList = new HashMap<>();
 
 	private int levelledCount = 0;
 	// private String lastLevelledText = null;
@@ -123,6 +127,27 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 						wroteTag = true;
 						addToCoalateTextMap(docTag, cdao, formatDao, ldao);
 					}
+					// if
+					// (formatDao.getDocTagsOther1Tags().contains(docTag.getName()))
+					// {
+					// wroteTag = true;
+					// writeEntryToFile(fWriterOther1File, docTag, cdao,
+					// formatDao);
+					// }
+					final List<OtherDocTagData> odtdList = formatDao.getOutputs();
+					if (odtdList != null) {
+						for (final OtherDocTagData otherOutput : odtdList) {
+							if (StringUtils.isBlank(otherOutput.getFile()))
+								continue;
+							// final File file1 = new
+							// File(otherOutput.getFile());
+							if (otherOutput.getDocTagsList().contains(docTag.getName())) {
+								final BufferedWriter bw = fWriterOthersList.get(otherOutput.getName());
+								writeEntryToFile(bw, docTag, cdao, formatDao);
+							}
+						}
+					}
+
 					if (!wroteTag) {
 						if (fWriterNotUsedFile != null) {
 							fWriterNotUsedFile.write(docTag.getName());
@@ -169,6 +194,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.flush();
 		}
+		if (fWriterOther1File != null) {
+			fWriterOther1File.write(TextBiz.newLine);
+			fWriterOther1File.write("-= Section " + titleS + " =-");
+			fWriterOther1File.write(TextBiz.newLine);
+			fWriterOther1File.flush();
+		}
+		for (Map.Entry<String, BufferedWriter> entry : fWriterOthersList.entrySet()) {
+			// System.out.println(entry.getKey() + ":" + entry.getValue());
+			BufferedWriter bw = entry.getValue();
+			if (bw != null) {
+				bw.write(TextBiz.newLine);
+				bw.write("-= Section " + titleS + " =-");
+				bw.write(TextBiz.newLine);
+				bw.flush();
+			}
+		}
 	}
 
 	private void writeChapterData(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao)
@@ -198,6 +239,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		// DocTag docTagLast = null;
 		writeToSceneFileMain(formatDao);
+		writeToOther1FileMain(formatDao);
 		// boolean inScene = false;
 
 		if (fWriterSceneFile != null && cdao != null) {
@@ -217,6 +259,29 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.flush();
 		}
+		if (fWriterOther1File != null && cdao != null) {
+			fWriterOther1File.write(TextBiz.newLine);
+			final String cnumS = cdao.getChapterNumber();
+			fWriterOther1File.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
+			fWriterOther1File.write(TextBiz.newLine);
+			fWriterOther1File.flush();
+		}
+		for (Map.Entry<String, BufferedWriter> entry : fWriterOthersList.entrySet()) {
+			// System.out.println(entry.getKey() + ":" + entry.getValue());
+			BufferedWriter bw = entry.getValue();
+			if (bw != null && cdao != null) {
+				bw.write(TextBiz.newLine);
+				final String cnumS = cdao.getChapterNumber();
+				bw.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
+				bw.write(TextBiz.newLine);
+				bw.flush();
+			}
+		}
+
+	}
+
+	private void writeToOther1FileMain(final FormatDao formatDao) throws IOException {
+		// TODO
 	}
 
 	private void writeToSceneFileMain(final FormatDao formatDao) throws IOException {
@@ -384,6 +449,16 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			dts = new ArrayList<DocTag>();
 		dts.add(docTag);
 		coalateTextMap.put(key, dts);
+	}
+
+	private void writeEntryToFile(final BufferedWriter fWriterL, final DocTag docTag, final CountDao cdao,
+			final FormatDao formatDao) throws IOException {
+		if (fWriterL == null)
+			return;
+		fWriterL.write(docTag.getName());
+		fWriterL.write(": ");
+		writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL, false);
+
 	}
 
 	private void writeEntryToOutline(final BufferedWriter fWriterL, final DocTag docTag, final CountDao cdao,
@@ -621,6 +696,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterNotUsedFile.flush();
 			fWriterNotUsedFile.close();
 		}
+		if (fWriterOther1File != null) {
+			fWriterOther1File.flush();
+			fWriterOther1File.close();
+		}
+		for (Map.Entry<String, BufferedWriter> entry : fWriterOthersList.entrySet()) {
+			// System.out.println(entry.getKey() + ":" + entry.getValue());
+			BufferedWriter bw = entry.getValue();
+			if (bw != null) {
+				bw.flush();
+				bw.close();
+			}
+		}
 
 		return sb.toString();
 	}
@@ -676,6 +763,106 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterOutline.write(TextBiz.newLine);
 		}
 
+		formatOutlineFile(formatDao, selCharSet);
+		formatOutputsFiles(formatDao, selCharSet);
+		formatOthers1File(formatDao, selCharSet);
+		formatSceneFile(formatDao, selCharSet);
+
+		final File inFile = new File(formatDao.getInputFilename());
+		final File inFilePath = inFile.getParentFile();
+		final String filePrefix = formatDao.getFilePrefix();
+		File notUsedFile = null;
+		if (!StringUtils.isBlank(filePrefix))
+			notUsedFile = new File(inFilePath, filePrefix + "DocTagsNotUsed.txt");
+		else
+			notUsedFile = new File(inFilePath, "DocTagsNotUsed.txt");
+		// fWriterNotUsedFile = Files.newBufferedWriter(notUsedFile.toPath(),
+		// selCharSet, StandardOpenOption.CREATE,
+		// StandardOpenOption.TRUNCATE_EXISTING);
+		fWriterNotUsedFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(notUsedFile.toPath(),
+				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
+
+		// fWriterNotUsedFile = new BufferedWriter(notUsedFile, false);
+
+		ldao.InitializeCount();
+
+		outlineTags.add("time");
+		outlineTags.add("loc");
+		outlineTags.add("date");
+		outlineTags.add("loc");
+		outlineTags.add("eventnote");
+	}
+
+	private void formatSceneFile(final FormatDao formatDao, final Charset selCharSet) throws IOException {
+		if (!StringUtils.isBlank(formatDao.getOutputDocTagsSceneFile())) {
+			final File outputFileS2 = new File(formatDao.getOutputDocTagsSceneFile());
+			final File outputDirS2 = outputFileS2.getParentFile();
+			if (outputDirS2 != null) {
+				outputDirS2.getParentFile().mkdirs();
+				outputDirS2.mkdirs();
+			}
+			// fWriterSceneFile = Files.newBufferedWriter(outputFileS2.toPath(),
+			// selCharSet, StandardOpenOption.CREATE,
+			// StandardOpenOption.TRUNCATE_EXISTING);
+			fWriterSceneFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputFileS2.toPath(),
+					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
+
+			// fWriterSceneFile = new BufferedWriter(outputFileS2, false);
+			//
+			fWriterSceneFile.write("-= Scenes: \"");
+			fWriterSceneFile.write(formatDao.getStoryTitle1());
+			fWriterSceneFile.write("\"");
+			if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
+				fWriterSceneFile.write(" : \"");
+				fWriterSceneFile.write(formatDao.getStoryTitle2());
+				fWriterSceneFile.write("\"");
+			}
+			fWriterSceneFile.write(" =-");
+			fWriterSceneFile.write(TextBiz.newLine);
+			fWriterSceneFile.write("Captured Tags: ");
+			fWriterSceneFile.write(formatDao.getDocTagsSceneTags());
+			fWriterSceneFile.write(TextBiz.newLine);
+			fWriterSceneFile.write("Coalating Tags: ");
+			fWriterSceneFile.write(formatDao.getDocTagsSceneCoTags());
+			fWriterSceneFile.write(TextBiz.newLine);
+			// fWriterSceneFile.write(TextBiz.newLine);
+		}
+	}
+
+	private void formatOutputsFiles(final FormatDao formatDao, final Charset selCharSet) throws IOException {
+		if (formatDao.getOutputs() != null && formatDao.getOutputs().size() > 0) {
+			for (OtherDocTagData odtData : formatDao.getOutputs()) {
+				LOGGER.debug("Other(s) file: '" + odtData.getFile() + "'");
+				final File outputFileS2 = new File(odtData.getFile());
+				final File outputDirS2 = outputFileS2.getParentFile();
+				if (outputDirS2 != null) {
+					outputDirS2.getParentFile().mkdirs();
+					outputDirS2.mkdirs();
+				}
+				final BufferedWriter fWriterOthersFile = new BufferedWriter(
+						new OutputStreamWriter(Files.newOutputStream(outputFileS2.toPath(), StandardOpenOption.CREATE,
+								StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
+				fWriterOthersFile.write("-= ");
+				fWriterOthersFile.write(odtData.getName());
+				fWriterOthersFile.write(": \"");
+				fWriterOthersFile.write(formatDao.getStoryTitle1());
+				fWriterOthersFile.write("\"");
+				if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
+					fWriterOthersFile.write(" : \"");
+					fWriterOthersFile.write(formatDao.getStoryTitle2());
+					fWriterOthersFile.write("\"");
+				}
+				fWriterOthersFile.write(" =-");
+				fWriterOthersFile.write(TextBiz.newLine);
+				fWriterOthersFile.write("Captured Tags: ");
+				fWriterOthersFile.write(odtData.getDocTags());
+				fWriterOthersFile.write(TextBiz.newLine);
+				fWriterOthersList.put(odtData.getName(), fWriterOthersFile);
+			}
+		}
+	}
+
+	private void formatOutlineFile(final FormatDao formatDao, final Charset selCharSet) throws IOException {
 		if (!StringUtils.isBlank(formatDao.getOutputDocTagsOutlineFile())) {
 			final File outputFileO2 = new File(formatDao.getOutputDocTagsOutlineFile());
 			final File outputDirO2 = outputFileO2.getParentFile();
@@ -711,64 +898,40 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterOutlineFile.write(TextBiz.newLine);
 			// fWriterOutlineFile.write(TextBiz.newLine);
 		}
+	}
 
-		if (!StringUtils.isBlank(formatDao.getOutputDocTagsSceneFile())) {
-			final File outputFileS2 = new File(formatDao.getOutputDocTagsSceneFile());
-			final File outputDirS2 = outputFileS2.getParentFile();
-			if (outputDirS2 != null) {
-				outputDirS2.getParentFile().mkdirs();
-				outputDirS2.mkdirs();
-			}
-			// fWriterSceneFile = Files.newBufferedWriter(outputFileS2.toPath(),
-			// selCharSet, StandardOpenOption.CREATE,
-			// StandardOpenOption.TRUNCATE_EXISTING);
-			fWriterSceneFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputFileS2.toPath(),
-					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
-
-			// fWriterSceneFile = new BufferedWriter(outputFileS2, false);
-			//
-			fWriterSceneFile.write("-= Scenes: \"");
-			fWriterSceneFile.write(formatDao.getStoryTitle1());
-			fWriterSceneFile.write("\"");
-			if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
-				fWriterSceneFile.write(" : \"");
-				fWriterSceneFile.write(formatDao.getStoryTitle2());
-				fWriterSceneFile.write("\"");
-			}
-			fWriterSceneFile.write(" =-");
-			fWriterSceneFile.write(TextBiz.newLine);
-			fWriterSceneFile.write("Captured Tags: ");
-			fWriterSceneFile.write(formatDao.getDocTagsSceneTags());
-			fWriterSceneFile.write(TextBiz.newLine);
-			fWriterSceneFile.write("Coalating Tags: ");
-			fWriterSceneFile.write(formatDao.getDocTagsSceneCoTags());
-			fWriterSceneFile.write(TextBiz.newLine);
-			// fWriterSceneFile.write(TextBiz.newLine);
-		}
-
-		final File inFile = new File(formatDao.getInputFilename());
-		final File inFilePath = inFile.getParentFile();
-		final String filePrefix = formatDao.getFilePrefix();
-		File notUsedFile = null;
-		if (!StringUtils.isBlank(filePrefix))
-			notUsedFile = new File(inFilePath, filePrefix + "DocTagsNotUsed.txt");
-		else
-			notUsedFile = new File(inFilePath, "DocTagsNotUsed.txt");
-		// fWriterNotUsedFile = Files.newBufferedWriter(notUsedFile.toPath(),
-		// selCharSet, StandardOpenOption.CREATE,
-		// StandardOpenOption.TRUNCATE_EXISTING);
-		fWriterNotUsedFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(notUsedFile.toPath(),
-				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
-
-		// fWriterNotUsedFile = new BufferedWriter(notUsedFile, false);
-
-		ldao.InitializeCount();
-
-		outlineTags.add("time");
-		outlineTags.add("loc");
-		outlineTags.add("date");
-		outlineTags.add("loc");
-		outlineTags.add("eventnote");
+	private void formatOthers1File(final FormatDao formatDao, final Charset selCharSet) {
+		// if (!StringUtils.isBlank(formatDao.getOutputDocTagsOther1File())) {
+		// LOGGER.debug("Other1 file: '" +
+		// formatDao.getOutputDocTagsOther1File() + "'");
+		// final File outputFileS2 = new
+		// File(formatDao.getOutputDocTagsOther1File());
+		// final File outputDirS2 = outputFileS2.getParentFile();
+		// if (outputDirS2 != null) {
+		// outputDirS2.getParentFile().mkdirs();
+		// outputDirS2.mkdirs();
+		// }
+		// fWriterOther1File = new BufferedWriter(new
+		// OutputStreamWriter(Files.newOutputStream(outputFileS2.toPath(),
+		// StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
+		// selCharSet));
+		// fWriterOther1File.write("-= Other1: \"");
+		// fWriterOther1File.write(formatDao.getStoryTitle1());
+		// fWriterOther1File.write("\"");
+		// if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
+		// fWriterOther1File.write(" : \"");
+		// fWriterOther1File.write(formatDao.getStoryTitle2());
+		// fWriterOther1File.write("\"");
+		// }
+		// fWriterOther1File.write(" =-");
+		// fWriterOther1File.write(TextBiz.newLine);
+		// fWriterOther1File.write("Captured Tags: ");
+		// fWriterOther1File.write(formatDao.getDocTagsOther1Tags());
+		// fWriterOther1File.write(TextBiz.newLine);
+		// // fWriterOther1File.write("Coalating Tags: ");
+		// // fWriterOther1File.write(formatDao.getDocTagsSceneCoTags());
+		// // fWriterOther1File.write(TextBiz.newLine);
+		// }
 	}
 
 	@Override

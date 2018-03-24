@@ -2,6 +2,8 @@ package com.echomap.kqf.two.gui;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,19 +22,29 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.FormatDao;
+import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.looper.FileLooper;
 import com.echomap.kqf.looper.TextBiz;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -52,11 +64,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class KQFCtrl implements Initializable, WorkDoneNotify {
-	private static final String PROP_KEY_VERSION = "version";
+	public static final String PROP_KEY_VERSION = "version";
 
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
@@ -137,6 +151,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private TextField outputDocTagsSubScenePrefix;
 	@FXML
 	private TextField sceneCoalateDiv;
+	@FXML
+	private Label profileDataChanged;
 
 	@FXML
 	private ComboBox<String> titleOneText;
@@ -177,6 +193,10 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	@FXML
 	private Button saveProfileBtn;
 	@FXML
+	private Button exportProfileBtn;
+	@FXML
+	private Button importProfileBtn;
+	@FXML
 	private Button doFormatBtn;
 	@FXML
 	private Button doWordCountBtn;
@@ -186,6 +206,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	private Button doClearLogBtn;
 	@FXML
 	private Button computeFromFilePrefixBtn;
+	@FXML
+	private Button buttonMoreFiles;
 
 	@FXML
 	private CheckBox cbRemoveDiv;
@@ -205,6 +227,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 	@FXML
 	private ChoiceBox<String> counterDigitChoice;
+
+	private List<OtherDocTagData> thisProfileOutputList = null;
 
 	private File outputCountDir;
 	// private File outputOutlineDir;
@@ -252,18 +276,20 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 		myTimerTask = new MyTimerTask(this.lastRunText);
 
-		setTooltips();
+		setTooltips(OuterMostContainer);
 		loadDefaults();
 		loadChoices();
 		loadProfiles();
 		lockGui();
 		fixFocus();
-
+		// setDetectChanges(OuterMostContainer);
+		setProfileChangeMade(false);
+		new AutoCompleteComboBoxListener<>(titleOneText);
 	}
 
-	private void setTooltips() {
-		setTooltips(OuterMostContainer);
-	}
+	// private void setTooltips() {
+	// setTooltips(OuterMostContainer);
+	// }
 
 	private void setTooltips(final Pane pane) {
 		for (Node node : pane.getChildren()) {
@@ -283,6 +309,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		}
 	}
 
+	private void setProfileChangeMade(boolean b) {
+		if (b)
+			profileDataChanged.setText("Unsaved Changes");
+		else
+			profileDataChanged.setText("");
+	}
+
 	private void loadDefaults() {
 		LOGGER.debug("loadDefaults: Called ");
 		final String outC = loadPropFromAppOrDefault("outlineCompress",
@@ -295,6 +328,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		final String sceneC = loadPropFromAppOrDefault("sceneCoalate", "description, scene");
 		outputDocTagsSceneTagsText.setText(sceneM);
 		outputDocTagsSceneCoTags.setText(sceneC);
+		// outputDocTagsOther1TagsText.setText(sceneM);
 
 		final String regExpChp = loadPropFromAppOrDefault("regexpChapterText", "");
 		final String regExpSec = loadPropFromAppOrDefault("regexpSectionText", "");
@@ -406,6 +440,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 					child.removeNode();
 					showMessage("Deleted profile '" + key + "'", false);
 					childDeleted = true;
+					setProfileChangeMade(false);
 				}
 			} else {
 				showMessage("Select a profile name to DELETE.", false);
@@ -445,7 +480,51 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 				showMessage("Enter or select a profile name to LOAD.", true);
 			}
 		} catch (BackingStoreException e) {
-			showMessage("Error Deleting profile: " + e, false);
+			showMessage("Error Loading profile: " + e, false);
+		}
+
+		setDetectChanges(OuterMostContainer);
+		setProfileChangeMade(false);
+	}
+
+	private void setDetectChanges(final Pane pane) {
+		for (Node node : pane.getChildren()) {
+			if (node instanceof TextField) {
+				final TextField tf = (TextField) node;
+				// LOGGER.debug("setDetectChanges: adding to field=" +
+				// tf.getId());
+				tf.textProperty().addListener(new ChangeListener<String>() {
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
+						if (newValue.compareTo(oldValue) != 0)
+							setProfileChangeMade(true);
+					}
+				});
+			} else if (node instanceof TextArea) {
+				final TextArea tf = (TextArea) node;
+				// LOGGER.debug("setDetectChanges: adding to field=" +
+				// tf.getId());
+				tf.textProperty().addListener(new ChangeListener<String>() {
+
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
+						if (newValue.compareTo(oldValue) != 0)
+							setProfileChangeMade(true);
+					}
+				});
+				//
+			} else if (node instanceof Pane) {
+				setDetectChanges((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					setDetectChanges((Pane) nd2);
+				}
+			}
 		}
 	}
 
@@ -459,6 +538,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 			loadProfiles();
 			titleOneText.getSelectionModel().select(nowTextOne);
 			showMessage("Saved Profile '" + nowTextOne + "'", false);
+			setProfileChangeMade(false);
 		}
 	}
 
@@ -474,6 +554,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		outputDocTagsOutlineCTagsText.setText("outline, scene, subscene, info");
 		outputDocTagsSceneTagsText.setText("scene, subscene");
 		outputDocTagsSceneCoTags.setText("description, changes, starttime");
+		// outputDocTagsOther1TagsText.setText("scene, subscene");
 
 		final List<TextField> foundComponents2 = getNodesOfType(sectionFormatting, TextField.class);
 		if (foundComponents2 != null)
@@ -523,7 +604,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleLoadFormatChptHtmlOutputDir(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputFormatChpHtmlDirText);
+		boolean success = locateDir(event, "Open Output Dir ", outputFormatChpHtmlDirText);
 		if (!outputFormatChpHtmlDirText.getText().endsWith("chapters")) {
 			final File file = new File(outputFormatChpHtmlDirText.getText(), "chapters");
 			outputFormatChpHtmlDirText.setText(file.getAbsolutePath());
@@ -531,15 +612,71 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleLoadFormatChptTextOutputDir(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputFormatChpTextDirText);
+		boolean success = locateDir(event, "Open Output Dir ", outputFormatChpTextDirText);
 		if (!outputFormatChpTextDirText.getText().endsWith("chapters")) {
 			final File file = new File(outputFormatChpTextDirText.getText(), "chapterstext");
 			outputFormatChpTextDirText.setText(file.getAbsolutePath());
 		}
 	}
 
+	public void handleMoreFiles(final ActionEvent event) {
+		LOGGER.debug("handleMoreFiles: Called");
+		// Parent root;
+		try {
+			final FXMLLoader fxmlLoader = new FXMLLoader();
+			final URL location = getClass().getResource(KQFFrame.FXML_SUB1_FILE1);
+			if (location == null) {
+				LOGGER.error("Failed to get location!!!!!!");
+				showMessage("ERROR loading FXML file for more files screen", false);
+				return;
+			}
+			fxmlLoader.setLocation(location);
+			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+			final Parent root = (Parent) fxmlLoader.load(location.openStream());
+
+			final Stage stage = new Stage();
+			stage.setTitle("Additional DocTag Sorting Files:");
+			stage.setScene(new Scene(root));
+			stage.initOwner(((Node) (event.getSource())).getScene().getWindow());
+			stage.initModality(Modality.WINDOW_MODAL);
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				public void handle(final WindowEvent we) {
+					LOGGER.debug("SubStage is cleaning up...");
+					// myController.saveProps();
+					// myController.doCleanup();
+					LOGGER.debug("SubStage is closing");
+					stage.close();
+				}
+			});
+			//
+			final String key = titleOneText.getValue();
+			final Preferences child = getPrefs().node(key);
+			//
+			final KQFSubCtrl myController = (KQFSubCtrl) fxmlLoader.getController();
+			final FormatDao formatDao = new FormatDao();
+			setupDao(formatDao);
+			myController.setProfileLoaded(child, formatDao, appProps, stage);
+
+			stage.showAndWait();
+			// stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.error(e);
+		}
+	}
+
+	private String getFilePrefixText() {
+		String filePrefixText = null;
+		if (!StringUtils.isBlank(inputFilePrefixText.getText())) {
+			filePrefixText = inputFilePrefixText.getText();
+			if (filePrefixCheckbox.isSelected())
+				filePrefixText = filePrefixText + "_";
+		}
+		return filePrefixText;
+	}
+
 	public void handleLoadOutputFile(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputFormatSingleFileText);
+		boolean success = locateDir(event, "Open Output Dir ", outputFormatSingleFileText);
 		final String inFilename = inputFileText.getText();
 		String outFilename = "";
 		if (inFilename != null && inFilename.length() > 0) {
@@ -559,26 +696,62 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	public void handleOutputCountFile(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputCountFileText);
-		String outFilename = "\\ChapterCount1.csv";
-		final File nFile = new File(outputCountFileText.getText(), outFilename);
-		outputCountFileText.setText(nFile.getAbsolutePath());
-		outputCountDir = nFile.getParentFile();
+		boolean success = false;
+		if (outputCountFileText.getText().trim().length() < 1)
+			success = locateDir(event, "Open Output Dir ", outputCountFileText, inputFileText);
+		else
+			success = locateDir(event, "Open Output Dir ", outputCountFileText);
+		if (success) {
+			String outFilename = "\\ChapterCount1.csv";
+			final File nFile = new File(outputCountFileText.getText(), outFilename);
+			outputCountFileText.setText(nFile.getAbsolutePath());
+			outputCountDir = nFile.getParentFile();
+		}
 	}
 
 	public void handleOutputOutlineFile(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputOutlineFileText);
-		String outFilename = "/Outline1.csv";
-		final File nFile = new File(outputOutlineFileText.getText(), outFilename);
-		outputOutlineFileText.setText(nFile.getAbsolutePath());
+		boolean success = false;
+		if (outputOutlineFileText.getText().trim().length() < 1)
+			success = locateDir(event, "Open Output Dir ", outputOutlineFileText, inputFileText);
+		else
+			success = locateDir(event, "Open Output Dir ", outputOutlineFileText);
+		if (success) {
+			String outFilename = "/Outline1.csv";
+			final File nFile = new File(outputOutlineFileText.getText(), outFilename);
+			outputOutlineFileText.setText(nFile.getAbsolutePath());
+		}
 	}
 
 	public void handleOutputOutlineFile1(final ActionEvent event) {
-		locateDir(event, "Open Output Dir ", outputOutlineFileText1);
-		String outFilename = "/Outline1.csv";
-		final File nFile = new File(outputOutlineFileText1.getText(), outFilename);
-		outputOutlineFileText1.setText(nFile.getAbsolutePath());
+		boolean success = false;
+		if (outputOutlineFileText1.getText().trim().length() < 1)
+			success = locateDir(event, "Open Output Dir ", outputOutlineFileText1, inputFileText);
+		else
+			success = locateDir(event, "Open Output Dir ", outputOutlineFileText1);
+		if (success) {
+			String outFilename = "/Outline1.csv";
+			final File nFile = new File(outputOutlineFileText1.getText(), outFilename);
+			outputOutlineFileText1.setText(nFile.getAbsolutePath());
+		}
 	}
+
+	// public void handleOutputOutlineFile2(final ActionEvent event) {
+	// boolean success = false;
+	// String filePrefixText = getFilePrefixText();
+	// if (outputDocTagsOther1FileText.getText().trim().length() < 1)
+	// success = locateDir(event, "Open Output Dir ",
+	// outputDocTagsOther1FileText, inputFileText);
+	// else
+	// success = locateDir(event, "Open Output Dir ",
+	// outputDocTagsOther1FileText);
+	// if (success) {
+	// final String outFilename = filePrefixText == null ? "/other1.txt" :
+	// filePrefixText + "other1.txt";
+	// final File nFile = new File(outputDocTagsOther1FileText.getText(),
+	// outFilename);
+	// outputDocTagsOther1FileText.setText(nFile.getAbsolutePath());
+	// }
+	// }
 
 	public void handleComputeFromFilePrefix(final ActionEvent event) {
 		final String filePrefixText = inputFilePrefixText.getText();
@@ -684,16 +857,105 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		this.unlockGui();
 	}
 
+	public void handleImportProfile(final ActionEvent event) {
+		LOGGER.debug("handleImportProfile: Called");
+		// Parent root;
+		try {
+			final FXMLLoader fxmlLoader = new FXMLLoader();
+			final URL location = getClass().getResource(KQFFrame.FXML_SUB2_FILE2);
+			if (location == null) {
+				LOGGER.error("Failed to get location!!!!!!");
+				showMessage("ERROR loading FXML file for profile import screen", false);
+				return;
+			}
+			fxmlLoader.setLocation(location);
+			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+			final Parent root = (Parent) fxmlLoader.load(location.openStream());
+
+			final Stage stage = new Stage();
+			stage.setTitle("Profile Import");
+			stage.setScene(new Scene(root));
+			stage.initOwner(((Node) (event.getSource())).getScene().getWindow());
+			stage.initModality(Modality.WINDOW_MODAL);
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				public void handle(final WindowEvent we) {
+					LOGGER.debug("SubStage is cleaning up...");
+					// myController.saveProps();
+					// myController.doCleanup();
+					LOGGER.debug("SubStage is closing");
+					stage.close();
+				}
+			});
+			//
+			final Preferences child = getPrefs();
+			//
+			final KQFSubImportCtrl myController = (KQFSubImportCtrl) fxmlLoader.getController();
+			final FormatDao formatDao = new FormatDao();
+			setupDao(formatDao);
+			myController.setImportData(child, formatDao, appProps, stage);
+
+			stage.showAndWait();
+			// stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.error(e);
+		}
+	}
+
+	public void handleExportProfile(final ActionEvent event) {
+		LOGGER.debug("handleExportProfile: Called");
+		// Parent root;
+		try {
+			final FXMLLoader fxmlLoader = new FXMLLoader();
+			final URL location = getClass().getResource(KQFFrame.FXML_SUB2_FILE1);
+			if (location == null) {
+				LOGGER.error("Failed to get location!!!!!!");
+				showMessage("ERROR loading FXML file for profile export screen", false);
+				return;
+			}
+			fxmlLoader.setLocation(location);
+			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+			final Parent root = (Parent) fxmlLoader.load(location.openStream());
+
+			final Stage stage = new Stage();
+			stage.setTitle("Profile Export");
+			stage.setScene(new Scene(root));
+			stage.initOwner(((Node) (event.getSource())).getScene().getWindow());
+			stage.initModality(Modality.WINDOW_MODAL);
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				public void handle(final WindowEvent we) {
+					LOGGER.debug("SubStage is cleaning up...");
+					// myController.saveProps();
+					// myController.doCleanup();
+					LOGGER.debug("SubStage is closing");
+					stage.close();
+				}
+			});
+			//
+			final Preferences child = getPrefs();
+			//
+			final KQFSubExportCtrl myController = (KQFSubExportCtrl) fxmlLoader.getController();
+			final FormatDao formatDao = new FormatDao();
+			setupDao(formatDao);
+			myController.setExportData(child, formatDao, appProps, stage);
+
+			stage.showAndWait();
+			// stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.error(e);
+		}
+	}
+
 	private void setupDao(final FormatDao formatDao) {
 		// Setup the argument passed
 		formatDao.setInputFilename(inputFileText.getText());
 		formatDao.setOutputFilename(outputFormatSingleFileText.getText());
 
-		String filePrefixText = inputFilePrefixText.getText();
-
-		if (filePrefixCheckbox.isSelected())
-			filePrefixText = filePrefixText + "_";
-		formatDao.setFilePrefix(filePrefixText);
+		// String filePrefixText = inputFilePrefixText.getText();
+		// if (filePrefixCheckbox.isSelected())
+		// filePrefixText = filePrefixText + "_";
+		formatDao.setFilePrefix(getFilePrefixText());
 
 		formatDao.setOutputCountFile(outputCountFileText.getText());
 		formatDao.setOutputOutlineFile(outputOutlineFileText.getText());
@@ -737,12 +999,14 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		//
 		formatDao.setOutputDocTagsOutlineFile(outputDocTagsOutlineFileText.getText());
 		formatDao.setOutputDocTagsSceneFile(outputDocTagsSceneFileText.getText());
+		// formatDao.setOutputDocTagsOther1File(outputDocTagsOther1FileText.getText());
 		formatDao.setDocTagsOutlineCompressTags(outputDocTagsOutlineCTagsText.getText());
 		formatDao.setDocTagsOutlineExpandTags(outputDocTagsOutlineETagsText.getText());
 		formatDao.setDocTagsSceneTags(outputDocTagsSceneTagsText.getText());
 		formatDao.setDocTagsSceneCoTags(outputDocTagsSceneCoTags.getText());
 		formatDao.setDocTagsScenePrefix(outputDocTagsScenePrefix.getText());
 		formatDao.setDocTagsSubScenePrefix(outputDocTagsSubScenePrefix.getText());
+		// formatDao.setDocTagsOther1Tags(outputDocTagsOther1TagsText.getText());
 		formatDao.setSceneCoalateDivider(sceneCoalateDiv.getText());
 
 		final String dtmllS = outputDocTagsMaxLineLength.getText();
@@ -752,6 +1016,9 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		else
 			dtmllI = Integer.parseInt(dtmllS);
 		formatDao.setDocTagsMaxLineLength(dtmllI);
+
+		loadOutputs();
+		formatDao.setOutputs(thisProfileOutputList);
 
 		formatDao.setVersion(appProps.getProperty(PROP_KEY_VERSION));
 	}
@@ -773,6 +1040,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		saveProfileBtn.setDisable(true);
 		computeFromFilePrefixBtn.setDisable(true);
 		clearProfileBtn.setDisable(true);
+		// exportProfileBtn.setDisable(true);
+		// importProfileBtn
 
 		doFormatBtn.setDisable(true);
 		doWordCountBtn.setDisable(true);
@@ -784,9 +1053,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		outlineAllOutputBtn.setDisable(true);
 		outlineOutputBtn.setDisable(true);
 		sceneOutputBtn.setDisable(true);
+		// OtherOutput1Btn.setDisable(true);
 		loadOutputFileBtn.setDisable(true);
 		loadOutputDirBtn.setDisable(true);
 		loadOutputDirBtn1.setDisable(true);
+		buttonMoreFiles.setDisable(true);
 
 		filePrefixCheckbox.setDisable(true);
 	}
@@ -796,6 +1067,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		saveProfileBtn.setDisable(false);
 		computeFromFilePrefixBtn.setDisable(false);
 		clearProfileBtn.setDisable(false);
+		exportProfileBtn.setDisable(false);
+		// importProfileBtn
 
 		doFormatBtn.setDisable(false);
 		doWordCountBtn.setDisable(false);
@@ -807,9 +1080,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		outlineAllOutputBtn.setDisable(false);
 		outlineOutputBtn.setDisable(false);
 		sceneOutputBtn.setDisable(false);
+		// OtherOutput1Btn.setDisable(false);
 		loadOutputFileBtn.setDisable(false);
 		loadOutputDirBtn.setDisable(false);
 		loadOutputDirBtn1.setDisable(false);
+		buttonMoreFiles.setDisable(false);
 
 		filePrefixCheckbox.setDisable(false);
 	}
@@ -913,6 +1188,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	private void automaticFromInput(final boolean keepPreexisting) {
+		LOGGER.debug("automaticFromInput: Called w/keepPreexisting=" + keepPreexisting);
 		final File inputFile = new File(inputFileText.getText());
 		final File inputDir = inputFile.getParentFile();
 		final File outputDir = inputDir;
@@ -923,7 +1199,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		final boolean filePrefixExists = !StringUtils.isBlank(filePrefixText);
 		if (filePrefixCheckbox.isSelected())
 			filePrefixText = filePrefixText + "_";
-
+		LOGGER.debug("automaticFromInput: filePrefixExists=" + filePrefixExists);
 		// final File oldFile = new File(oldText);
 		// final File oldDir = oldFile.getParentFile();
 		// final File newFile = new File(oldDir, filePrefixText+"");
@@ -944,12 +1220,16 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 			outputDocTagsOutlineFileText.setText(outputDir + "\\" + filePrefixText + "outline.txt");
 			outputDocTagsSceneFileText.setText(outputDir + "\\" + filePrefixText + "scenes.txt");
+			// outputDocTagsOther1FileText.setText(outputDir + "\\" +
+			// filePrefixText + "other1.txt");
 		} else {
 			outputOutlineFileText.setText(outputDir + "\\Outline1.csv");
 			outputOutlineFileText1.setText(outputDir + "\\DocTags.csv");
 
 			outputDocTagsOutlineFileText.setText(outputDir + "\\" + filenameOnly + "_outline.txt");
 			outputDocTagsSceneFileText.setText(outputDir + "\\" + filenameOnly + "_scenes.txt");
+			// outputDocTagsOther1FileText.setText(outputDir + "\\" +
+			// filenameOnly + "_other1.txt");
 		}
 
 		// Format
@@ -968,6 +1248,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	protected void loadProps() {
+		LOGGER.debug("loadProps: Called");
 		final String key = titleOneText.getValue();
 		final Preferences child = getPrefs().node(key);
 
@@ -1016,6 +1297,8 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 				.setText(child.get("outputDocTagsOutlineFile", outputCountDir + "\\" + filenameOnly + "_outline.txt"));
 		outputDocTagsSceneFileText
 				.setText(child.get("outputDocTagsSceneFile", outputCountDir + "\\" + filenameOnly + "_scenes.txt"));
+		// outputDocTagsOther1FileText.setText(child.get("outputDocTagsOther1File",
+		// ""));
 
 		final String outC = loadPropFromAppOrDefault("outlineCompress",
 				"subscene, outlinedata, outlinesub, suboutline");
@@ -1025,8 +1308,11 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 		final String sceneM = loadPropFromAppOrDefault("sceneMain", "scene, subscene");
 		final String sceneC = loadPropFromAppOrDefault("sceneCoalate", "description, scene");
+		final String sceneO = loadPropFromAppOrDefault("sceneMainO1", "outline, scene, subscene");
 		outputDocTagsSceneTagsText.setText(child.get("outputDocTagsSceneTags", sceneM));
 		outputDocTagsSceneCoTags.setText(child.get("outputDocTagsSceneCoTags", sceneC));
+		// outputDocTagsOther1TagsText.setText(child.get("outputDocTagsOther1Tags",
+		// sceneO));
 
 		final String cbDropCapChaptersSel = child.get("cbDropCapChapters", "1");
 		if (!StringUtils.isBlank(cbDropCapChaptersSel) || cbDropCapChaptersSel.compareTo("selected") == 0)
@@ -1053,7 +1339,38 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		sceneCoalateDiv.setText(child.get("sceneCoalateDiv", ""));
 
 		//
+		loadOutputs();
+		//
 		unlockGui();
+	}
+
+	private void loadOutputs() {
+		LOGGER.debug("loadProps: Called");
+		final String key = titleOneText.getValue();
+		final Preferences parent = getPrefs();
+		if (key != null && parent != null) {
+			final Preferences child = parent.node(key);
+			if (child != null)
+				loadOutputs(child);
+		}
+	}
+
+	private void loadOutputs(final Preferences child) {
+		LOGGER.debug("loadProps: Called");
+
+		final String listString = child.get("profileData", "");
+		final Gson gson = new Gson();
+
+		final Type listOfTestObject = new TypeToken<List<OtherDocTagData>>() {
+		}.getType();
+		final List<OtherDocTagData> listODTD = gson.fromJson(listString, listOfTestObject);
+		if (listODTD != null) {
+			for (OtherDocTagData otherDocTagData : listODTD) {
+				LOGGER.debug("listODTD item: " + otherDocTagData);
+			}
+		}
+		thisProfileOutputList = listODTD;
+
 	}
 
 	private String loadPropFromAppOrDefault(final String key, final String defaultValue) {
@@ -1101,10 +1418,14 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 			child.put("outputDocTagsOutlineFile", outputDocTagsOutlineFileText.getText());
 			child.put("outputDocTagsSceneFile", outputDocTagsSceneFileText.getText());
+			// child.put("outputDocTagsOther1File",
+			// outputDocTagsOther1FileText.getText());
 			child.put("outputDocTagsOutlineCTags", outputDocTagsOutlineCTagsText.getText());
 			child.put("outputDocTagsOutlineTags", outputDocTagsOutlineETagsText.getText());
 			child.put("outputDocTagsSceneTags", outputDocTagsSceneTagsText.getText());
 			child.put("outputDocTagsSceneCoTags", outputDocTagsSceneCoTags.getText());
+			// child.put("outputDocTagsOther1Tags",
+			// outputDocTagsOther1TagsText.getText());
 
 			if (cbDropCapChapters.isSelected())
 				child.put("cbDropCapChapters", "selected");
@@ -1157,10 +1478,20 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		}
 	}
 
-	protected void locateDir(final ActionEvent event, final String title, final TextInputControl textField) {
+	protected boolean locateDir(final ActionEvent event, final String title, final TextInputControl textField) {
+		return locateDir(event, title, textField, textField);
+	}
+
+	protected boolean locateDir(final ActionEvent event, final String title, final TextInputControl textFieldToSet,
+			final TextInputControl textFieldDefault) {
 		final DirectoryChooser chooser = new DirectoryChooser();
 
-		final File lastDir1 = new File(textField.getText());
+		TextInputControl textFieldForInitialDir;
+		if (StringUtils.isBlank(textFieldToSet.getText()))
+			textFieldForInitialDir = textFieldDefault;
+		else
+			textFieldForInitialDir = textFieldToSet;
+		final File lastDir1 = new File(textFieldForInitialDir.getText());
 		final File lastDir2 = lastSelectedDirectory;
 		if (lastDir1 != null && lastDir1.exists()) {
 			if (lastDir1.isDirectory())
@@ -1183,11 +1514,13 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 		chooser.setTitle(title);
 		final File file = chooser.showDialog(new Stage());
 		if (file == null) {
-			textField.setText("");
-			lastSelectedDirectory = null;
+			// textField.setText("");
+			// lastSelectedDirectory = null;
+			return false;
 		} else {
-			textField.setText(file.getAbsolutePath());
+			textFieldToSet.setText(file.getAbsolutePath());
 			lastSelectedDirectory = file;
+			return true;
 		}
 	}
 

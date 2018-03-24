@@ -135,6 +135,12 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 				summaryOutputFile = new File(outputDir, "ChapterCount1.csv");
 			}
 			LOGGER.info("Writing summary data to " + summaryOutputFile);
+			
+			final File outputDirO = summaryOutputFile.getParentFile();
+			if (outputDirO != null) {
+				outputDirO.getParentFile().mkdirs();
+				outputDirO.mkdirs();
+			}
 
 			Charset selCharSet = formatDao.getCharSet();
 			LOGGER.debug("preHandler: Charset chosen: " + selCharSet);
