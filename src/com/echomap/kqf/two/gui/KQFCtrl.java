@@ -440,7 +440,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 					child.removeNode();
 					showMessage("Deleted profile '" + key + "'", false);
 					childDeleted = true;
-					setProfileChangeMade(false);
+					// setProfileChangeMade(false);
 				}
 			} else {
 				showMessage("Select a profile name to DELETE.", false);
@@ -454,6 +454,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 		clearSettings();
 		loadProfiles();
+		setProfileChangeMade(false);
 	}
 
 	/**
@@ -896,6 +897,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 
 			stage.showAndWait();
 			// stage.show();
+			loadProfiles();
 		} catch (IOException e) {
 			e.printStackTrace();
 			LOGGER.error(e);
@@ -1345,7 +1347,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	private void loadOutputs() {
-		LOGGER.debug("loadProps: Called");
+		LOGGER.debug("loadOutputs: Called");
 		final String key = titleOneText.getValue();
 		final Preferences parent = getPrefs();
 		if (key != null && parent != null) {
@@ -1356,7 +1358,7 @@ public class KQFCtrl implements Initializable, WorkDoneNotify {
 	}
 
 	private void loadOutputs(final Preferences child) {
-		LOGGER.debug("loadProps: Called");
+		LOGGER.debug("loadOutputs: Called for child");
 
 		final String listString = child.get("profileData", "");
 		final Gson gson = new Gson();

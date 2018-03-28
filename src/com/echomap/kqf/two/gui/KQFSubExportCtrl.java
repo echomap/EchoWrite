@@ -158,18 +158,22 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 		final ObservableList<ProfileExportObj> newList = FXCollections.observableArrayList();
 
 		for (int i = 0; i < profileDataArray.size(); i++) {
-			JsonElement je = profileDataArray.get(i);
-			JsonObject jo = je.getAsJsonObject();
-			final boolean export = jo.get("export").getAsBoolean();
-			final String name = jo.get("titleOneText").getAsString();
-			final String inputFile = jo.get("inputFileText").getAsString();
-			// inputFileText
-			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
-			final ProfileExportObj obj = new ProfileExportObj();
-			obj.setExport(export);
-			obj.setName(name);
-			obj.setInputFile(inputFile);
-			newList.add(obj);
+			final JsonElement je = profileDataArray.get(i);
+			final JsonObject jo = je.getAsJsonObject();
+			if (jo.has("export") && jo.has("titleOne") && jo.has("inputFile")) {
+				LOGGER.debug("loadTableData: loaded jo: '" + jo + "'");
+				final boolean export = jo.get("export").getAsBoolean();
+				final String name = jo.get("titleOne").getAsString();
+				final String inputFile = jo.get("inputFile").getAsString();
+				LOGGER.debug("loadTableData: loaded row: '" + name + "'");
+				final ProfileExportObj obj = new ProfileExportObj();
+				obj.setExport(export);
+				obj.setName(name);
+				obj.setInputFile(inputFile);
+				newList.add(obj);
+			} else {
+				LOGGER.warn("Bad row?" + jo);
+			}
 		}
 
 		inputTable.getItems().clear();

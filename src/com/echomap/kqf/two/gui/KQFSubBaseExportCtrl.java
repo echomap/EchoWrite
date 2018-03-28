@@ -74,7 +74,7 @@ public class KQFSubBaseExportCtrl extends KQFBaseCtrl {
 		inputTable.refresh();
 	}
 
-	private Preferences getPrefs() {
+	Preferences getPrefs() {
 		return profileData;
 	}
 
@@ -107,56 +107,69 @@ public class KQFSubBaseExportCtrl extends KQFBaseCtrl {
 		return profileDataArray;
 	}
 
-	void loadProfile(final String key, final JsonObject dataset) {
-		final Preferences child = getPrefs().node(key);
+	void loadProfile(final String nodeKey, final JsonObject dataset) {
+		final Preferences child = getPrefs().node(nodeKey);
 		dataset.addProperty("export", true);
+
+		try {
+			final String[] ckeys = child.keys();
+			for (final String ckey : ckeys) {
+				final String cval = child.get(ckey, "");
+				dataset.addProperty(ckey, cval);
+				LOGGER.debug("loadProfile: added '" + ckey + "'='" + cval + "'");
+			}
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+			LOGGER.error("Error in loadProfile", e);
+		}
+
 		// add the property
-		dataset.addProperty("titleOneText", child.get("titleOne", key));
-		dataset.addProperty("titleTwoText", child.get("titleTwo", ""));
-		dataset.addProperty("titleThreeText", child.get("titleThree", ""));
-
-		dataset.addProperty("inputFileText", child.get("inputFile", ""));
-		dataset.addProperty("outputFormatSingleFileText", child.get("ouputFile", ""));
-		dataset.addProperty("outputFormatChpHtmlDirText", child.get("outputDir", ""));
-		dataset.addProperty("outputFormatChpTextDirText", child.get("outputFormatChpTextDirText", ""));
-
-		dataset.addProperty("inputFilePrefixText", child.get("inputFilePrefix", ""));
-		dataset.addProperty("filePrefixCheckbox", child.getBoolean("appendUnderscoreToPrefix", false));
-
-		dataset.addProperty("regexpChapterText", child.get("regexpChapter", ""));
-		dataset.addProperty("regexpSectionText", child.get("regexpSection", ""));
-
-		// Default REGEXP
-		dataset.addProperty("regexpChapterText", child.get("regexpChapter", ""));
-		dataset.addProperty("regexpSectionText", child.get("regexpSection", ""));
-
-		dataset.addProperty("docTagStartText", child.get("docTagStart", ""));
-		dataset.addProperty("docTagEndText", child.get("docTagEnd", ""));
-
-		dataset.addProperty("fmtModeText", child.get("fmtMode", ""));
-		dataset.addProperty("outputEncoding", child.get("outputEncoding", ""));
-
-		dataset.addProperty("outputCountFileText", child.get("ouputCountFile", ""));
-		dataset.addProperty("outputOutlineFileText", child.get("ouputOutlineFile", ""));
-		dataset.addProperty("outputOutlineFileText1", child.get("ouputOutlineFile1", ""));
-
-		dataset.addProperty("outputDocTagsOutlineFileText", child.get("outputDocTagsOutlineFile", ""));
-		dataset.addProperty("outputDocTagsSceneFileText", child.get("outputDocTagsSceneFile", ""));
-
-		dataset.addProperty("outputDocTagsOutlineCTagsText", child.get("outputDocTagsOutlineCTags", ""));
-		dataset.addProperty("outputDocTagsOutlineETagsText", child.get("outputDocTagsOutlineTags", ""));
-
-		dataset.addProperty("outputDocTagsSceneTagsText", child.get("outputDocTagsSceneTags", ""));
-		dataset.addProperty("outputDocTagsSceneCoTags", child.get("outputDocTagsSceneCoTags", ""));
-
-		dataset.addProperty("cbDropCapChaptersSel", child.get("cbDropCapChapters", ""));
-		dataset.addProperty("cbWantTextChptOutputSel", child.get("cbWantTextChptOutput", ""));
-		dataset.addProperty("counterDigitChoice", child.get("counterDigitChoice", ""));
-		dataset.addProperty("outputDocTagsMaxLineLengthSel", child.get("outputDocTagsMaxLineLength", ""));
-
-		dataset.addProperty("outputDocTagsScenePrefix", child.get("outputDocTagsScenePrefix", ""));
-		dataset.addProperty("outputDocTagsSubScenePrefix", child.get("outputDocTagsSubScenePrefix", ""));
-		dataset.addProperty("sceneCoalateDiv", child.get("sceneCoalateDiv", ""));
+//		dataset.addProperty("titleOneText", child.get("titleOne", nodeKey));
+//		dataset.addProperty("titleTwoText", child.get("titleTwo", ""));
+//		dataset.addProperty("titleThreeText", child.get("titleThree", ""));
+//
+//		dataset.addProperty("inputFileText", child.get("inputFile", ""));
+//		dataset.addProperty("outputFormatSingleFileText", child.get("ouputFile", ""));
+//		dataset.addProperty("outputFormatChpHtmlDirText", child.get("outputDir", ""));
+//		dataset.addProperty("outputFormatChpTextDirText", child.get("outputFormatChpTextDirText", ""));
+//
+//		dataset.addProperty("inputFilePrefixText", child.get("inputFilePrefix", ""));
+//		dataset.addProperty("filePrefixCheckbox", child.getBoolean("appendUnderscoreToPrefix", false));
+//
+//		dataset.addProperty("regexpChapterText", child.get("regexpChapter", ""));
+//		dataset.addProperty("regexpSectionText", child.get("regexpSection", ""));
+//
+//		// Default REGEXP
+//		dataset.addProperty("regexpChapterText", child.get("regexpChapter", ""));
+//		dataset.addProperty("regexpSectionText", child.get("regexpSection", ""));
+//
+//		dataset.addProperty("docTagStartText", child.get("docTagStart", ""));
+//		dataset.addProperty("docTagEndText", child.get("docTagEnd", ""));
+//
+//		dataset.addProperty("fmtModeText", child.get("fmtMode", ""));
+//		dataset.addProperty("outputEncoding", child.get("outputEncoding", ""));
+//
+//		dataset.addProperty("outputCountFileText", child.get("ouputCountFile", ""));
+//		dataset.addProperty("outputOutlineFileText", child.get("ouputOutlineFile", ""));
+//		dataset.addProperty("outputOutlineFileText1", child.get("ouputOutlineFile1", ""));
+//
+//		dataset.addProperty("outputDocTagsOutlineFileText", child.get("outputDocTagsOutlineFile", ""));
+//		dataset.addProperty("outputDocTagsSceneFileText", child.get("outputDocTagsSceneFile", ""));
+//
+//		dataset.addProperty("outputDocTagsOutlineCTagsText", child.get("outputDocTagsOutlineCTags", ""));
+//		dataset.addProperty("outputDocTagsOutlineETagsText", child.get("outputDocTagsOutlineTags", ""));
+//
+//		dataset.addProperty("outputDocTagsSceneTagsText", child.get("outputDocTagsSceneTags", ""));
+//		dataset.addProperty("outputDocTagsSceneCoTags", child.get("outputDocTagsSceneCoTags", ""));
+//
+//		dataset.addProperty("cbDropCapChaptersSel", child.get("cbDropCapChapters", ""));
+//		dataset.addProperty("cbWantTextChptOutputSel", child.get("cbWantTextChptOutput", ""));
+//		dataset.addProperty("counterDigitChoice", child.get("counterDigitChoice", ""));
+//		dataset.addProperty("outputDocTagsMaxLineLengthSel", child.get("outputDocTagsMaxLineLength", ""));
+//
+//		dataset.addProperty("outputDocTagsScenePrefix", child.get("outputDocTagsScenePrefix", ""));
+//		dataset.addProperty("outputDocTagsSubScenePrefix", child.get("outputDocTagsSubScenePrefix", ""));
+//		dataset.addProperty("sceneCoalateDiv", child.get("sceneCoalateDiv", ""));
 	}
 
 }

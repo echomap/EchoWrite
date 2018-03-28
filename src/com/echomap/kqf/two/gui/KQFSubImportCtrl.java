@@ -7,6 +7,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.apache.log4j.LogManager;
@@ -99,13 +101,31 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		if (targetList != null) {
 			for (ProfileExportObj data : targetList) {
 				if (data.isExport()) {
-					LOGGER.debug("handleExport: importing profile: '" + data.getName() + "'");
+					LOGGER.debug("handleImportProfiles: importing profile: '" + data.getName() + "'");
 					final JsonObject jo = data.getPayload();
 					// final boolean export = jo.get("export").getAsBoolean();
-					final String name = jo.get("titleOneText").getAsString();
-					final String inputFile = jo.get("inputFileText").getAsString();
-					LOGGER.debug("loadTableData: loaded row: '" + name + "'");
+					final String eName = jo.get("titleOne").getAsString();
+					final String eInputFile = jo.get("inputFile").getAsString();
+					LOGGER.debug("handleImportProfiles: loaded row: '" + eName + "'");
 					// TODO IMPORT PROFILE
+					final boolean eExists = jo.get("exists").getAsBoolean();
+					// final boolean eIimport = jo.get("import").getAsBoolean();
+					try {
+						Preferences child = null;
+						child = getPrefs().node(eName);
+						final Set<String> keys = jo.keySet();
+						for (final String key : keys) {
+							final JsonElement je = jo.get(key);
+							final String val = je.getAsString();
+							child.put(key, val);
+						}
+						LOGGER.info("handleImportProfiles: saved profile: '" + eName + "'");
+						getPrefs().flush();
+						showMessage("Imported Selected Profiles", false);
+					} catch (BackingStoreException e) {
+						showMessage("Error with ImportProfiles: " + e, false);
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -180,8 +200,8 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 			JsonObject jo = je.getAsJsonObject();
 			final boolean exists = jo.get("exists").getAsBoolean();
 			final boolean export = jo.get("import").getAsBoolean();
-			final String name = jo.get("titleOneText").getAsString();
-			final String inputFile = jo.get("inputFileText").getAsString();
+			final String name = jo.get("titleOne").getAsString();
+			final String inputFile = jo.get("inputFile").getAsString();
 			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
 			final ProfileExportObj obj = new ProfileExportObj();
 			obj.setExists(exists);
@@ -211,7 +231,7 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		for (int i = 0; i < existingProfileDataArray.size(); i++) {
 			JsonElement je = existingProfileDataArray.get(i);
 			JsonObject jo = je.getAsJsonObject();
-			final String name = jo.get("titleOneText").getAsString();
+			final String name = jo.get("titleOne").getAsString();
 			LOGGER.debug("loadProfileData: loaded row: '" + name + "'");
 			existingProfileNames.add(name);
 		}
