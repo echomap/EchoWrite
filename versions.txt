@@ -11,6 +11,12 @@ WAS: info, subscene, outlinedata, outlinesub, suboutline
 Character file?
 Changed data check, so know to save?
 
+2018 04 05
+	fixing bug with profile autocomplete not refreshing with full list
+2018 04 02
+	updating profile import
+2018 03 30
+	update file browsing handling
 2018 03 28
 	bug fix in default regexp
 2018 03 24

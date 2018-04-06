@@ -110,8 +110,8 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 				return row;
 			}
 		});
-		
-		//inputTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		// inputTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 		// Works but only java8+
 		// inputTable.setRowFactory(tv -> {
@@ -255,14 +255,14 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		final FileChooser chooser = new FileChooser();
 		final File file = chooser.showOpenDialog(new Stage());
 		if (file == null) {
-			showMessage("No file selected.", false);
+			showPopupMessage("No file selected.", false);
 			return;
 		}
 
 		LOGGER.info("Reading file from: " + file);
 		if (!file.exists()) {
 			LOGGER.warn("No file exists, can't import!");
-			showMessage("Import Error! File doesn't exist!", true);
+			showPopupMessage("Import Error! File doesn't exist!", true);
 			return;
 		}
 		// final String stringData = readFile(inputFile.getText(), selCharSet)
@@ -285,10 +285,10 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			}
 			// Save to list!
 			loadTableDataFromJson(profileDataset);
-			showMessage("Imported data", false);
+			showPopupMessage("Imported data", false);
 		} catch (IOException e) {
 			LOGGER.error(e);
-			showMessage("Export Error!" + e.getMessage(), true);
+			showPopupMessage("Export Error!" + e.getMessage(), true);
 		} finally {
 			if (reader != null) {
 				try {
@@ -337,7 +337,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		final FileChooser chooser = new FileChooser();
 		final File file = chooser.showSaveDialog(new Stage());
 		if (file == null) {
-			showMessage("No file selected.", false);
+			showPopupMessage("No file selected.", false);
 			return;
 		}
 		Writer fWriterPlain = null;
@@ -353,30 +353,29 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			// final Gson gson = new Gson();
 			final Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls()
 					.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-			final JsonObject exportDataset = new JsonObject();
-			if (appProps != null)
-				exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			// final JsonObject exportDataset = new JsonObject();
+			final JsonObject exportDataset = XferBiz.ProfileDataExportFromMemory(inputTable.getItems(),appProps);
 			LOGGER.debug("handleExport: exportDataset: " + exportDataset);
-
-			final JsonArray exportList = new JsonArray();
-			// write data
-			final ObservableList<OtherDocTagData> targetList = inputTable.getItems();
-			if (targetList != null) {
-				for (OtherDocTagData odtd : targetList) {
-					final JsonObject dataset = new JsonObject();
-					dataset.addProperty("name", odtd.getName());
-					dataset.addProperty("file", odtd.getFile());
-					dataset.addProperty("docTags", odtd.getDocTags());
-					// exportList.add(gson2.toJson(odtd,OtherDocTagData.class));
-					exportList.add(dataset);
-				}
-			}
-			exportDataset.add("list", exportList);
+			// final JsonArray exportList = new JsonArray();
+			// // write data
+			// final ObservableList<OtherDocTagData> targetList =
+			// inputTable.getItems();
+			// if (targetList != null) {
+			// for (OtherDocTagData odtd : targetList) {
+			// final JsonObject dataset = new JsonObject();
+			// dataset.addProperty("name", odtd.getName());
+			// dataset.addProperty("file", odtd.getFile());
+			// dataset.addProperty("docTags", odtd.getDocTags());
+			// // exportList.add(gson2.toJson(odtd,OtherDocTagData.class));
+			// exportList.add(dataset);
+			// }
+			// }
+			// exportDataset.add("list", exportList);
 			fWriterPlain.write(gson2.toJson(exportDataset));
-			showMessage("Exported data", false);
+			showPopupMessage("Exported data", false);
 		} catch (IOException e) {
 			LOGGER.error(e);
-			showMessage("Export Error!" + e.getMessage(), true);
+			showPopupMessage("Export Error!" + e.getMessage(), true);
 		} finally {
 			if (fWriterPlain != null)
 				try {
@@ -435,7 +434,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		if (newList != null)
 			inputTable.getItems().setAll(newList);
 		inputTable.refresh();
-		//inputTable.setColumnResizePolicy(callback);
+		// inputTable.setColumnResizePolicy(callback);
 	}
 
 }

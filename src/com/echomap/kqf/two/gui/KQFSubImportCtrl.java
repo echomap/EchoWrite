@@ -41,11 +41,12 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 	private String version = null;
 
 	public void setImportData(final Preferences child, final FormatDao formatDao, final Properties appProps,
-			final Stage stage) {
+			final Stage stage, final File lastSelectedDirectory) {
 		this.profileData = child;
 		this.formatDao = formatDao;
 		this.appProps = appProps;
 		this.primaryStage = stage;
+		this.lastSelectedDirectory = lastSelectedDirectory;
 		// createProfileData();
 		// loadTableData();
 	}
@@ -95,6 +96,12 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		LOGGER.debug("initialize: Done");
 	}
 
+	public void handleBrowse(final ActionEvent event) {
+		LOGGER.debug("handleBrowse: Called");
+		locateFile(event, "Import File", inputFile);
+		// chooseFile(event, "Export File", inputFile, "ProfileExport.json");
+	}
+
 	public void handleImportProfiles(final ActionEvent event) {
 		LOGGER.debug("handleImportProfiles: Called");
 		final ObservableList<ProfileExportObj> targetList = inputTable.getItems();
@@ -121,9 +128,9 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 						}
 						LOGGER.info("handleImportProfiles: saved profile: '" + eName + "'");
 						getPrefs().flush();
-						showMessage("Imported Selected Profiles", false);
+						showPopupMessage("Imported Selected Profiles", false);
 					} catch (BackingStoreException e) {
-						showMessage("Error with ImportProfiles: " + e, false);
+						showPopupMessage("Error with ImportProfiles: " + e, false);
 						e.printStackTrace();
 					}
 				}
@@ -142,12 +149,12 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		LOGGER.info("Reading file from: " + filePlain);
 		if (inputFile.getText() == null || inputFile.getText().length() < 1) {
 			LOGGER.warn("No file set, can't import!");
-			showMessage("Import Error! No File set!", true);
+			showPopupMessage("Import Error! No File set!", true);
 			return;
 		}
 		if (!filePlain.exists()) {
 			LOGGER.warn("No file exists, can't import!");
-			showMessage("Import Error! File doesn't exist!", true);
+			showPopupMessage("Import Error! File doesn't exist!", true);
 			return;
 		}
 		// final String stringData = readFile(inputFile.getText(), selCharSet)
@@ -170,7 +177,7 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 			}
 		} catch (IOException e) {
 			LOGGER.error(e);
-			showMessage("Export Error!" + e.getMessage(), true);
+			showPopupMessage("Export Error!" + e.getMessage(), true);
 		} finally {
 			if (reader != null) {
 				try {
@@ -265,10 +272,18 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		reader.beginObject();
 		while (reader.hasNext()) {
 			String objectNewsDataName = reader.nextName();
+			LOGGER.debug("readProfile: objectNewsDataName: '" + objectNewsDataName + "'");
 			if (objectNewsDataName.equals("export")) {
 				reader.skipValue();
 			} else if (objectNewsDataName.equals("filePrefixCheckbox")) {
 				dataset.addProperty(objectNewsDataName, reader.nextBoolean());
+			} else if (objectNewsDataName.equals("profileData")) {
+				// TODO Really WORKING? XXX
+				// dataset.add("profileData", reader.nex);
+				final JsonObject pdata = readProfileData(reader);
+				final JsonArray pdList = pdata.getAsJsonArray("list");
+				final String joString = XferBiz.listToJson(pdList);
+				dataset.addProperty("profileData", joString);
 			} else {
 				dataset.addProperty(objectNewsDataName, reader.nextString());
 			}
@@ -277,7 +292,50 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		LOGGER.debug("readProfile: dataset = " + dataset);
 		LOGGER.debug("readProfile: Done");
 		return dataset;
+	}
 
+	private JsonObject readProfileData(JsonReader reader) throws IOException {
+		LOGGER.debug("readProfileData: Called");
+
+		final JsonObject profileDataObj = new JsonObject();
+		reader.beginObject();
+		while (reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("version")) {
+				version = reader.nextString();
+				LOGGER.debug("version=" + version);
+				profileDataObj.addProperty("version", version);
+			} else if (name.equals("list")) {
+				profileDataset = readProfileDataList(reader);
+				profileDataObj.add("list", profileDataset);
+			} else {
+				reader.skipValue(); // avoid some unhandle events
+			}
+		}
+		reader.endObject();
+		LOGGER.debug("readProfileData: dataset = " + profileDataObj);
+		LOGGER.debug("readProfileData: Done");
+		return profileDataObj;
+	}
+
+	private JsonArray readProfileDataList(JsonReader reader) throws IOException {
+		final JsonArray exportProfiles = new JsonArray();
+		reader.beginArray();
+		while (reader.hasNext()) {
+
+			final JsonObject dataset = new JsonObject();
+			reader.beginObject();
+			while (reader.hasNext()) {
+				String objectNewsDataName = reader.nextName();
+				LOGGER.debug("readProfileData: objectNewsDataName: '" + objectNewsDataName + "'");
+				dataset.addProperty(objectNewsDataName, reader.nextString());
+			}
+			reader.endObject();
+			exportProfiles.add(dataset);
+		}
+		reader.endArray();
+		LOGGER.debug("readProfileData: Done");
+		return exportProfiles;
 	}
 
 	private void readFieldImage(JsonReader reader) throws IOException {

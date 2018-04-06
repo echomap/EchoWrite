@@ -1,6 +1,8 @@
 package com.echomap.kqf.two.gui;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,10 +14,13 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -23,12 +28,13 @@ import javafx.stage.WindowEvent;
 public class KQFBaseCtrl {
 	private final static Logger LOGGER = LogManager.getLogger(KQFBaseCtrl.class);
 
-	private File lastSelectedDirectory = null;
+	static final DateFormat myDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
+	File lastSelectedDirectory = null;
 	Stage primaryStage = null;
 	Properties appProps = null;
 
-	void showMessage(final String msg, final boolean error) {
+	void showPopupMessage(final String msg, final boolean error) {
 		final Stage dialog = new Stage();
 		dialog.setTitle("KQF Message Dialog");
 		dialog.setResizable(true);
@@ -156,6 +162,66 @@ public class KQFBaseCtrl {
 			textFieldToSet.setText(file.getAbsolutePath());
 			lastSelectedDirectory = file;
 			return true;
+		}
+	}
+
+	protected void locateFile(final ActionEvent event, final String title, final TextField textField) {
+		final FileChooser chooser = new FileChooser();
+		if (!StringUtils.isEmpty(textField.getText())) {
+			// if (textField.getText() != null && textField.getText().length() >
+			// 0) {
+			lastSelectedDirectory = new File(textField.getText());
+			if (!lastSelectedDirectory.isDirectory())
+				lastSelectedDirectory = lastSelectedDirectory.getParentFile();
+			if (!lastSelectedDirectory.isDirectory())
+				lastSelectedDirectory = null;
+		} else {
+			// lastSelectedDirectory = FormatDao
+		}
+		chooser.setInitialDirectory(lastSelectedDirectory);
+		chooser.setTitle(title);
+		// chooser.setInitialFileName("ChapterCount1.csv");
+		// System.out.println("lastSelectedDirectory = '" +
+		// lastSelectedDirectory + "'");
+
+		final File file = chooser.showOpenDialog(new Stage());
+		if (file == null) {
+			textField.setText("");
+			// lastSelectedDirectory = null;
+		} else {
+			textField.setText(file.getAbsolutePath());
+			// lastSelectedDirectory = file.getParentFile();
+		}
+	}
+
+	protected void chooseFile(final ActionEvent event, final String title, final TextField textField,
+			final String defaultName) {
+		final FileChooser chooser = new FileChooser();
+		if (!StringUtils.isEmpty(textField.getText())) {
+			// if (textField.getText() != null && textField.getText().length() >
+			// 0) {
+			lastSelectedDirectory = new File(textField.getText());
+			if (!lastSelectedDirectory.isDirectory())
+				lastSelectedDirectory = lastSelectedDirectory.getParentFile();
+			if (!lastSelectedDirectory.isDirectory())
+				lastSelectedDirectory = null;
+		} else {
+			// lastSelectedDirectory = FormatDao
+		}
+		chooser.setInitialDirectory(lastSelectedDirectory);
+		chooser.setTitle(title);
+		chooser.setInitialFileName(defaultName);
+		chooser.setSelectedExtensionFilter(new ExtensionFilter("JSON", "json"));
+		// System.out.println("lastSelectedDirectory = '" +
+		// lastSelectedDirectory + "'");
+
+		final File file = chooser.showSaveDialog(new Stage());
+		if (file == null) {
+			textField.setText("");
+			// lastSelectedDirectory = null;
+		} else {
+			textField.setText(file.getAbsolutePath());
+			// lastSelectedDirectory = file.getParentFile();
 		}
 	}
 

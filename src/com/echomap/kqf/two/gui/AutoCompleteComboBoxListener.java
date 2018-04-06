@@ -15,6 +15,7 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 	private ComboBox comboBox;
 	private StringBuilder sb;
 	private ObservableList<T> data;
+	private ObservableList<T> dataOriginal;
 	private boolean moveCaretToPos = false;
 	private int caretPos;
 
@@ -22,6 +23,7 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 		this.comboBox = comboBox;
 		sb = new StringBuilder();
 		data = comboBox.getItems();
+		dataOriginal = comboBox.getItems();
 
 		this.comboBox.setEditable(true);
 		this.comboBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -32,6 +34,11 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 			}
 		});
 		this.comboBox.setOnKeyReleased(AutoCompleteComboBoxListener.this);
+	}
+
+	public void reset() {
+		data = dataOriginal;
+		comboBox.setItems(data);
 	}
 
 	@Override

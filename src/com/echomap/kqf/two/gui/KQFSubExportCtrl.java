@@ -40,10 +40,11 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 	private JsonArray profileDataArray = null;
 
 	public void setExportData(final Preferences child, final FormatDao formatDao, final Properties appProps,
-			final Stage stage) {
+			final Stage stage, final File lastSelectedDirectory) {
 		this.profileData = child;
 		this.formatDao = formatDao;
 		this.appProps = appProps;
+		this.lastSelectedDirectory = lastSelectedDirectory;
 		this.primaryStage = stage;
 		profileDataArray = createProfileData();
 		loadTableData();
@@ -92,6 +93,11 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 		LOGGER.debug("initialize: Done");
 	}
 
+	public void handleBrowse(final ActionEvent event) {
+		LOGGER.debug("handleBrowse: Called");
+		chooseFile(event, "Export File", inputFile, "ProfileExport.json");
+	}
+
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleExport: Called");
 
@@ -103,7 +109,7 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 			LOGGER.info("Writing export file to: " + outputFilePlain);
 			if (inputFile.getText() == null || inputFile.getText().length() < 1) {
 				LOGGER.warn("No file set, can't export!");
-				showMessage("Export Error! No File set!", true);
+				showPopupMessage("Export Error! No File set!", true);
 				return;
 			}
 			// fWriterPlain = new FileWriter(outputFilePlain, false);
@@ -139,10 +145,10 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 			// LOGGER.debug(gson2.toJson(exportProfiles));
 			// final Gson gson = new Gson();
 			// LOGGER.debug(gson.toJson(exportDataset));
-			showMessage("Export Done! Written to '" + outputFilePlain + "'", false);
+			showPopupMessage("Export Done! Written to '" + outputFilePlain + "'", false);
 		} catch (IOException e) {
 			LOGGER.error(e);
-			showMessage("Export Error!" + e.getMessage(), true);
+			showPopupMessage("Export Error!" + e.getMessage(), true);
 		} finally {
 			if (fWriterPlain != null)
 				try {
