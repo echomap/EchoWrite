@@ -2,7 +2,6 @@ package com.echomap.kqf.two.gui;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -17,6 +16,9 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.KqfBiz;
+import com.echomap.kqf.biz.XferBiz;
+import com.echomap.kqf.data.DocTagDataOption;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.google.gson.FieldNamingPolicy;
@@ -26,7 +28,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -53,12 +54,17 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 	private TextField inputName;
 	@FXML
 	private TextField inputFile;
+	@SuppressWarnings("rawtypes")
 	@FXML
 	private TableView inputTable;
 	@FXML
 	private TextArea inputDocTags;
 	@FXML
 	private Button buttonSaveAdd;
+	@FXML
+	private Button buttonClose;
+	@FXML
+	private Button buttonSave;
 
 	@FXML
 	private ResourceBundle resources;
@@ -66,8 +72,10 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 	@FXML
 	private URL location;
 
-	private Preferences profileData = null;
+	private Preferences profileDataPref = null;
 	private FormatDao formatDao = null;
+
+	private List<OtherDocTagData> sourceDataList = null;
 
 	@SuppressWarnings("unchecked")
 	@FXML
@@ -160,6 +168,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 					: filePrefixText + inputName.getText() + ".txt";
 			final File nFile = new File(newFile, outFilename);
 			inputFile.setText(nFile.getAbsolutePath());
+			actionToCancel();
 		}
 	}
 
@@ -174,15 +183,10 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 	public void handleNew(final ActionEvent event) {
 		LOGGER.debug("handleNew: Called");
 		clearFields();
+		actionToCancel();
 	}
 
-	private void clearFields() {
-		inputName.setText("");
-		inputName.setEditable(true);
-		inputFile.setText("");
-		inputDocTags.setText("");
-	}
-
+	@SuppressWarnings("unchecked")
 	public void handleDelete(final ActionEvent event) {
 		LOGGER.debug("handleDelete: Called");
 		final OtherDocTagData selObj = (OtherDocTagData) inputTable.getSelectionModel().getSelectedItem();
@@ -196,12 +200,14 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 				}
 				// inputTable.setItems(newList);
 				inputTable.getItems().setAll(newList);
+				actionToCancel();
 			}
 		}
 		clearFields();
 		LOGGER.debug("handleDelete: Done");
 	}
 
+	@SuppressWarnings("unchecked")
 	public void handleAddEdit(final ActionEvent event) {
 		LOGGER.debug("handleAddEdit: Called");
 		OtherDocTagData selObj = null;
@@ -229,12 +235,14 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		inputTable.setItems(targetList);
 		clearFields();
 		inputTable.refresh();
+		actionToCancel();
 		LOGGER.debug("handleAddEdit: Done");
 	}
 
 	public void handleSave(final ActionEvent event) {
 		LOGGER.debug("handleSave: Called");
 
+		@SuppressWarnings("unchecked")
 		final ObservableList<OtherDocTagData> targetList = inputTable.getItems();
 		if (targetList != null) {
 			for (OtherDocTagData otherDocTagData : targetList) {
@@ -245,14 +253,46 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		}.getType();
 		final Gson gson = new Gson();
 		String json = gson.toJson(targetList, listType);
-		profileData.put("profileData", json);
+		LOGGER.debug("handleSave: json: '" + json + "'");
+		profileDataPref.put(XferBiz.PROFILE_DATA, json);
+		actionToNormal();
 		LOGGER.debug("handleSave: Done");
 	}
+
+	// private File getInitialFolder() {
+	// final String profile = this.profileData.get("titleOne", "");
+	//
+	// final String filePrefixText = formatDao.getFilePrefix();
+	// final String iStrFile = this.profileData.get("inputFile", null);
+	// final File inFile = (StringUtils.isBlank(iStrFile) ? null : new
+	// File(iStrFile));
+	// final File inPFile = (inFile != null ? inFile.getParentFile() : null);
+	// final String outFilename = filePrefixText == null ? "/" + profile +
+	// "_more.json"
+	// : filePrefixText + profile + "_more.json";
+	// final File oFile = new File(inPFile, outFilename);
+	// final File oFold = oFile.getParentFile();
+	// LOGGER.debug("handleExport: oFold: " + oFold);
+	// LOGGER.debug("handleExport: oFile: " + oFile);
+	// LOGGER.debug("handleExport: outFilename: " + outFilename);
+	// LOGGER.debug("handleExport: inPFile: " + inPFile);
+	// LOGGER.debug("handleExport: iStrFile: " + iStrFile);
+	// LOGGER.debug("handleExport: filePrefixText: " + filePrefixText);
+	// return oFold;
+	// }
 
 	public void handleImport(final ActionEvent event) {
 		LOGGER.debug("handleImport: Called");
 
 		final FileChooser chooser = new FileChooser();
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON", "*.json");
+		chooser.getExtensionFilters().add(extFilter);
+		final String profile = this.profileDataPref.get("titleOne", "");
+		chooser.setInitialFileName(profile + "_more.json");
+		final File oFold = KqfBiz.getInitialFolder(profileDataPref, formatDao);
+		chooser.setInitialDirectory(oFold);
+
+		// Show
 		final File file = chooser.showOpenDialog(new Stage());
 		if (file == null) {
 			showPopupMessage("No file selected.", false);
@@ -265,76 +305,91 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			showPopupMessage("Import Error! File doesn't exist!", true);
 			return;
 		}
-		// final String stringData = readFile(inputFile.getText(), selCharSet)
-		JsonArray profileDataset = null;
-		String version = null;
-		JsonReader reader = null;
 		try {
-			reader = new JsonReader(new FileReader(file));
-			reader.beginObject();
-			while (reader.hasNext()) {
-				String name = reader.nextName();
-				if (name.equals("version")) {
-					version = reader.nextString();
-					LOGGER.debug("version=" + version);
-				} else if (name.equals("list")) {
-					profileDataset = readList(reader);
-				} else {
-					reader.skipValue(); // avoid some unhandle events
-				}
-			}
+			JsonArray profileDataset = XferBiz.readMoreExport(file);
+			// // final String stringData = readFile(inputFile.getText(),
+			// selCharSet)
+			// JsonArray profileDataset = null;
+			// String version = null;
+			// JsonReader reader = null;
+			// try {
+			// reader = new JsonReader(new FileReader(file));
+			// reader.beginObject();
+			// while (reader.hasNext()) {
+			// String name = reader.nextName();
+			// if (name.equals("version")) {
+			// version = reader.nextString();
+			// LOGGER.debug("version=" + version);
+			// } else if (name.equals("list")) {
+			// // profileDataset = KqfBiz.readSimpleJsonList(reader);
+			// profileDataset = XferBiz.readMoreExport(reader);
+			// } else {
+			// reader.skipValue(); // avoid some unhandle events
+			// }
+			// }
 			// Save to list!
 			loadTableDataFromJson(profileDataset);
-			showPopupMessage("Imported data", false);
+			showPopupMessage("Imported data, Remember to\n1)check the file names for each entry.\n2)to SAVE the table.",
+					false);
+			actionToCancel();
 		} catch (IOException e) {
 			LOGGER.error(e);
 			showPopupMessage("Export Error!" + e.getMessage(), true);
-		} finally {
-			if (reader != null) {
-				try {
-					reader.endObject();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			// } finally {
+			// if (reader != null) {
+			// try {
+			// reader.endObject();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			// try {
+			// reader.close();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			// }
 		}
 		//
 		LOGGER.debug("handleImportFile: Done");
 		// loadTableData();
 	}
 
-	private JsonArray readList(final JsonReader reader) throws IOException {
-		LOGGER.debug("readList: Called");
-		final JsonArray exportProfiles = new JsonArray();
-		reader.beginArray();
-		while (reader.hasNext()) {
-			//
-			final JsonObject dataset = new JsonObject();
-			reader.beginObject();
-			while (reader.hasNext()) {
-				String objectName = reader.nextName();
-				// LOGGER.debug("readList: objectName = " + objectName);
-				dataset.addProperty(objectName, reader.nextString());
-			}
-			reader.endObject();
-			//
-			LOGGER.debug("readList: dataset = " + dataset);
-			exportProfiles.add(dataset);
-		}
-		reader.endArray();
-		LOGGER.debug("readList: Done");
-		return exportProfiles;
-	}
+	// private JsonArray readList(final JsonReader reader) throws IOException {
+	// LOGGER.debug("readList: Called");
+	// final JsonArray exportProfiles = new JsonArray();
+	// reader.beginArray();
+	// while (reader.hasNext()) {
+	// //
+	// final JsonObject dataset = new JsonObject();
+	// reader.beginObject();
+	// while (reader.hasNext()) {
+	// String objectName = reader.nextName();
+	// // LOGGER.debug("readList: objectName = " + objectName);
+	// dataset.addProperty(objectName, reader.nextString());
+	// }
+	// reader.endObject();
+	// //
+	// LOGGER.debug("readList: dataset = " + dataset);
+	// exportProfiles.add(dataset);
+	// }
+	// reader.endArray();
+	// LOGGER.debug("readList: Done");
+	// return exportProfiles;
+	// }
 
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleExport: Called");
 
 		final FileChooser chooser = new FileChooser();
+		// Set extension filter
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("JSON", "*.json");
+		chooser.getExtensionFilters().add(extFilter);
+		final String profile = this.profileDataPref.get("titleOne", "");
+		chooser.setInitialFileName(profile + "_more.json");
+		final File oFold = KqfBiz.getInitialFolder(profileDataPref, formatDao);
+		chooser.setInitialDirectory(oFold);
+
+		// show
 		final File file = chooser.showSaveDialog(new Stage());
 		if (file == null) {
 			showPopupMessage("No file selected.", false);
@@ -354,7 +409,8 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			final Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls()
 					.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 			// final JsonObject exportDataset = new JsonObject();
-			final JsonObject exportDataset = XferBiz.ProfileDataExportFromMemory(inputTable.getItems(),appProps);
+			@SuppressWarnings("unchecked")
+			final JsonObject exportDataset = XferBiz.ProfileDataExportFromMemory(inputTable.getItems(), appProps);
 			LOGGER.debug("handleExport: exportDataset: " + exportDataset);
 			// final JsonArray exportList = new JsonArray();
 			// // write data
@@ -390,29 +446,57 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			final Stage stage) {
 		this.appProps = appProps;
 		this.primaryStage = stage;
-		this.profileData = child;
+		this.profileDataPref = child;
 		this.formatDao = formatDao;
-		final String listString = profileData.get("profileData", "");
+		final String listString = profileDataPref.get(XferBiz.PROFILE_DATA, "");
 		loadTableDataFromJson(listString);
+
+		// final String pdString = XferBiz.objectToJson(profileData);
+		// LOGGER.debug("ProfileData: " + pdString);
 	}
 
-	public void loadTableDataFromJson(final String listString) {
+	@SuppressWarnings("unchecked")
+	private void loadTableDataFromJson(final String listString) {
+		LOGGER.debug("loadTableDataFromJson: Called");
 		final Gson gson = new Gson();
 
 		final Type listOfTestObject = new TypeToken<List<OtherDocTagData>>() {
 		}.getType();
-		List<OtherDocTagData> list2 = gson.fromJson(listString, listOfTestObject);
-		if (list2 != null) {
-			for (OtherDocTagData otherDocTagData : list2) {
+		sourceDataList = gson.fromJson(listString, listOfTestObject);
+		if (sourceDataList != null) {
+			for (OtherDocTagData otherDocTagData : sourceDataList) {
+				otherDocTagData.getOptions();
 				LOGGER.debug("item: " + otherDocTagData);
+				LOGGER.debug("itemJson: " + XferBiz.objectToJson(otherDocTagData));
 			}
 		}
 
 		inputTable.getItems().clear();
-		if (list2 != null)
-			inputTable.getItems().setAll(list2);
+		if (sourceDataList != null)
+			inputTable.getItems().setAll(sourceDataList);
+		LOGGER.debug("loadTableDataFromJson: Done");
 	}
 
+	private void actionToCancel() {
+		buttonClose.setText("Cancel");
+		buttonSave.setText("Save Data");
+		buttonSave.setDisable(false);
+	}
+
+	private void actionToNormal() {
+		buttonClose.setText("Close");
+		buttonSave.setText("Save Data");
+		buttonSave.setDisable(true);
+	}
+
+	private void clearFields() {
+		inputName.setText("");
+		inputName.setEditable(true);
+		inputFile.setText("");
+		inputDocTags.setText("");
+	}
+
+	@SuppressWarnings("unchecked")
 	private void loadTableDataFromJson(final JsonArray profileDataset) {
 		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
 
@@ -423,11 +507,28 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			final String name = jo.get("name").getAsString();
 			final String inputFile = jo.get("file").getAsString();
 			final String docTags = jo.get("docTags").getAsString();
+
+			// final String optionsJson = jo.get("optionsJson").getAsString();
+			final JsonArray jsOptions = jo.get("options").getAsJsonArray();// TODO
+			// final JsonArray jsOptions = (JsonArray) jsOptionsE;
+			// final DocTagDataOption options
+
 			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
 			final OtherDocTagData obj = new OtherDocTagData();
 			obj.setName(name);
 			obj.setFile(inputFile);
 			obj.setDocTags(docTags);
+			for (int j = 0; j < jsOptions.size(); j++) {
+				final JsonElement elem = jsOptions.get(i);
+				// final String json = elem.getAsString();
+				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
+						DocTagDataOption.class);
+				LOGGER.debug("loadTableData: option: " + option);
+				LOGGER.debug("loadTableData: obj: " + obj);
+
+				obj.addOption(option);
+			}
+
 			newList.add(obj);
 		}
 		inputTable.getItems().clear();

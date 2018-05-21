@@ -1,0 +1,7 @@
+.actionbutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5), 10, 0.4, 3, 3);
+	-fx-background-color:  #CAA7F9
+}
+.button {
+	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5), 2, 0.4, 3, 3);
+}

@@ -28,7 +28,7 @@ import javafx.stage.WindowEvent;
 public class KQFBaseCtrl {
 	private final static Logger LOGGER = LogManager.getLogger(KQFBaseCtrl.class);
 
-	static final DateFormat myDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	static public final DateFormat myDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	File lastSelectedDirectory = null;
 	Stage primaryStage = null;

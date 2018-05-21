@@ -1,22 +1,18 @@
 package com.echomap.kqf.two.gui;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Properties;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.XferBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.ProfileExportObj;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -41,12 +37,18 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 
 	public void setExportData(final Preferences child, final FormatDao formatDao, final Properties appProps,
 			final Stage stage, final File lastSelectedDirectory) {
-		this.profileData = child;
+		this.profileDataPrefs = child;
 		this.formatDao = formatDao;
 		this.appProps = appProps;
 		this.lastSelectedDirectory = lastSelectedDirectory;
 		this.primaryStage = stage;
-		profileDataArray = createProfileData();
+		// profileDataArray = createProfileData();
+		try {
+			profileDataArray = XferBiz.createJsonFromPrefsProfileData(child, appProps);
+		} catch (BackingStoreException e) {
+			showPopupMessage("Error createProfileData: " + e, false);
+			e.printStackTrace();
+		}
 		loadTableData();
 	}
 
@@ -101,64 +103,19 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleExport: Called");
 
-		final Charset selCharSet = formatDao.getCharSet();
-		LOGGER.debug("handleExport: Charset chosen: " + selCharSet);
-		Writer fWriterPlain = null;
 		try {
-			final File outputFilePlain = new File(inputFile.getText());
-			LOGGER.info("Writing export file to: " + outputFilePlain);
-			if (inputFile.getText() == null || inputFile.getText().length() < 1) {
-				LOGGER.warn("No file set, can't export!");
-				showPopupMessage("Export Error! No File set!", true);
-				return;
-			}
-			// fWriterPlain = new FileWriter(outputFilePlain, false);
-			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
-
-			final ObservableList<ProfileExportObj> targetList = inputTable.getItems();
-
-			final JsonObject exportDataset = new JsonObject();
-			exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
-			LOGGER.debug("handleExport: exportDataset: " + exportDataset);
-			final JsonArray exportProfiles = new JsonArray();
-			if (targetList != null) {
-				for (ProfileExportObj data : targetList) {
-					if (data.isExport()) {
-						LOGGER.debug("handleExport: exporting profile: '" + data.getName() + "'");
-						final JsonObject dataset = new JsonObject();
-						loadProfile(data.getName(), dataset);
-						LOGGER.debug("handleExport: dataset: " + dataset);
-						exportProfiles.add(dataset);
-					}
-				}
-			}
-			exportDataset.add("profiles", exportProfiles);
-
-			// create the gson using the GsonBuilder. Set pretty printing on.
-			// Allow
-			// serializing null and set all fields to the Upper Camel Case
-			final Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls()
-					.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-			// System.out.println(gson2.toJson(exportDataset));
-			// LOGGER.debug(gson2.toJson(exportDataset));
-			fWriterPlain.write(gson2.toJson(exportDataset));
-			// LOGGER.debug(gson2.toJson(exportProfiles));
-			// final Gson gson = new Gson();
-			// LOGGER.debug(gson.toJson(exportDataset));
+			final Charset selCharSet = formatDao.getCharSet();
+			@SuppressWarnings("unchecked")
+			final File outputFilePlain = XferBiz.exportProfiles(selCharSet, inputFile.getText(), inputTable.getItems(),
+					profileDataPrefs, appProps);
 			showPopupMessage("Export Done! Written to '" + outputFilePlain + "'", false);
 		} catch (IOException e) {
 			LOGGER.error(e);
 			showPopupMessage("Export Error!" + e.getMessage(), true);
-		} finally {
-			if (fWriterPlain != null)
-				try {
-					fWriterPlain.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadTableData() {
 		LOGGER.debug("loadTableData: Called");
 		final ObservableList<ProfileExportObj> newList = FXCollections.observableArrayList();

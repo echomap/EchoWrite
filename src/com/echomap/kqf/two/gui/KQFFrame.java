@@ -26,6 +26,7 @@ public class KQFFrame extends Application {
 	public static final String FXML_SUB1_FILE1 = "/subform1.fxml";
 	public static final String FXML_SUB2_FILE1 = "/subexport1.fxml";
 	public static final String FXML_SUB2_FILE2 = "/subimport1.fxml";
+	public static final String FXML_SUB3_FILE1 = "/subformoutconfig.fxml";
 	// private static final String FXML_FILE1 = "/mainform.fxml";
 	private static final String FXML_FILE2 = "/mainform_flow.fxml";
 	private static final String FXML_FILE = FXML_FILE2;

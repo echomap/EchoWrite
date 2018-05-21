@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -14,6 +13,7 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.XferBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.ProfileExportObj;
 import com.google.gson.JsonArray;
@@ -42,7 +42,7 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 
 	public void setImportData(final Preferences child, final FormatDao formatDao, final Properties appProps,
 			final Stage stage, final File lastSelectedDirectory) {
-		this.profileData = child;
+		this.profileDataPrefs = child;
 		this.formatDao = formatDao;
 		this.appProps = appProps;
 		this.primaryStage = stage;
@@ -104,6 +104,7 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 
 	public void handleImportProfiles(final ActionEvent event) {
 		LOGGER.debug("handleImportProfiles: Called");
+		@SuppressWarnings("unchecked")
 		final ObservableList<ProfileExportObj> targetList = inputTable.getItems();
 		if (targetList != null) {
 			for (ProfileExportObj data : targetList) {
@@ -112,10 +113,11 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 					final JsonObject jo = data.getPayload();
 					// final boolean export = jo.get("export").getAsBoolean();
 					final String eName = jo.get("titleOne").getAsString();
-					final String eInputFile = jo.get("inputFile").getAsString();
+					// final String eInputFile =
+					// jo.get("inputFile").getAsString();
 					LOGGER.debug("handleImportProfiles: loaded row: '" + eName + "'");
 					// TODO IMPORT PROFILE
-					final boolean eExists = jo.get("exists").getAsBoolean();
+					// final boolean eExists = jo.get("exists").getAsBoolean();
 					// final boolean eIimport = jo.get("import").getAsBoolean();
 					try {
 						Preferences child = null;
@@ -157,7 +159,15 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 			showPopupMessage("Import Error! File doesn't exist!", true);
 			return;
 		}
-		// final String stringData = readFile(inputFile.getText(), selCharSet)
+		readInputData();
+
+		//
+		LOGGER.debug("handleImportFile: Done");
+		loadTableData();
+	}
+
+	// Read input data from file
+	private void readInputData() {
 		profileDataset = null;
 		version = null;
 		JsonReader reader = null;
@@ -192,15 +202,116 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 				}
 			}
 		}
-		//
-		LOGGER.debug("handleImportFile: Done");
-		loadTableData();
 	}
 
+	// Read PROFILE section, from input (file)
+	private JsonArray readProfiles(final JsonReader reader) throws IOException {
+		LOGGER.debug("readProfiles: Called");
+		final JsonArray exportProfiles = new JsonArray();
+		reader.beginArray();
+		while (reader.hasNext()) {
+			// reader.beginObject();
+			// while (reader.hasNext()) {
+			// String objectNewsName = reader.nextName();
+			final JsonObject jo = readProfileItem(reader);
+			jo.addProperty("exists", false);
+			jo.addProperty("import", false);
+			exportProfiles.add(jo);
+			// }
+			// reader.endObject();
+		}
+		reader.endArray();
+		LOGGER.debug("readProfiles: Done");
+		return exportProfiles;
+	}
+
+	// Read PROFILE section items, from input (file)
+	private JsonObject readProfileItem(final JsonReader reader) throws IOException {
+		LOGGER.debug("readProfile: Called");
+		final JsonObject dataset = new JsonObject();
+		reader.beginObject();
+		while (reader.hasNext()) {
+			final String objectNewsDataName = reader.nextName();
+			LOGGER.debug("readProfile: objectNewsDataName: '" + objectNewsDataName + "'");
+			if (objectNewsDataName.equals("export")) {
+				reader.skipValue();
+			} else if (objectNewsDataName.equals("filePrefixCheckbox")) {
+				dataset.addProperty(objectNewsDataName, reader.nextBoolean());
+			} else if (objectNewsDataName.equals(XferBiz.PROFILE_DATA)) {
+				// TODO Really WORKING? XXX
+				// dataset.add(XferBiz.PROFILE_DATA, reader.nex);
+				final JsonObject pdata = readProfileDataSection(reader);
+				final JsonArray pdList = pdata.getAsJsonArray("list");
+				final String joString = XferBiz.listToJson(pdList);
+				dataset.addProperty(XferBiz.PROFILE_DATA, joString);
+			} else {
+				dataset.addProperty(objectNewsDataName, reader.nextString());
+			}
+		}
+		reader.endObject();
+		LOGGER.debug("readProfile: dataset = " + dataset);
+		LOGGER.debug("readProfile: Done");
+		return dataset;
+	}
+
+	// Read PROFILE DATA section, from input (file)
+	private JsonObject readProfileDataSection(JsonReader reader) throws IOException {
+		LOGGER.debug("readProfileData: Called");
+
+		final JsonObject profileDataObj = new JsonObject();
+		reader.beginObject();
+		while (reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("version")) {
+				version = reader.nextString();
+				LOGGER.debug("version=" + version);
+				profileDataObj.addProperty("version", version);
+			} else if (name.equals("list")) {
+				profileDataset = readProfileDataItem(reader);
+				profileDataObj.add("list", profileDataset);
+			} else {
+				reader.skipValue(); // avoid some unhandle events
+			}
+		}
+		reader.endObject();
+		LOGGER.debug("readProfileData: dataset = " + profileDataObj);
+		LOGGER.debug("readProfileData: Done");
+		return profileDataObj;
+	}
+
+	// Read PROFILE DATA section items, from input (file)
+	private JsonArray readProfileDataItem(JsonReader reader) throws IOException {
+		final JsonArray exportProfiles = new JsonArray();
+		reader.beginArray();
+		while (reader.hasNext()) {
+
+			final JsonObject dataset = new JsonObject();
+			reader.beginObject();
+			while (reader.hasNext()) {
+				String objectNewsDataName = reader.nextName();
+				LOGGER.debug("readProfileData: objectNewsDataName: '" + objectNewsDataName + "'");
+				dataset.addProperty(objectNewsDataName, reader.nextString());
+			}
+			reader.endObject();
+			exportProfiles.add(dataset);
+		}
+		reader.endArray();
+		LOGGER.debug("readProfileData: Done");
+		return exportProfiles;
+	}
+
+	@SuppressWarnings("unchecked")
 	private void loadTableData() {
 		LOGGER.debug("loadTableData: Called");
 		final ObservableList<ProfileExportObj> newList = FXCollections.observableArrayList();
-		final List<String> existingProfileNames = loadProfileData();
+		List<String> existingProfileNames = null;
+		try {
+			existingProfileNames = XferBiz.existingProfileNamesFromPrefsToList(profileDataPrefs, appProps);
+			// loadProfileData();
+		} catch (BackingStoreException e) {
+			showPopupMessage("Error createProfileData: " + e, false);
+			e.printStackTrace();
+		}
 
 		for (int i = 0; i < profileDataset.size(); i++) {
 			JsonElement je = profileDataset.get(i);
@@ -228,122 +339,6 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		inputTable.getItems().clear();
 		inputTable.getItems().setAll(newList);
 		LOGGER.debug("loadTableData: Done");
-	}
-
-	private List<String> loadProfileData() {
-		LOGGER.debug("loadProfileData: Called");
-		final ObservableList<ProfileExportObj> newList = FXCollections.observableArrayList();
-		final JsonArray existingProfileDataArray = createProfileData();
-		final ArrayList<String> existingProfileNames = new ArrayList<>();
-		for (int i = 0; i < existingProfileDataArray.size(); i++) {
-			JsonElement je = existingProfileDataArray.get(i);
-			JsonObject jo = je.getAsJsonObject();
-			final String name = jo.get("titleOne").getAsString();
-			LOGGER.debug("loadProfileData: loaded row: '" + name + "'");
-			existingProfileNames.add(name);
-		}
-		LOGGER.debug("loadProfileData: Done");
-		return existingProfileNames;
-	}
-
-	private JsonArray readProfiles(final JsonReader reader) throws IOException {
-		LOGGER.debug("readProfiles: Called");
-		final JsonArray exportProfiles = new JsonArray();
-		reader.beginArray();
-		while (reader.hasNext()) {
-			// reader.beginObject();
-			// while (reader.hasNext()) {
-			// String objectNewsName = reader.nextName();
-			final JsonObject jo = readProfile(reader);
-			jo.addProperty("exists", false);
-			jo.addProperty("import", false);
-			exportProfiles.add(jo);
-			// }
-			// reader.endObject();
-		}
-		reader.endArray();
-		LOGGER.debug("readProfiles: Done");
-		return exportProfiles;
-	}
-
-	private JsonObject readProfile(JsonReader reader) throws IOException {
-		LOGGER.debug("readProfile: Called");
-		final JsonObject dataset = new JsonObject();
-		reader.beginObject();
-		while (reader.hasNext()) {
-			String objectNewsDataName = reader.nextName();
-			LOGGER.debug("readProfile: objectNewsDataName: '" + objectNewsDataName + "'");
-			if (objectNewsDataName.equals("export")) {
-				reader.skipValue();
-			} else if (objectNewsDataName.equals("filePrefixCheckbox")) {
-				dataset.addProperty(objectNewsDataName, reader.nextBoolean());
-			} else if (objectNewsDataName.equals("profileData")) {
-				// TODO Really WORKING? XXX
-				// dataset.add("profileData", reader.nex);
-				final JsonObject pdata = readProfileData(reader);
-				final JsonArray pdList = pdata.getAsJsonArray("list");
-				final String joString = XferBiz.listToJson(pdList);
-				dataset.addProperty("profileData", joString);
-			} else {
-				dataset.addProperty(objectNewsDataName, reader.nextString());
-			}
-		}
-		reader.endObject();
-		LOGGER.debug("readProfile: dataset = " + dataset);
-		LOGGER.debug("readProfile: Done");
-		return dataset;
-	}
-
-	private JsonObject readProfileData(JsonReader reader) throws IOException {
-		LOGGER.debug("readProfileData: Called");
-
-		final JsonObject profileDataObj = new JsonObject();
-		reader.beginObject();
-		while (reader.hasNext()) {
-			String name = reader.nextName();
-			if (name.equals("version")) {
-				version = reader.nextString();
-				LOGGER.debug("version=" + version);
-				profileDataObj.addProperty("version", version);
-			} else if (name.equals("list")) {
-				profileDataset = readProfileDataList(reader);
-				profileDataObj.add("list", profileDataset);
-			} else {
-				reader.skipValue(); // avoid some unhandle events
-			}
-		}
-		reader.endObject();
-		LOGGER.debug("readProfileData: dataset = " + profileDataObj);
-		LOGGER.debug("readProfileData: Done");
-		return profileDataObj;
-	}
-
-	private JsonArray readProfileDataList(JsonReader reader) throws IOException {
-		final JsonArray exportProfiles = new JsonArray();
-		reader.beginArray();
-		while (reader.hasNext()) {
-
-			final JsonObject dataset = new JsonObject();
-			reader.beginObject();
-			while (reader.hasNext()) {
-				String objectNewsDataName = reader.nextName();
-				LOGGER.debug("readProfileData: objectNewsDataName: '" + objectNewsDataName + "'");
-				dataset.addProperty(objectNewsDataName, reader.nextString());
-			}
-			reader.endObject();
-			exportProfiles.add(dataset);
-		}
-		reader.endArray();
-		LOGGER.debug("readProfileData: Done");
-		return exportProfiles;
-	}
-
-	private void readFieldImage(JsonReader reader) throws IOException {
-		reader.beginArray();
-		while (reader.hasNext()) {
-			LOGGER.debug("NEWS: " + reader.nextString());
-			// you will get the field image array content here
-		}
 	}
 
 }

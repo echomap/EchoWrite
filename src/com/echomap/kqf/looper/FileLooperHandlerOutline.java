@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
@@ -57,7 +58,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private final List<DocTag> sceneDTList = new ArrayList<DocTag>();
 	private final List<DocTag> unusedTagList = new ArrayList<DocTag>();
 
-	private boolean inLongDocTag = false;
+	// private boolean inLongDocTag = false;
 	// private StringBuilder longDocTagText = new StringBuilder();
 
 	public FileLooperHandlerOutline() {
@@ -215,12 +216,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private void writeChapterData(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao)
 			throws IOException {
 		// format chapter number
-		final CountDao tdao = ldao.getTotalCount();
+		// final CountDao tdao = ldao.getTotalCount();
 		if (fWriterOutlineFile != null && cdao != null) {
 			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
 			// tdao.getChapterNumber() > -1)
 			fWriterOutlineFile.write(TextBiz.newLine);
-			String cnumS = cdao.getChapterNumber();
+			final String cnumS = cdao.getChapterNumber();
+			final String volume = formatDao.getVolume();
+
 			// int cnum = cdao.getChapterNumber();
 			// String cnumS = new Integer(cnum).toString();
 			// if (cnum < 0) {
@@ -229,7 +232,9 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// } else if (cnum < 10) {
 			// cnumS = "0" + new Integer(cnum).toString();
 			// }
-			fWriterOutlineFile.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
+			final String volStr = (volume == null ? "" : volume + ".");
+
+			fWriterOutlineFile.write("-= Chapter " + cnumS + " (" + volStr + cnumS + ") =-");
 			fWriterOutlineFile.write(TextBiz.newLine);
 		}
 		if (fWriterSceneFile != null) {
@@ -294,6 +299,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			if (fWriterSceneFile != null) {
 				fWriterSceneFile.write(docTag.getName());
 				fWriterSceneFile.write(": ");
+
 				final String val = docTag.getValue();
 				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile, false);
 			}
@@ -314,8 +320,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterSceneFile.write(TextBiz.newLine);
 
 			for (final DocTag docTag : vals) {
+				String fullText2 = docTag.getValue();
+				fullText2 = fullText2.replace("(+n)", "\n\t");
+				fullText2 = fullText2.replace("(+u)", "\t*");
+				// if (fullText2.startsWith("\n"))
+				// fullText2 = fullText2.substring(2, fullText2.length());
+				// if (fullText2.endsWith("\n\n"))
+				// fullText2 = fullText2.substring(0, fullText2.length() - 4);
+				fullText2 = fullText2.trim();
+				fullText2 = fullText2.replace(" \n", "\n");
+
 				fWriterSceneFile.write("\t");
-				fWriterSceneFile.write(docTag.getValue());
+				fWriterSceneFile.write(fullText2);
 				fWriterSceneFile.write(TextBiz.newLine);
 			}
 		}
@@ -340,16 +356,10 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		String mid = "";
 		StringBuilder strToWrite = new StringBuilder();
 
-		final StringTokenizer st = new StringTokenizer(val, " \t");
+		final StringTokenizer st = new StringTokenizer(val, " \t", false);
 		while (st.hasMoreTokens()) {
 			final String wd = st.nextToken();
 
-			// final String[] words = val.split(" \\t");
-			// String pre = (pad ? "\t" : "");
-			// String mid = "";
-			// StringBuilder strToWrite = new StringBuilder();
-			// for (int j = 0; j < words.length; j++) {
-			// final String wd = words[j];
 			if ("(+n)".compareTo(wd) == 0) {
 				fWriterFile2.write(pre);
 				fWriterFile2.write(strToWrite.toString());
@@ -369,6 +379,26 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					strToWrite.append(mid);
 				strToWrite.append(wd);
 			}
+			int idx = strToWrite.indexOf("(+u)");
+			if (strToWrite.indexOf("(+u)") > -1) {
+				LOGGER.debug("Has embeded +U");
+				String str1 = strToWrite.toString();
+				str1 = str1.replace("(+u)", "\t*");
+				strToWrite.setLength(0);
+				strToWrite.append(str1);
+			}
+			idx = strToWrite.indexOf("(+n)");
+			if (idx > -1) {
+				LOGGER.debug("Has embeded +N");
+				String str1 = strToWrite.substring(0, idx + 4);
+				str1 = str1.replace("(+n)", "");
+				fWriterFile2.write(pre);
+				fWriterFile2.write(str1);
+				fWriterFile2.write(TextBiz.newLine);
+				strToWrite.delete(0, idx + 4);
+				pre = "\t";
+			}
+
 			mid = " ";
 		}
 		if (strToWrite.length() > 0) {
@@ -565,10 +595,15 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		fWriterL.write("main");
 		fWriterL.write(",");
 
+		String fullText2 = docTag.getValue();
+
+		fullText2 = fullText2.replace("(+n)", "");
+		fullText2 = fullText2.replace("(+u)", "*");
+
 		fWriterL.write("\"");
 		fWriterL.write(docTag.getName());
 		fWriterL.write("\",\"\",\"");
-		fWriterL.write(docTag.getValue());
+		fWriterL.write(fullText2);
 		fWriterL.write("\"");
 		fWriterL.write(TextBiz.newLine);
 
@@ -615,6 +650,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		String pattern1 = "(?<key>[^.:]*):(?<value>[^.:]+)*";// "([^.:]*:[^.:$]+)*";
 
 		fullText2 = fullText2.replace("(+n)", "");
+		fullText2 = fullText2.replace("(+u)", "*");
 
 		Pattern p = Pattern.compile(pattern1);
 		Matcher m = p.matcher(fullText2);

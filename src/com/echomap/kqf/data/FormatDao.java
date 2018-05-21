@@ -20,8 +20,12 @@ public class FormatDao {
 
 	// Profile
 	private String inputFilename = null;
+	private String profileName = null;
 	private String storyTitle1 = null;
 	private String storyTitle2 = null;
+	// private String storyTitle3 = null;
+	private String seriesTitle = null;
+	private String volume = null;
 	private String formatMode = null;
 	private String filePrefix = null;
 	private String outputEncoding = DEFAULToutputEncoding;
@@ -91,8 +95,14 @@ public class FormatDao {
 		addLine(sbuf, "OutputOutlineFile1", this.outputOutlineFile1);
 
 		addLine(sbuf, "OutputEncoding", this.outputEncoding);
+
+		addLine(sbuf, "ProfileName", this.profileName);
+		addLine(sbuf, "SeriesTitle", this.seriesTitle);
+		addLine(sbuf, "volume", this.volume);
+
 		addLine(sbuf, "StoryTitle1", this.storyTitle1);
 		addLine(sbuf, "StoryTitle2", this.storyTitle2);
+		// addLine(sbuf, "StoryTitle3", this.storyTitle3);
 		// addLine(sbuf, "ChapterDivider", this.chapterDivider);
 		// addLine(sbuf, "SectionDivider", this.sectionDivider);
 		addLine(sbuf, "ChapterDivider", this.regexpChapter);
@@ -527,6 +537,30 @@ public class FormatDao {
 
 	public void setOutputs(List<OtherDocTagData> outputs) {
 		this.outputs = outputs;
+	}
+
+	public String getSeriesTitle() {
+		return seriesTitle;
+	}
+
+	public void setSeriesTitle(String seriesTitle) {
+		this.seriesTitle = seriesTitle;
+	}
+
+	public String getProfileName() {
+		return profileName;
+	}
+
+	public void setProfileName(String profileName) {
+		this.profileName = profileName;
+	}
+
+	public String getVolume() {
+		return volume;
+	}
+
+	public void setVolume(String volume) {
+		this.volume = volume;
 	}
 
 }

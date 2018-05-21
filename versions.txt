@@ -1,16 +1,41 @@
 -=TODO=-
-add other pre (+x) tags in doctag
-export settings
 other pre (+x) tags to control tabbing and stuff?
-find out why Sections not writing out.
-add check for data change on UI so user knows when to save profile.
-Fix UI again for elastisity?
+Fix UI again for elasticity?
 Profile searching and sorting? Perhaps by first Series or <NoSeries> <ALL>
-NEW: scene, subscene, sub-scene, outline, outlinedata, outlinesub, suboutline
-WAS: info, subscene, outlinedata, outlinesub, suboutline
-Character file?
-Changed data check, so know to save?
+add tag helpers, for what to show for that tag in the output?, ie: *outlinedata:
+	show tag, show symbol, show spaces, tabs, short tag, etc
+(+v) verbose area / preformatted?
 
+Don't put series in combo box on LOAD
+
+----==--==--==----
+1.0.15 (future)
+	updates to MoreDoctags
+	Bugfixes
+----==--==--==----
+2018 05 21
+	(+u) list
+	Fix that (+n) doesn't need spaces around it to work
+	better auto-complete, spaces not care, search middle of word
+	Close to exit?
+2018 05 20 
+	update export/import
+2018 05 15
+	code updates
+	update import/export
+	cli working count/format
+2018 05 14
+	starting command line again to just, click and spawn all processes for 'profile name'
+	fixing import/export MoreFiles initial dir/file/filters
+2018 05 12
+	updates to auto completer
+	working on options
+2018 05 02
+	version=1.0.14
+	update gui
+	add start to More files Options
+2018 04 28
+	changed gui
 2018 04 05
 	fixing bug with profile autocomplete not refreshing with full list
 2018 04 02

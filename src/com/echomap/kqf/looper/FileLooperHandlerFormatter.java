@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.FormatMode;
@@ -168,7 +169,8 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 				// if (sectionType != null) {
 				sectionCounter++;
 				// if (sectionType.isSection) {
-				preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
+				//yyyy preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
+				preTag = "<p class=\"MsoSection\">";
 				// }
 				// switch (sectionType) {
 				// case PLAIN:
@@ -315,22 +317,29 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			if (ldao.getHtmlLine() == null) {
 				if (!cancelLine) {
 					// if (docTagType != DOCTAGTYPE.ALLDOCTAG) {
-					if (isChapter) {
+					if (sectionType != null && sectionType.isSection) {
+						// Since we are in section do not output endings yyyy
+						fWriterHTML.write("</p>");
+					} else if (isChapter) {
 						final String stTEnd = TextBiz.createPostTag(formatDao.getChapterHeaderTag());
 						fWriterHTML.write(stTEnd);
 						writeToChapterWriter(stTEnd);
 						// writeToChapterWriterPlain(stTEnd);
 					} else {
 						if (!StringUtils.isBlank(textToWrite)) {
-							if (ldao.getThisLineCharacterCount() == 0)
+							if (ldao.getThisLineCharacterCount() == 0) {
 								fWriterHTML.write("&nbsp;");
+								writeToChapterWriter("&nbsp;");// yyyy
+							}
 							fWriterHTML.write("</p>");
 							writeToChapterWriter("</p>");
 							// writeToChapterWriterPlain("</p>");
 							ldao.setThisLineCharacterCount(0);
 						} else {
-							if (ldao.getThisLineCharacterCount() == 0)
+							if (ldao.getThisLineCharacterCount() == 0) {
 								fWriterHTML.write("&nbsp;");
+								writeToChapterWriter("&nbsp;");// yyyy
+							}
 							fWriterHTML.write("</p>");
 							writeToChapterWriter("</p>");
 							// writeToChapterWriterPlain("</p>");
@@ -353,6 +362,11 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 						ldao.setThisLineCharacterCount(0);
 					}
 				}
+			}
+			if (chapterWriter != null) {
+				// TODO REMOVE
+				chapterWriter.flush();
+				fWriterHTML.flush();
 			}
 			ldao.setCurrentLine(textToWrite);
 		} // LONGDOCTAG

@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
@@ -129,6 +130,7 @@ public class LooperThread extends Thread {
 				flHandler.postLine(formatDao, ldao);
 			}
 			flHandler.postLastLine(formatDao, ldao);
+
 			if (notifyCtrl != null)
 				notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), "Finishing up.");
 			// tdao.copy(cdao);
@@ -201,7 +203,10 @@ public class LooperThread extends Thread {
 		if (dttGL != null)
 			LOGGER.debug("GL: END: " + dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: "
 					+ dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
-
+		if (dttGL != null && !dttGL.isLongDocTag()) {
+			dttGL = new DocTagLine();
+			dttGL.setLineNumber(ldao.getLineCount());
+		}
 		if (dtt.isLongDocTag() || inLongDocTag) {
 			inLongDocTag = true;
 			dttGL.setLongDocTag(true);

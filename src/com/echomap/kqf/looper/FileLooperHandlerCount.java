@@ -11,7 +11,7 @@ import java.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.echomap.kqf.data.DocTagLine;
+import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
@@ -69,14 +69,15 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
 
 		final SimpleChapterDao chpt = ldao.getCurrentChapter();
-		final DocTagLine dttGL = ldao.getCurrentDocTagLine();
+		// final DocTagLine dttGL = ldao.getCurrentDocTagLine();
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
 		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
 
 		if (chpt.isChapter) {
-			final String cn = Integer.toString(tdao.getCounter());
-			cdao.setChapterNumber(cn);
+			// final String cn = Integer.toString(tdao.getCounter());
+			// cdao.setChapterNumber(cn);
+			cdao.setChapterNumber(chpt.chpNum);
 		} else {
 			TextBiz.countWords(ldao, cdao, formatDao);
 		}
@@ -135,7 +136,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 				summaryOutputFile = new File(outputDir, "ChapterCount1.csv");
 			}
 			LOGGER.info("Writing summary data to " + summaryOutputFile);
-			
+
 			final File outputDirO = summaryOutputFile.getParentFile();
 			if (outputDirO != null) {
 				outputDirO.getParentFile().mkdirs();
@@ -150,8 +151,10 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 			fWriter.write("Chapter,Words,Title,Chars,Lines");
 			fWriter.write(TextBiz.newLine);
 			for (ChapterDao countDao : chapters) {
-				fWriter.write(countDao.getChapterName() + "," + countDao.getNumWords() + ","
-						+ countDao.getChapterTitle() + "," + countDao.getNumChars() + "," + countDao.getNumLines());
+				// TODO format for leading zeros?
+				fWriter.write(countDao.getChapterName() + " " + countDao.getChapterNumber() + ","
+						+ countDao.getNumWords() + "," + countDao.getChapterTitle() + "," + countDao.getNumChars() + ","
+						+ countDao.getNumLines());
 				fWriter.write(TextBiz.newLine);
 				totalWords += countDao.getNumWords();
 			}

@@ -14,7 +14,8 @@ public class LooperDao {
 	private long lineCount = 0;
 
 	private final List<ChapterDao> chapters = new ArrayList<ChapterDao>();
-	private final List<PartitionDao> partitions = new ArrayList<PartitionDao>();
+	// private final List<PartitionDao> partitions = new
+	// ArrayList<PartitionDao>();
 
 	private boolean inSpecial = false;
 	private boolean inLongDocTag = false;

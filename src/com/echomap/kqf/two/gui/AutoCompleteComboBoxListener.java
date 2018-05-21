@@ -12,16 +12,18 @@ import javafx.scene.input.KeyEvent;
 //new AutoCompleteComboBoxListener<>(comboBox);
 public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 
+	@SuppressWarnings("rawtypes")
 	private ComboBox comboBox;
-	private StringBuilder sb;
+	// private StringBuilder sb;
 	private ObservableList<T> data;
 	private ObservableList<T> dataOriginal;
 	private boolean moveCaretToPos = false;
 	private int caretPos;
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public AutoCompleteComboBoxListener(final ComboBox comboBox) {
 		this.comboBox = comboBox;
-		sb = new StringBuilder();
+		// sb = new StringBuilder();
 		data = comboBox.getItems();
 		dataOriginal = comboBox.getItems();
 
@@ -36,14 +38,17 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 		this.comboBox.setOnKeyReleased(AutoCompleteComboBoxListener.this);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void reset() {
 		data = dataOriginal;
 		comboBox.setItems(data);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void handle(KeyEvent event) {
 
+		// Codes for Editing purposes
 		if (event.getCode() == KeyCode.UP) {
 			caretPos = -1;
 			moveCaret(comboBox.getEditor().getText().length());
@@ -63,21 +68,23 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 			caretPos = comboBox.getEditor().getCaretPosition();
 		}
 
+		// These codes should just be ignored to let the user do what they want
 		if (event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.LEFT || event.isControlDown()
-				|| event.getCode() == KeyCode.HOME || event.getCode() == KeyCode.END
-				|| event.getCode() == KeyCode.TAB) {
+				|| event.getCode() == KeyCode.HOME || event.getCode() == KeyCode.END || event.getCode() == KeyCode.TAB
+				|| event.getCode() == KeyCode.CONTROL || event.getCode() == KeyCode.SHIFT
+				|| event.getCode() == KeyCode.ESCAPE) {
 			return;
 		}
 
-		ObservableList list = FXCollections.observableArrayList();
+		// Process List
+		final ObservableList list = FXCollections.observableArrayList();
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).toString().toLowerCase()
-					.startsWith(AutoCompleteComboBoxListener.this.comboBox.getEditor().getText().toLowerCase())) {
+					.contains(AutoCompleteComboBoxListener.this.comboBox.getEditor().getText().toLowerCase())) {
 				list.add(data.get(i));
 			}
 		}
-		String t = comboBox.getEditor().getText();
-
+		final String t = comboBox.getEditor().getText();
 		comboBox.setItems(list);
 		comboBox.getEditor().setText(t);
 		if (!moveCaretToPos) {
@@ -89,7 +96,7 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 		}
 	}
 
-	private void moveCaret(int textLength) {
+	private void moveCaret(final int textLength) {
 		if (caretPos == -1) {
 			comboBox.getEditor().positionCaret(textLength);
 		} else {

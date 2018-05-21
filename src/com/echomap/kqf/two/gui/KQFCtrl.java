@@ -2,7 +2,6 @@ package com.echomap.kqf.two.gui;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,12 +18,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.ProfileBiz;
+import com.echomap.kqf.biz.TextBiz;
+import com.echomap.kqf.biz.XferBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.looper.FileLooper;
-import com.echomap.kqf.looper.TextBiz;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -70,13 +69,6 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
-	// private File lastSelectedDirectory = null;
-	// Properties appProps = new Properties();
-	final Preferences userPrefs;
-	// final Preferences userPrefs =
-	// Preferences.userNodeForPackage(KQFCtrl.class);
-	AutoCompleteComboBoxListener profileComboBoxListener = null;
-
 	@FXML
 	private GridPane OuterMostContainer;
 
@@ -106,6 +98,11 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	private TextField titleTwoText;
 	@FXML
 	private TextField titleThreeText;
+	@FXML
+	private TextField seriesTitleText;
+	@FXML
+	private TextField volumeText;
+
 	@FXML
 	private TextField inputFileText;
 	@FXML
@@ -152,6 +149,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 
 	@FXML
 	private ComboBox<String> titleOneText;
+	@FXML
+	private ComboBox<String> seriesTitleComboText;
 
 	@FXML
 	private HBox profileButtonBox;
@@ -204,6 +203,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	private Button computeFromFilePrefixBtn;
 	@FXML
 	private Button buttonMoreFiles;
+	@FXML
+	private Button buttonMoreOptions;
 
 	@FXML
 	private CheckBox cbRemoveDiv;
@@ -224,7 +225,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	@FXML
 	private ChoiceBox<String> counterDigitChoice;
 
-	private List<OtherDocTagData> thisProfileOutputList = null;
+	// private List<OtherDocTagData> thisProfileOutputList = null;
 
 	private File outputCountDir;
 	// private File outputOutlineDir;
@@ -234,10 +235,19 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	private MyTimerTask myTimerTask;
 
 	private boolean runningMutex = false;
+	@SuppressWarnings("unused")
+	private boolean freezeSeriesAutoChange = false;
+	final Preferences userPrefs;
+	final ProfileBiz profileBiz;
+	@SuppressWarnings("rawtypes")
+	AutoCompleteComboBoxListener profileComboBoxListener = null;
+	@SuppressWarnings("rawtypes")
+	AutoCompleteComboBoxListener profileSeriesComboBoxListener = null;
 
 	public KQFCtrl() {
 		// super(outputCountDir, primaryStage, appProps)
 		userPrefs = Preferences.userNodeForPackage(KQFCtrl.class);
+		profileBiz = new ProfileBiz(userPrefs);
 	}
 
 	@Override
@@ -287,6 +297,15 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		// setDetectChanges(OuterMostContainer);
 		setProfileChangeMade(false);
 		profileComboBoxListener = new AutoCompleteComboBoxListener<>(titleOneText);
+		profileSeriesComboBoxListener = new AutoCompleteComboBoxListener<>(seriesTitleComboText);
+
+		seriesTitleComboText.valueProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, String t, String t1) {
+				loadSeries();
+			}
+		});
+
 	}
 
 	// private void setTooltips() {
@@ -422,6 +441,14 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	// lastRunText.setText(fmtt + "\r\n" + lastRunText.getText());
 	// }
 
+	public void handleProfileSelectSeriesAction(final ActionEvent event) {
+		LOGGER.debug("handleProfileSelectSeriesAction: Called");
+		if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
+			// TODO SERIES
+		}
+		LOGGER.debug("handleProfileSelectSeriesAction: Done");
+	}
+
 	public void handleProfileSelectAction(final ActionEvent event) {
 		LOGGER.debug("handleProfileSelectAction: Called");
 		if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
@@ -484,7 +511,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 					showMessage("That profile doesn't exist.", false);
 					return;
 				}
-				loadProps();
+				loadDataFromProps();
 				showMessage("Loaded profile '" + titleOneText.getValue() + "'", true);
 				chosenProfileText.setText(titleOneText.getSelectionModel().getSelectedItem());
 				profileComboBoxListener.reset();
@@ -533,6 +560,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			} else if (node instanceof Pane) {
 				setDetectChanges((Pane) node);
 			} else if (node instanceof TitledPane) {
+
 				final Node nd2 = ((TitledPane) node).getContent();
 				if (nd2 instanceof Pane) {
 					setDetectChanges((Pane) nd2);
@@ -555,7 +583,9 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		}
 	}
 
+	// Reset all UI to base/empty settings
 	private void clearSettings() {
+		seriesTitleComboText.getSelectionModel().clearSelection();
 		titleOneText.getSelectionModel().clearSelection();
 
 		final List<TextField> foundComponents1 = getNodesOfType(sectionDocTag, TextField.class);
@@ -618,7 +648,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	}
 
 	public void handleLoadFormatChptHtmlOutputDir(final ActionEvent event) {
-		boolean success = locateDir(event, "Open Output Dir ", outputFormatChpHtmlDirText);
+		// boolean success = locateDir(event, "Open Output Dir ",
+		// outputFormatChpHtmlDirText);
 		if (!outputFormatChpHtmlDirText.getText().endsWith("chapters")) {
 			final File file = new File(outputFormatChpHtmlDirText.getText(), "chapters");
 			outputFormatChpHtmlDirText.setText(file.getAbsolutePath());
@@ -626,7 +657,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	}
 
 	public void handleLoadFormatChptTextOutputDir(final ActionEvent event) {
-		boolean success = locateDir(event, "Open Output Dir ", outputFormatChpTextDirText);
+		// boolean success = locateDir(event, "Open Output Dir ",
+		// outputFormatChpTextDirText);
 		if (!outputFormatChpTextDirText.getText().endsWith("chapters")) {
 			final File file = new File(outputFormatChpTextDirText.getText(), "chapterstext");
 			outputFormatChpTextDirText.setText(file.getAbsolutePath());
@@ -690,7 +722,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	}
 
 	public void handleLoadOutputFile(final ActionEvent event) {
-		boolean success = locateDir(event, "Open Output Dir ", outputFormatSingleFileText);
+		// boolean success = locateDir(event, "Open Output Dir ",
+		// outputFormatSingleFileText);
 		final String inFilename = inputFileText.getText();
 		String outFilename = "";
 		if (inFilename != null && inFilename.length() > 0) {
@@ -873,7 +906,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	public void handleDoClearLogAction(final ActionEvent event) {
 		this.lastRunText.clear();
 		this.summaryRunText.clear();
-		this.unlockGui();
+		// this.unlockGui();
 	}
 
 	public void handleImportProfile(final ActionEvent event) {
@@ -919,6 +952,10 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			stage.showAndWait();
 			// stage.show();
 			loadProfiles();
+			loadDefaults();
+			clearSettings();
+			setProfileChangeMade(false);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			LOGGER.error(e);
@@ -964,6 +1001,53 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			if (outputCountDir != null && outputCountDir.exists())
 				tempOut = outputCountDir;
 			myController.setExportData(child, formatDao, appProps, stage, tempOut);
+
+			stage.showAndWait();
+			// stage.show();
+			// loadDefaults();
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.error(e);
+		}
+	}
+
+	public void handleShowScreenOutputConfig(final ActionEvent event) {
+		LOGGER.debug("handleShowScreenOutputConfig: Called");
+		// Parent root;
+		try {
+			final FXMLLoader fxmlLoader = new FXMLLoader();
+			final URL location = getClass().getResource(KQFFrame.FXML_SUB3_FILE1);
+			if (location == null) {
+				LOGGER.error("Failed to get location!!!!!!");
+				showMessage("ERROR loading FXML file for more files screen", false);
+				return;
+			}
+			fxmlLoader.setLocation(location);
+			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+			final Parent root = (Parent) fxmlLoader.load(location.openStream());
+
+			final Stage stage = new Stage();
+			stage.setTitle("Output DocTag Options:");
+			stage.setScene(new Scene(root));
+			stage.initOwner(((Node) (event.getSource())).getScene().getWindow());
+			stage.initModality(Modality.WINDOW_MODAL);
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				public void handle(final WindowEvent we) {
+					LOGGER.debug("SubStage is cleaning up...");
+					// myController.saveProps();
+					// myController.doCleanup();
+					LOGGER.debug("SubStage is closing");
+					stage.close();
+				}
+			});
+			//
+			final String key = titleOneText.getValue();
+			final Preferences child = getPrefs().node(key);
+			//
+			final KQFSubOutConfigCtrl myController = (KQFSubOutConfigCtrl) fxmlLoader.getController();
+			final FormatDao formatDao = new FormatDao();
+			setupDao(formatDao);
+			myController.setProfileLoaded(child, formatDao, appProps, stage);
 
 			stage.showAndWait();
 			// stage.show();
@@ -1044,8 +1128,14 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			dtmllI = Integer.parseInt(dtmllS);
 		formatDao.setDocTagsMaxLineLength(dtmllI);
 
-		loadOutputs();
+		final List<OtherDocTagData> thisProfileOutputList = XferBiz.loadOutputsFromPrefs(titleOneText.getValue(),
+				getPrefs());
 		formatDao.setOutputs(thisProfileOutputList);
+		// final List<OtherDocTagData> thisProfileOutputList = loadOutputs();
+		// formatDao.setOutputs(thisProfileOutputList);
+
+		formatDao.setSeriesTitle(seriesTitleText.getText());
+		formatDao.setVolume(volumeText.getText());
 
 		formatDao.setVersion(appProps.getProperty(PROP_KEY_VERSION));
 		LOGGER.debug("setupDao: Done");
@@ -1067,7 +1157,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		deleteProfileBtn.setDisable(true);
 		saveProfileBtn.setDisable(true);
 		computeFromFilePrefixBtn.setDisable(true);
-		clearProfileBtn.setDisable(true);
+		// clearProfileBtn.setDisable(true);
 		// exportProfileBtn.setDisable(true);
 		// importProfileBtn
 
@@ -1086,6 +1176,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		loadOutputDirBtn.setDisable(true);
 		loadOutputDirBtn1.setDisable(true);
 		buttonMoreFiles.setDisable(true);
+		buttonMoreOptions.setDisable(true);
 
 		filePrefixCheckbox.setDisable(true);
 	}
@@ -1113,6 +1204,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		loadOutputDirBtn.setDisable(false);
 		loadOutputDirBtn1.setDisable(false);
 		buttonMoreFiles.setDisable(false);
+		buttonMoreOptions.setDisable(false);
 
 		filePrefixCheckbox.setDisable(false);
 	}
@@ -1144,9 +1236,36 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		// return userPrefs;
 	}
 
+	private void loadProfilesBySeries(final String series) {
+		loadProfiles();
+		if (StringUtils.isBlank(series)) {
+			seriesTitleComboText.getSelectionModel().clearSelection();
+			return;
+		}
+		final List<String> inl = new ArrayList<>();
+		for (String key : titleOneText.getItems()) {
+			final Preferences child = getPrefs().node(key);
+			final String seriesTitle = child.get("seriesTitle", "");
+			if (series.compareTo(seriesTitle) == 0) {
+				inl.add(key);
+			}
+		}
+		titleOneText.getItems().clear();
+		for (String e : inl) {
+			titleOneText.getItems().add(e);
+		}
+		seriesTitleComboText.getSelectionModel().select(series);
+	}
+
 	private void loadProfiles() {
 		titleOneText.getItems().clear();
+		seriesTitleComboText.getItems().clear();
 		try {
+			// final ProfileBiz.ReportObj reportObj =
+			// profileBiz.loadProfileData();
+			// for (String msg : reportObj.msgs) {
+			// LOGGER.debug("Profile Import Messages: " + msg);
+			// }
 			final String[] prefkeys = getPrefs().childrenNames();
 			if (prefkeys != null && prefkeys.length > 0) {
 				for (final String str1 : prefkeys) {
@@ -1154,6 +1273,14 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 						titleOneText.getItems().add(str1);
 				}
 			}
+			for (String key : titleOneText.getItems()) {
+				final Preferences child = getPrefs().node(key);
+				final String seriesTitle = child.get("seriesTitle", "");
+				if (!seriesTitleComboText.getItems().contains(seriesTitle)) {
+					seriesTitleComboText.getItems().add(seriesTitle);
+				}
+			}
+
 		} catch (BackingStoreException e) {
 			showMessage("Error Deleting profile: " + e, false);
 			e.printStackTrace();
@@ -1275,14 +1402,32 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 
 	}
 
-	protected void loadProps() {
+	private void loadSeries() {
+		// TODO load all profiles into combobox that have this series?
+		final String series = seriesTitleComboText.getSelectionModel().getSelectedItem();
+		if (StringUtils.isBlank(series)) {
+			loadProfiles();
+		} else {
+			loadProfilesBySeries(series);
+		}
+	}
+
+	protected void loadDataFromProps() {
 		LOGGER.debug("loadProps: Called");
 		final String key = titleOneText.getValue();
 		final Preferences child = getPrefs().node(key);
 
+		final String seriesTitle = child.get("seriesTitle", "");
+		freezeSeriesAutoChange = true;
+		seriesTitleComboText.getSelectionModel().select(seriesTitle);
+		freezeSeriesAutoChange = false;
+
 		titleOneText.setValue(child.get("titleOne", key));
 		titleTwoText.setText(child.get("titleTwo", ""));
 		titleThreeText.setText(child.get("titleThree", ""));
+		seriesTitleText.setText(seriesTitle);
+		volumeText.setText(child.get("volume", "1"));
+
 		inputFileText.setText(child.get("inputFile", ""));
 		outputFormatSingleFileText.setText(child.get("ouputFile", ""));
 		outputFormatChpHtmlDirText.setText(child.get("outputDir", ""));
@@ -1305,8 +1450,13 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		docTagStartText.setText(child.get("docTagStart", "[[*"));
 		docTagEndText.setText(child.get("docTagEnd", "*]]"));
 
+		// TODO formatDao.setChapterHeaderTag(chapterHeaderTag.getText());
+		// TODO formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
+
 		fmtModeText.setText(child.get("fmtMode", ""));
 		outputEncoding.setText(child.get("outputEncoding", ""));
+
+		counterDigitChoice.getSelectionModel().select(child.get("counterDigitChoice", "1"));
 
 		// outputCountFileText.setText(child.get("ouputCountFile", ""));
 
@@ -1336,7 +1486,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 
 		final String sceneM = loadPropFromAppOrDefault("sceneMain", "scene, subscene");
 		final String sceneC = loadPropFromAppOrDefault("sceneCoalate", "description, scene");
-		final String sceneO = loadPropFromAppOrDefault("sceneMainO1", "outline, scene, subscene");
+		// final String sceneO = loadPropFromAppOrDefault("sceneMainO1",
+		// "outline, scene, subscene");
 		outputDocTagsSceneTagsText.setText(child.get("outputDocTagsSceneTags", sceneM));
 		outputDocTagsSceneCoTags.setText(child.get("outputDocTagsSceneCoTags", sceneC));
 		// outputDocTagsOther1TagsText.setText(child.get("outputDocTagsOther1Tags",
@@ -1354,8 +1505,6 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		else
 			cbWantTextChptOutput.setSelected(false);
 
-		counterDigitChoice.getSelectionModel().select(child.get("counterDigitChoice", "1"));
-
 		final String outputDocTagsMaxLineLengthSel = child.get("outputDocTagsMaxLineLength", "-1");
 		if (StringUtils.isBlank(outputDocTagsMaxLineLengthSel))
 			outputDocTagsMaxLineLength.setText("");
@@ -1367,7 +1516,10 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		sceneCoalateDiv.setText(child.get("sceneCoalateDiv", ""));
 
 		//
-		loadOutputs();
+		// final List<OtherDocTagData> thisProfileOutputList =
+		XferBiz.loadOutputsFromPrefs(titleOneText.getValue(), getPrefs());
+		// formatDao.setOutputs(thisProfileOutputList);
+		// loadOutputs();
 		profileLoaded();
 		unlockGui();
 		LOGGER.debug("loadProps: Done");
@@ -1384,34 +1536,38 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		LOGGER.debug("profileLoaded: Done");
 	}
 
-	private void loadOutputs() {
-		LOGGER.debug("loadOutputs: Called");
-		final String key = titleOneText.getValue();
-		final Preferences parent = getPrefs();
-		if (key != null && parent != null) {
-			final Preferences child = parent.node(key);
-			if (child != null)
-				loadOutputs(child);
-		}
-		LOGGER.debug("loadOutputs: Done");
-	}
-
-	private void loadOutputs(final Preferences child) {
-		LOGGER.debug("loadOutputs: Called for child");
-
-		final String listString = child.get("profileData", "");
-		final Gson gson = new Gson();
-
-		final Type listOfTestObject = new TypeToken<List<OtherDocTagData>>() {
-		}.getType();
-		final List<OtherDocTagData> listODTD = gson.fromJson(listString, listOfTestObject);
-		if (listODTD != null) {
-			for (OtherDocTagData otherDocTagData : listODTD) {
-				LOGGER.debug("listODTD item: " + otherDocTagData);
-			}
-		}
-		thisProfileOutputList = listODTD;
-	}
+	// private List<OtherDocTagData> loadOutputs() {
+	// LOGGER.debug("loadOutputs: Called");
+	// List<OtherDocTagData> thisProfileOutputList = null;
+	// final String key = titleOneText.getValue();
+	// final Preferences parent = getPrefs();
+	// if (key != null && parent != null) {
+	// LOGGER.debug("loadOutputs: key='" + key + "'");
+	// final Preferences child = parent.node(key);
+	// if (child != null)
+	// thisProfileOutputList = loadOutputs(child);
+	// }
+	// LOGGER.debug("loadOutputs: Done");
+	// return thisProfileOutputList;
+	// }
+	//
+	// private List<OtherDocTagData> loadOutputs(final Preferences child) {
+	// LOGGER.debug("loadOutputs: Called for child");
+	//
+	// final String listString = child.get(XferBiz.PROFILE_DATA, "");
+	// final Gson gson = new Gson();
+	//
+	// final Type listOfTestObject = new TypeToken<List<OtherDocTagData>>() {
+	// }.getType();
+	// final List<OtherDocTagData> listODTD = gson.fromJson(listString,
+	// listOfTestObject);
+	// if (listODTD != null) {
+	// for (OtherDocTagData otherDocTagData : listODTD) {
+	// LOGGER.debug("listODTD item: " + otherDocTagData);
+	// }
+	// }
+	// return listODTD; // thisProfileOutputList = listODTD;
+	// }
 
 	private String loadPropFromAppOrDefault(final String key, final String defaultValue) {
 		if (appProps != null && appProps.containsKey(PROP_KEY_VERSION)) {
@@ -1429,6 +1585,10 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			child.put("titleOne", key);
 			child.put("titleTwo", titleTwoText.getText());
 			child.put("titleThree", titleThreeText.getText());
+
+			// final String series = seriesTitleText.getValue();
+			child.put("seriesTitle", seriesTitleText.getText());
+			child.put("volume", volumeText.getText());
 
 			child.put("inputFile", inputFileText.getText());
 			child.put("ouputFile", outputFormatSingleFileText.getText());
@@ -1451,8 +1611,38 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			child.put("docTagStart", docTagStartText.getText());
 			child.put("docTagEnd", docTagEndText.getText());
 
+			child.put("chapterHeaderTag", chapterHeaderTag.getText());
+			child.put("sectionHeaderTag", sectionHeaderTag.getText());
+
 			child.put("fmtMode", fmtModeText.getText());
 			child.put("outputEncoding", outputEncoding.getText());
+
+			child.put("outputEncoding", outputEncoding.getText());
+
+			final String counterDigitChoiceSel = counterDigitChoice.getSelectionModel().getSelectedItem();
+			child.put("counterDigitChoice", counterDigitChoiceSel);
+
+			if (cbCenterStars.isSelected())
+				child.put("cbCenterStars", "true");
+			else
+				child.put("cbCenterStars", "false");
+			if (cbDropCapChapters.isSelected())
+				child.put("cbDropCapChapters", "true");
+			else
+				child.put("cbDropCapChapters", "false");
+
+			if (cbRemoveDiv.isSelected()) {
+				child.put("cbRemoveSectDiv", "true");
+				child.put("cbRemoveDiv", "true");
+			} else {
+				child.put("cbRemoveSectDiv", "false");
+				child.put("cbRemoveDiv", "false");
+			}
+
+			if (cbWantTextChptOutput.isSelected())
+				child.put("wantTextChptOutput", "true");
+			else
+				child.put("wantTextChptOutput", "false");
 
 			// counterDigitChoice.getSelectionModel().select(3);
 
@@ -1477,9 +1667,6 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			else
 				child.put("cbWantTextChptOutput", "");
 
-			final String counterDigitChoiceSel = counterDigitChoice.getSelectionModel().getSelectedItem();
-			child.put("counterDigitChoice", counterDigitChoiceSel);
-
 			child.put("outputDocTagsMaxLineLength", outputDocTagsMaxLineLength.getText());
 			child.put("outputDocTagsScenePrefix", outputDocTagsScenePrefix.getText());
 			child.put("outputDocTagsSubScenePrefix", outputDocTagsSubScenePrefix.getText());
@@ -1493,6 +1680,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 				e.printStackTrace();
 			}
 		}
+
 	}
 	//
 	// protected void locateFile(final ActionEvent event, final String title,
@@ -1570,6 +1758,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	// }
 	// }
 
+	@SuppressWarnings("unchecked")
 	private <T> List<T> getNodesOfType(Pane parent, Class<T> type) {
 		if (parent == null)
 			return null;
@@ -1588,6 +1777,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	public void setProps(final Properties props) {
 		this.appProps = props;
 		loadDefaults();
+		profileBiz.setVersion(appProps.getProperty(PROP_KEY_VERSION));
 	}
 
 	// private void automaticFromInput() {

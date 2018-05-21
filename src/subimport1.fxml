@@ -23,9 +23,9 @@
 				<Button onAction="#handleSelectAll" text="Select _All" />
 				<Button onAction="#handleSelectNone" text="Select _None" />
 				<Separator orientation="VERTICAL" />
-				<Button fx:id="buttonSave" onAction="#handleImportFile" text="Import _File" />
+				<Button fx:id="buttonSave" onAction="#handleImportFile" text="Import _File (1)" />
             <Separator orientation="VERTICAL" />
-            <Button fx:id="buttonSave1" onAction="#handleImportProfiles" text="Import _Profiles" />
+            <Button fx:id="buttonSave1" onAction="#handleImportProfiles" text="Import _Profiles (3)" />
 				<Button cancelButton="true" defaultButton="true" onAction="#handleClose" text="_Close" />
 			</children>
 		</HBox>
