@@ -1419,7 +1419,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 
 		final String seriesTitle = child.get("seriesTitle", "");
 		freezeSeriesAutoChange = true;
-		seriesTitleComboText.getSelectionModel().select(seriesTitle);
+		// seriesTitleComboText.getSelectionModel().select(seriesTitle);
 		freezeSeriesAutoChange = false;
 
 		titleOneText.setValue(child.get("titleOne", key));

@@ -1,23 +1,22 @@
 -=TODO=-
 other pre (+x) tags to control tabbing and stuff?
+	(+v) verbose area / preformatted?
 Fix UI again for elasticity?
-Profile searching and sorting? Perhaps by first Series or <NoSeries> <ALL>
+Profile searching and sorting?
+Perhaps by first Series or <NoSeries> <ALL>
 add tag helpers, for what to show for that tag in the output?, ie: *outlinedata:
 	show tag, show symbol, show spaces, tabs, short tag, etc
-(+v) verbose area / preformatted?
-
-Don't put series in combo box on LOAD
-
-----==--==--==----
+----==--==--==--------==--==--==--------==--==--==----
 1.0.15 (future)
 	updates to MoreDoctags
 	Bugfixes
-----==--==--==----
+----==--==--==--------==--==--==--------==--==--==----
 2018 05 21
 	(+u) list
 	Fix that (+n) doesn't need spaces around it to work
 	better auto-complete, spaces not care, search middle of word
 	Close to exit?
+	Don't put series in combo box on LOAD
 2018 05 20 
 	update export/import
 2018 05 15

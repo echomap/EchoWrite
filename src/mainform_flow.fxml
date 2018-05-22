@@ -418,7 +418,7 @@
 														<Insets right="4.0" />
 													</HBox.margin>
 												</TextField>
-												<Button id="loadOutputFileBtn" fx:id="loadOutputFileBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadOutputFile" prefWidth="70.0" text="_Out">
+												<Button id="loadOutputFileBtn" fx:id="loadOutputFileBtn" minWidth="-Infinity" mnemonicParsing="true" onAction="#handleLoadOutputFile" prefWidth="70.0" text="Out">
 													<HBox.margin>
 														<Insets right="5.0" />
 													</HBox.margin>
