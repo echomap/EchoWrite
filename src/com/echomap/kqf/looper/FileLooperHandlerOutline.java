@@ -344,8 +344,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 	}
 
-	private void writeDataToFileWithCrop(final String val, final FormatDao formatDao, final BufferedWriter fWriterFile2,
-			final boolean pad) throws IOException {
+	private void writeDataToFileWithCrop(final String textData, final FormatDao formatDao,
+			final BufferedWriter fWriterFile2, final boolean pad) throws IOException {
 		int maxLineLen = 70; // param
 		maxLineLen = formatDao.getDocTagsMaxLineLength();
 		// if (maxLineLen > 0 && val.length() > maxLineLen) {
@@ -356,20 +356,43 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		String mid = "";
 		StringBuilder strToWrite = new StringBuilder();
 
-		final StringTokenizer st = new StringTokenizer(val, " \t", false);
-		while (st.hasMoreTokens()) {
-			final String wd = st.nextToken();
+		StringBuilder textData2 = new StringBuilder();
+		int idxU = textData.indexOf("(+u)");
+		if (idxU > -1) {
+			LOGGER.debug("Has embeded +U");
+			//pre="\t\t";
+			if (textData.indexOf("(+n)(+u)") > -1) {
+				String textData3 = textData.replace("(+n)(+u)", "(+u)");
+				textData2.append(textData3.replace("(+u)", "(+n)\t*"));
+			} else if (textData.indexOf("(+n)\t(+u)") > -1) {
+				String textData3 = textData.replace("(+n)\t(+u)", "(+u)");
+				textData2.append(textData3.replace("(+u)", "(+n)\t*"));
+			} else
+				textData2.append(textData.replace("(+u)", "(+n)\t*"));
+			// textData2.append("(+n)");
+		} else {
+			textData2.append(textData);
+		}
 
+		// boolean lineIsListItem = false;
+		final StringTokenizer st = new StringTokenizer(textData2.toString(), " \t", false);
+		while (st.hasMoreTokens()) {
+			String wd = st.nextToken();
+
+			// if (wd.contains("\t")) {
+			// if (strToWrite.length() > 0)
+			// wd.replace("\t", "");
+			// }
 			if ("(+n)".compareTo(wd) == 0) {
 				fWriterFile2.write(pre);
-				fWriterFile2.write(strToWrite.toString());
+				fWriterFile2.write(strToWrite.toString().trim());
 				fWriterFile2.write(TextBiz.newLine);
 				strToWrite.setLength(0);
 				pre = "\t";
 				// no strToWrite.append(wd);
 			} else if ((strToWrite.length() + wd.length()) > maxLineLen) {
 				fWriterFile2.write(pre);
-				fWriterFile2.write(strToWrite.toString());
+				fWriterFile2.write(strToWrite.toString().trim());
 				fWriterFile2.write(TextBiz.newLine);
 				strToWrite.setLength(0);
 				pre = "\t";
@@ -379,15 +402,16 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					strToWrite.append(mid);
 				strToWrite.append(wd);
 			}
-			int idx = strToWrite.indexOf("(+u)");
-			if (strToWrite.indexOf("(+u)") > -1) {
-				LOGGER.debug("Has embeded +U");
-				String str1 = strToWrite.toString();
-				str1 = str1.replace("(+u)", "\t*");
-				strToWrite.setLength(0);
-				strToWrite.append(str1);
-			}
-			idx = strToWrite.indexOf("(+n)");
+			// int idx = strToWrite.indexOf("(+u)");
+			// if (strToWrite.indexOf("(+u)") > -1) {
+			// LOGGER.debug("Has embeded +U");
+			// lineIsListItem = true;
+			// String str1 = strToWrite.toString();
+			// str1 = str1.replace("(+u)", "\t*");
+			// strToWrite.setLength(0);
+			// strToWrite.append(str1);
+			// }
+			int idx = strToWrite.indexOf("(+n)");
 			if (idx > -1) {
 				LOGGER.debug("Has embeded +N");
 				String str1 = strToWrite.substring(0, idx + 4);
@@ -398,14 +422,15 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				strToWrite.delete(0, idx + 4);
 				pre = "\t";
 			}
-
 			mid = " ";
 		}
 		if (strToWrite.length() > 0) {
 			fWriterFile2.write(pre);
-			fWriterFile2.write(strToWrite.toString());
+			fWriterFile2.write(strToWrite.toString().trim());
 			fWriterFile2.write(TextBiz.newLine);
 		}
+		// else if (lineIsListItem)
+		// fWriterFile2.write(TextBiz.newLine);
 		// } else {
 		// fWriterFile2.write(val);// docTag.getValue());
 		// fWriterFile2.write(TextBiz.newLine);
@@ -601,30 +626,72 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		fullText2 = fullText2.replace("(+u)", "*");
 
 		fWriterL.write("\"");
-		fWriterL.write(docTag.getName());
+		fWriterL.write(docTag.getName().trim());
 		fWriterL.write("\",\"\",\"");
-		fWriterL.write(fullText2);
+		fWriterL.write(fullText2.trim());
 		fWriterL.write("\"");
 		fWriterL.write(TextBiz.newLine);
 
+		final String lineCountStr = String.valueOf(docTagLine.getLineCount());
 		//
 		if (docTag.getValue().indexOf(":") > -1) {
+			boolean matchWorked = false;
 			// 1st:
-			String pattern1 = "(.+:)\\s+(.+);\\s+(.*)";
-			Pattern p = Pattern.compile(pattern1);
-			Matcher m = p.matcher(docTag.getFullText());
-			if (m.find()) {
+			final String pattern1 = "(?<dname>.+:)(?<dhdr>.+?);(?<drest>.*)";
+			// final String pattern2 = "(.+:)(.+?):(.*)";
+			final Pattern p = Pattern.compile(pattern1);
+			final Matcher m = p.matcher(docTag.getFullText());
+			if (m.matches()) {
 				if (m.groupCount() > 2) {
-					String gr1 = m.group(1);
-					String gr2 = m.group(2);
-					String gr3 = m.group(3);
-					writeEntryToCSV2(fWriterL, String.valueOf(docTagLine.getLineCount()), cdao, docTag.getName(), gr2);
-					writeEntryToCSV3(fWriterL, String.valueOf(docTagLine.getLineCount()), cdao, docTag.getName(), gr3);
+					String gr0 = m.group();
+					String gr1 = m.group("dname");
+					String gr2 = m.group("dhdr");
+					String gr3 = m.group("drest");
+
+					writeEntryToCSV2(fWriterL, lineCountStr, cdao, docTag.getName(), gr2);
+					writeEntryToCSV2B(fWriterL, lineCountStr, cdao, docTag.getName(), gr2, gr3);
+					writeEntryToCSV3(fWriterL, lineCountStr, cdao, docTag.getName(), gr3);
+					matchWorked = true;
 				}
-			} else
-				writeEntryToCSV3(fWriterL, String.valueOf(docTagLine.getLineCount()), cdao, docTag.getName(),
-						docTag.getValue());
+			}
+			// if (!matchWorked) {
+			// final Pattern p2 = Pattern.compile(pattern2);
+			// final Matcher m2 = p.matcher(docTag.getFullText());
+			// if (m2.find()) {
+			// if (m2.groupCount() > 2) {
+			// String gr1 = m2.group(1);
+			// String gr2 = m2.group(2);
+			// String gr3 = m2.group(3);
+			// writeEntryToCSV2(fWriterL,
+			// lineCountStr, cdao,
+			// docTag.getName(),
+			// gr2);
+			// writeEntryToCSV3(fWriterL,
+			// lineCountStr, cdao,
+			// docTag.getName(),
+			// gr3);
+			// matchWorked = true;
+			// }
+			// }
+			// }
+			if (!matchWorked)
+				writeEntryToCSV3(fWriterL, lineCountStr, cdao, docTag.getName(), docTag.getValue());
+		} else if (docTag.getValue().indexOf(";") > -1) {
+			final String pattern1 = "(?<dhdr>.+?);(?<drest>.*)";
+			final Pattern p = Pattern.compile(pattern1);
+			final Matcher m = p.matcher(docTag.getValue());
+			if (m.matches()) {
+				if (m.groupCount() > 1) {
+					String gr2 = m.group("dhdr");
+					String gr3 = m.group("drest");
+
+					writeEntryToCSV2B(fWriterL, lineCountStr, cdao, docTag.getName(), gr2, gr3);
+					// writeEntryToCSV3(fWriterL, lineCountStr, cdao,
+					// docTag.getName(), gr3);
+				}
+			}
 		}
+
 		//
 	}
 
@@ -634,13 +701,32 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		fWriterL.write(",");
 		fWriterL.write(lineCount);
 		fWriterL.write(",");
-		fWriterL.write("subm");
+		fWriterL.write("subm1");
 		fWriterL.write(",");
 
 		fWriterL.write("\"");
-		fWriterL.write(fullText1);
+		fWriterL.write(fullText1.trim());
 		fWriterL.write("\",\"\",\"");
-		fWriterL.write(fullText2);
+		fWriterL.write(fullText2.trim());
+		fWriterL.write("\"");
+		fWriterL.write(TextBiz.newLine);
+	}
+
+	private void writeEntryToCSV2B(final Writer fWriterL, final String lineCount, final CountDao cdao,
+			final String tagName, final String subTagName, final String tagValue) throws IOException {
+		fWriterL.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
+		fWriterL.write(",");
+		fWriterL.write(lineCount);
+		fWriterL.write(",");
+		fWriterL.write("subm2");
+		fWriterL.write(",");
+
+		fWriterL.write("\"");
+		fWriterL.write(tagName.trim());
+		fWriterL.write("\",\"");
+		fWriterL.write(subTagName.trim());
+		fWriterL.write("\",\"");
+		fWriterL.write(tagValue.trim());
 		fWriterL.write("\"");
 		fWriterL.write(TextBiz.newLine);
 	}
@@ -672,7 +758,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterL.write(",");
 
 				fWriterL.write("\"");
-				fWriterL.write(fullText1);
+				fWriterL.write(fullText1.trim());
 				fWriterL.write("\",\"");
 				fWriterL.write(mKey.trim());
 				fWriterL.write("\",\"");
