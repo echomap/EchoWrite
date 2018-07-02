@@ -3,9 +3,11 @@ package com.echomap.kqf.data;
 import com.google.gson.JsonObject;
 
 public class ProfileExportObj {
-	private boolean exists = false;
-	private boolean export = true;
+	private boolean exists = false;// Already Imported?
+	private boolean export = true;// User wants to Import/Export?
+	private boolean importable = false;// In file?
 	private String name = "";
+	private String series = "";
 	private String inputFile = "";
 	private JsonObject payload = null;
 
@@ -47,5 +49,21 @@ public class ProfileExportObj {
 
 	public void setPayload(JsonObject payload) {
 		this.payload = payload;
+	}
+
+	public boolean isImportable() {
+		return importable;
+	}
+
+	public void setImportable(boolean importable) {
+		this.importable = importable;
+	}
+
+	public String getSeries() {
+		return series;
+	}
+
+	public void setSeries(String series) {
+		this.series = series;
 	}
 }

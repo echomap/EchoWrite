@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -56,17 +57,28 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 	void initialize() {
 		LOGGER.debug("initialize: Called");
 		final TableColumn<Object, Object> firstCol = new TableColumn<Object, Object>("Import?");
+		// firstCol.setPrefWidth(value);
 		firstCol.setCellValueFactory(new PropertyValueFactory<>("export"));
 		final TableColumn<Object, Object> secondCol = new TableColumn<Object, Object>("Exists?");
 		secondCol.setCellValueFactory(new PropertyValueFactory<>("exists"));
-		final TableColumn<Object, Object> thirdCol = new TableColumn<Object, Object>("Name");
-		thirdCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+		final TableColumn<Object, Object> importableCol = new TableColumn<Object, Object>("Importable?");
+		importableCol.setCellValueFactory(new PropertyValueFactory<>("importable"));
+		final TableColumn<Object, Object> seriesCol = new TableColumn<Object, Object>("Series");
+		seriesCol.setCellValueFactory(new PropertyValueFactory<>("series"));
+		final TableColumn<Object, Object> nameCol = new TableColumn<Object, Object>("Name");
+		nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 		final TableColumn<Object, Object> forthCol = new TableColumn<Object, Object>("Input File");
 		forthCol.setCellValueFactory(new PropertyValueFactory<>("inputFile"));
+		// forthCol.setStyle("table-view-column-header");
+		// forthCol.getStyleClass().add("table-view-column-header");
+		// forthCol.getStyleClass().add("top-left");
 
 		//
 		inputTable.getColumns().clear();
-		inputTable.getColumns().addAll(firstCol, secondCol, thirdCol);
+		inputTable.getColumns().addAll(firstCol, secondCol, importableCol, seriesCol, nameCol, forthCol);
+
+		// Hack: align column headers to the center.
+		GUIUtils.alignColumnLabelsLeftHack(inputTable);
 
 		inputTable.setRowFactory(new Callback<TableView<ProfileExportObj>, TableRow<ProfileExportObj>>() {
 			@Override
@@ -92,7 +104,8 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 				return row;
 			}
 		});
-
+		inputTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		GUIUtils.autoFitTable(inputTable);
 		LOGGER.debug("initialize: Done");
 	}
 
@@ -242,6 +255,8 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 				// dataset.add(XferBiz.PROFILE_DATA, reader.nex);
 				final JsonObject pdata = readProfileDataSection(reader);
 				final JsonArray pdList = pdata.getAsJsonArray("list");
+				// final JsonArray profileDataset =
+				// XferBiz.readMoreExport2(reader);
 				final String joString = XferBiz.listToJson(pdList);
 				dataset.addProperty(XferBiz.PROFILE_DATA, joString);
 			} else {
@@ -267,7 +282,9 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 				LOGGER.debug("version=" + version);
 				profileDataObj.addProperty("version", version);
 			} else if (name.equals("list")) {
-				profileDataset = readProfileDataItem(reader);
+				// profileDataset = readProfileDataItem(reader);
+				// final JsonArray pdList = pdata.getAsJsonArray("list");
+				final JsonArray profileDataset = XferBiz.readMoreExport2(reader);
 				profileDataObj.add("list", profileDataset);
 			} else {
 				reader.skipValue(); // avoid some unhandle events
@@ -279,26 +296,28 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 		return profileDataObj;
 	}
 
-	// Read PROFILE DATA section items, from input (file)
-	private JsonArray readProfileDataItem(JsonReader reader) throws IOException {
-		final JsonArray exportProfiles = new JsonArray();
-		reader.beginArray();
-		while (reader.hasNext()) {
-
-			final JsonObject dataset = new JsonObject();
-			reader.beginObject();
-			while (reader.hasNext()) {
-				String objectNewsDataName = reader.nextName();
-				LOGGER.debug("readProfileData: objectNewsDataName: '" + objectNewsDataName + "'");
-				dataset.addProperty(objectNewsDataName, reader.nextString());
-			}
-			reader.endObject();
-			exportProfiles.add(dataset);
-		}
-		reader.endArray();
-		LOGGER.debug("readProfileData: Done");
-		return exportProfiles;
-	}
+	// // Read PROFILE DATA section items, from input (file)
+	// private JsonArray readProfileDataItem(JsonReader reader) throws
+	// IOException {
+	// final JsonArray exportProfiles = new JsonArray();
+	// reader.beginArray();
+	// while (reader.hasNext()) {
+	//
+	// final JsonObject dataset = new JsonObject();
+	// reader.beginObject();
+	// while (reader.hasNext()) {
+	// String objectNewsDataName = reader.nextName();
+	// LOGGER.debug("readProfileData: objectNewsDataName: '" +
+	// objectNewsDataName + "'");
+	// dataset.addProperty(objectNewsDataName, reader.nextString());
+	// }
+	// reader.endObject();
+	// exportProfiles.add(dataset);
+	// }
+	// reader.endArray();
+	// LOGGER.debug("readProfileData: Done");
+	// return exportProfiles;
+	// }
 
 	@SuppressWarnings("unchecked")
 	private void loadTableData() {
@@ -313,20 +332,27 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 			e.printStackTrace();
 		}
 
+		final List<String> existingProfilesInFile = new ArrayList<>();
+
 		for (int i = 0; i < profileDataset.size(); i++) {
 			JsonElement je = profileDataset.get(i);
 			JsonObject jo = je.getAsJsonObject();
-			final boolean exists = jo.get("exists").getAsBoolean();
-			final boolean export = jo.get("import").getAsBoolean();
-			final String name = jo.get("titleOne").getAsString();
-			final String inputFile = jo.get("inputFile").getAsString();
-			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
+			final boolean exists = XferBiz.getBooleanOrNullFromJsonObject(jo, "exists");
+			final boolean export = XferBiz.getBooleanOrNullFromJsonObject(jo, "import");
+			final String name = XferBiz.getStringOrNullFromJsonObject(jo, "titleOne");
+			final String inputFile = XferBiz.getStringOrNullFromJsonObject(jo, "inputFile");
+			final String series = XferBiz.getStringOrNullFromJsonObject(jo, "seriesTitle");
+
+			LOGGER.debug("loadTableData: loading row: '" + name + "'");
+			existingProfilesInFile.add(name);
 			final ProfileExportObj obj = new ProfileExportObj();
 			obj.setExists(exists);
 			obj.setExport(export);
 			obj.setName(name);
 			obj.setInputFile(inputFile);
 			obj.setPayload(jo);
+			obj.setImportable(true);
+			obj.setSeries(series);
 			if (!existingProfileNames.contains(name)) {
 				obj.setExists(false);
 				obj.setExport(true);
@@ -336,8 +362,24 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 			newList.add(obj);
 		}
 
+		for (String profileName : existingProfileNames) {
+			if (!existingProfilesInFile.contains(profileName)) {
+				final ProfileExportObj obj = new ProfileExportObj();
+				obj.setExists(true);
+				obj.setExport(false);
+				obj.setName(profileName);
+				obj.setInputFile(null);
+				obj.setPayload(null);
+				obj.setImportable(false);
+				newList.add(obj);
+			}
+		}
+
 		inputTable.getItems().clear();
 		inputTable.getItems().setAll(newList);
+
+		inputTable.refresh();
+
 		LOGGER.debug("loadTableData: Done");
 	}
 

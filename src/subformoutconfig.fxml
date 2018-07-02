@@ -18,11 +18,11 @@
 	<children>
 		<HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: gray;" GridPane.rowIndex="1">
 			<children>
-            <Button onAction="#handleNew" style="-fx-background-color: #F9FA57;" text="_New">
+            <Button onAction="#handleNew" styleClass="newbutton" text="_New">
                <HBox.margin>
                   <Insets bottom="6.0" />
                </HBox.margin></Button>
-            <Button fx:id="buttonDelete" mnemonicParsing="false" onAction="#handleDelete" style="-fx-background-color: #F58E9D;" text="Delete">
+            <Button fx:id="buttonDelete" mnemonicParsing="false" onAction="#handleDelete" styleClass="deletebutton" text="Delete">
                <HBox.margin>
                   <Insets bottom="6.0" />
                </HBox.margin></Button>
@@ -36,11 +36,11 @@
                   <Insets bottom="6.0" />
                </HBox.margin></Button>
             <Separator orientation="VERTICAL" />
-            <Button fx:id="buttonSave" onAction="#handleSave" style="-fx-background-color: #50C888;" styleClass="actionbutton" text="_Save Data">
+            <Button fx:id="buttonSave" onAction="#handleSave" styleClass="savebutton" text="_Save Data">
                <HBox.margin>
                   <Insets bottom="6.0" />
                </HBox.margin></Button>
-				<Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" style="-fx-background-color: #6473A4;" styleClass="actionbutton" text="_Close">
+				<Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="closebutton" text="_Close">
                <HBox.margin>
                   <Insets bottom="6.0" />
                </HBox.margin></Button>

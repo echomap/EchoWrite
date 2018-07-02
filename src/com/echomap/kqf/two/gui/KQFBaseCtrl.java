@@ -11,13 +11,16 @@ import org.apache.log4j.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -35,15 +38,23 @@ public class KQFBaseCtrl {
 	Properties appProps = null;
 
 	void showPopupMessage(final String msg, final boolean error) {
+		this.showPopupMessage(null, msg, error);
+	}
+
+	void showPopupMessage(final String msg1, final String msg2, final boolean error) {
 		final Stage dialog = new Stage();
 		dialog.setTitle("KQF Message Dialog");
 		dialog.setResizable(true);
 		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.setWidth(420);
+		dialog.setHeight(280);
 		if (primaryStage != null)
 			dialog.initOwner(primaryStage);
+
 		final Button closeButton = new Button();
 		closeButton.setText("_Close");
 		closeButton.setMnemonicParsing(true);
+		// closeButton.setStyle("-fx-padding: 8; -fx-margin: 8;");
 		closeButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -54,11 +65,42 @@ public class KQFBaseCtrl {
 			}
 		});
 		closeButton.setDefaultButton(true);
-		final Text text = new Text(msg);
+
+		final Label text1;
+		if (msg1 != null) {
+			text1 = new Label(msg1);
+			final StringBuilder cssBorder = new StringBuilder();
+			cssBorder.append("-fx-padding: 4 12 4 12;");
+			cssBorder.append("-fx-border-style: solid inside;");
+			cssBorder.append("-fx-border-width: 2;");
+			cssBorder.append("-fx-border-insets: 5;");
+			cssBorder.append("-fx-border-radius: 5;");
+			cssBorder.append("-fx-border-color: black;");
+			text1.setStyle(cssBorder.toString());
+			text1.autosize();
+		} else
+			text1 = null;
+
+		final TextArea text = new TextArea();
+		text.appendText(msg2);
+		text.setWrapText(true);
+		text.setEditable(false);
 		text.autosize();
-		final VBox dialogVbox = new VBox(20);
+		text.setFocusTraversable(false);
+		text.setStyle(
+				"-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-highlight-fill: #00ff00; -fx-highlight-text-fill: #000000; -fx-text-fill: #00ff00; ");
+		// text.setStyle("-fx-background-color: #EEEEA4;");
+		// final Text text = new Text(msg);
+		// text.autosize();
+
+		final VBox dialogVbox = new VBox(10);
+		// dialogVbox.setAlignment(Pos.CENTER);
 		dialogVbox.setStyle(
-				"-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;");
+				"-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10; ");
+		VBox.setMargin(closeButton, new Insets(4, 8, 8, 4));
+
+		if (text1 != null)
+			dialogVbox.getChildren().add(text1);
 		dialogVbox.getChildren().add(text);
 		dialogVbox.getChildren().add(closeButton);
 		dialogVbox.autosize();

@@ -152,7 +152,7 @@ public class LooperThread extends Thread {
 				}
 			}
 		}
-		LOGGER.info("Loop: Done");
+		LOGGER.info("Loop: Done" + (workType != null ? "(" + workType + ")" : ""));
 	}
 
 	private DocTagLine dttGL = null;

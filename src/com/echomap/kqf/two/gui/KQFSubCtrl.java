@@ -18,14 +18,12 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.KqfBiz;
 import com.echomap.kqf.biz.XferBiz;
-import com.echomap.kqf.data.DocTagDataOption;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
@@ -295,7 +293,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		// Show
 		final File file = chooser.showOpenDialog(new Stage());
 		if (file == null) {
-			showPopupMessage("No file selected.", false);
+			showPopupMessage("Failed","No file selected.", false);
 			return;
 		}
 
@@ -392,7 +390,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		// show
 		final File file = chooser.showSaveDialog(new Stage());
 		if (file == null) {
-			showPopupMessage("No file selected.", false);
+			showPopupMessage("Failed","No file selected.", false);
 			return;
 		}
 		Writer fWriterPlain = null;
@@ -498,39 +496,44 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 
 	@SuppressWarnings("unchecked")
 	private void loadTableDataFromJson(final JsonArray profileDataset) {
-		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
-
-		for (int i = 0; i < profileDataset.size(); i++) {
-			final JsonElement je = profileDataset.get(i);
-			final JsonObject jo = je.getAsJsonObject();
-
-			final String name = jo.get("name").getAsString();
-			final String inputFile = jo.get("file").getAsString();
-			final String docTags = jo.get("docTags").getAsString();
-
-			// final String optionsJson = jo.get("optionsJson").getAsString();
-			final JsonArray jsOptions = jo.get("options").getAsJsonArray();// TODO
-			// final JsonArray jsOptions = (JsonArray) jsOptionsE;
-			// final DocTagDataOption options
-
-			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
-			final OtherDocTagData obj = new OtherDocTagData();
-			obj.setName(name);
-			obj.setFile(inputFile);
-			obj.setDocTags(docTags);
-			for (int j = 0; j < jsOptions.size(); j++) {
-				final JsonElement elem = jsOptions.get(i);
-				// final String json = elem.getAsString();
-				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
-						DocTagDataOption.class);
-				LOGGER.debug("loadTableData: option: " + option);
-				LOGGER.debug("loadTableData: obj: " + obj);
-
-				obj.addOption(option);
-			}
-
-			newList.add(obj);
-		}
+		final ObservableList<OtherDocTagData> newList = XferBiz.readInOtherDocTags(profileDataset);
+		//
+		// final ObservableList<OtherDocTagData> newList =
+		// FXCollections.observableArrayList();
+		//
+		// for (int i = 0; i < profileDataset.size(); i++) {
+		// final JsonElement je = profileDataset.get(i);
+		// final JsonObject jo = je.getAsJsonObject();
+		//
+		// final String name = jo.get("name").getAsString();
+		// final String inputFile = jo.get("file").getAsString();
+		// final String docTags = jo.get("docTags").getAsString();
+		//
+		// // final String optionsJson = jo.get("optionsJson").getAsString();
+		// final JsonArray jsOptions = jo.get("options").getAsJsonArray();//
+		// TODO
+		// // final JsonArray jsOptions = (JsonArray) jsOptionsE;
+		// // final DocTagDataOption options
+		//
+		// LOGGER.debug("loadTableData: loaded row: '" + name + "'");
+		// final OtherDocTagData obj = new OtherDocTagData();
+		// obj.setName(name);
+		// obj.setFile(inputFile);
+		// obj.setDocTags(docTags);
+		// for (int j = 0; j < jsOptions.size(); j++) {
+		// final JsonElement elem = jsOptions.get(i);
+		// // final String json = elem.getAsString();
+		// final DocTagDataOption option = (DocTagDataOption)
+		// XferBiz.loadDataFromJson(elem,
+		// DocTagDataOption.class);
+		// LOGGER.debug("loadTableData: option: " + option);
+		// LOGGER.debug("loadTableData: obj: " + obj);
+		//
+		// obj.addOption(option);
+		// }
+		//
+		// newList.add(obj);
+		// }
 		inputTable.getItems().clear();
 		if (newList != null)
 			inputTable.getItems().setAll(newList);

@@ -1,7 +1,37 @@
 .actionbutton {
-	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5), 10, 0.4, 3, 3);
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 10.0, 0.4, 3.0, 3.0);
 	-fx-background-color:  #CAA7F9
 }
 .button {
-	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5), 2, 0.4, 3, 3);
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
 }
+.table-view-column-header {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-text-alignment: left;
+    -fx-alignment: top-left;
+}
+.closebutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #a2abc8;
+}
+.selectallbutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #EEEEA4;
+}
+.selectnonebutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #F9D3A4;
+}
+.newbutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #F9FA57;
+}
+.deletebutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #F58E9D;
+} 
+.savebutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #50C888;
+} 

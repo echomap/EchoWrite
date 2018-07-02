@@ -6,11 +6,19 @@ Profile searching and sorting?
 Perhaps by first Series or <NoSeries> <ALL>
 add tag helpers, for what to show for that tag in the output?, ie: *outlinedata:
 	show tag, show symbol, show spaces, tabs, short tag, etc
+Rename and save doesn't keep 'More Files'
+Add Replace path to import?
+Confirm on delete/backup
 ----==--==--==--------==--==--==--------==--==--==----
 1.0.15 (future)
 	updates to MoreDoctags
 	Bugfixes
 ----==--==--==--------==--==--==--------==--==--==----
+2018 05 22
+	Import not working with Profiles in Writing
+	update table view for import with hack to auto-resize columns
+	update colors css
+	popup msg formatting
 2018 05 21
 	(+u) list
 	Fix that (+n) doesn't need spaces around it to work

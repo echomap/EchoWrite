@@ -38,7 +38,17 @@ import com.echomap.kqf.looper.data.SimpleSectionDao;
  * @author mkatz
  */
 public class FileLooperHandlerOutline implements FileLooperHandler {
+	private static final String START_STRING2 = " (";
+
+	private static final String END_STRING2 = ") =-";
+
+	private static final String END_STRING = " =-";
+
+	private static final String SECTION = "-= Section ";
+
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerOutline.class);
+
+	private static final String CHAPTER = "-= Chapter ";
 
 	private Writer fWriterOutline = null;
 	private Writer fWriterAll = null;
@@ -185,19 +195,19 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		if (fWriterOutlineFile != null) {
 			fWriterOutlineFile.write(TextBiz.newLine);
-			fWriterOutlineFile.write("-= Section " + titleS + " =-");
+			fWriterOutlineFile.write(SECTION + titleS + END_STRING);
 			fWriterOutlineFile.write(TextBiz.newLine);
 			fWriterOutlineFile.flush();
 		}
 		if (fWriterSceneFile != null) {
 			fWriterSceneFile.write(TextBiz.newLine);
-			fWriterSceneFile.write("-= Section " + titleS + " =-");
+			fWriterSceneFile.write(SECTION + titleS + END_STRING);
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.flush();
 		}
 		if (fWriterOther1File != null) {
 			fWriterOther1File.write(TextBiz.newLine);
-			fWriterOther1File.write("-= Section " + titleS + " =-");
+			fWriterOther1File.write(SECTION + titleS + END_STRING);
 			fWriterOther1File.write(TextBiz.newLine);
 			fWriterOther1File.flush();
 		}
@@ -206,7 +216,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			BufferedWriter bw = entry.getValue();
 			if (bw != null) {
 				bw.write(TextBiz.newLine);
-				bw.write("-= Section " + titleS + " =-");
+				bw.write(SECTION + titleS + END_STRING);
 				bw.write(TextBiz.newLine);
 				bw.flush();
 			}
@@ -223,18 +233,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterOutlineFile.write(TextBiz.newLine);
 			final String cnumS = cdao.getChapterNumber();
 			final String volume = formatDao.getVolume();
-
-			// int cnum = cdao.getChapterNumber();
-			// String cnumS = new Integer(cnum).toString();
-			// if (cnum < 0) {
-			// cnumS = cdao.getChapterTitle();
-			// cnum = 0;
-			// } else if (cnum < 10) {
-			// cnumS = "0" + new Integer(cnum).toString();
-			// }
 			final String volStr = (volume == null ? "" : volume + ".");
-
-			fWriterOutlineFile.write("-= Chapter " + cnumS + " (" + volStr + cnumS + ") =-");
+			fWriterOutlineFile.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
 			fWriterOutlineFile.write(TextBiz.newLine);
 		}
 		if (fWriterSceneFile != null) {
@@ -252,22 +252,19 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// tdao.getChapterNumber() > -1)
 			fWriterSceneFile.write(TextBiz.newLine);
 			String cnumS = cdao.getChapterNumber();
-			// int cnum = cdao.getChapterNumber();
-			// String cnumS = new Integer(cnum).toString();
-			// if (cnum < 0) {
-			// cnumS = cdao.getChapterTitle();
-			// cnum = 0;
-			// } else if (cnum < 10) {
-			// cnumS = "0" + new Integer(cnum).toString();
-			// }
-			fWriterSceneFile.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
+
+			final String volume = formatDao.getVolume();
+			final String volStr = (volume == null ? "" : volume + ".");
+			fWriterSceneFile.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.flush();
 		}
 		if (fWriterOther1File != null && cdao != null) {
 			fWriterOther1File.write(TextBiz.newLine);
 			final String cnumS = cdao.getChapterNumber();
-			fWriterOther1File.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
+			final String volume = formatDao.getVolume();
+			final String volStr = (volume == null ? "" : volume + ".");
+			fWriterOther1File.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
 			fWriterOther1File.write(TextBiz.newLine);
 			fWriterOther1File.flush();
 		}
@@ -277,7 +274,9 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			if (bw != null && cdao != null) {
 				bw.write(TextBiz.newLine);
 				final String cnumS = cdao.getChapterNumber();
-				bw.write("-= Chapter " + cnumS + " (1." + cnumS + ") =-");
+				final String volume = formatDao.getVolume();
+				final String volStr = (volume == null ? "" : volume + ".");
+				bw.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
 				bw.write(TextBiz.newLine);
 				bw.flush();
 			}
@@ -360,7 +359,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		int idxU = textData.indexOf("(+u)");
 		if (idxU > -1) {
 			LOGGER.debug("Has embeded +U");
-			//pre="\t\t";
+			// pre="\t\t";
 			if (textData.indexOf("(+n)(+u)") > -1) {
 				String textData3 = textData.replace("(+n)(+u)", "(+u)");
 				textData2.append(textData3.replace("(+u)", "(+n)\t*"));
@@ -417,7 +416,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				String str1 = strToWrite.substring(0, idx + 4);
 				str1 = str1.replace("(+n)", "");
 				fWriterFile2.write(pre);
-				fWriterFile2.write(str1);
+				fWriterFile2.write(str1.trim());
 				fWriterFile2.write(TextBiz.newLine);
 				strToWrite.delete(0, idx + 4);
 				pre = "\t";
@@ -939,7 +938,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterSceneFile.write(formatDao.getStoryTitle2());
 				fWriterSceneFile.write("\"");
 			}
-			fWriterSceneFile.write(" =-");
+			fWriterSceneFile.write(END_STRING);
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.write("Captured Tags: ");
 			fWriterSceneFile.write(formatDao.getDocTagsSceneTags());
@@ -974,7 +973,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					fWriterOthersFile.write(formatDao.getStoryTitle2());
 					fWriterOthersFile.write("\"");
 				}
-				fWriterOthersFile.write(" =-");
+				fWriterOthersFile.write(END_STRING);
 				fWriterOthersFile.write(TextBiz.newLine);
 				fWriterOthersFile.write("Captured Tags: ");
 				fWriterOthersFile.write(odtData.getDocTags());
@@ -1010,7 +1009,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterOutlineFile.write(formatDao.getStoryTitle2());
 				fWriterOutlineFile.write("\"");
 			}
-			fWriterOutlineFile.write(" =-");
+			fWriterOutlineFile.write(END_STRING);
 			fWriterOutlineFile.write(TextBiz.newLine);
 			fWriterOutlineFile.write("Compressed Tags: ");
 			fWriterOutlineFile.write(formatDao.getDocTagsOutlineCompressTagsAsString());

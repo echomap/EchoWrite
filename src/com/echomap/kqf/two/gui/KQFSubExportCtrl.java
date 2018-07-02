@@ -67,6 +67,9 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 		inputTable.getColumns().clear();
 		inputTable.getColumns().addAll(firstCol, secondCol, thirdCol);
 
+		// Hack: align column headers to the center.
+		GUIUtils.alignColumnLabelsLeftHack(inputTable);
+
 		inputTable.setRowFactory(new Callback<TableView<ProfileExportObj>, TableRow<ProfileExportObj>>() {
 			@Override
 			public TableRow<ProfileExportObj> call(TableView<ProfileExportObj> tableView) {
@@ -108,10 +111,10 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 			@SuppressWarnings("unchecked")
 			final File outputFilePlain = XferBiz.exportProfiles(selCharSet, inputFile.getText(), inputTable.getItems(),
 					profileDataPrefs, appProps);
-			showPopupMessage("Export Done! Written to '" + outputFilePlain + "'", false);
+			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
 		} catch (IOException e) {
 			LOGGER.error(e);
-			showPopupMessage("Export Error!" + e.getMessage(), true);
+			showPopupMessage("Export Error", e.getMessage(), true);
 		}
 	}
 
@@ -141,6 +144,7 @@ public class KQFSubExportCtrl extends KQFSubBaseExportCtrl {
 
 		inputTable.getItems().clear();
 		inputTable.getItems().setAll(newList);
+		inputTable.refresh();
 		LOGGER.debug("loadTableData: Done");
 	}
 

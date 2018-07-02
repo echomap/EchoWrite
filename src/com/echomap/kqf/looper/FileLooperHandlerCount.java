@@ -171,10 +171,10 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 				fWriter.close();
 			}
 		}
-		LOGGER.debug("Chapter\t\t\tWords\tTitle");
+		LOGGER.debug("Chapter\t\tWords\tTitle");
 		for (ChapterDao countDao : chapters) {
-			LOGGER.debug(
-					countDao.getChapterName() + "\t\t" + countDao.getNumWords() + "\t" + countDao.getChapterTitle());
+			LOGGER.debug(countDao.getChapterName() + " " + countDao.getChapterNumber() + "\t\t"
+					+ countDao.getNumWords() + "\t" + countDao.getChapterTitle());
 		}
 
 		// System.out.println(cdao.getChapterName() + "\t\t"

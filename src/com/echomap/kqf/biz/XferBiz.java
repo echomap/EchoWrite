@@ -34,6 +34,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class XferBiz {
@@ -54,6 +55,7 @@ public class XferBiz {
 		return list2;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Object loadDataFromJson(final JsonElement elem, final Class T) {
 		// 1
 		final Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls()
@@ -65,6 +67,7 @@ public class XferBiz {
 		return (T) gson.fromJson(json, T);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Object loadDataFromJson(final String listString, final Class T) {
 		final Gson gson = new Gson();
 		return (T) gson.fromJson(listString, T);
@@ -317,7 +320,7 @@ public class XferBiz {
 			LOGGER.info("Writing export file to: " + outputFilePlain);
 			if (StringUtils.isEmpty(fileName)) {
 				LOGGER.warn("No file set, can't export!");
-				throw new IOException("Export Error! No File set!");
+				throw new IOException("No File set!");
 			}
 			// fWriterPlain = new FileWriter(outputFilePlain, false);
 			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
@@ -382,6 +385,7 @@ public class XferBiz {
 		return listODTD;
 	}
 
+	
 	private static List<OtherDocTagData> loadOutputsFromPrefs(final Preferences child) {
 		LOGGER.debug("loadOutputsFromPrefs: Called for child");
 
@@ -391,6 +395,7 @@ public class XferBiz {
 		final Type listOfTestObject = new TypeToken<List<OtherDocTagData>>() {
 		}.getType();
 
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		final List<OtherDocTagData> listODTD2 = new ArrayList();
 		final List<OtherDocTagData> listODTD = gson.fromJson(listString, listOfTestObject);
 		if (listODTD != null) {
@@ -404,6 +409,43 @@ public class XferBiz {
 			}
 		}
 		return listODTD2;
+	}
+
+	public static ObservableList<OtherDocTagData> readInOtherDocTags(final JsonArray profileDataset) {
+		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
+
+		for (int i = 0; i < profileDataset.size(); i++) {
+			final JsonElement je = profileDataset.get(i);
+			final JsonObject jo = je.getAsJsonObject();
+
+			final String name = jo.get("name").getAsString();
+			final String inputFile = jo.get("file").getAsString();
+			final String docTags = jo.get("docTags").getAsString();
+
+			// final String optionsJson = jo.get("optionsJson").getAsString();
+			final JsonArray jsOptions = jo.get("options").getAsJsonArray();// TODO
+			// final JsonArray jsOptions = (JsonArray) jsOptionsE;
+			// final DocTagDataOption options
+
+			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
+			final OtherDocTagData obj = new OtherDocTagData();
+			obj.setName(name);
+			obj.setFile(inputFile);
+			obj.setDocTags(docTags);
+			for (int j = 0; j < jsOptions.size(); j++) {
+				final JsonElement elem = jsOptions.get(i);
+				// final String json = elem.getAsString();
+				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
+						DocTagDataOption.class);
+				LOGGER.debug("loadTableData: option: " + option);
+				LOGGER.debug("loadTableData: obj: " + obj);
+
+				obj.addOption(option);
+			}
+
+			newList.add(obj);
+		}
+		return newList;
 	}
 
 	public static JsonArray readMoreExport(final File file) throws IOException {
@@ -444,7 +486,8 @@ public class XferBiz {
 		}
 	}
 
-	private static JsonArray readMoreExport2(final JsonReader reader) throws IOException {
+	// From PROFILEDATA name, ie: version and list
+	public static JsonArray readMoreExport2(final JsonReader reader) throws IOException {
 		LOGGER.debug("readMoreExport2: Called");
 		final JsonArray exportProfiles = new JsonArray();
 		reader.beginArray();
@@ -507,5 +550,21 @@ public class XferBiz {
 		LOGGER.debug("readMoreExport4: dsOptions = " + dsOptions);
 		LOGGER.debug("readMoreExport4: Done");
 		return dsOptions;
+	}
+
+	public static String getStringOrNullFromJsonObject(final JsonObject jo, final String key) {
+		final JsonElement je = jo.get(key);
+		if (je == null)
+			return null;
+		else
+			return je.getAsString();
+	}
+
+	public static Boolean getBooleanOrNullFromJsonObject(final JsonObject jo, final String key) {
+		final JsonElement je = jo.get(key);
+		if (je == null)
+			return null;
+		else
+			return je.getAsBoolean();
 	}
 }

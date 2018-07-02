@@ -696,6 +696,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			});
 			//
 			final String key = titleOneText.getValue();
+			LOGGER.debug("Key = '" + key + "'");
 			final Preferences child = getPrefs().node(key);
 			//
 			final KQFSubCtrl myController = (KQFSubCtrl) fxmlLoader.getController();
@@ -1332,6 +1333,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		} else {
 			lastRunText.setText(msg + "\r\n" + lastRunText.getText());
 		}
+		LOGGER.info(msg);
 	}
 
 	private String getCurrentDateFmt() {
@@ -1672,7 +1674,9 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			child.put("outputDocTagsSubScenePrefix", outputDocTagsSubScenePrefix.getText());
 			child.put("sceneCoalateDiv", sceneCoalateDiv.getText());
 
-			//
+			// More Files
+			// TODO?
+
 			try {
 				child.flush();
 			} catch (BackingStoreException e) {

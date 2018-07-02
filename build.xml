@@ -1,78 +1,83 @@
 <?xml version="1.0"?>
-
+<!DOCTYPE xml>
 <project name="KindleQuickFormatter" default="build" basedir=".">
 
-    <description description="This is a build file for this project."/>
-    <property environment="env"/>
-    <property file="build-${env.COMPUTERNAME}.properties" description="Machine specific build property overrides can go here"/>
-    <property file="./build.properties" />    
+	<description description="This is a build file for this project." />
+	<property environment="env" />
+	<property file="build-${env.COMPUTERNAME}.properties" description="Machine specific build property overrides can go here" />
+	<property file="./build.properties" />
 
-    <property name="jar.name"           value="${ant.project.name}.jar"/>
-	<property name="jar.name2"          value="${ant.project.name}Gui.jar"/>
-	
-	<property name="javac.deprecation" value="on"/>
-	<property name="javac.debug"       value="on"/>
-	<property name="javac.source"      value="1.6"/>
+	<property name="jar.name" value="${ant.project.name}.jar" />
+	<property name="jar.name2" value="${ant.project.name}Gui.jar" />
 
-	<property name="dir.src"            value="./src"/>
-    <property name="dir.build"          value="./build"/>
-    <property name="dir.build.classes"  value="${dir.build}/classes"/>
-	<property name="dir.build.config"  value="${dir.build}/config"/>
-    <property name="dir.build.lib"      value="./lib"/>
-    <property name="dir.dist"           value="./dist"/>    
+	<property name="javac.deprecation" value="on" />
+	<property name="javac.debug" value="on" />
+	<property name="javac.source" value="1.7" />
+	<property name="includeantruntime" value="false" />
 
-   <!-- ================== Paths ================== -->
+	<property name="dir.src" value="./src" />
+	<property name="dir.build" value="./build" />
+	<property name="dir.build.classes" value="${dir.build}/classes" />
+	<property name="dir.build.config" value="${dir.build}/config" />
+	<property name="dir.build.lib" value="./lib" />
+	<property name="dir.dist" value="./dist" />
+
+	<!-- ================== Paths ================== -->
 	<path id="project.class.path">
-		<fileset dir="lib" includes="*.jar"/>
+		<fileset dir="lib" includes="*.jar" />
 	</path>
 	<manifestclasspath property="lib.list" jarfile="${dir.dist}/${jar.name}">
-		<classpath refid="project.class.path"/>
-	</manifestclasspath>	
-    
-    <!-- ================= Targets ================= -->
-    <target name="clean" description="Clean the dist.dir">
-		<delete file="${dir.dist}/${jar.name}"></delete>
-		<delete dir="${dir.dist}"></delete>
-		<delete dir="${dir.build}"></delete>
+		<classpath refid="project.class.path" />
+	</manifestclasspath>
+
+	<!-- ================= Targets ================= -->
+	<target name="clean" description="Clean the dist.dir">
+		<delete file="${dir.dist}/${jar.name}">
+		</delete>
+		<delete dir="${dir.dist}">
+		</delete>
+		<delete dir="${dir.build}">
+		</delete>
 	</target>
-	
-	<target name="init" description="Prepares the directories">        
-		<mkdir dir="${dir.dist}"/>
-        <mkdir dir="${dir.build.classes}"/>
+
+	<target name="init" description="Prepares the directories">
+		<mkdir dir="${dir.dist}" />
+		<mkdir dir="${dir.build.classes}" />
 	</target>
-    
+
 	<target name="build" depends="clean,compile">
 		<jar destfile="${dir.dist}/${jar.name}" excludes="**/Test.class;com/echomap/cwc/gui">
-			<fileset dir="${dir.build.classes}"/>
-			<fileset dir="${dir.build.config}"/>
+			<fileset dir="${dir.build.classes}" />
+			<fileset dir="${dir.build.config}" />
 			<manifest>
-				<attribute name="Main-Class" value="com.echomap.kqf.two.FormatCli"/>
-				<attribute name="Class-Path" value="${lib.list}"/>
+				<attribute name="Main-Class" value="com.echomap.kqf.two.FormatCli" />
+				<attribute name="Class-Path" value="${lib.list}" />
 			</manifest>
 		</jar>
 		<jar destfile="${dir.dist}/${jar.name2}" excludes="**/Test.class;com/echomap/kqf/biz;com/echomap/kqf/cli">
-			<fileset dir="${dir.build.classes}"/>
-			<fileset dir="${dir.build.config}"/>
+			<fileset dir="${dir.build.classes}" />
+			<fileset dir="${dir.build.config}" />
 			<!--fileset dir="${dir.build.config}"/-->
 			<manifest>
-				<attribute name="Main-Class" value="com.echomap.kqf.two.gui.KQFFrame"/>
-				<attribute name="Class-Path" value="commons-cli-1.2.jar commons-lang-2.0.jar" /> 
+				<attribute name="Main-Class" value="com.echomap.kqf.two.gui.KQFFrame" />
+				<attribute name="Class-Path" value="commons-lang-2.0.jar log4j-1.2.8.jar gson-2.8.2.jar " />
 			</manifest>
 		</jar>
-		<copy todir="${dir.dist}" flatten="true" >
-			<fileset dir="${dir.build.lib}" includes="**/*.jar"/>
-		</copy>		
-	</target>
-	
-    <target name="compile" depends="init" description="Compile src to build dir">
-		<javac srcdir="${dir.src}" destdir="${dir.build.classes}"
-				deprecation="${javac.deprecation}" debug="${javac.debug}" source="${javac.source}">
-			<classpath refid="project.class.path"/>
-		</javac>                
-		<copy todir="${dir.build.config}" flatten="false" >
-			<fileset dir="${dir.src}" includes="**/*.xml,**/*.prop*,**/.html,*.html,*.fxml,*.xml"/>
+		<copy todir="${dir.dist}" flatten="true">
+			<fileset dir="${dir.build.lib}" includes="**/*.jar" />
+			<fileset dir="${dir.build.lib}" includes="**/*.cmd" />
 		</copy>
-    </target>
-	
-    <!-- ================== Tests ================== -->
+	</target>
+
+	<target name="compile" depends="init" description="Compile src to build dir">
+		<javac srcdir="${dir.src}" destdir="${dir.build.classes}" deprecation="${javac.deprecation}" debug="${javac.debug}" source="${javac.source}" includeantruntime="${javac.includeantruntime}">
+			<compilerarg value="-Xlint:unchecked" />
+			<classpath refid="project.class.path" />
+		</javac>
+		<copy todir="${dir.build.config}" flatten="false">
+			<fileset dir="${dir.src}" includes="**/*.xml,**/*.prop*,**/.html,*.html,*.fxml,*.xml,*.css" />
+		</copy>
+	</target>
+
+	<!-- ================== Tests ================== -->
 </project>
