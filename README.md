@@ -3,6 +3,16 @@
 ## Programed in Java.
 Made for me, as I write my novels/stories in plain text, and then need to get them into Sigil for Kindle or general EPUB publishing.
 
+## Output Capabilities
+* Outputs via the "Formatter" a clean copy of the originial text with no DOCTAGS, can do both plaintext and HTML.
+* Outputs files that contain only the [[*scene: xx *]] tags, or "character:"
+* Can output many differnet such files, as you can configure via the UI.
+
+## Output Mine
+* I have a character file, a scene file, a todo file, a clothing file, a knowledge file, etc.
+* The HTML output in chapters can be brought into SIGIL easily to make a EPUB easily from text.
+* No mucking about with Word or even LibreOffice conversions and cleaning of HTML
+
 ## DocTags
 Recently added support for me to make comments in the text, which are used to create outlines and are stripped out of the final product. DocTags aren't counted in the word count or outputted in the cleaned plain text or html output.
 
@@ -41,3 +51,4 @@ botday: 29th day
 	...
   
 ```
+
