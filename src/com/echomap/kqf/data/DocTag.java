@@ -10,6 +10,11 @@ public class DocTag {
 	private String name;
 	private String value;
 
+	// The line without this tag
+	private String bareLine = null;
+	// The full tag, start and end
+	private String fullTag = null;
+
 	private List<DocTag> sublist = null;
 
 	public DocTag(String docTagText) {
@@ -86,4 +91,21 @@ public class DocTag {
 			sublist = new ArrayList<DocTag>();
 		this.sublist.add(docTag);
 	}
+
+	public String getBareLine() {
+		return bareLine;
+	}
+
+	public void setBareLine(String bareLine) {
+		this.bareLine = bareLine;
+	}
+
+	public String getFullTag() {
+		return fullTag;
+	}
+
+	public void setFullTag(String fullTag) {
+		this.fullTag = fullTag;
+	}
+
 }

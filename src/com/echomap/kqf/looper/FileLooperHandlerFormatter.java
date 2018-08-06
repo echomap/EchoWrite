@@ -103,7 +103,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			// formatLine(st, cdao, formatDao);
 		}
 
-		formatLine(formatDao, ldao, cdao, chpt);
+		// XXXX formatLine(formatDao, ldao, cdao, chpt);
 		// parseLine(st, fWriter, chapterDivider, storyTitle1,
 		// storyTitle2);
 		cdao.addOneToNumLines();
@@ -112,16 +112,152 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		// LOGGER.debug("handleDocTag: xx ");
+		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
+		final CountDao cdao = ldao.getChaptCount();
+		final DocTagLine docTagLine = ldao.getCurrentDocTagLine();
+		if (!docTagLine.isLongDocTag() && !docTagLine.isOnlyDoctag())
+			formatLine(formatDao, ldao, cdao, chpt);
 	}
 
 	@Override
 	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
+		final CountDao cdao = ldao.getChaptCount();
 
+		formatLine(formatDao, ldao, cdao, chpt);
+	}
+
+	// @Override
+	// public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao)
+	// throws IOException {
+	//
+	// }
+
+	@Override
+	public void preLine(final FormatDao formatDao, final LooperDao ldao) {
+		ldao.preReadLine();
 	}
 
 	@Override
-	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public void postLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		ldao.postReadLine();
+	}
 
+	@Override
+	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		closeSectionWriter(sectionCounter, chapterCounter, formatDao);
+		closeChapterWriter(chapterCounter, formatDao);
+
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Chapters: ");
+		sb.append(chapterCounter);
+		sb.append("  Sections: ");
+		sb.append(sectionCounter);
+
+		if (fWriterHTML != null) {
+			outputFooter(fWriterHTML, formatDao);
+			fWriterHTML.flush();
+		}
+		if (fWriterHTML != null) {
+			fWriterHTML.flush();
+			fWriterHTML.close();
+		}
+		if (fWriterPlain != null) {
+			fWriterPlain.flush();
+			fWriterPlain.close();
+		}
+		if (chapterWriterPlain != null) {
+			chapterWriterPlain.flush();
+			chapterWriterPlain.close();
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public void preHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+		LOGGER.debug("preHandler-->");
+		if (formatDao.getFormatMode() == null) {
+			formatMode = new MobiMode();
+		} else if (formatDao.getFormatMode().toLowerCase().compareTo("sigil") == 0) {
+			formatMode = new SigilMode();
+		}
+
+		ldao.clear();
+		// lineTracker.setFormatMode(formatMode);
+
+		// final File inputFile = new File(formatDao.getInputFilename());
+		final File outputFileHTML = new File(formatDao.getOutputFilename());
+
+		filterMap.put("@TITLE@", formatDao.getStoryTitle1());
+		filterMap.put("@SUBTITLE@", formatDao.getStoryTitle1());
+		filterMap.put("@ENCODING@", formatDao.getOutputEncoding());
+
+		// String charsetName = FormatDao.DEFAULToutputEncoding;
+		// if (formatDao.getOutputEncoding() != null &&
+		// formatDao.getOutputEncoding().length() > 0)
+		// charsetName = formatDao.getOutputEncoding();
+
+		// Change encoding?
+		Charset selCharSet = formatDao.getCharSet();
+		LOGGER.debug("preHandler: Charset chosen: " + selCharSet);
+
+		// Create dirs
+		final File outputDirHTML = outputFileHTML.getParentFile();
+		if (outputDirHTML != null) {
+			outputDirHTML.getParentFile().mkdirs();
+			outputDirHTML.mkdirs();
+		}
+
+		if (formatDao.getWriteChapters() != null && !StringUtils.isBlank(formatDao.getWriteChapters())) {
+			outputChapterDir = new File(formatDao.getWriteChapters());
+			outputChapterDir.mkdirs();
+
+			// lineTracker.setOutputChapterDir(outputChapterDir);
+
+			outputSectionDir = new File(formatDao.getWriteChapters());
+			outputSectionDir.mkdirs();
+			// lineTracker.setOutputSectionDir(outputSectionDir);
+		}
+		if (formatDao.getWantTextChptOutput()) {
+			outputChapterDirText = new File(formatDao.getWriteChaptersText());
+			outputChapterDirText.mkdirs();
+		}
+
+		if (outputDirHTML != null) {
+			LOGGER.info("Writing html text file to: " + outputFileHTML);
+			// fWriter = new FileWriter(outputFile, false);
+			fWriterHTML = new OutputStreamWriter(new FileOutputStream(outputFileHTML), selCharSet);
+		}
+		if (outputDirHTML != null) {
+			String outFilename = null;
+			final String filenameOnly = outputFileHTML.getName();
+			final int extIdx = filenameOnly.lastIndexOf(".");
+			String ext = "";
+			if (extIdx >= 1) {
+				ext = filenameOnly.substring(extIdx + 1);
+				outFilename = filenameOnly.replaceAll(ext, "txt");
+			} else {
+				outFilename = filenameOnly + ".txt";
+			}
+			final File outputFilePlain = new File(outputDirHTML, outFilename);
+			LOGGER.info("Writing plain text file to: " + outputFilePlain);
+			// fWriterPlain = new FileWriter(outputFilePlain, false);
+			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
+		}
+
+		ldao.InitializeCount();
+
+		if (fWriterHTML != null) {
+			outputHeader(fWriterHTML, formatDao);
+			fWriterHTML.flush();
+		}
+	}
+
+	@Override
+	public void postLastLine(final FormatDao formatDao, final LooperDao ldao) {
+		// tdao.copy(cdao);
+		ldao.getChapters().add(new ChapterDao(ldao.getChaptCount()));
+		// tdao = new CountDao();
 	}
 
 	private void formatLine(final FormatDao formatDao, final LooperDao ldao, final CountDao cdao,
@@ -129,17 +265,26 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		ldao.inReadLine();
 		String preTag = "";
 		String postTag = null;
-		String st = ldao.getCurrentLine();
 
-		boolean htmlIsClosed = false;
-		if (ldao.getHtmlLine() == null) {
-			ldao.setHtmlLine(TextBiz.isAnHtmlLine(st));
-		} else {
-			final String htmlLineNew = TextBiz.isAnHtmlLine(st);
-			if (htmlLineNew != null && htmlLineNew.equalsIgnoreCase(ldao.getHtmlLine())) {
-				htmlIsClosed = true;
-			}
-		}
+		final DocTagLine docTagLine = ldao.getCurrentDocTagLine();
+		String st = docTagLine.getBareLine();
+		if (st == null)
+			return;
+		// String st = ldao.getCurrentLine();
+
+		// boolean htmlIsClosed = false;
+		// if (ldao.getHtmlLine() == null) {
+		if (TextBiz.isAnHtmlLine(st))
+			ldao.setHtmlLine(true);
+		else
+			ldao.setHtmlLine(false);
+		// } else {
+		// final String htmlLineNew = TextBiz.isAnHtmlLine(st);
+		// if (htmlLineNew != null &&
+		// htmlLineNew.equalsIgnoreCase(ldao.getHtmlLine())) {
+		// htmlIsClosed = true;
+		// }
+		// }
 
 		boolean isChapter = chpt.isChapter;
 
@@ -160,8 +305,9 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			// preTag = formatMode.getFirstChapterPreTag();// "<p
 			// class=\"MsoChapter\">";
 			postTag = "<p class=\"" + formatMode.getPlainTextTag() + "\">&nbsp;</p>";
-		} else if (ldao.getHtmlLine() != null) {
+		} else if (ldao.getHtmlLine()) {
 			preTag = " ";
+			postTag = "\n";
 		} else {
 			sectionType = TextBiz.isSection(st, formatDao.getRegexpSection());
 			if (sectionType != null && sectionType.isSection) {
@@ -169,8 +315,10 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 				// if (sectionType != null) {
 				sectionCounter++;
 				// if (sectionType.isSection) {
-				//yyyy preTag = "<mbp:pagebreak/>\n" + "<p class=\"MsoSection\">";
+				// yyyy preTag = "<mbp:pagebreak/>\n" + "<p
+				// class=\"MsoSection\">";
 				preTag = "<p class=\"MsoSection\">";
+				// postTag = "</p>";
 				// }
 				// switch (sectionType) {
 				// case PLAIN:
@@ -280,7 +428,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			// lineTracker.getThisLineCharacterCount()
 			// += textToWrite.length()
 			// ) ) ;
-			if (!cancelLine) {
+			if (!cancelLine && !ldao.getHtmlLine()) {
 				fWriterHTML.write(preTag);
 				fWriterHTML.write(textToWrite);
 
@@ -314,7 +462,22 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 				}
 			}
 
-			if (ldao.getHtmlLine() == null) {
+			if (ldao.getHtmlLine()) {
+				if (!cancelLine) {
+					// todo
+					fWriterHTML.write(st);
+					// writeToChapterWriter(TextBiz.newLine);
+					if (postTag != null) {
+						fWriterHTML.write(postTag);
+						fWriterHTML.write(TextBiz.newLine);
+
+						writeToChapterWriter(postTag);
+						writeToChapterWriter(TextBiz.newLine);
+
+						ldao.setThisLineCharacterCount(0);
+					}
+				}
+			} else {
 				if (!cancelLine) {
 					// if (docTagType != DOCTAGTYPE.ALLDOCTAG) {
 					if (sectionType != null && sectionType.isSection) {
@@ -371,10 +534,12 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			ldao.setCurrentLine(textToWrite);
 		} // LONGDOCTAG
 
-		if (htmlIsClosed) {
-			ldao.setHtmlLine(null);
-		}
-		if (isChapter) {
+		// if (htmlIsClosed) {
+		// ldao.setHtmlLine(null);
+		// }
+		if (isChapter)
+
+		{
 			ldao.setLastLineWasChapter(true);
 		}
 		if (ldao.isInLongDocTag() && st.contains(formatDao.getDocTagEnd())) {
@@ -512,133 +677,6 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			return;
 		}
 		chapterWriter.write(textToWrite);
-	}
-
-	@Override
-	public void preLine(final FormatDao formatDao, final LooperDao ldao) {
-		ldao.preReadLine();
-	}
-
-	@Override
-	public void postLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		ldao.postReadLine();
-	}
-
-	@Override
-	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		closeSectionWriter(sectionCounter, chapterCounter, formatDao);
-		closeChapterWriter(chapterCounter, formatDao);
-
-		final StringBuilder sb = new StringBuilder();
-		sb.append("Chapters: ");
-		sb.append(chapterCounter);
-		sb.append("  Sections: ");
-		sb.append(sectionCounter);
-
-		if (fWriterHTML != null) {
-			outputFooter(fWriterHTML, formatDao);
-			fWriterHTML.flush();
-		}
-		if (fWriterHTML != null) {
-			fWriterHTML.flush();
-			fWriterHTML.close();
-		}
-		if (fWriterPlain != null) {
-			fWriterPlain.flush();
-			fWriterPlain.close();
-		}
-		if (chapterWriterPlain != null) {
-			chapterWriterPlain.flush();
-			chapterWriterPlain.close();
-		}
-		return sb.toString();
-	}
-
-	@Override
-	public void preHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		LOGGER.debug("preHandler-->");
-		if (formatDao.getFormatMode() == null) {
-			formatMode = new MobiMode();
-		} else if (formatDao.getFormatMode().toLowerCase().compareTo("sigil") == 0) {
-			formatMode = new SigilMode();
-		}
-
-		ldao.clear();
-		// lineTracker.setFormatMode(formatMode);
-
-		// final File inputFile = new File(formatDao.getInputFilename());
-		final File outputFileHTML = new File(formatDao.getOutputFilename());
-
-		filterMap.put("@TITLE@", formatDao.getStoryTitle1());
-		filterMap.put("@SUBTITLE@", formatDao.getStoryTitle1());
-		filterMap.put("@ENCODING@", formatDao.getOutputEncoding());
-
-		// String charsetName = FormatDao.DEFAULToutputEncoding;
-		// if (formatDao.getOutputEncoding() != null &&
-		// formatDao.getOutputEncoding().length() > 0)
-		// charsetName = formatDao.getOutputEncoding();
-
-		// Change encoding?
-		Charset selCharSet = formatDao.getCharSet();
-		LOGGER.debug("preHandler: Charset chosen: " + selCharSet);
-
-		// Create dirs
-		final File outputDirHTML = outputFileHTML.getParentFile();
-		if (outputDirHTML != null) {
-			outputDirHTML.getParentFile().mkdirs();
-			outputDirHTML.mkdirs();
-		}
-
-		if (formatDao.getWriteChapters() != null && !StringUtils.isBlank(formatDao.getWriteChapters())) {
-			outputChapterDir = new File(formatDao.getWriteChapters());
-			outputChapterDir.mkdirs();
-
-			// lineTracker.setOutputChapterDir(outputChapterDir);
-
-			outputSectionDir = new File(formatDao.getWriteChapters());
-			outputSectionDir.mkdirs();
-			// lineTracker.setOutputSectionDir(outputSectionDir);
-		}
-		if (formatDao.getWantTextChptOutput()) {
-			outputChapterDirText = new File(formatDao.getWriteChaptersText());
-			outputChapterDirText.mkdirs();
-		}
-
-		if (outputDirHTML != null) {
-			LOGGER.info("Writing html text file to: " + outputFileHTML);
-			// fWriter = new FileWriter(outputFile, false);
-			fWriterHTML = new OutputStreamWriter(new FileOutputStream(outputFileHTML), selCharSet);
-		}
-		if (outputDirHTML != null) {
-			String outFilename = null;
-			final String filenameOnly = outputFileHTML.getName();
-			final int extIdx = filenameOnly.lastIndexOf(".");
-			String ext = "";
-			if (extIdx >= 1) {
-				ext = filenameOnly.substring(extIdx + 1);
-				outFilename = filenameOnly.replaceAll(ext, "txt");
-			} else {
-				outFilename = filenameOnly + ".txt";
-			}
-			final File outputFilePlain = new File(outputDirHTML, outFilename);
-			LOGGER.info("Writing plain text file to: " + outputFilePlain);
-			// fWriterPlain = new FileWriter(outputFilePlain, false);
-			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
-		}
-
-		ldao.InitializeCount();
-
-		if (fWriterHTML != null) {
-			outputHeader(fWriterHTML, formatDao);
-			fWriterHTML.flush();
-		}
-	}
-
-	@Override
-	public void postLastLine(final FormatDao formatDao, final LooperDao ldao) {
-		// tdao.copy(cdao);
-		ldao.getChapters().add(new ChapterDao(ldao.getChaptCount()));
-		// tdao = new CountDao();
 	}
 
 	private boolean outputHeader(final Writer fWriter, final FormatDao formatDao) {

@@ -414,8 +414,8 @@ public class XferBiz {
 	public static ObservableList<OtherDocTagData> readInOtherDocTags(final JsonArray profileDataset) {
 		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
 
-		for (int i = 0; i < profileDataset.size(); i++) {
-			final JsonElement je = profileDataset.get(i);
+		for (int ii = 0; ii < profileDataset.size(); ii++) {
+			final JsonElement je = profileDataset.get(ii);
 			final JsonObject jo = je.getAsJsonObject();
 
 			final String name = jo.get("name").getAsString();
@@ -433,7 +433,7 @@ public class XferBiz {
 			obj.setFile(inputFile);
 			obj.setDocTags(docTags);
 			for (int j = 0; j < jsOptions.size(); j++) {
-				final JsonElement elem = jsOptions.get(i);
+				final JsonElement elem = jsOptions.get(j);
 				// final String json = elem.getAsString();
 				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
 						DocTagDataOption.class);

@@ -177,13 +177,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	@Override
 	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
-
+		//
 	}
 
-	@Override
-	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
-
-	}
+	// @Override
+	// public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao)
+	// throws IOException {
+	//
+	// }
 
 	private void writeSectionData(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		final SimpleSectionDao ssd = ldao.getCurrentSection();

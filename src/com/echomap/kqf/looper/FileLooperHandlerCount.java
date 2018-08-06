@@ -12,11 +12,13 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.TextBiz;
+import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
+import com.echomap.kqf.looper.data.SimpleSectionDao;
 
 /**
  * 
@@ -61,20 +63,30 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		//
+		final DocTagLine docTagLine = ldao.getCurrentDocTagLine();
+		final CountDao cdao = ldao.getChaptCount();
+		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
+
+		final String str = docTagLine.getBareLine();
+		TextBiz.countWords(str, cdao, formatDao);
+		cdao.addOneToNumLines();
 	}
 
 	@Override
 	public void handleDocTagNotTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
 
+		final SimpleSectionDao sect = ldao.getCurrentSection();
 		final SimpleChapterDao chpt = ldao.getCurrentChapter();
 		// final DocTagLine dttGL = ldao.getCurrentDocTagLine();
 		final CountDao cdao = ldao.getChaptCount();
-		final CountDao tdao = ldao.getTotalCount();
+		// final CountDao tdao = ldao.getTotalCount();
 		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
 
-		if (chpt.isChapter) {
+		if (sect.isSection) {
+			// TODO SECTIONS!!
+			// cdao.setSectionNumber(sect.snum);
+		} else if (chpt.isChapter) {
 			// final String cn = Integer.toString(tdao.getCounter());
 			// cdao.setChapterNumber(cn);
 			cdao.setChapterNumber(chpt.chpNum);
@@ -84,10 +96,11 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		cdao.addOneToNumLines();
 	}
 
-	@Override
-	public void handleDocTagMaybeTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		//
-	}
+	// @Override
+	// public void handleDocTagMaybeTag(final FormatDao formatDao, final
+	// LooperDao ldao) throws IOException {
+	// //
+	// }
 
 	@Override
 	public void postLine(FormatDao formatDao, LooperDao ldao) throws IOException {
@@ -173,8 +186,8 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		}
 		LOGGER.debug("Chapter\t\tWords\tTitle");
 		for (ChapterDao countDao : chapters) {
-			LOGGER.debug(countDao.getChapterName() + " " + countDao.getChapterNumber() + "\t\t"
-					+ countDao.getNumWords() + "\t" + countDao.getChapterTitle());
+			LOGGER.debug(countDao.getChapterName() + " " + countDao.getChapterNumber() + "\t\t" + countDao.getNumWords()
+					+ "\t" + countDao.getChapterTitle());
 		}
 
 		// System.out.println(cdao.getChapterName() + "\t\t"

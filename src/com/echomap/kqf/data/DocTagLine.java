@@ -8,7 +8,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class DocTagLine {
 
 	private List<DocTag> docTags = null;
-	private String line = null;
+	// bareLine= The line without this tag
+	// rawLine= The full tag, start and end
+	private String rawLine = null;
+	private String bareLine = null;
 	private long lineCount = 0;
 	private boolean onlyDoctag = false;
 	private boolean hasDocTag = false;
@@ -22,11 +25,11 @@ public class DocTagLine {
 	}
 
 	public String getLine() {
-		return line;
+		return rawLine;
 	}
 
 	public void setLine(String line) {
-		this.line = line;
+		this.rawLine = line;
 	}
 
 	public boolean isHasDocTag() {
@@ -71,21 +74,34 @@ public class DocTagLine {
 
 	public void setupNotADocTag(final String docTagText) {
 		this.setDocTags(null);
-		this.line = docTagText;
+		this.rawLine = docTagText;
+		this.bareLine = docTagText;
 		this.onlyDoctag = false;
 		this.hasDocTag = false;
 		this.longDocTag = false;
 	}
 
-	public void setupOnlyDocTag(final String docTagText) {
+	public void setupOnlyDocTag(final DocTag dt) {
 		if (getDocTags() == null)
 			setDocTags(new ArrayList<DocTag>());
-		this.getDocTags().add(new DocTag(docTagText));
-		this.line = docTagText;
+		this.getDocTags().add(dt);
+		this.rawLine = dt.getFullText();
+		this.bareLine = null;
 		this.onlyDoctag = true;
 		this.hasDocTag = true;
 		this.longDocTag = false;
 	}
+
+	// public void setupOnlyDocTag(final String docTagText) {
+	// if (getDocTags() == null)
+	// setDocTags(new ArrayList<DocTag>());
+	// this.getDocTags().add(new DocTag(docTagText));
+	// this.rawLine = docTagText;
+	// this.bareLine = null;
+	// this.onlyDoctag = true;
+	// this.hasDocTag = true;
+	// this.longDocTag = false;
+	// }
 
 	public void setupContainsDocTag(final String line, final String docTagText) {
 		if (getDocTags() == null)
@@ -93,7 +109,8 @@ public class DocTagLine {
 		// final DocTag dt = new DocTag(docTagText);
 		// this.getDocTags().add(dt);
 
-		this.line = line;
+		this.rawLine = line;
+		this.bareLine = null;
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
 		this.longDocTag = false;
@@ -105,7 +122,8 @@ public class DocTagLine {
 			setDocTags(new ArrayList<DocTag>());
 		this.getDocTags().add(new DocTag(docTagText));
 
-		this.line = line;
+		this.rawLine = line;
+		this.bareLine = null;
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
 		this.longDocTag = true;
@@ -148,6 +166,22 @@ public class DocTagLine {
 
 	public long getLineCount() {
 		return lineCount;
+	}
+
+	public String getBareLine() {
+		return bareLine;
+	}
+
+	public void setBareLine(String bareLine) {
+		this.bareLine = bareLine;
+	}
+
+	public String getRawLine() {
+		return rawLine;
+	}
+
+	public void setRawLine(String rawLine) {
+		this.rawLine = rawLine;
 	}
 
 }

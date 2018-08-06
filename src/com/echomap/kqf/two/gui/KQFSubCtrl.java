@@ -293,7 +293,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		// Show
 		final File file = chooser.showOpenDialog(new Stage());
 		if (file == null) {
-			showPopupMessage("Failed","No file selected.", false);
+			showPopupMessage("Failed", "No file selected.", false);
 			return;
 		}
 
@@ -304,7 +304,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			return;
 		}
 		try {
-			JsonArray profileDataset = XferBiz.readMoreExport(file);
+			final JsonArray profileDataset = XferBiz.readMoreExport(file);
 			// // final String stringData = readFile(inputFile.getText(),
 			// selCharSet)
 			// JsonArray profileDataset = null;
@@ -325,8 +325,25 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			// reader.skipValue(); // avoid some unhandle events
 			// }
 			// }
+			// Fix Data??
+			// String newFile = null;
+			// String filePrefixText = formatDao.getFilePrefix();
+			// String fileData = inputFile.getText();
+			// if (fileData.trim().length() < 1)
+			// newFile = locateDir(event, "Open Output Dir ", fileData,
+			// formatDao.getInputFilename());
+			// else
+			// newFile = locateDir(event, "Open Output Dir ", fileData,
+			// fileData);
+			// if (newFile != null) {
+			// final String outFilename = filePrefixText == null ? "/" +
+			// inputName.getText() + ".txt"
+			// : filePrefixText + inputName.getText() + ".txt";
+			// final File nFile = new File(newFile, outFilename);
+			// newFile = nFile.getAbsolutePath();
+			// }
 			// Save to list!
-			loadTableDataFromJson(profileDataset);
+			loadTableDataFromJson(profileDataset, true);
 			showPopupMessage("Imported data, Remember to\n1)check the file names for each entry.\n2)to SAVE the table.",
 					false);
 			actionToCancel();
@@ -390,7 +407,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		// show
 		final File file = chooser.showSaveDialog(new Stage());
 		if (file == null) {
-			showPopupMessage("Failed","No file selected.", false);
+			showPopupMessage("Failed", "No file selected.", false);
 			return;
 		}
 		Writer fWriterPlain = null;
@@ -539,6 +556,32 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 			inputTable.getItems().setAll(newList);
 		inputTable.refresh();
 		// inputTable.setColumnResizePolicy(callback);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadTableDataFromJson(final JsonArray profileDataset, final boolean fixPaths) {
+		final ObservableList<OtherDocTagData> newList = XferBiz.readInOtherDocTags(profileDataset);
+		if (fixPaths) {
+			final String filePrefixText = formatDao.getFilePrefix();
+			final String inFilename = formatDao.getInputFilename();
+			final File inFile = new File(inFilename);
+			final File parentDir = inFile.getParentFile();
+			// Fix Data
+			for (final OtherDocTagData odtd : newList) {
+				final String oName = odtd.getName();
+				LOGGER.debug("loadTableData: File Origin: " + odtd.getFile());
+				final String outFilename = filePrefixText == null ? "/" + oName + ".txt"
+						: filePrefixText + oName + ".txt";
+				final File nFile = new File(parentDir, outFilename);
+				odtd.setFile(nFile.getAbsolutePath());
+				LOGGER.debug("loadTableData: File Final: " + odtd.getFile());
+			}
+		}
+		//
+		inputTable.getItems().clear();
+		if (newList != null)
+			inputTable.getItems().setAll(newList);
+		inputTable.refresh();
 	}
 
 }

@@ -116,10 +116,13 @@ public class LooperThread extends Thread {
 				//
 				flHandler.handleLine(formatDao, ldao);
 
-				if (dttGL != null) {
-					flHandler.handleDocTagMaybeTag(formatDao, ldao);
+				final DocTagLine dttGL = ldao.getCurrentDocTagLine();
 
+				if (dttGL != null) {
+					// flHandler.handleDocTagMaybeTag(formatDao, ldao);
 					if (dttGL.isHasDocTag()) {
+						// If still processing a long tag, don't throw it to the
+						// handlers
 						if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
 							flHandler.handleDocTag(formatDao, ldao);
 						}
@@ -155,7 +158,7 @@ public class LooperThread extends Thread {
 		LOGGER.info("Loop: Done" + (workType != null ? "(" + workType + ")" : ""));
 	}
 
-	private DocTagLine dttGL = null;
+	// private DocTagLine dttGL = null;
 	private boolean inLongDocTag = false;
 
 	/**
@@ -200,12 +203,21 @@ public class LooperThread extends Thread {
 		LOGGER.debug("DTLE: '" + dtt.getLine() + "'");
 		LOGGER.debug("IS: END: " + dtt.isEndDocTag() + " HAS: " + dtt.isHasDocTag() + " LNG: " + dtt.isLongDocTag()
 				+ " ONY: " + dtt.isOnlyDoctag());
-		if (dttGL != null)
+
+		DocTagLine dttGL = ldao.getCurrentDocTagLine();
+		if (dttGL != null) {
 			LOGGER.debug("GL: END: " + dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: "
 					+ dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
-		if (dttGL != null && !dttGL.isLongDocTag()) {
-			dttGL = new DocTagLine();
-			dttGL.setLineNumber(ldao.getLineCount());
+			if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
+				dttGL = new DocTagLine();
+				dttGL.setLineNumber(ldao.getLineCount());
+			}
+			if (dttGL.isHasDocTag() && st.contains(formatDao.getDocTagStart())) {
+				LOGGER.error("May contain an unclosed TAG!");
+				if (notifyCtrl != null)
+					notifyCtrl.errorWithWork("May contain an unclosed TAG! (" + ldao.getLineCount() + ")",
+							"UnclosedTag");
+			}
 		}
 		if (dtt.isLongDocTag() || inLongDocTag) {
 			inLongDocTag = true;
@@ -226,10 +238,10 @@ public class LooperThread extends Thread {
 				dttGL.setEndDocTag(true);
 				dtt = null;
 			} else {
-				if (dttGL == null) {
-					dttGL = new DocTagLine();
-					dttGL.setLineNumber(ldao.getLineCount());
-				}
+				// if (dttGL == null) {
+				// dttGL = new DocTagLine();
+				// dttGL.setLineNumber(ldao.getLineCount());
+				// }
 				dttGL.addDocTag(dtt.getDocTags());
 				if (!dtt.isHasDocTag()) {
 					dttGL.appendTextToLast(dtt.getLine());
@@ -241,7 +253,6 @@ public class LooperThread extends Thread {
 		}
 
 		ldao.setCurrentDocTagLine(dttGL);
-
 	}
 
 }
