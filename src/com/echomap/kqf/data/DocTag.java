@@ -10,6 +10,11 @@ public class DocTag {
 	private String name;
 	private String value;
 
+	// The line without this tag
+	private String bareLine = null;
+	// The full tag, start and end
+	private String fullTag = null;
+
 	private List<DocTag> sublist = null;
 
 	public DocTag(String docTagText) {
@@ -30,13 +35,20 @@ public class DocTag {
 			String twot = docTagText.substring(idx1 + 1);
 			this.setName(onet);
 			this.setValue(twot);
-
+			appendFullText(twot);
 			// TODO REGEX Collect # from twot: "[+in#]"
 			// TODO REGEX Collect # from twot: "[+out#]"
-
 		} else {
-
+			this.setValue(docTagText);
 		}
+	}
+
+	private void appendFullText(String twot) {
+		if (this.fullTag != null)
+			this.fullText = this.fullText + twot;
+		else
+			this.fullText = twot;
+		this.fullText = this.fullText.trim();
 	}
 
 	public String getName() {
@@ -86,4 +98,21 @@ public class DocTag {
 			sublist = new ArrayList<DocTag>();
 		this.sublist.add(docTag);
 	}
+
+	public String getBareLine() {
+		return bareLine;
+	}
+
+	public void setBareLine(String bareLine) {
+		this.bareLine = bareLine;
+	}
+
+	public String getFullTag() {
+		return fullTag;
+	}
+
+	public void setFullTag(String fullTag) {
+		this.fullTag = fullTag;
+	}
+
 }

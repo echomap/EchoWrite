@@ -41,6 +41,13 @@ public class GUIUtils {
 			public void onChanged(Change<?> c) {
 				for (final Object column : tableView.getColumns()) {
 					try {
+						if (column == null)
+							continue;
+						if (tableView == null)
+							continue;
+						if (tableView.getSkin() == null)
+							continue;
+						// if (columnToFitMethod == null) continue;
 						columnToFitMethod.invoke(tableView.getSkin(), column, -1);
 					} catch (IllegalAccessException | InvocationTargetException e) {
 						e.printStackTrace();

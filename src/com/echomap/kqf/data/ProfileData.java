@@ -28,6 +28,17 @@ public class ProfileData {
 		boolEntries.put(key, val);
 	}
 
+	public Integer getInt(final String key) {
+		final String strVal = textEntries.get(key);
+		try {
+			final Integer itm = new Integer(strVal);
+			return itm;
+		} catch (NumberFormatException e) {
+			// e.printStackTrace();
+			return null;
+		}
+	}
+
 	public String getText(final String key) {
 		return textEntries.get(key);
 	}

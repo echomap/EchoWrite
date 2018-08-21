@@ -19,7 +19,7 @@ public class LooperDao {
 
 	private boolean inSpecial = false;
 	private boolean inLongDocTag = false;
-	private String htmlLine = null;
+	private boolean htmlLine = false;
 	private boolean lastLineWasChapter = false;
 	private Integer thisLineCharacterCount = 0;
 
@@ -36,7 +36,7 @@ public class LooperDao {
 	public void clear() {
 		setInSpecial(false);
 		setInLongDocTag(false);
-		setHtmlLine(null);
+		setHtmlLine(false);
 	}
 
 	public void preReadLine() {
@@ -52,11 +52,11 @@ public class LooperDao {
 		// TODO Auto-generated method stub
 	}
 
-	public String getHtmlLine() {
+	public boolean getHtmlLine() {
 		return htmlLine;
 	}
 
-	public void setHtmlLine(String htmlLine) {
+	public void setHtmlLine(boolean htmlLine) {
 		this.htmlLine = htmlLine;
 	}
 

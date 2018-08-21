@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.echomap.kqf.looper.FileLooper;
 
@@ -16,6 +18,7 @@ import com.echomap.kqf.looper.FileLooper;
  */
 public class FormatDao {
 	public static final String DEFAULToutputEncoding = "Cp1252";
+	private final static Logger LOGGER = LogManager.getLogger(FormatDao.class);
 	private String version = null;
 
 	// Profile
@@ -183,6 +186,7 @@ public class FormatDao {
 	}
 
 	public void setOutputOutlineFile(String outputOutlineFile) {
+		// LOGGER.debug("outputOutlineFile = '" + outputOutlineFile + "'");
 		this.outputOutlineFile = outputOutlineFile;
 	}
 
@@ -284,7 +288,7 @@ public class FormatDao {
 		this.outputEncoding = outputEncoding;
 	}
 
-	// TODO Add encodings?
+	// TODO Add more encodings?
 	public Charset getCharSet() {
 		Charset selCharSet = StandardCharsets.UTF_8;
 		switch (this.getOutputEncoding()) {
@@ -374,6 +378,7 @@ public class FormatDao {
 	}
 
 	public void setOutputOutlineFile1(String outputOutlineFile1) {
+		// LOGGER.debug("outputOutlineFile1 = '" + outputOutlineFile1 + "'");
 		this.outputOutlineFile1 = outputOutlineFile1;
 	}
 
@@ -461,8 +466,11 @@ public class FormatDao {
 
 	public void setDocTagsOutlineCompressTags(String docTagsOutlineCompressTags) {
 		this.docTagsOutlineCompressTags = docTagsOutlineCompressTags;
-		final String[] strs = StringUtils.split(docTagsOutlineCompressTags, ", ");
-		this.docTagsOutlineCompressTagsList = Arrays.asList(strs);
+		if (!StringUtils.isBlank(docTagsOutlineCompressTags)) {
+			final String[] strs = StringUtils.split(docTagsOutlineCompressTags, ", ");
+			this.docTagsOutlineCompressTagsList = Arrays.asList(strs);
+		} else
+			this.docTagsOutlineCompressTagsList = new ArrayList<>();
 	}
 
 	// TODO create list like for other Lists, to prevent string matches when

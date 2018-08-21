@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.SortedMap;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -21,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.echomap.kqf.data.DocTagDataOption;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.data.ProfileExportObj;
 import com.echomap.kqf.two.gui.KQFCtrl;
@@ -40,6 +37,7 @@ import javafx.collections.ObservableList;
 public class XferBiz {
 	private final static Logger LOGGER = LogManager.getLogger(XferBiz.class);
 	public static final String PROFILE_DATA = "profileData";
+	public static final String PROFILE_DATA_OPTIONS = "options";
 	// public static final String PROFILEOPTION_DATA = "profileOptionData";
 
 	public static <T> List<T> loadDataListFromJson(final String listString, final Class T) {
@@ -114,21 +112,21 @@ public class XferBiz {
 				dataset.addProperty("file", odtd.getFile());
 				dataset.addProperty("docTags", odtd.getDocTags());
 
-				final JsonArray dsOptions = new JsonArray();
-				final SortedMap<String, DocTagDataOption> options = odtd.getOptions();
-				final Set<String> keys = options.keySet();
-				for (final String key : keys) {
-					final DocTagDataOption dtdo = options.get(key);
-
-					final JsonObject dsOption = new JsonObject();
-					dsOption.addProperty("name", dtdo.getName());
-					dsOption.addProperty("prefix", dtdo.getPrefix());
-					dsOption.addProperty("showCompress", dtdo.isShowCompress());
-					dsOption.addProperty("showExpand", dtdo.isShowExpand());
-
-					dsOptions.add(dsOption);
-				}
-				dataset.add("options", dsOptions);
+				/*
+				 * TODO OPTIONS final JsonArray dsOptions = new JsonArray();
+				 * final SortedMap<String, DocTagDataOption> options =
+				 * odtd.getOptions(); final Set<String> keys = options.keySet();
+				 * for (final String key : keys) { final DocTagDataOption dtdo =
+				 * options.get(key);
+				 * 
+				 * final JsonObject dsOption = new JsonObject();
+				 * dsOption.addProperty("name", dtdo.getName());
+				 * dsOption.addProperty("prefix", dtdo.getPrefix());
+				 * dsOption.addProperty("showCompress", dtdo.isShowCompress());
+				 * dsOption.addProperty("showExpand", dtdo.isShowExpand());
+				 * 
+				 * dsOptions.add(dsOption); } dataset.add("options", dsOptions);
+				 */
 				// exportList.add(gson2.toJson(odtd,OtherDocTagData.class));
 				exportList.add(dataset);
 			}
@@ -137,6 +135,7 @@ public class XferBiz {
 		return exportDataset;
 	}
 
+	// Used in export to File
 	public static JsonArray ProfileDataOptionsExportFromMemory(List<OtherDocTagData> targetList,
 			final Properties appProps) {
 		final JsonArray exportList = new JsonArray();
@@ -147,21 +146,21 @@ public class XferBiz {
 				final JsonArray list = new JsonArray();
 				dsOptions.add("list", list);
 
-				final SortedMap<String, DocTagDataOption> options = odtd.getOptions();
-				// final String joString = XferBiz.objectListToJson(options);
-				// dsOption.addProperty("options", joString);
-				final Set<String> keys = options.keySet();
-				for (final String key : keys) {
-					final JsonObject dsOption = new JsonObject();
-					final DocTagDataOption dtdo = options.get(key);
-					dsOption.addProperty("name", dtdo.getName());
-					dsOption.addProperty("prefix", dtdo.getPrefix());
-					dsOption.addProperty("showCompress", dtdo.isShowCompress());
-					dsOption.addProperty("showExpand", dtdo.isShowExpand());
-					// dsOption.addProperty("rawjson", joString);
-					list.add(dsOption);
-				}
-				exportList.add(dsOptions);
+//				final SortedMap<String, DocTagDataOption> options = odtd.getOptions();
+//				// final String joString = XferBiz.objectListToJson(options);
+//				// dsOption.addProperty("options", joString);
+//				final Set<String> keys = options.keySet();
+//				for (final String key : keys) {
+//					final JsonObject dsOption = new JsonObject();
+//					final DocTagDataOption dtdo = options.get(key);
+//					dsOption.addProperty("name", dtdo.getName());
+//					dsOption.addProperty("prefix", dtdo.getPrefix());
+//					dsOption.addProperty("showCompress", dtdo.isShowCompress());
+//					dsOption.addProperty("showExpand", dtdo.isShowExpand());
+//					// dsOption.addProperty("rawjson", joString);
+//					list.add(dsOption);
+//				}
+//				exportList.add(dsOptions);
 			}
 		}
 		return exportList;
@@ -262,7 +261,8 @@ public class XferBiz {
 					final JsonArray exportDataOptionsSet = XferBiz.ProfileDataOptionsExportFromMemory(targetList,
 							appProps);
 					LOGGER.debug("loadProfile: exportProfileDatasetOptions: " + exportDataOptionsSet);
-					exportDataset.add("optionslist", exportDataOptionsSet);
+					// TODO EXPORT LIST
+					// exportDataset.add("optionslist", exportDataOptionsSet);
 					dataset.add(PROFILE_DATA, exportDataset);
 				} else {
 					dataset.addProperty(ckey, cval);
@@ -385,7 +385,6 @@ public class XferBiz {
 		return listODTD;
 	}
 
-	
 	private static List<OtherDocTagData> loadOutputsFromPrefs(final Preferences child) {
 		LOGGER.debug("loadOutputsFromPrefs: Called for child");
 
@@ -414,8 +413,8 @@ public class XferBiz {
 	public static ObservableList<OtherDocTagData> readInOtherDocTags(final JsonArray profileDataset) {
 		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
 
-		for (int i = 0; i < profileDataset.size(); i++) {
-			final JsonElement je = profileDataset.get(i);
+		for (int ii = 0; ii < profileDataset.size(); ii++) {
+			final JsonElement je = profileDataset.get(ii);
 			final JsonObject jo = je.getAsJsonObject();
 
 			final String name = jo.get("name").getAsString();
@@ -433,14 +432,14 @@ public class XferBiz {
 			obj.setFile(inputFile);
 			obj.setDocTags(docTags);
 			for (int j = 0; j < jsOptions.size(); j++) {
-				final JsonElement elem = jsOptions.get(i);
+				final JsonElement elem = jsOptions.get(j);
 				// final String json = elem.getAsString();
-				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
-						DocTagDataOption.class);
-				LOGGER.debug("loadTableData: option: " + option);
-				LOGGER.debug("loadTableData: obj: " + obj);
+//				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
+//						DocTagDataOption.class);
+//				LOGGER.debug("loadTableData: option: " + option);
+//				LOGGER.debug("loadTableData: obj: " + obj);
 
-				obj.addOption(option);
+//				obj.addOption(option);
 			}
 
 			newList.add(obj);

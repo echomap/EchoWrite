@@ -9,11 +9,49 @@ add tag helpers, for what to show for that tag in the output?, ie: *outlinedata:
 Rename and save doesn't keep 'More Files'
 Add Replace path to import?
 Confirm on delete/backup
+-MM scene file not reflect volume
+-One long scene into another , line between fixes!?
+-Format not respect rules like for DocTag start/end?
+-errors log not clearing at run start?
+-section number if put in, not outputted?
+	section NAME /number formatting needs work
+formatting section output
+HTML output
+
+-=VERSION 2 COnvrsion=-
+1) verify V2
+2) make V1 use profile manager
+3) move from V1 to V2 if V1 data, and delete V1 
+-=BUGS=-
+Formatting in new version, drop caps not working
+Unused tags in MoreFiles are not tracked
+save column sizes?
 ----==--==--==--------==--==--==--------==--==--==----
-1.0.15 (future)
+2.0.0
+	updated GUI
+----==--==--==--------==--==--==--------==--==--==----
+1.0.15 (future version)
+	doctag report file written with _ properly
+	new file report for doctags
 	updates to MoreDoctags
 	Bugfixes
+	oh heck, fine, java 8
 ----==--==--==--------==--==--==--------==--==--==----
+NEWEST
+	showing message in outliner when UNCLOSED tag is possible
+2018 06 18
+	updated bugs in import more
+	Updated Counter to better handle doctags
+	Updated formatter, a lot
+	update formatter to use doctag/not-doctag methods of looper
+	Xfer bug
+	DocTag/DoctagLine, added, bareLine and rawLine
+	FileLooper, Removed handleDocTagMaybeTag
+	Looper, removed globals
+	TextBiz
+		-isAnHtmlLine updated
+		-count updated
+		-isDocTag now returns bare line
 2018 05 22
 	Import not working with Profiles in Writing
 	update table view for import with hack to auto-resize columns

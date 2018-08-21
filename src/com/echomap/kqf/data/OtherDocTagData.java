@@ -2,9 +2,6 @@ package com.echomap.kqf.data;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.LogManager;
@@ -18,7 +15,7 @@ public class OtherDocTagData {
 	private String docTags;
 
 	// private String optionsJson;
-	private SortedMap<String, DocTagDataOption> options = new TreeMap<>();
+//	private SortedMap<String, DocTagDataOption> options = new TreeMap<>();
 
 	public OtherDocTagData() {
 	}
@@ -67,46 +64,46 @@ public class OtherDocTagData {
 	// this.optionsJson = optionsJson;
 	// }
 
-	public SortedMap<String, DocTagDataOption> getOptions() {
-		final List<String> mList = getDocTagsList();
-		for (String dts : mList) {
-			LOGGER.debug("getOptions: dts: '" + dts + "'");
-			if (!options.containsKey(dts)) {
-				options.put(dts, new DocTagDataOption(dts));
-			}
-		}
-		final SortedMap<String, DocTagDataOption> optionskeep = new TreeMap<>();
+//	public SortedMap<String, DocTagDataOption> getOptions() {
+//		final List<String> mList = getDocTagsList();
+//		for (String dts : mList) {
+//			LOGGER.debug("getOptions: dts: '" + dts + "'");
+//			if (!options.containsKey(dts)) {
+//				options.put(dts, new DocTagDataOption(dts));
+//			}
+//		}
+//		final SortedMap<String, DocTagDataOption> optionskeep = new TreeMap<>();
+//
+//		final Set<String> keys = options.keySet();
+//		for (final String key : keys) {
+//			final DocTagDataOption opt = options.get(key);
+//			if (opt.getName() != null)
+//				optionskeep.put(key, opt);
+//		}
+//		//
+//		options.clear();
+//		//
+//		final Set<String> keysK = optionskeep.keySet();
+//		for (final String key : keysK) {
+//			final DocTagDataOption opt = optionskeep.get(key);
+//			if (opt.getName() != null)
+//				options.put(key, opt);
+//		}
+//
+//		return options;
+//	}
 
-		final Set<String> keys = options.keySet();
-		for (final String key : keys) {
-			final DocTagDataOption opt = options.get(key);
-			if (opt.getName() != null)
-				optionskeep.put(key, opt);
-		}
-		//
-		options.clear();
-		//
-		final Set<String> keysK = optionskeep.keySet();
-		for (final String key : keysK) {
-			final DocTagDataOption opt = optionskeep.get(key);
-			if (opt.getName() != null)
-				options.put(key, opt);
-		}
-
-		return options;
-	}
-
-	public void addOption(final DocTagDataOption option) {
-		final SortedMap<String, DocTagDataOption> options = getOptions();
-		// DocTagDataOption optionFound = options.get(option.docTag);
-		// if(optionFound!=null)
-		options.put(option.name, option);
-	}
+//	public void addOption(final DocTagDataOption option) {
+//		final SortedMap<String, DocTagDataOption> options = getOptions();
+//		// DocTagDataOption optionFound = options.get(option.docTag);
+//		// if(optionFound!=null)
+//		options.put(option.name, option);
+//	}
 
 	public boolean dataCheck() {
 		if (this.name == null)
 			return false;
-		getOptions();
+//		getOptions();
 
 		return true;
 	}

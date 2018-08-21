@@ -4,6 +4,8 @@
 package com.echomap.kqf.two;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
@@ -29,6 +31,7 @@ import com.echomap.kqf.two.gui.WorkDoneNotify;
 public class FormatCli implements WorkDoneNotify {
 	private final static Logger LOGGER = LogManager.getLogger(FormatCli.class);
 	final Properties appProps;
+	final List<String> errorsReportedKeys = new ArrayList<>();
 
 	public FormatCli() {
 		appProps = KqfBiz.initializeAppProperies();
@@ -62,17 +65,25 @@ public class FormatCli implements WorkDoneNotify {
 			final ProfileBiz profileBiz = new ProfileBiz(userPrefs);
 
 			// Setup the argument passed
-			final ProfileBiz.ReportObj reportObj = profileBiz.loadProfileData();
-			for (String str : reportObj.msgs) {
-				LOGGER.info("msg = " + str);
-			}
+			// final ProfileBiz.ReportObj reportObj =
+			// profileBiz.loadProfileData();
+			// for (String str : reportObj.msgs) {
+			// LOGGER.info("msg = " + str);
+			// }
 
 			final ProfileData pr = profileBiz.loadOldProfileObject(profileName);
 			final FormatDao formatDao = new FormatDao();
 			profileBiz.setupDaoFromProfileData(formatDao, pr, appProps);
 			LOGGER.info("FormatDao = " + formatDao);
 
+			LOGGER.info("##################################");
+			LOGGER.info("####### Word Count Started #######");
+			LOGGER.info("##################################");
 			doCountAction(formatDao);
+
+			LOGGER.info("###############################");
+			LOGGER.info("####### OUTLINE Started #######");
+			LOGGER.info("###############################");
 			doOutlineAction(formatDao);
 
 		} catch (ParseException e) {
@@ -133,18 +144,27 @@ public class FormatCli implements WorkDoneNotify {
 
 	@Override
 	public void finishedWithWork(String msg) {
-		LOGGER.info("Done with process " + msg);
+		LOGGER.info("Done with process: " + msg);
+	}
+
+	@Override
+	public void errorWithWork(final String msg, final String key) {
+		if (!errorsReportedKeys.contains(key)) {
+			LOGGER.error("Error with process: " + msg);
+			LOGGER.info(msg);
+			errorsReportedKeys.add(key);
+		}
 	}
 
 	@Override
 	public void errorWithWork(String msg, Exception e) {
-		LOGGER.error("Errorwith process " + msg);
+		LOGGER.error("Error with process: " + msg);
 		LOGGER.info(e);
 	}
 
 	@Override
 	public void errorWithWork(String msg, Throwable e) {
-		LOGGER.error("Errorwith process " + msg);
+		LOGGER.error("Error with process: " + msg);
 		LOGGER.info(e);
 	}
 

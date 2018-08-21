@@ -145,11 +145,19 @@ public class TextBiz {
 		return false;
 	}
 
-	public static String isAnHtmlLine(final String line) {
+	public static boolean isAnHtmlLine(final String line) {
+		if (line == null)
+			return false;
 		String line2 = line.toLowerCase();
-		if (line2.startsWith("<div"))
-			return "div";
-		return null;
+		final int idx1 = line2.indexOf("<div");
+		final int idx2 = line2.indexOf("/div");
+		if (idx1 > -1)
+			return true;
+		if (idx2 > -1)
+			return true;
+		// if (line2.startsWith("<div")) return true;
+		// if (line2.endsWith("/div>")) return true;
+		return false;
 	}
 
 	public static String fixedLengthString(final String str, final int length) {
@@ -220,6 +228,15 @@ public class TextBiz {
 		boolean inWord = false;
 
 		String text2 = cleanPlainText(ldao.getCurrentLine(), fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
+		if (text2.length() < 1)
+			return;
+		countWords(text2, dao, fdao);
+	}
+
+	public static void countWords(String text2, final CountDao dao, final FormatDao fdao) {
+		boolean inWord = false;
+		if (text2 == null || text2.length() < 1)
+			return;
 
 		final int len = text2.length();
 		for (int i = 0; i < len; i++) {
@@ -387,27 +404,57 @@ public class TextBiz {
 		}
 
 		if (line.contains(startTag) && line.contains(endTag)) {
-			int idx1 = line.indexOf(startTag);
-			int idx2 = line.indexOf(endTag);
-			if (idx1 == 0 && idx2 == line.length() - endTag.length()) {
-				dtl.setupOnlyDocTag(line.substring(idx1 + startTag.length(), idx2));
+			final String trimLine = line.trim();
+			int idx1 = trimLine.indexOf(startTag);
+			int idx2 = trimLine.indexOf(endTag);
+			if (idx1 == 0 && idx2 == (trimLine.length() - endTag.length())) {
+				final DocTag dt = findNextDocTag(startTag, endTag, line);
+				dtl.setupOnlyDocTag(dt);// line.substring(idx1 +
+										// startTag.length(), idx2));
 				// return DOCTAGTYPE.ALLDOCTAG;
 			} else {
+				idx1 = line.indexOf(startTag);
+				idx2 = line.indexOf(endTag);
 				dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
-
+				// Processing line2
 				String line2 = line;// .substring(idx2 + endTag.length());
 				DocTag dt = findNextDocTag(startTag, endTag, line2);
+				// bareLine.delete(idx1, idx2+ endTag.length());
 				while (dt != null) {
 					dtl.addDocTag(dt);
+					// String parseOut = line2.substring(idx1, idx2 +
+					// endTag.length());
+					// bareLine = bareLine.replace(parseOut, "");
 					if (line2.length() > idx2 + endTag.length()) {
 						line2 = line2.substring(idx2 + endTag.length());
 						dt = findNextDocTag(startTag, endTag, line2);
 						idx2 = line2.indexOf(endTag);
+						// bareLine.delete()
 					} else
 						dt = null;
 				}
 				// return DOCTAGTYPE.HASDOCTAG;
+				// dtl.setBareLine(bareLine.toString());
 			}
+
+			// Remove DocTags
+			if (dtl.isHasDocTag()) {
+				// final StringBuilder bareLine = new StringBuilder();
+				// bareLine.append(line);
+				String strBare = line;
+				final List<DocTag> docTags = dtl.getDocTags();
+				if (docTags != null) {
+					for (final DocTag docTag : docTags) {
+						LOGGER.debug("docTag: text: " + docTag.getFullText() + " tag: " + docTag.getFullTag());
+						if (docTag.getFullTag() != null)
+							strBare = strBare.replace(docTag.getFullTag(), "");
+					}
+				}
+				dtl.setBareLine(strBare.trim());
+				if (StringUtils.isEmpty(dtl.getBareLine()))
+					dtl.setOnlyDoctag(true);
+			}
+
 		} else if (line.contains(startTag)) {
 			int idx1 = line.indexOf(startTag);
 			dtl.setupLongDocTag(line, line.substring(idx1 + startTag.length()));
@@ -421,6 +468,7 @@ public class TextBiz {
 		} else {
 			dtl.setupNotADocTag(line);
 		}
+
 		// return DOCTAGTYPE.NONE;
 		return dtl;
 	}
@@ -433,7 +481,13 @@ public class TextBiz {
 		if (idx1 > -1 && idx2 > -1 && line.length() > idx2) {
 			try {
 				final String str = line.substring(idx1 + startTag.length(), idx2);
+				final String str2 = line.substring(idx1, idx2 + endTag.length());
 				dt = new DocTag(str);
+				dt.setFullTag(str2);
+				final String barePre = line.substring(0, idx1);
+				final String barePost = line.substring(idx2 + endTag.length());
+				final String bare = barePre + barePost;
+				dt.setBareLine(bare.trim());
 			} catch (java.lang.StringIndexOutOfBoundsException e) {
 				LOGGER.error(e);
 				LOGGER.error(e.getMessage(), e);

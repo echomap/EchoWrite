@@ -10,9 +10,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -50,12 +54,13 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	private static final String CHAPTER = "-= Chapter ";
 
-	private Writer fWriterOutline = null;
-	private Writer fWriterAll = null;
+	private Writer fWriterOutlineCsv = null;
+	private Writer fWriterAllTagsCsv = null;
 
 	private BufferedWriter fWriterOutlineFile;
 	private BufferedWriter fWriterSceneFile;
 	private BufferedWriter fWriterNotUsedFile;
+	private BufferedWriter fWriterDocTagReportFile;
 	private BufferedWriter fWriterOther1File;
 	private Map<String, BufferedWriter> fWriterOthersList = new HashMap<>();
 
@@ -66,7 +71,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	private final Map<String, List<DocTag>> coalateTextMap = new TreeMap<String, List<DocTag>>();
 	private final List<DocTag> sceneDTList = new ArrayList<DocTag>();
-	private final List<DocTag> unusedTagList = new ArrayList<DocTag>();
+	private final List<String> unusedTagNameList = new ArrayList<String>();
+	private final SortedMap<String, List<String>> usedTagFileList = new TreeMap<String, List<String>>();
 
 	// private boolean inLongDocTag = false;
 	// private StringBuilder longDocTagText = new StringBuilder();
@@ -116,27 +122,39 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		if (dttGL.isHasDocTag()) {
 			// if (dtt != TextBiz.DOCTAGTYPE.NONE) {
 			final List<DocTag> docTags = dttGL.getDocTags();
-			if (docTags != null) {
+			// Why would this have an empty rawline and be a thing?
+			// -Well, long doctags might not have one right now...
+			// -TODO test and check TEST1
+			if (docTags != null && dttGL.isHasDocTag()) {
+				// && !StringUtils.isBlank(dttGL.getRawLine())) {
 				for (final DocTag docTag : docTags) {
+					// if (StringUtils.isBlank(docTag.getName()))
+					// continue;
 					boolean wroteTag = false;
 					if (outlineTags.contains(docTag.getName())) {
 						wroteTag = true;
-						writeEntryToCSV(fWriterOutline, docTag, cdao, ldao, dttGL);
+						writeEntryToCSV(fWriterOutlineCsv, docTag, cdao, ldao, dttGL);
+						addToUsedTagFileList(dttGL, docTag, "outline");
 					}
-					writeEntryToCSV(fWriterAll, docTag, cdao, ldao, dttGL);
+					writeEntryToCSV(fWriterAllTagsCsv, docTag, cdao, ldao, dttGL);
 
 					if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())
 							|| formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
+						if (!wroteTag)
+							addToUsedTagFileList(dttGL, docTag, "outline");
 						wroteTag = true;
 						writeEntryToOutline(fWriterOutlineFile, docTag, cdao, formatDao);
 					}
 					if (formatDao.getDocTagsSceneTags().contains(docTag.getName())) {
 						wroteTag = true;
 						sceneDTList.add(docTag);
+						addToUsedTagFileList(dttGL, docTag, "scene");
 					}
 					if (formatDao.getDocTagsSceneCoTags().contains(docTag.getName())) {
+						if (!wroteTag)
+							addToUsedTagFileList(dttGL, docTag, "scene");
 						wroteTag = true;
-						addToCoalateTextMap(docTag, cdao, formatDao, ldao);
+						addToCoalateTextMap(dttGL, docTag, cdao, formatDao, ldao);
 					}
 					// if
 					// (formatDao.getDocTagsOther1Tags().contains(docTag.getName()))
@@ -155,16 +173,19 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 							if (otherOutput.getDocTagsList().contains(docTag.getName())) {
 								final BufferedWriter bw = fWriterOthersList.get(otherOutput.getName());
 								writeEntryToFile(bw, docTag, cdao, formatDao);
+								addToUsedTagFileList(dttGL, docTag, otherOutput.getName());
+								wroteTag = true;
 							}
 						}
 					}
 
 					if (!wroteTag) {
-						if (fWriterNotUsedFile != null) {
-							fWriterNotUsedFile.write(docTag.getName());
-							fWriterNotUsedFile.write(TextBiz.newLine);
-						}
-						unusedTagList.add(docTag);
+						// if (fWriterNotUsedFile != null) {
+						// fWriterNotUsedFile.write(docTag.getName());
+						// fWriterNotUsedFile.write(TextBiz.newLine);
+						// }
+						if (!unusedTagNameList.contains(docTag.getName()))
+							unusedTagNameList.add(docTag.getName());
 					}
 				}
 			}
@@ -177,13 +198,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	@Override
 	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
-
+		//
 	}
 
-	@Override
-	public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao) throws IOException {
-
-	}
+	// @Override
+	// public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao)
+	// throws IOException {
+	//
+	// }
 
 	private void writeSectionData(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		final SimpleSectionDao ssd = ldao.getCurrentSection();
@@ -244,7 +266,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		// DocTag docTagLast = null;
 		writeToSceneFileMain(formatDao);
-		writeToOther1FileMain(formatDao);
+		// REMOVED per 'MoreFiles' Functions writeToOther1FileMain(formatDao);
 		// boolean inScene = false;
 
 		if (fWriterSceneFile != null && cdao != null) {
@@ -284,10 +306,6 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	}
 
-	private void writeToOther1FileMain(final FormatDao formatDao) throws IOException {
-		// TODO
-	}
-
 	private void writeToSceneFileMain(final FormatDao formatDao) throws IOException {
 		for (final DocTag docTag : sceneDTList) {
 			// if (docTag.getName().compareTo("scene") != 0) inScene = true;
@@ -300,7 +318,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterSceneFile.write(": ");
 
 				final String val = docTag.getValue();
-				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile, false);
+				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile);
 			}
 
 			// docTagLast = docTag;
@@ -320,18 +338,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 			for (final DocTag docTag : vals) {
 				String fullText2 = docTag.getValue();
-				fullText2 = fullText2.replace("(+n)", "\n\t");
-				fullText2 = fullText2.replace("(+u)", "\t*");
-				// if (fullText2.startsWith("\n"))
-				// fullText2 = fullText2.substring(2, fullText2.length());
-				// if (fullText2.endsWith("\n\n"))
-				// fullText2 = fullText2.substring(0, fullText2.length() - 4);
-				fullText2 = fullText2.trim();
-				fullText2 = fullText2.replace(" \n", "\n");
 
-				fWriterSceneFile.write("\t");
-				fWriterSceneFile.write(fullText2);
-				fWriterSceneFile.write(TextBiz.newLine);
+				writeDataToFileWithCrop(fullText2, formatDao, fWriterSceneFile, "\t");
+
+				// fullText2 = fullText2.replace("(+n)", "\n\t");
+				// fullText2 = fullText2.replace("(+u)", "\t*");
+				// // if (fullText2.startsWith("\n"))
+				// // fullText2 = fullText2.substring(2, fullText2.length());
+				// // if (fullText2.endsWith("\n\n"))
+				// // fullText2 = fullText2.substring(0, fullText2.length() -
+				// 4);
+				// fullText2 = fullText2.trim();
+				// fullText2 = fullText2.replace(" \n", "\n");
+				//
+				// fWriterSceneFile.write("\t");
+				// fWriterSceneFile.write(fullText2);
+				// fWriterSceneFile.write(TextBiz.newLine);
 			}
 		}
 		// TODO use sublist of doctags to put sub(s) into mains
@@ -344,16 +366,21 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	}
 
 	private void writeDataToFileWithCrop(final String textData, final FormatDao formatDao,
-			final BufferedWriter fWriterFile2, final boolean pad) throws IOException {
+			final BufferedWriter fWriterFile2) throws IOException {
+		writeDataToFileWithCrop(textData, formatDao, fWriterFile2, null);
+	}
+
+	private void writeDataToFileWithCrop(final String textData, final FormatDao formatDao,
+			final BufferedWriter fWriterFile2, final String basepad) throws IOException {
 		int maxLineLen = 70; // param
 		maxLineLen = formatDao.getDocTagsMaxLineLength();
 		// if (maxLineLen > 0 && val.length() > maxLineLen) {
-		if (pad)
-			fWriterFile2.write(TextBiz.newLine);
+		// if (pad)
+		// fWriterFile2.write(TextBiz.newLine);
 
-		String pre = (pad ? "\t" : "");
-		String mid = "";
-		StringBuilder strToWrite = new StringBuilder();
+		final String preBase = (basepad == null ? "" : basepad);
+		String WORD_DIV = "";
+		final StringBuilder strToWrite = new StringBuilder();
 
 		StringBuilder textData2 = new StringBuilder();
 		int idxU = textData.indexOf("(+u)");
@@ -375,30 +402,36 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		// boolean lineIsListItem = false;
 		final StringTokenizer st = new StringTokenizer(textData2.toString(), " \t", false);
+		boolean secondLvl = false;
+		String pre2 = preBase;
 		while (st.hasMoreTokens()) {
 			String wd = st.nextToken();
-
+			pre2 = (secondLvl ? preBase + "\t" : preBase);
 			// if (wd.contains("\t")) {
 			// if (strToWrite.length() > 0)
 			// wd.replace("\t", "");
 			// }
 			if ("(+n)".compareTo(wd) == 0) {
-				fWriterFile2.write(pre);
+				fWriterFile2.write(pre2);
 				fWriterFile2.write(strToWrite.toString().trim());
 				fWriterFile2.write(TextBiz.newLine);
 				strToWrite.setLength(0);
-				pre = "\t";
+				// pre += "\t";
+				secondLvl = true;
 				// no strToWrite.append(wd);
 			} else if ((strToWrite.length() + wd.length()) > maxLineLen) {
-				fWriterFile2.write(pre);
+				fWriterFile2.write(pre2);
 				fWriterFile2.write(strToWrite.toString().trim());
 				fWriterFile2.write(TextBiz.newLine);
 				strToWrite.setLength(0);
-				pre = "\t";
+				// pre += "\t";
+				secondLvl = true;
+				pre2 = (secondLvl ? preBase + "\t" : preBase);
+				strToWrite.append(pre2);
 				strToWrite.append(wd);
 			} else {
 				if (strToWrite.length() > 0)
-					strToWrite.append(mid);
+					strToWrite.append(WORD_DIV);
 				strToWrite.append(wd);
 			}
 			// int idx = strToWrite.indexOf("(+u)");
@@ -415,16 +448,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				LOGGER.debug("Has embeded +N");
 				String str1 = strToWrite.substring(0, idx + 4);
 				str1 = str1.replace("(+n)", "");
-				fWriterFile2.write(pre);
+				fWriterFile2.write(pre2);
 				fWriterFile2.write(str1.trim());
 				fWriterFile2.write(TextBiz.newLine);
 				strToWrite.delete(0, idx + 4);
-				pre = "\t";
+				// pre = "\t";
+				secondLvl = true;
+				pre2 = (secondLvl ? preBase + "\t" : preBase);
 			}
-			mid = " ";
+			WORD_DIV = " ";
 		}
 		if (strToWrite.length() > 0) {
-			fWriterFile2.write(pre);
+			fWriterFile2.write(pre2);
 			fWriterFile2.write(strToWrite.toString().trim());
 			fWriterFile2.write(TextBiz.newLine);
 		}
@@ -438,71 +473,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	DocTagLine dttGL = null;
 
-	/**
-	 * Called from Handle Line
-	 *
-	 * private void outlineLine(final LooperDao ldao, final CountDao cdao, final
-	 * FormatDao formatDao) throws IOException { // LOGGER.debug("LINE: '" +
-	 * ldao.getCurrentLine() + "'"); DocTagLine dtt =
-	 * TextBiz.isDocTag(ldao.getCurrentLine(), formatDao.getDocTagStart(),
-	 * formatDao.getDocTagEnd()); // LOGGER.debug("DTLE: '" + dtt.getLine() +
-	 * "'"); LOGGER.debug("IS: END: " + dtt.isEndDocTag() + " HAS: " +
-	 * dtt.isHasDocTag() + " LNG: " + dtt.isLongDocTag() + " ONY: " +
-	 * dtt.isOnlyDoctag()); if (dttGL != null) LOGGER.debug("GL: END: " +
-	 * dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: " +
-	 * dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
-	 * 
-	 * LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
-	 * 
-	 * if (dtt.isLongDocTag() || inLongDocTag) { inLongDocTag = true; // final
-	 * String longtext = //
-	 * ldao.getCurrentLine().replace(formatDao.getDocTagEnd(), "") //
-	 * .replace(formatDao.getDocTagStart(), ""); //
-	 * longDocTagText.append(longtext);
-	 * 
-	 * if (dtt.isEndDocTag()) { inLongDocTag = false; // if (dtt.getDocTags() !=
-	 * null) // dtt.getDocTags().clear(); // final DocTag dt = new //
-	 * DocTag(longDocTagText.toString().trim()); // dtt.addDocTag(dt); //
-	 * dtt.setHasDocTag(true); // dtt.setLongDocTag(false);
-	 * 
-	 * dttGL.addDocTag(dtt.getDocTags()); if (!dtt.isHasDocTag()) {
-	 * dttGL.appendTextToLast(dtt.getLine()); } dttGL.setHasDocTag(true);
-	 * dttGL.setLongDocTag(false); dtt = null; } else { if (dttGL == null) {
-	 * dttGL = new DocTagLine(); } dttGL.addDocTag(dtt.getDocTags()); if
-	 * (!dtt.isHasDocTag()) { dttGL.appendTextToLast(dtt.getLine()); } } } else
-	 * dttGL = dtt;
-	 * 
-	 * if (dttGL.isHasDocTag() && !dttGL.isLongDocTag() && !inLongDocTag) { //
-	 * if (dtt != TextBiz.DOCTAGTYPE.NONE) { final List<DocTag> docTags =
-	 * dttGL.getDocTags(); if (docTags != null) { for (final DocTag docTag :
-	 * docTags) { boolean wroteTag = false; if
-	 * (outlineTags.contains(docTag.getName())) { wroteTag = true;
-	 * writeEntryToCSV(fWriterOutline, docTag, cdao, ldao, dttGL); }
-	 * writeEntryToCSV(fWriterAll, docTag, cdao, ldao, dttGL);
-	 * 
-	 * if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())
-	 * || formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
-	 * wroteTag = true; writeEntryToOutline(fWriterOutlineFile, docTag, cdao,
-	 * formatDao); } if
-	 * (formatDao.getDocTagsSceneTags().contains(docTag.getName())) { wroteTag =
-	 * true; sceneDTList.add(docTag); } if
-	 * (formatDao.getDocTagsSceneCoTags().contains(docTag.getName())) { wroteTag
-	 * = true; addToCoalateTextMap(docTag, cdao, formatDao, ldao); } if
-	 * (!wroteTag) { if (fWriterNotUsedFile != null) {
-	 * fWriterNotUsedFile.write(docTag.getName());
-	 * fWriterNotUsedFile.write(TextBiz.newLine); } unusedTagList.add(docTag); }
-	 * } } dttGL = null; } else { // LOGGER.debug("not writing list -------> ");
-	 * } }
-	 */
-
-	private void addToCoalateTextMap(final DocTag docTag, final CountDao cdao, final FormatDao formatDao,
-			final LooperDao ldao) {
+	private void addToCoalateTextMap(final DocTagLine dttGL2, final DocTag docTag, final CountDao cdao,
+			final FormatDao formatDao, final LooperDao ldao) {
 		final String key = docTag.getName();
-		List<DocTag> dts = coalateTextMap.get(key);
-		if (dts == null)
-			dts = new ArrayList<DocTag>();
-		dts.add(docTag);
-		coalateTextMap.put(key, dts);
+		if (StringUtils.isEmpty(key)) {
+			LOGGER.error("Tried to add empty key to CoalateTextMap?<" + dttGL2 + ">");
+		} else {
+			List<DocTag> dts = coalateTextMap.get(key);
+			if (dts == null)
+				dts = new ArrayList<DocTag>();
+			dts.add(docTag);
+			coalateTextMap.put(key, dts);
+		}
 	}
 
 	private void writeEntryToFile(final BufferedWriter fWriterL, final DocTag docTag, final CountDao cdao,
@@ -511,7 +493,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			return;
 		fWriterL.write(docTag.getName());
 		fWriterL.write(": ");
-		writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL, false);
+		writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL);
 
 	}
 
@@ -562,7 +544,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// fWriterL.write("-");
 			// else if (levelledCount == 2)
 			// fWriterL.write("--");
-			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL, false);
+			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL);
 			// writeDataToFileWithCrop(" [" + levelledCount + "]", formatDao,
 			// fWriterL, false);
 			// fWriterL.write(docTag.getValue());
@@ -570,14 +552,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		} else if (formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
 			fWriterL.write(docTag.getName());
 			fWriterL.write(": ");
-			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL, false);
+			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL);
 			// writeDataToFileWithCrop(" [" + levelledCount + "]", formatDao,
 			// fWriterL, false);
 			// fWriterL.write(docTag.getValue());
 			// fWriterL.write(TextBiz.newLine);
 		}
 		//
-		// // TODO collect values for summary in outline per chapter?
+		// //
 		// if (docTag.getName().compareTo("outline") == 0) {
 		// fWriterL.write(docTag.getValue());
 		// fWriterL.write(TextBiz.newLine);
@@ -787,23 +769,102 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		writeChapterData(formatDao, ldao, null);
 
+		Collections.sort(unusedTagNameList);
 		final StringBuilder sb = new StringBuilder();
 		sb.append("Outline: ");
 		sb.append("Unused#: ");
-		sb.append(unusedTagList.size());
-		if (unusedTagList.size() > 0) {
-			sb.append("(");
-			sb.append(getDoctagNameList(unusedTagList));
+		sb.append(unusedTagNameList.size());
+		if (unusedTagNameList.size() > 0) {
+			if (fWriterNotUsedFile != null) {
+				fWriterNotUsedFile.write(sb.toString());
+				fWriterNotUsedFile.write(TextBiz.newLine);
+				for (final String docTagName : unusedTagNameList) {
+					fWriterNotUsedFile.write(docTagName);
+					fWriterNotUsedFile.write(TextBiz.newLine);
+				}
+			}
+			sb.append(" (");
+			sb.append(fromListToCommaDelimString(unusedTagNameList));
 			sb.append(")");
 		}
+		if (fWriterDocTagReportFile != null) {
+			final List<String> allKeys = new ArrayList<>();
+			final Set<String> keys = usedTagFileList.keySet();
+			int maxkeylength = 0;
+			for (String key : keys) {
+				if (key.length() > maxkeylength)
+					maxkeylength = key.length();
+				allKeys.add(key);
+			}
+			for (final String docTagName : unusedTagNameList) {
+				if (!allKeys.contains(docTagName))
+					allKeys.add(docTagName);
+			}
+			Collections.sort(allKeys);
+			fWriterDocTagReportFile.write("-= DocTags Report =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("(Used Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(keys.size()));
+			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write("(Unused Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
+			fWriterDocTagReportFile.write(" )");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
 
-		if (fWriterAll != null) {
-			fWriterAll.flush();
-			fWriterAll.close();
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Report (Used) ");
+			fWriterDocTagReportFile.write("Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(usedTagFileList.size()));
+			fWriterDocTagReportFile.write(" =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+
+			for (String key : allKeys) {
+				String padStr = StringUtils.rightPad(key, maxkeylength, " ");
+				fWriterDocTagReportFile.write(padStr);
+				fWriterDocTagReportFile.write(" = ");
+				List<String> usedTagList = usedTagFileList.get(key);
+				String str = "<NONE>";
+				if (usedTagList != null) {
+					Collections.sort(usedTagList);
+					str = fromListToCommaDelimString(usedTagList);
+				}
+				fWriterDocTagReportFile.write(str);
+				fWriterDocTagReportFile.write(TextBiz.newLine);
+			}
+
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Report (Unused) ");
+			fWriterDocTagReportFile.write("Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
+			fWriterDocTagReportFile.write(" =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			if (fWriterNotUsedFile != null) {
+				for (final String docTagName : unusedTagNameList) {
+					fWriterDocTagReportFile.write(docTagName);
+					fWriterDocTagReportFile.write(TextBiz.newLine);
+				}
+			}
+
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Report (All) ");
+			fWriterDocTagReportFile.write("Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(allKeys.size()));
+			fWriterDocTagReportFile.write(" =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			for (final String docTagName : allKeys) {
+				fWriterDocTagReportFile.write(docTagName);
+				fWriterDocTagReportFile.write(",");
+			}
+
 		}
-		if (fWriterOutline != null) {
-			fWriterOutline.flush();
-			fWriterOutline.close();
+
+		if (fWriterAllTagsCsv != null) {
+			fWriterAllTagsCsv.flush();
+			fWriterAllTagsCsv.close();
+		}
+		if (fWriterOutlineCsv != null) {
+			fWriterOutlineCsv.flush();
+			fWriterOutlineCsv.close();
 		}
 		if (fWriterOutlineFile != null) {
 			fWriterOutlineFile.flush();
@@ -816,6 +877,10 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		if (fWriterNotUsedFile != null) {
 			fWriterNotUsedFile.flush();
 			fWriterNotUsedFile.close();
+		}
+		if (fWriterDocTagReportFile != null) {
+			fWriterDocTagReportFile.flush();
+			fWriterDocTagReportFile.close();
 		}
 		if (fWriterOther1File != null) {
 			fWriterOther1File.flush();
@@ -843,6 +908,46 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		return sb.toString();
 	}
 
+	private String fromListToCommaDelimString(final List<String> docTagList) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String docTag : docTagList) {
+			sb.append(docTag);
+			sb.append(", ");
+		}
+		sb.setLength(sb.length() - 2);
+		return sb.toString();
+	}
+
+	private void addToUsedTagFileList(final DocTagLine dttGL2, final DocTag docTag, final String fileName) {
+		final String key = docTag.getName();
+		if (StringUtils.isEmpty(key)) {
+			LOGGER.error("Tried to add empty key to used tag file list?<" + dttGL2.getRawLine() + ">");
+		} else {
+			List<String> list = null;
+			if (usedTagFileList.containsKey(key)) {
+				list = usedTagFileList.get(key);
+			} else {
+				list = new ArrayList<>();
+			}
+			if (!list.contains(fileName)) {
+				list.add(fileName);
+			}
+			usedTagFileList.put(key, list);
+		}
+	}
+
+	private List<String> getDocTagsFromStringBlobToList(String docTagsTextBlob) {
+		if (StringUtils.isEmpty(docTagsTextBlob)) {
+			return new ArrayList<>();
+		}
+		docTagsTextBlob = docTagsTextBlob.replace("\r", "");
+		docTagsTextBlob = docTagsTextBlob.replace("\n", "");
+		docTagsTextBlob = docTagsTextBlob.replace("\t", "");
+		docTagsTextBlob = docTagsTextBlob.replace(" ", "");
+		final String[] strs = StringUtils.split(docTagsTextBlob, ", ");
+		return Arrays.asList(strs);
+	}
+
 	@Override
 	public void preHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 
@@ -850,19 +955,19 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		final Charset selCharSet = formatDao.getCharSet();
 		LOGGER.debug("preHandler: Charset chosen: " + selCharSet);
 
-		File outputFileO = null;
+		File outputCSVFileO = null;
 		if (!StringUtils.isBlank(formatDao.getOutputOutlineFile())) {
-			outputFileO = new File(formatDao.getOutputOutlineFile());
-			final File outputDirO = outputFileO.getParentFile();
+			outputCSVFileO = new File(formatDao.getOutputOutlineFile());
+			final File outputDirO = outputCSVFileO.getParentFile();
 			if (outputDirO != null) {
 				outputDirO.getParentFile().mkdirs();
 				outputDirO.mkdirs();
 			}
 		}
-		File outputFileA = null;
+		File outputCSVFileAll = null;
 		if (!StringUtils.isBlank(formatDao.getOutputOutlineFile1())) {
-			outputFileA = new File(formatDao.getOutputOutlineFile1());
-			final File outputDirA = outputFileA.getParentFile();
+			outputCSVFileAll = new File(formatDao.getOutputOutlineFile1());
+			final File outputDirA = outputCSVFileAll.getParentFile();
 			if (outputDirA != null) {
 				outputDirA.getParentFile().mkdirs();
 				outputDirA.mkdirs();
@@ -870,23 +975,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		}
 
 		// LOGGER.info("Writing data to " + outputFile1);
-		if (outputFileA != null) {
-			fWriterAll = new OutputStreamWriter(new FileOutputStream(outputFileA), selCharSet);
+		if (outputCSVFileAll != null) {
+			fWriterAllTagsCsv = new OutputStreamWriter(new FileOutputStream(outputCSVFileAll), selCharSet);
 			// fWriterAll = new FileWriter(outputFileA, false);
-			fWriterAll.write("Chpt,Line,Type,TagName,SubTagName,TagValue");
-			fWriterAll.write(TextBiz.newLine);
+			fWriterAllTagsCsv.write("Chpt,Line,Type,TagName,SubTagName,TagValue");
+			fWriterAllTagsCsv.write(TextBiz.newLine);
 		}
 
-		if (outputFileO != null) {
-			fWriterOutline = new OutputStreamWriter(new FileOutputStream(outputFileO), selCharSet);
+		if (outputCSVFileO != null) {
+			fWriterOutlineCsv = new OutputStreamWriter(new FileOutputStream(outputCSVFileO), selCharSet);
 			// fWriterOutline = new FileWriter(outputFileO, false);
-			fWriterOutline.write("Chpt,Line,Type,TagName,SubTagName,TagValue");
-			fWriterOutline.write(TextBiz.newLine);
+			fWriterOutlineCsv.write("Chpt,Line,Type,TagName,SubTagName,TagValue");
+			fWriterOutlineCsv.write(TextBiz.newLine);
 		}
 
 		formatOutlineFile(formatDao, selCharSet);
 		formatOutputsFiles(formatDao, selCharSet);
-		formatOthers1File(formatDao, selCharSet);
 		formatSceneFile(formatDao, selCharSet);
 
 		final File inFile = new File(formatDao.getInputFilename());
@@ -903,15 +1007,26 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		fWriterNotUsedFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(notUsedFile.toPath(),
 				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
 
+		File docTagReportFile = null;
+		if (!StringUtils.isBlank(filePrefix))
+			docTagReportFile = new File(inFilePath, filePrefix + "DocTagsReport.txt");
+		else
+			docTagReportFile = new File(inFilePath, "DocTagsReport.txt");
+
+		fWriterDocTagReportFile = new BufferedWriter(
+				new OutputStreamWriter(Files.newOutputStream(docTagReportFile.toPath(), StandardOpenOption.CREATE,
+						StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
 		// fWriterNotUsedFile = new BufferedWriter(notUsedFile, false);
 
 		ldao.InitializeCount();
 
-		outlineTags.add("time");
-		outlineTags.add("loc");
-		outlineTags.add("date");
-		outlineTags.add("loc");
-		outlineTags.add("eventnote");
+		// outlineTags.add("time");
+		// outlineTags.add("loc");
+		// outlineTags.add("date");
+		// outlineTags.add("loc");
+		// outlineTags.add("eventnote");
+		List listOT = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
+		outlineTags.addAll(listOT);
 	}
 
 	private void formatSceneFile(final FormatDao formatDao, final Charset selCharSet) throws IOException {
@@ -940,13 +1055,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 			fWriterSceneFile.write(END_STRING);
 			fWriterSceneFile.write(TextBiz.newLine);
+			// fWriterSceneFile.write("Captured Tags: ");
+			// fWriterSceneFile.write(formatDao.getDocTagsSceneTags());
+			// fWriterSceneFile.write(TextBiz.newLine);
+			// fWriterSceneFile.write("Coalating Tags: ");
+			// fWriterSceneFile.write(formatDao.getDocTagsSceneCoTags());
+			// fWriterSceneFile.write(TextBiz.newLine);
+			// // fWriterSceneFile.write(TextBiz.newLine);
+
 			fWriterSceneFile.write("Captured Tags: ");
-			fWriterSceneFile.write(formatDao.getDocTagsSceneTags());
+			final List<String> captured = getDocTagsFromStringBlobToList(formatDao.getDocTagsSceneTags());
+			fWriterSceneFile.write(fromListToCommaDelimString(captured));
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.write("Coalating Tags: ");
-			fWriterSceneFile.write(formatDao.getDocTagsSceneCoTags());
+			final List<String> coalating = getDocTagsFromStringBlobToList(formatDao.getDocTagsSceneCoTags());
+			fWriterSceneFile.write(fromListToCommaDelimString(coalating));
 			fWriterSceneFile.write(TextBiz.newLine);
-			// fWriterSceneFile.write(TextBiz.newLine);
 		}
 	}
 
@@ -976,7 +1100,12 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterOthersFile.write(END_STRING);
 				fWriterOthersFile.write(TextBiz.newLine);
 				fWriterOthersFile.write("Captured Tags: ");
-				fWriterOthersFile.write(odtData.getDocTags());
+				// fWriterOthersFile.write(odtData.getDocTags());
+				// fWriterOthersFile.write(TextBiz.newLine);
+				// fWriterOthersList.put(odtData.getName(), fWriterOthersFile);
+
+				final List<String> captured = getDocTagsFromStringBlobToList(odtData.getDocTags());
+				fWriterOthersFile.write(fromListToCommaDelimString(captured));
 				fWriterOthersFile.write(TextBiz.newLine);
 				fWriterOthersList.put(odtData.getName(), fWriterOthersFile);
 			}
@@ -991,11 +1120,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				outputDirO2.getParentFile().mkdirs();
 				outputDirO2.mkdirs();
 			}
-			// TODO change encoding?
-			// fWriterOutlineFile =
-			// Files.newBufferedWriter(outputFileO2.toPath(), selCharSet,
-			// StandardOpenOption.CREATE,
-			// StandardOpenOption.TRUNCATE_EXISTING);
+
 			fWriterOutlineFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputFileO2.toPath(),
 					StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
 
@@ -1011,48 +1136,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 			fWriterOutlineFile.write(END_STRING);
 			fWriterOutlineFile.write(TextBiz.newLine);
-			fWriterOutlineFile.write("Compressed Tags: ");
-			fWriterOutlineFile.write(formatDao.getDocTagsOutlineCompressTagsAsString());
-			fWriterOutlineFile.write(TextBiz.newLine);
+
 			fWriterOutlineFile.write("Expanded Tags: ");
-			fWriterOutlineFile.write(formatDao.getDocTagsOutlineExpandTags());
+			final List<String> expanded = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
+			fWriterOutlineFile.write(fromListToCommaDelimString(expanded));
 			fWriterOutlineFile.write(TextBiz.newLine);
+
+			fWriterOutlineFile.write("Compressed Tags: ");
+			final List<String> compressed = getDocTagsFromStringBlobToList(
+					formatDao.getDocTagsOutlineCompressTagsAsString());
+			fWriterOutlineFile.write(fromListToCommaDelimString(compressed));
+			fWriterOutlineFile.write(TextBiz.newLine);
+
+			// fWriterOutlineFile.write(formatDao.getDocTagsOutlineCompressTagsAsString());
+			// fWriterOutlineFile.write(formatDao.getDocTagsOutlineExpandTags());
 			// fWriterOutlineFile.write(TextBiz.newLine);
 		}
-	}
-
-	private void formatOthers1File(final FormatDao formatDao, final Charset selCharSet) {
-		// if (!StringUtils.isBlank(formatDao.getOutputDocTagsOther1File())) {
-		// LOGGER.debug("Other1 file: '" +
-		// formatDao.getOutputDocTagsOther1File() + "'");
-		// final File outputFileS2 = new
-		// File(formatDao.getOutputDocTagsOther1File());
-		// final File outputDirS2 = outputFileS2.getParentFile();
-		// if (outputDirS2 != null) {
-		// outputDirS2.getParentFile().mkdirs();
-		// outputDirS2.mkdirs();
-		// }
-		// fWriterOther1File = new BufferedWriter(new
-		// OutputStreamWriter(Files.newOutputStream(outputFileS2.toPath(),
-		// StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
-		// selCharSet));
-		// fWriterOther1File.write("-= Other1: \"");
-		// fWriterOther1File.write(formatDao.getStoryTitle1());
-		// fWriterOther1File.write("\"");
-		// if (!StringUtils.isBlank(formatDao.getStoryTitle2())) {
-		// fWriterOther1File.write(" : \"");
-		// fWriterOther1File.write(formatDao.getStoryTitle2());
-		// fWriterOther1File.write("\"");
-		// }
-		// fWriterOther1File.write(" =-");
-		// fWriterOther1File.write(TextBiz.newLine);
-		// fWriterOther1File.write("Captured Tags: ");
-		// fWriterOther1File.write(formatDao.getDocTagsOther1Tags());
-		// fWriterOther1File.write(TextBiz.newLine);
-		// // fWriterOther1File.write("Coalating Tags: ");
-		// // fWriterOther1File.write(formatDao.getDocTagsSceneCoTags());
-		// // fWriterOther1File.write(TextBiz.newLine);
-		// }
 	}
 
 	@Override

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="outerMostContainer" prefHeight="550.0" prefWidth="750.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlProfileView">
+
+	<top>
+		<MenuBar BorderPane.alignment="CENTER">
+			<menus>
+				<Menu text="_File">
+					<items>
+						<MenuItem onAction="#handleProfileNew" text="New" />
+						<MenuItem onAction="#handleClose" text="_Quit" />
+					</items>
+				</Menu>
+				<Menu text="_Backup">
+					<items>
+						<MenuItem onAction="#handleImport" text="_Import" />
+						<MenuItem onAction="#handleExport" text="_Export" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="Settings">
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#handleSettingsClear" text="Clear" />
+					</items>
+				</Menu>
+				<Menu text="_Help">
+					<items>
+						<MenuItem onAction="#handleHelpAbout" text="About" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+	</top>
+	<center>
+		<SplitPane fx:id="splitVert" dividerPositions="0.768642447418738" orientation="VERTICAL" BorderPane.alignment="CENTER">
+			<items>
+				<SplitPane fx:id="splitHoriz" dividerPositions="0.4532085561497326">
+					<items>
+						<AnchorPane>
+							<children>
+								<HBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+									<children>
+										<TextField fx:id="filterTextKey" promptText="Key FIlter" />
+										<TextField fx:id="filterTextName" promptText="Name Filter" HBox.hgrow="SOMETIMES" />
+										<TextField fx:id="filterTextSeries" promptText="Series Filter" />
+										<TextField fx:id="filterTextKeyword" promptText="Keyword Filter" />
+									</children>
+								</HBox>
+								<ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
+									<content>
+										<TableView fx:id="profileTable" minWidth="150.0">
+											<columns>
+												<TableColumn prefWidth="75.0" text="Key" />
+												<TableColumn prefWidth="75.0" text="Name" />
+												<TableColumn prefWidth="75.0" text="Series" />
+												<TableColumn prefWidth="75.0" text="Keywords" />
+											</columns>
+										</TableView>
+									</content>
+								</ScrollPane>
+							</children>
+						</AnchorPane>
+						<AnchorPane>
+							<children>
+								<VBox layoutX="8.0" layoutY="-25.0" prefHeight="200.0" prefWidth="100.0" spacing="12.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+									<children>
+										<HBox maxWidth="1.7976931348623157E308">
+											<children>
+												<Label fx:id="chosenProfileText" style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: #50C878; -fx-background-insets: 4;" text="NO PROFILE">
+													<padding>
+														<Insets left="12.0" right="12.0" />
+													</padding>
+													<HBox.margin>
+														<Insets bottom="6.0" />
+													</HBox.margin>
+												</Label>
+												<Label fx:id="profileDataChanged" text="Unsaved Changes">
+													<font>
+														<Font name="Bitstream Charter Bold" size="14.0" />
+													</font>
+													<HBox.margin>
+														<Insets left="10.0" />
+													</HBox.margin>
+												</Label>
+											</children>
+										</HBox>
+										<HBox>
+											<children>
+												<TitledPane animated="false" text="Loaded Profile Details" HBox.hgrow="ALWAYS">
+													<content>
+														<AnchorPane minHeight="100.0" minWidth="100.0">
+															<children>
+																<GridPane fx:id="sectionMain" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+																	<children>
+																		<HBox maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
+																			<children>
+																				<Label minWidth="-Infinity" prefWidth="70.0" text="Input File:">
+																					<textFill>
+																						<Color blue="0.478" green="0.000" red="1.000" fx:id="x6" />
+																					</textFill>
+																				</Label>
+																				<TextField fx:id="inputFileText" editable="false" prefWidth="-1.0" promptText="Input text file" HBox.hgrow="SOMETIMES">
+																					<HBox.margin>
+																						<Insets fx:id="x2123" />
+																					</HBox.margin>
+																				</TextField>
+																			</children>
+																		</HBox>
+																		<HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="TOP">
+																			<children>
+																				<Label minWidth="-Infinity" prefWidth="70.0" text="Main Title:">
+																					<textFill>
+																						<Color blue="0.478" green="0.000" red="1.000" fx:id="x6" />
+																					</textFill>
+																				</Label>
+																				<TextField fx:id="mainTitleText" editable="false" maxWidth="-1.0" prefWidth="-1.0" promptText="Main-title" HBox.hgrow="SOMETIMES">
+																					<HBox.margin>
+																						<Insets fx:id="x52" />
+																					</HBox.margin>
+																				</TextField>
+																			</children>
+																		</HBox>
+																		<HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4">
+																			<children>
+																				<Label minWidth="-Infinity" prefWidth="70.0" text="Sub Title:">
+																					<textFill>
+																						<Color blue="0.478" green="0.000" red="1.000" fx:id="x61" />
+																					</textFill>
+																				</Label>
+																				<TextField fx:id="subTitleText" editable="false" maxWidth="-1.0" prefWidth="-1.0" promptText="Sub-title" HBox.hgrow="SOMETIMES">
+																					<HBox.margin>
+																						<Insets fx:id="x51" />
+																					</HBox.margin>
+																				</TextField>
+																			</children>
+																		</HBox>
+																		<HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="5">
+																			<children>
+																				<Label minWidth="-Infinity" prefWidth="70.0" text="Series:">
+																					<textFill>
+																						<Color blue="0.478" green="0.000" red="1.000" fx:id="x611" />
+																					</textFill>
+																				</Label>
+																				<TextField fx:id="seriesTitleText" editable="false" maxWidth="-1.0" prefWidth="-1.0" promptText="Series-Title" HBox.hgrow="SOMETIMES">
+																					<HBox.margin>
+																						<Insets fx:id="x511" />
+																					</HBox.margin>
+																				</TextField>
+																			</children>
+																		</HBox>
+																		<HBox layoutX="14.0" layoutY="245.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="6">
+																			<children>
+																				<Label minWidth="-Infinity" prefWidth="70.0" text="Volume:">
+																					<textFill>
+																						<Color blue="0.478" green="0.000" red="1.000" fx:id="x6111" />
+																					</textFill>
+																				</Label>
+																				<TextField fx:id="volumeText" editable="false" maxWidth="-1.0" prefWidth="-1.0" promptText="Volume" HBox.hgrow="SOMETIMES">
+																					<HBox.margin>
+																						<Insets fx:id="x5111" />
+																					</HBox.margin>
+																				</TextField>
+																			</children>
+																		</HBox>
+																	</children>
+																	<columnConstraints>
+																		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+																	</columnConstraints>
+																	<padding>
+																		<Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+																	</padding>
+																	<rowConstraints>
+																		<RowConstraints />
+																		<RowConstraints />
+																		<RowConstraints />
+																		<RowConstraints />
+																		<RowConstraints />
+																		<RowConstraints minHeight="10.0" prefHeight="30.0" />
+																		<RowConstraints minHeight="10.0" prefHeight="30.0" />
+																	</rowConstraints>
+																</GridPane>
+															</children>
+														</AnchorPane>
+													</content>
+												</TitledPane>
+											</children>
+										</HBox>
+										<HBox fx:id="profileButtonBox1" alignment="CENTER" fillHeight="false" spacing="6.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
+											<children>
+												<Button id="loadPrefsBtn" fx:id="newProfileBtn" mnemonicParsing="true" onAction="#handleProfileNew" text="_New" />
+												<Button id="loadPrefsBtn" fx:id="editProfileBtn" mnemonicParsing="true" onAction="#handleProfileEdit" text="_Edit Details" HBox.hgrow="SOMETIMES">
+													<HBox.margin>
+														<Insets fx:id="x3bi2" />
+													</HBox.margin>
+												</Button>
+												<Button fx:id="deleteProfileBtn" disable="true" mnemonicParsing="false" onAction="#handleProfileDelete" text="Delete" HBox.hgrow="SOMETIMES">
+													<HBox.margin>
+														<Insets />
+													</HBox.margin>
+												</Button>
+												<Button id="clearBtn" fx:id="clearProfileBtn" mnemonicParsing="true" onAction="#handleProfileClear" text="_Clear" />
+												<Button id="quitBtn" fx:id="quitBtn" cancelButton="true" defaultButton="true" mnemonicParsing="true" onAction="#handleClose" text="_Quit">
+													<HBox.margin>
+														<Insets left="20.0" />
+													</HBox.margin>
+												</Button>
+											</children>
+											<padding>
+												<Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+											</padding>
+										</HBox>
+										<HBox alignment="CENTER" fillHeight="false" spacing="6.0" style="-fx-border-color: #2e8b57; -fx-border-width: 2px;">
+											<children>
+												<Button fx:id="btnRunWordCounter" onAction="#handleRunCounter" styleClass="actionbutton" text="_Word Count">
+													<HBox.margin>
+														<Insets />
+													</HBox.margin>
+												</Button>
+												<Button fx:id="btnRunOutliner" onAction="#handleRunOutliner" styleClass="actionbutton" text="_Outliner">
+													<HBox.margin>
+														<Insets />
+													</HBox.margin>
+												</Button>
+												<Button fx:id="btnRunFormatter" onAction="#handleRunFormatter" styleClass="actionbutton" text="_Formatter">
+													<HBox.margin>
+														<Insets />
+													</HBox.margin>
+												</Button>
+											</children>
+											<padding>
+												<Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+											</padding>
+										</HBox>
+									</children>
+									<padding>
+										<Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+									</padding>
+								</VBox>
+							</children>
+						</AnchorPane>
+					</items>
+				</SplitPane>
+				<TitledPane collapsible="false" maxHeight="1.7976931348623157E308" text="Log:">
+					<content>
+						<ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
+							<content>
+								<TextArea fx:id="loggingText" editable="false" wrapText="true" />
+							</content>
+						</ScrollPane>
+					</content>
+				</TitledPane>
+			</items>
+		</SplitPane>
+	</center>
+</BorderPane>

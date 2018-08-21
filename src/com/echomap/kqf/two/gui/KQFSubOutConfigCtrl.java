@@ -2,7 +2,6 @@ package com.echomap.kqf.two.gui;
 
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -344,7 +343,7 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 		LOGGER.debug("loadDataFromSelect: selItem = " + selItem);
 		if (selItem != null) {
 			// TODO!!
-			final Map<String, DocTagDataOption> optionList = selItem.getOptions();
+//			final Map<String, DocTagDataOption> optionList = selItem.getOptions();
 			//
 			// loadMoreFilesOptionsFromPrefs(selItem);
 			// for (DocTagDataOption option : optionList) {
@@ -364,10 +363,10 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 			// }
 
 			inputTable.getItems().clear();
-			if (optionList != null) {
-				final Collection<DocTagDataOption> list = optionList.values();
-				inputTable.getItems().setAll(list);
-			}
+//			if (optionList != null) {
+//				final Collection<DocTagDataOption> list = optionList.values();
+//				inputTable.getItems().setAll(list);
+//			}
 		}
 		LOGGER.debug("loadDataFromSelect: Done");
 	}

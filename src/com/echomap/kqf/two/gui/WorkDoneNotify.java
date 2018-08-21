@@ -10,5 +10,7 @@ public interface WorkDoneNotify {
 
 	public void errorWithWork(final String msg, final Throwable e);
 
+	public void errorWithWork(final String msg, final String key);
+
 	public void statusUpdateForWork(final String header, final String msg);
 }

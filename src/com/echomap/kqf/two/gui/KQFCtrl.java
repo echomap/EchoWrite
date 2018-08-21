@@ -234,6 +234,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	Timer timer = new Timer();
 	private MyTimerTask myTimerTask;
 
+	final List<String> errorsReportedKeys = new ArrayList<>();
+
 	private boolean runningMutex = false;
 	@SuppressWarnings("unused")
 	private boolean freezeSeriesAutoChange = false;
@@ -360,7 +362,6 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {
 			lastSelectedDirectory = new File(lastSelectedDirectoryStr);
 		}
-
 	}
 
 	@Override
@@ -385,6 +386,23 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 				runningMutex = false;
 			}
 		});
+	}
+
+	@Override
+	public void errorWithWork(final String msg, final String key) {
+		if (!errorsReportedKeys.contains(key)) {
+			errorsReportedKeys.add(key);
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					showMessage("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + msg, false);
+					LOGGER.error(msg);
+					showSummaryMessage(msg, false);
+					unlockGui();
+					runningMutex = false;
+				}
+			});
+		}
 	}
 
 	@Override
@@ -513,6 +531,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 				}
 				loadDataFromProps();
 				showMessage("Loaded profile '" + titleOneText.getValue() + "'", true);
+				clearSummaryMessage();
 				chosenProfileText.setText(titleOneText.getSelectionModel().getSelectedItem());
 				profileComboBoxListener.reset();
 			} else {
@@ -639,6 +658,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		clearSettings();
 		showMessage("Cleared Profile Data", true);
 		setProfileChangeMade(false);
+		clearSummaryMessage();
 	}
 
 	public void handleInputFile(final ActionEvent event) {
@@ -1288,6 +1308,10 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		}
 	}
 
+	private void clearSummaryMessage() {
+		summaryRunText.setText("");
+	}
+
 	private void showSummaryMessage(final String msg, final boolean clearPrevious) {
 		if (msg == null || StringUtils.isBlank(msg))
 			return;
@@ -1674,9 +1698,8 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			child.put("outputDocTagsSubScenePrefix", outputDocTagsSubScenePrefix.getText());
 			child.put("sceneCoalateDiv", sceneCoalateDiv.getText());
 
-			// More Files
-			// TODO?
-
+			// More Files - are saved in their own interface
+			
 			try {
 				child.flush();
 			} catch (BackingStoreException e) {

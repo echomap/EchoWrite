@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.OtherDocTagData;
+import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileData;
 import com.echomap.kqf.two.gui.KQFCtrl;
 import com.google.gson.Gson;
@@ -22,45 +23,53 @@ public class ProfileBiz {
 	private final static Logger LOGGER = LogManager.getLogger(ProfileBiz.class);
 
 	private final Preferences userPrefs;
-	private ReportObj reportObj = new ReportObj();
+	String appVersion = null;
+	private final List<String> messages = new ArrayList<>();
+	private boolean wasError = false;
+	private List<ProfileData> profiles = new ArrayList<>();
 	String currentVersion = null;
-
-	public class ReportObj {
-		public List<String> msgs = new ArrayList<>();
-
-		public void addMsg(final String msg) {
-			msgs.add(msg);
-		}
-	}
 
 	public ProfileBiz(final Preferences userPrefs) {
 		this.userPrefs = userPrefs;
-
+		this.appVersion = null;
+		this.wasError = false;
+		this.profiles.clear();
+		this.messages.clear();
 	}
 
-	public void setVersion(final String currentVersion) {
-		this.currentVersion = currentVersion;
+	public void setVersion(final String appVersion) {
+		this.appVersion = appVersion;
 	}
 
-	public ReportObj loadProfileData() { // throws BackingStoreException {
+	public List<String> getMessages() {
+		return messages;
+	}
+
+	public boolean isWasError() {
+		return wasError;
+	}
+
+	public boolean loadProfileData() { // throws BackingStoreException {
 		LOGGER.debug("loadProfileData: Called");
 		boolean outOfDate = false;
 		// try {
-		// check errors
-		// final String[] prefkeys = userPrefs.childrenNames();
+
+		// check errors // final String[] prefkeys = userPrefs.childrenNames();
+
 		// check version
 		final String currentVerS = userPrefs.get("version", null);
 		LOGGER.debug("loadProfileData: currentVerS = " + currentVerS);
 		if (!StringUtils.isBlank(currentVerS)) {
 			LOGGER.debug("loadProfileData: currentVerS: '" + currentVerS + "'");
 			final Integer currentVer = Integer.valueOf(currentVerS);
-			if (currentVer < 102) {
+			final Integer appVer = Integer.valueOf(appVersion);
+			if (currentVer < appVer) {
 				outOfDate = true;
 			}
 		} else
 			outOfDate = true;
+		LOGGER.debug("loadProfileData: outOfDate = " + outOfDate);
 
-		outOfDate = false;
 		// if old version
 		if (outOfDate)
 			doImportFromOldVersion();
@@ -72,12 +81,36 @@ public class ProfileBiz {
 		// throw e;
 		// }
 		LOGGER.debug("loadProfileData: Done");
-		return reportObj;
+		return wasError;
 	}
 
 	private void loadProfiles() {
 		LOGGER.debug("loadProfiles: Called");
+		try {
+			final String[] prefkeys = userPrefs.childrenNames();
+			if (prefkeys != null && prefkeys.length > 0) {
+				for (final String str1 : prefkeys) {
+					LOGGER.debug("loadProfiles: str1 = '" + str1 + "'");
+					// final Object obj = userPrefs.nodeExists(pathName)
+					if (!StringUtils.isBlank(str1)) {
+						final Profile profile = new Profile();
+						// setupProfilePerPrefs(profile, asFdf);
+					}
+				}
+			}
+			// for (String key : titleOneText.getItems()) {
+			// final Preferences child = userPrefs.node(key);
+			// final String seriesTitle = child.get("seriesTitle", "");
+			// if (!seriesTitleComboText.getItems().contains(seriesTitle)) {
+			// seriesTitleComboText.getItems().add(seriesTitle);
+			// }
+			// }
 
+		} catch (BackingStoreException e) {
+			messages.add("Error LOADING profile: " + e);
+			wasError = true;
+			e.printStackTrace();
+		}
 		LOGGER.debug("loadProfiles: Done");
 	}
 
@@ -89,37 +122,37 @@ public class ProfileBiz {
 
 	private void doImportFromOldVersion() {
 		LOGGER.debug("doImportFromOldVersion: Called");
-		try {
-			final List<ProfileData> profiles = new ArrayList<ProfileData>();
-			final String[] prefkeys = userPrefs.childrenNames();
-			if (prefkeys != null && prefkeys.length > 0) {
-				for (final String str1 : prefkeys) {
-					if (!StringUtils.isBlank(str1)) {
-						final ProfileData profileData = loadOldProfileObject(str1);
-						profiles.add(profileData);
-						LOGGER.debug("Output Data: " + profileData.toString());
-					}
-				}
-			}
-			if (profiles.size() <= 0) {
-				reportObj.addMsg("No Profiles in old to import!");
-			} else {
-				reportObj.addMsg("Profiles in old format, " + profiles.size() + ".");
-				// TODO DELETE OLD ONES!
-
-				// final Preferences baseTree = userPrefs.node("ProfileList");
-
-				// for (ProfileData profileData : profiles) {
-				// // final String key = profileData.getKey();
-				// // final Preferences child = userPrefs.node(key);
-				// // currentVersion
-				// }
-
-			}
-		} catch (BackingStoreException e) {
-			LOGGER.error("doImportFromOldVersion: Error: " + e, e);
-			e.printStackTrace();
-		}
+		// try {
+		// final List<ProfileData> profiles = new ArrayList<ProfileData>();
+		// final String[] prefkeys = userPrefs.childrenNames();
+		// if (prefkeys != null && prefkeys.length > 0) {
+		// for (final String str1 : prefkeys) {
+		// if (!StringUtils.isBlank(str1)) {
+		// final ProfileData profileData = loadOldProfileObject(str1);
+		// profiles.add(profileData);
+		// LOGGER.debug("Output Data: " + profileData.toString());
+		// }
+		// }
+		// }
+		// if (profiles.size() <= 0) {
+		// reportObj.addMsg("No Profiles in old to import!");
+		// } else {
+		// reportObj.addMsg("Profiles in old format, " + profiles.size() + ".");
+		// // TODO DELETE OLD ONES!
+		//
+		// // final Preferences baseTree = userPrefs.node("ProfileList");
+		//
+		// // for (ProfileData profileData : profiles) {
+		// // // final String key = profileData.getKey();
+		// // // final Preferences child = userPrefs.node(key);
+		// // // currentVersion
+		// // }
+		//
+		// }
+		// } catch (BackingStoreException e) {
+		// LOGGER.error("doImportFromOldVersion: Error: " + e, e);
+		// e.printStackTrace();
+		// }
 		LOGGER.debug("doImportFromOldVersion: Done");
 	}
 

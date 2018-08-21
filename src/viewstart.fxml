@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane fx:id="outerMostContainer" prefHeight="472.0" prefWidth="750.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlStart">
+	<columnConstraints>
+		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints fillHeight="false" minHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+      <RowConstraints fillHeight="false" minHeight="130.0" vgrow="ALWAYS" />
+		<RowConstraints fillHeight="false" minHeight="140.0" vgrow="ALWAYS" />
+      <RowConstraints minHeight="175.0" vgrow="ALWAYS" />
+	</rowConstraints>
+	<children>
+      <AnchorPane GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS">
+         <children>
+            <HBox alignment="CENTER" style="-fx-border-color: #2e8b57; -fx-border-width: 2;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+            
+            		<Label style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: aqua; -fx-background-insets: 4;" text="MYKFEQF - Kindle Quick Formatter - v" />
+                  <Label fx:id="versionLabel" style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: aqua; -fx-background-insets: 4;" text="XXX" />
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
+      <TitledPane animated="false" collapsible="false" text="Selection" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <content>
+          <AnchorPane>
+               <children>
+                  <HBox alignment="CENTER" spacing="40.0" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <HBox maxWidth="1.7976931348623157E308">
+                           <children>
+                              <Label fx:id="chosenProfileText" style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: #50C878; -fx-background-insets: 4;" text="NO PROFILE">
+                                 <HBox.margin>
+                                    <Insets bottom="6.0" />
+                                 </HBox.margin>
+                                 <padding>
+                                    <Insets left="12.0" right="12.0" />
+                                 </padding>
+                              </Label>
+                              <Label fx:id="profileDataChanged" text="Unsaved Changes">
+                                 <font>
+                                    <Font name="Bitstream Charter Bold" size="14.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" fillHeight="false" spacing="2.0" style="-fx-border-color: #2e8b57; -fx-border-width: 2px;">
+                           <children>
+                              <Button fx:id="importProfileBtn" onAction="#handleImportProfile" styleClass="actionbutton" text="_Import">
+                                 <HBox.margin>
+                                    <Insets bottom="4.0" right="4.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="exportProfileBtn" onAction="#handleExportProfile" styleClass="actionbutton" text="E_xport">
+                                 <HBox.margin>
+                                    <Insets bottom="4.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <padding>
+                              <Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+                           </padding>
+                        </HBox>
+                        <HBox alignment="CENTER" fillHeight="false" spacing="2.0" style="-fx-border-color: #2e8b57; -fx-border-width: 2px;">
+                           <children>
+                              <Button fx:id="importProfileBtn1" styleClass="actionbutton" text="_xxxx">
+                                 <HBox.margin>
+                                    <Insets bottom="4.0" right="4.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="closeBtn" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="actionbutton" text="_Close">
+                                 <HBox.margin>
+                                    <Insets bottom="4.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <padding>
+                              <Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+               </padding>
+            </AnchorPane>
+        </content>
+         <GridPane.margin>
+            <Insets bottom="5.0" />
+         </GridPane.margin>
+      </TitledPane>
+      <TitledPane animated="false" collapsible="false" text="Profiles" GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets bottom="6.0" />
+         </GridPane.margin>
+         <content>
+            <VBox spacing="6.0">
+               <children>
+                  <HBox alignment="CENTER" spacing="40.0">
+                     <children>
+                        <HBox maxWidth="1.7976931348623157E308">
+                           <children>
+                              <Label fx:id="chosenProfileText1" style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: #50C878; -fx-background-insets: 4;" text="NO PROFILE">
+                                 <padding>
+                                    <Insets left="12.0" right="12.0" />
+                                 </padding>
+                                 <HBox.margin>
+                                    <Insets bottom="6.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="profileDataChanged1" text="Unsaved Changes">
+                                 <font>
+                                    <Font name="Bitstream Charter Bold" size="14.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox fx:id="profileButtonBox1" alignment="CENTER" fillHeight="false" spacing="4.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
+                           <children>
+                              <Button id="loadPrefsBtn" fx:id="newProfileBtn" mnemonicParsing="true" onAction="#handleProfileNew" text="_New" />
+                              <Button id="loadPrefsBtn" fx:id="loadProfileBtn" mnemonicParsing="true" onAction="#handleProfileLoad" text="_Load" HBox.hgrow="SOMETIMES">
+                                 <HBox.margin>
+                                    <Insets fx:id="x3bi2" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="deleteProfileBtn" disable="true" mnemonicParsing="false" onAction="#handleProfileDelete" text="Delete" HBox.hgrow="SOMETIMES">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <padding>
+                              <Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+                           </padding>
+                        </HBox>
+                        <HBox alignment="CENTER" fillHeight="false" spacing="6.0" style="-fx-border-color: #2e8b57; -fx-border-width: 2px;">
+                           <children>
+                              <Button fx:id="btnRunWordCounter" onAction="#handleRunCounter" styleClass="actionbutton" text="_Word Count">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="btnRunOutliner" onAction="#handleRunOutliner" styleClass="actionbutton" text="_Outliner">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Button>
+                              <Button fx:id="btnRunFormatter" onAction="#handleRunFormatter" styleClass="actionbutton" text="_Formatter">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                           <padding>
+                              <Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </HBox>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <HBox spacing="4.0">
+                           <children>
+                              <Label minWidth="-Infinity" text="Series:" textFill="#ff007a">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
+                              <ComboBox fx:id="seriesTitleComboText" editable="true" minWidth="50.0" onAction="#handleProfileSelectSeriesAction" HBox.hgrow="SOMETIMES">
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="Item 1" />
+                                       <String fx:value="Item 2" />
+                                       <String fx:value="Item 3" />
+                                    </FXCollections>
+                                 </items>
+                                 <HBox.margin>
+                                    <Insets fx:id="x3bi11" />
+                                 </HBox.margin>
+                              </ComboBox>
+                           </children>
+                           <padding>
+                              <Insets left="2.0" right="6.0" />
+                           </padding>
+                        </HBox>
+                        <HBox spacing="4.0">
+                           <children>
+                              <Label minWidth="-Infinity" text="Profile:" textFill="#ff007a">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
+                              <ComboBox fx:id="titleComboText" editable="true" minWidth="70.0" onAction="#handleProfileSelectAction" HBox.hgrow="SOMETIMES">                              
+                                 <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                       <String fx:value="Item 1" />
+                                       <String fx:value="Item 2" />
+                                       <String fx:value="Item 3" />
+                                    </FXCollections>
+                                 </items>
+                                 <HBox.margin>
+                                    <Insets fx:id="x3bi1" />
+                                 </HBox.margin>
+                              </ComboBox>
+                           </children>
+                           <padding>
+                              <Insets left="2.0" right="6.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </content>
+      </TitledPane>
+      <TitledPane collapsible="false" maxHeight="1.7976931348623157E308" text="Log:" GridPane.rowIndex="3">
+         <content>
+            <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
+               <content>
+                  <TextArea fx:id="loggingText" editable="false" wrapText="true" />
+               </content>
+            </ScrollPane>
+         </content>
+      </TitledPane>
+	</children>
+   <padding>
+      <Insets bottom="4.0" />
+   </padding>
+</GridPane>
