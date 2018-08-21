@@ -1025,7 +1025,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// outlineTags.add("date");
 		// outlineTags.add("loc");
 		// outlineTags.add("eventnote");
-		List listOT = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
+		List<String> listOT = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
 		outlineTags.addAll(listOT);
 	}
 
