@@ -79,8 +79,20 @@ public class ProfilePersistV1 {
 		LOGGER.debug("loadProfiles: Done");
 	}
 
+	private boolean setupCBSelectedValueFromOld(final String selLabel, final String selValue) {
+		boolean val = false;
+		if (StringUtils.isBlank(selValue))
+			val = false;
+		else if (selValue.compareTo("selected") == 0)
+			val = true;
+		else if (selValue.compareTo("true") == 0)
+			val = true;
+		LOGGER.debug("setupCBSelectedValueFromOld: selLabel='" + selLabel + "' selValue='" + selValue + "' val=" + val);
+		return val;
+	}
+
 	private ProfileData loadOldProfileObject(final String key) {
-		LOGGER.debug("loadOldProfileObject: Called");
+		LOGGER.debug("loadOldProfileObject: Called, key='" + key + "'");
 		final ProfileData pd = new ProfileData();
 
 		//
@@ -116,17 +128,26 @@ public class ProfilePersistV1 {
 		pd.setText("chapterHeaderTag", child.get("chapterHeaderTag", "[[*"));
 		pd.setText("sectionHeaderTag", child.get("sectionHeaderTag", "*]]"));
 
+		pd.setText("cbRemoveDiv", child.get("cbRemoveDiv", "false"));
 		pd.setText("cbCenterStars", child.get("cbCenterStars", "false"));
 		pd.setText("cbDropCapChapters", child.get("cbDropCapChapters", "false"));
+		pd.setText("cbWantTextChptOutput", child.get("cbWantTextChptOutput", "false"));
 		pd.setText("cbRemoveSectDiv", child.get("cbRemoveSectDiv", "false"));
-		pd.setText("cbRemoveDiv", child.get("cbRemoveDiv", "false"));
-		pd.setText("wantTextChptOutput", child.get("wantTextChptOutput", "false"));
+		// pd.setText("wantTextChptOutput", child.get("wantTextChptOutput",
+		// "false"));
 
-		pd.setSelected("cbCenterStars", child.getBoolean("cbWantTextChptOutput", false));
-		pd.setSelected("cbDropCapChapters", child.getBoolean("cbDropCapChapters", false));
-		pd.setSelected("cbRemoveSectDiv", child.getBoolean("cbRemoveSectDiv", false));
-		pd.setSelected("cbRemoveDiv", child.getBoolean("cbRemoveDiv", false));
-		pd.setSelected("wantTextChptOutput", child.getBoolean("wantTextChptOutput", false));
+		pd.setSelected("cbRemoveDiv", setupCBSelectedValueFromOld("cbRemoveDiv", child.get("cbRemoveDiv", "false")));
+		pd.setSelected("cbCenterStars",
+				setupCBSelectedValueFromOld("cbCenterStars", child.get("cbCenterStars", "false")));
+		pd.setSelected("cbDropCapChapters",
+				setupCBSelectedValueFromOld("cbDropCapChapters", child.get("cbDropCapChapters", "false")));
+		pd.setSelected("cbWantTextChptOutput",
+				setupCBSelectedValueFromOld("cbWantTextChptOutput", child.get("cbWantTextChptOutput", "false")));
+		pd.setSelected("cbRemoveSectDiv",
+				setupCBSelectedValueFromOld("cbRemoveSectDiv", child.get("cbRemoveSectDiv", "false")));
+		// pd.setSelected("wantTextChptOutput",
+		// setupCBSelectedValueFromOld(child.get("wantTextChptOutput",
+		// "false")));
 
 		pd.setText("fmtMode", child.get("fmtMode", ""));
 		pd.setText("outputEncoding", child.get("outputEncoding", ""));
@@ -144,11 +165,6 @@ public class ProfilePersistV1 {
 
 		pd.setText("outputDocTagsSceneTags", child.get("outputDocTagsSceneTags", ""));
 		pd.setText("outputDocTagsSceneCoTags", child.get("outputDocTagsSceneCoTags", ""));
-
-		pd.setText("cbDropCapChapters", child.get("cbDropCapChapters", ""));
-		pd.setText("cbWantTextChptOutput", child.get("cbWantTextChptOutput", ""));
-		pd.setSelected("cbDropCapChapters", child.getBoolean("cbDropCapChapters", false));
-		pd.setSelected("cbWantTextChptOutput", child.getBoolean("cbWantTextChptOutput", false));
 
 		pd.setText("counterDigitChoice", child.get("counterDigitChoice", ""));
 		pd.setText("outputDocTagsMaxLineLength", child.get("outputDocTagsMaxLineLength", ""));
@@ -193,4 +209,138 @@ public class ProfilePersistV1 {
 		}
 		return listODTD;
 	}
+
+	public void saveProfiles(final ProfileData pd) throws BackingStoreException {
+		LOGGER.debug("saveProfiles: Called.");
+		final String key = pd.getKey();
+		LOGGER.debug("saveProfiles: key='" + key + "'");
+		final Preferences child = userPrefs.node(key);
+
+		if (child == null) {
+			throw new BackingStoreException("No such Profile Found!");
+		}
+		//
+		child.put("key", pd.getKey());
+		child.put("titleOne", key);
+		setValueIfNotNull(child, "seriesTitle", pd.getSeries());
+		setValueIfNotNull(child, "volume", pd.getText("volume"));
+		setValueIfNotNull(child, "titleOne", pd.getText("titleOne"));
+		setValueIfNotNull(child, "titleTwo", pd.getText("titleTwo"));
+		setValueIfNotNull(child, "titleThree", pd.getText("titleThree"));
+		setValueIfNotNull(child, "inputFile", pd.getText("inputFile"));
+		setValueIfNotNull(child, "ouputFile", pd.getText("ouputFile"));
+		setValueIfNotNull(child, "outputDir", pd.getText("outputDir"));
+		setValueIfNotNull(child, "outputFormatChpTextDirText", pd.getText("outputFormatChpTextDirText"));
+		setValueIfNotNull(child, "inputFilePrefix", pd.getText("inputFilePrefix"));
+		setValueIfNotNull(child, "appendUnderscoreToPrefix", pd.getText("appendUnderscoreToPrefix"));
+		setValueIfNotNull(child, "regexpChapter", pd.getText("regexpChapter"));
+		setValueIfNotNull(child, "regexpSection", pd.getText("regexpSection"));
+
+		// Default REGEXP
+		setValueIfNotNull(child, "regexpChapterText", pd.getText("regexpChapterText"));
+		setValueIfNotNull(child, "regexpSectionText", pd.getText("regexpSectionText"));
+
+		setValueIfNotNull(child, "docTagStart", pd.getText("docTagStart"));
+		setValueIfNotNull(child, "docTagEnd", pd.getText("docTagEnd"));
+
+		setValueIfNotNull(child, "chapterHeaderTag", pd.getText("chapterHeaderTag"));
+		setValueIfNotNull(child, "sectionHeaderTag", pd.getText("sectionHeaderTag"));
+
+		setValueIfNotNull(child, "cbRemoveDiv", pd.getText("cbRemoveDiv"));
+		setValueIfNotNull(child, "cbCenterStars", pd.getText("cbCenterStars"));
+		setValueIfNotNull(child, "cbDropCapChapters", pd.getText("cbDropCapChapters"));
+		setValueIfNotNull(child, "cbWantTextChptOutput", pd.getText("cbWantTextChptOutput"));
+		setValueIfNotNull(child, "cbRemoveSectDiv", pd.getText("cbRemoveSectDiv"));
+
+		setValueIfNotNull(child, "fmtMode", pd.getText("fmtMode"));
+		setValueIfNotNull(child, "outputEncoding", pd.getText("outputEncoding"));
+		setValueIfNotNull(child, "counterDigitChoice", pd.getText("counterDigitChoice"));
+
+		setValueIfNotNull(child, "ouputCountFile", pd.getText("ouputCountFile"));
+		setValueIfNotNull(child, "ouputOutlineFile", pd.getText("ouputOutlineFile"));
+		setValueIfNotNull(child, "ouputOutlineFile1", pd.getText("ouputOutlineFile1"));
+
+		setValueIfNotNull(child, "outputDocTagsOutlineFile", pd.getText("outputDocTagsOutlineFile"));
+		setValueIfNotNull(child, "outputDocTagsSceneFile", pd.getText("outputDocTagsSceneFile"));
+
+		setValueIfNotNull(child, "outputDocTagsOutlineCTags", pd.getText("outputDocTagsOutlineCTags"));
+		setValueIfNotNull(child, "outputDocTagsOutlineTags", pd.getText("outputDocTagsOutlineTags"));
+
+		setValueIfNotNull(child, "outputDocTagsSceneTags", pd.getText("outputDocTagsSceneTags"));
+		setValueIfNotNull(child, "outputDocTagsSceneCoTags", pd.getText("outputDocTagsSceneCoTags"));
+
+		setValueIfNotNull(child, "counterDigitChoice", pd.getText("counterDigitChoice"));
+		setValueIfNotNull(child, "outputDocTagsMaxLineLength", pd.getText("outputDocTagsMaxLineLength"));
+
+		setValueIfNotNull(child, "outputDocTagsScenePrefix", pd.getText("outputDocTagsScenePrefix"));
+		setValueIfNotNull(child, "outputDocTagsSubScenePrefix", pd.getText("outputDocTagsSubScenePrefix"));
+		setValueIfNotNull(child, "sceneCoalateDiv", pd.getText("sceneCoalateDiv"));
+
+		// More Files - were saved in their own interface
+		// final List<OtherDocTagData> outputs = loadOutputs(child);
+		saveOutputs(child, pd);
+		// pd.setOutputs(outzputs);
+
+		child.flush();
+	}
+
+	void saveOutputs(final Preferences child, final ProfileData pd) {
+		LOGGER.debug("handleSave: Called");
+		final List<OtherDocTagData> outputs = pd.getOutputs();
+		// final ObservableList<OtherDocTagData> targetList =
+		// inputTable.getItems();
+		final List<OtherDocTagData> removeList = new ArrayList<>();
+		if (outputs != null) {
+			for (OtherDocTagData otherDocTagData : outputs) {
+				LOGGER.debug("item: " + otherDocTagData);
+				if (StringUtils.isEmpty(otherDocTagData.getName()))
+					removeList.add(otherDocTagData);
+				if (otherDocTagData.getFile() == null)
+					removeList.add(otherDocTagData);
+			}
+		}
+		for (OtherDocTagData otherDocTagData : removeList) {
+			outputs.remove(otherDocTagData);
+		}
+		final Type listType = new TypeToken<List<OtherDocTagData>>() {
+		}.getType();
+		final Gson gson = new Gson();
+		String json = gson.toJson(outputs, listType);
+		LOGGER.debug("handleSave: json: '" + json + "'");
+		// Save
+		child.put(XferBiz.PROFILE_DATA, json);
+		//
+		LOGGER.debug("handleSave: Done");
+	}
+
+	private void setValueIfNotNull(final Preferences child, final String key, String val) throws BackingStoreException {
+		if (val == null) {
+			if (child.nodeExists(key))
+				child.remove(key);
+		} else {
+			child.put(key, val);
+		}
+	}
+
+	public void deleteProfile(final String key) throws BackingStoreException {
+		LOGGER.debug("deleteProfile: Called.");
+		boolean childDeleted = false;
+
+		final Preferences child = userPrefs.node(key);
+		if (child != null) {// && child.keys().length > 0
+			// showMessage("Child '" + child + "'", false);
+			child.removeNode();
+			// showMessage("Deleted profile '" + key + "'", false);
+			childDeleted = true;
+			// setProfileChangeMade(false);
+		}
+		userPrefs.flush();
+
+		if (!childDeleted) {
+			// showMessage("That profile doesn't exist.", false);
+			throw new BackingStoreException("No such Profile found with the key <" + key + ">");
+		}
+		LOGGER.debug("deleteProfile: Done.");
+	}
+
 }

@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="outerMostContainer" prefHeight="550.0" prefWidth="750.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlProfileView">
+<BorderPane fx:id="outerMostContainer" prefHeight="550.0" prefWidth="777.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlProfileView">
 
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
@@ -19,13 +19,14 @@
 						<MenuItem onAction="#handleClose" text="_Quit" />
 					</items>
 				</Menu>
-				<Menu text="_Backup">
+				<Menu text="_Profiles">
 					<items>
 						<MenuItem onAction="#handleImport" text="_Import" />
 						<MenuItem onAction="#handleExport" text="_Export" />
+                  <MenuItem onAction="#handleRefreshProfiles" text="_Refresh" />
 					</items>
 				</Menu>
-				<Menu mnemonicParsing="false" text="Settings">
+				<Menu mnemonicParsing="false" text="_Settings">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#handleSettingsClear" text="Clear" />
 					</items>
@@ -48,8 +49,8 @@
 								<HBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
 										<TextField fx:id="filterTextKey" promptText="Key FIlter" />
-										<TextField fx:id="filterTextName" promptText="Name Filter" HBox.hgrow="SOMETIMES" />
 										<TextField fx:id="filterTextSeries" promptText="Series Filter" />
+										<TextField fx:id="filterTextName" promptText="Name Filter" HBox.hgrow="SOMETIMES" />
 										<TextField fx:id="filterTextKeyword" promptText="Keyword Filter" />
 									</children>
 								</HBox>
@@ -58,8 +59,9 @@
 										<TableView fx:id="profileTable" minWidth="150.0">
 											<columns>
 												<TableColumn prefWidth="75.0" text="Key" />
-												<TableColumn prefWidth="75.0" text="Name" />
 												<TableColumn prefWidth="75.0" text="Series" />
+												<TableColumn prefWidth="75.0" text="Main" />
+                                    <TableColumn prefWidth="75.0" text="Sub" />
 												<TableColumn prefWidth="75.0" text="Keywords" />
 											</columns>
 										</TableView>
@@ -95,8 +97,6 @@
 											<children>
 												<TitledPane animated="false" text="Loaded Profile Details" HBox.hgrow="ALWAYS">
 													<content>
-														<AnchorPane minHeight="100.0" minWidth="100.0">
-															<children>
 																<GridPane fx:id="sectionMain" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 																	<children>
 																		<HBox maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="TOP">
@@ -178,16 +178,15 @@
 																	</padding>
 																	<rowConstraints>
 																		<RowConstraints />
+																		<RowConstraints vgrow="ALWAYS" />
 																		<RowConstraints />
-																		<RowConstraints />
-																		<RowConstraints />
-																		<RowConstraints />
-																		<RowConstraints minHeight="10.0" prefHeight="30.0" />
-																		<RowConstraints minHeight="10.0" prefHeight="30.0" />
+																		<RowConstraints vgrow="ALWAYS" />
+																		<RowConstraints vgrow="ALWAYS" />
+																		<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+																		<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
 																	</rowConstraints>
 																</GridPane>
-															</children>
-														</AnchorPane>
+
 													</content>
 												</TitledPane>
 											</children>
@@ -195,12 +194,12 @@
 										<HBox fx:id="profileButtonBox1" alignment="CENTER" fillHeight="false" spacing="6.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
 											<children>
 												<Button id="loadPrefsBtn" fx:id="newProfileBtn" mnemonicParsing="true" onAction="#handleProfileNew" text="_New" />
-												<Button id="loadPrefsBtn" fx:id="editProfileBtn" mnemonicParsing="true" onAction="#handleProfileEdit" text="_Edit Details" HBox.hgrow="SOMETIMES">
+												<Button id="loadPrefsBtn" fx:id="editProfileBtn" mnemonicParsing="true" onAction="#handleProfileEdit" text="_Edit Details">
 													<HBox.margin>
 														<Insets fx:id="x3bi2" />
 													</HBox.margin>
 												</Button>
-												<Button fx:id="deleteProfileBtn" disable="true" mnemonicParsing="false" onAction="#handleProfileDelete" text="Delete" HBox.hgrow="SOMETIMES">
+												<Button fx:id="deleteProfileBtn" onAction="#handleProfileDelete" text="_Delete">
 													<HBox.margin>
 														<Insets />
 													</HBox.margin>

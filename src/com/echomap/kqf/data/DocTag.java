@@ -3,6 +3,7 @@ package com.echomap.kqf.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class DocTag {
@@ -29,18 +30,22 @@ public class DocTag {
 
 	public void parseText(String docTagText) {
 		this.fullText = docTagText;
-		int idx1 = docTagText.indexOf(":");
-		if (idx1 > -1) {
-			String onet = docTagText.substring(0, idx1);
-			String twot = docTagText.substring(idx1 + 1);
-			this.setName(onet);
-			this.setValue(twot);
-			appendFullText(twot);
-			// TODO REGEX Collect # from twot: "[+in#]"
-			// TODO REGEX Collect # from twot: "[+out#]"
-		} else {
-			this.setValue(docTagText);
+
+		if (StringUtils.isEmpty(this.name)) {
+			int idx1 = docTagText.indexOf(":");
+			if (idx1 > -1) {
+				String onet = docTagText.substring(0, idx1);
+				String twot = docTagText.substring(idx1 + 1);
+				this.setName(onet);
+				this.setValue(twot);
+				appendFullText(twot);
+				// TODO REGEX Collect # from twot: "[+in#]"
+				// TODO REGEX Collect # from twot: "[+out#]"
+				return;
+			}
 		}
+		// Don't bother to get a new name for this tag if we already have one!
+		this.setValue(docTagText);
 	}
 
 	private void appendFullText(String twot) {

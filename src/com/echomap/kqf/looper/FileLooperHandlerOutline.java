@@ -73,6 +73,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private final List<DocTag> sceneDTList = new ArrayList<DocTag>();
 	private final List<String> unusedTagNameList = new ArrayList<String>();
 	private final SortedMap<String, List<String>> usedTagFileList = new TreeMap<String, List<String>>();
+	private final SortedMap<String, Integer> tagsCount = new TreeMap<>();
 
 	// private boolean inLongDocTag = false;
 	// private StringBuilder longDocTagText = new StringBuilder();
@@ -128,6 +129,16 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			if (docTags != null && dttGL.isHasDocTag()) {
 				// && !StringUtils.isBlank(dttGL.getRawLine())) {
 				for (final DocTag docTag : docTags) {
+					if (StringUtils.isEmpty(docTag.getName())) {
+						LOGGER.error("DocTag has no name: '" + docTag.getFullTag() + "'");
+					}
+					Integer countDt = 0;
+					if (tagsCount.containsKey(docTag.getName()))
+						countDt = tagsCount.get(docTag.getName());
+					else
+						countDt = 0;
+					countDt += 1;
+					tagsCount.put(docTag.getName(), countDt);
 					// if (StringUtils.isBlank(docTag.getName()))
 					// continue;
 					boolean wroteTag = false;
@@ -789,11 +800,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		}
 		if (fWriterDocTagReportFile != null) {
 			final List<String> allKeys = new ArrayList<>();
-			final Set<String> keys = usedTagFileList.keySet();
-			int maxkeylength = 0;
-			for (String key : keys) {
-				if (key.length() > maxkeylength)
-					maxkeylength = key.length();
+			final Set<String> keysU = usedTagFileList.keySet();
+			int maxkeylengthU = 0;
+			for (String key : keysU) {
+				if (key.length() > maxkeylengthU)
+					maxkeylengthU = key.length();
 				allKeys.add(key);
 			}
 			for (final String docTagName : unusedTagNameList) {
@@ -804,7 +815,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterDocTagReportFile.write("-= DocTags Report =-");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 			fWriterDocTagReportFile.write("(Used Tags #: ");
-			fWriterDocTagReportFile.write(String.valueOf(keys.size()));
+			fWriterDocTagReportFile.write(String.valueOf(keysU.size()));
 			fWriterDocTagReportFile.write(" ) ");
 			fWriterDocTagReportFile.write("(Unused Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
@@ -819,7 +830,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 
 			for (String key : allKeys) {
-				String padStr = StringUtils.rightPad(key, maxkeylength, " ");
+				String padStr = StringUtils.rightPad(key, maxkeylengthU, " ");
 				fWriterDocTagReportFile.write(padStr);
 				fWriterDocTagReportFile.write(" = ");
 				List<String> usedTagList = usedTagFileList.get(key);
@@ -855,7 +866,66 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterDocTagReportFile.write(docTagName);
 				fWriterDocTagReportFile.write(",");
 			}
+			fWriterDocTagReportFile.write(TextBiz.newLine);
 
+			// COUNT - tagsCount
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Tag Usage Report ");
+			fWriterDocTagReportFile.write("Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(tagsCount.size()));
+			fWriterDocTagReportFile.write(" =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			//
+			final Set<String> keysC = tagsCount.keySet();
+			int maxkeylengthC = 0;
+			for (String key : keysC) {
+				if (key.length() > maxkeylengthC)
+					maxkeylengthC = key.length();
+				if (!allKeys.contains(key)) {
+					allKeys.add(key);
+					LOGGER.error("New tag for all: '" + key + "'");
+				}
+			}
+			int maxkeylengthIC = 6;
+			for (String key : keysC) {
+				Integer iC = tagsCount.get(key);
+				// TODO
+				// if (iC. > maxkeylengthC)
+				// maxkeylengthIC = key.length();
+			}
+			for (String key : allKeys) {
+				if (key.length() > maxkeylengthU)
+					maxkeylengthU = key.length();
+			}
+			Collections.sort(allKeys);
+			final String midpadding = StringUtils.leftPad(" - ", maxkeylengthIC);
+			// Header
+			final String headerLine = String.format("%s%s%s%s", StringUtils.rightPad("DocTag", maxkeylengthU + 4, " "),
+					StringUtils.rightPad("Count", maxkeylengthIC - 1, " "), midpadding, "File(s) Used in");
+			fWriterDocTagReportFile.write(headerLine);
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			// List
+			for (String docTagNameC : allKeys) {
+				String padStr1 = StringUtils.rightPad(docTagNameC, maxkeylengthU, " ");
+				fWriterDocTagReportFile.write(padStr1);
+				fWriterDocTagReportFile.write(" = ");
+				Integer countI = 0;
+				if (tagsCount.containsKey(docTagNameC))
+					countI = tagsCount.get(docTagNameC);
+				String padC = StringUtils.leftPad(countI.toString(), maxkeylengthIC, " ");
+				fWriterDocTagReportFile.write(padC);
+				fWriterDocTagReportFile.write(midpadding);
+
+				List<String> usedTagList = usedTagFileList.get(docTagNameC);
+				String str = "<NONE>";
+				if (usedTagList != null) {
+					Collections.sort(usedTagList);
+					str = fromListToCommaDelimString(usedTagList);
+				}
+				fWriterDocTagReportFile.write(str);
+				fWriterDocTagReportFile.write(TextBiz.newLine);
+			}
+			//
 		}
 
 		if (fWriterAllTagsCsv != null) {
@@ -1025,8 +1095,13 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// outlineTags.add("date");
 		// outlineTags.add("loc");
 		// outlineTags.add("eventnote");
-		List<String> listOT = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
+		final List<String> listOT = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
 		outlineTags.addAll(listOT);
+
+		for (String dtn : listOT) {
+			tagsCount.put(dtn, 0);
+		}
+
 	}
 
 	private void formatSceneFile(final FormatDao formatDao, final Charset selCharSet) throws IOException {

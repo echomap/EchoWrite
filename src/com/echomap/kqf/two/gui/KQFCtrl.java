@@ -1438,6 +1438,17 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		}
 	}
 
+	private void setupCBSelectedValue(final CheckBox cbToSet, final String selTextValue) {
+		if (StringUtils.isBlank(selTextValue))
+			cbToSet.setSelected(false);
+		else if (selTextValue.compareTo("selected") == 0)
+			cbToSet.setSelected(true);
+		else if (selTextValue.compareTo("true") == 0)
+			cbToSet.setSelected(true);
+		else
+			cbToSet.setSelected(false);
+	}
+
 	protected void loadDataFromProps() {
 		LOGGER.debug("loadProps: Called");
 		final String key = titleOneText.getValue();
@@ -1519,17 +1530,19 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		// outputDocTagsOther1TagsText.setText(child.get("outputDocTagsOther1Tags",
 		// sceneO));
 
+		final String cbRemoveDivSel = child.get("cbRemoveDiv", "1");
+		setupCBSelectedValue(cbRemoveDiv, cbRemoveDivSel);
+
+		final String cbCenterStarsSel = child.get("cbCenterStars", "1");
+		setupCBSelectedValue(cbCenterStars, cbCenterStarsSel);
+
 		final String cbDropCapChaptersSel = child.get("cbDropCapChapters", "1");
-		if (!StringUtils.isBlank(cbDropCapChaptersSel) || cbDropCapChaptersSel.compareTo("selected") == 0)
-			cbDropCapChapters.setSelected(true);
-		else
-			cbDropCapChapters.setSelected(false);
+		setupCBSelectedValue(cbDropCapChapters, cbDropCapChaptersSel);
 
 		final String cbWantTextChptOutputSel = child.get("cbWantTextChptOutput", "1");
-		if (StringUtils.isBlank(cbWantTextChptOutputSel) || cbWantTextChptOutputSel.compareTo("selected") == 0)
-			cbWantTextChptOutput.setSelected(true);
-		else
-			cbWantTextChptOutput.setSelected(false);
+		setupCBSelectedValue(cbWantTextChptOutput, cbWantTextChptOutputSel);
+
+		// center
 
 		final String outputDocTagsMaxLineLengthSel = child.get("outputDocTagsMaxLineLength", "-1");
 		if (StringUtils.isBlank(outputDocTagsMaxLineLengthSel))
@@ -1666,9 +1679,9 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			}
 
 			if (cbWantTextChptOutput.isSelected())
-				child.put("wantTextChptOutput", "true");
+				child.put("cbWantTextChptOutput", "true");
 			else
-				child.put("wantTextChptOutput", "false");
+				child.put("cbWantTextChptOutput", "false");
 
 			// counterDigitChoice.getSelectionModel().select(3);
 
@@ -1699,7 +1712,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 			child.put("sceneCoalateDiv", sceneCoalateDiv.getText());
 
 			// More Files - are saved in their own interface
-			
+
 			try {
 				child.flush();
 			} catch (BackingStoreException e) {
@@ -1709,6 +1722,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		}
 
 	}
+
 	//
 	// protected void locateFile(final ActionEvent event, final String title,
 	// final TextField textField) {

@@ -46,11 +46,16 @@ public class ProfilePersistV2 {
 		profile.setOutputFormatSingleFile(setupValue(profileData, "ouputFile", ""));
 		profile.setOutputFormatChpHtmlDir(setupValue(profileData, "outputDir", ""));
 		profile.setOutputFormatChpTextDir(setupValue(profileData, "outputFormatChpTextDirText", ""));
+
 		profile.setCbRemoveDiv(profileData.getSelected("cbRemoveDiv"));
 		profile.setCbCenterStars(profileData.getSelected("cbCenterStars"));
 		profile.setCbDropCapChapters(profileData.getSelected("cbDropCapChapters"));
-		profile.setWantTextChptOutput(profileData.getSelected("wantTextChptOutput"));
-		// center
+		profile.setWantTextChptOutput(profileData.getSelected("cbWantTextChptOutput"));
+		// center TODO
+		// pd.setSelected("cbRemoveSectDiv",
+		// setupCBSelectedValueFromOld(child.get("cbRemoveSectDiv", "false")));
+
+		//
 		Integer counterDigitChoice = profileData.getInt("counterDigitChoice");
 		if (counterDigitChoice == null)
 			counterDigitChoice = 1;
@@ -99,6 +104,7 @@ public class ProfilePersistV2 {
 		profile.setCbRemoveSectDiv(profileData.getSelected("cbRemoveSectDiv"));
 		profile.setChpDiv(setupValue(profileData, "chpDiv", ""));// used?
 		profile.setSecDiv(setupValue(profileData, "secDiv", ""));// used?
+		//
 
 		return profile;
 	}
@@ -209,6 +215,92 @@ public class ProfilePersistV2 {
 
 		formatDao.setVersion(appVersion);// appProps.getProperty(PROP_KEY_VERSION));
 		LOGGER.debug("setupDao: Done");
+	}
+
+	public ProfileData convertFromV2toV1(Profile profile) {
+		final ProfileData profileData = new ProfileData();
+
+		// pd.setText("titleOne", child.get("titleTwo", key));
+		// pd.setText("titleTwo", child.get("titleThree", ""));
+		// pd.setText("titleThree", child.get("titleThree", ""));
+
+		// <Main Section>
+		profileData.setKey(profile.getKey());
+		profileData.setText("titleOne", profile.getKey());
+		profileData.setText("titleTwo", profile.getMainTitle());
+		profileData.setText("titleThree", profile.getSubTitle());
+		profileData.setText("seriesTitle", profile.getSeriesTitle());
+		profileData.setText("volume", profile.getVolume());
+		profileData.setText("inputFile", profile.getInputFile());
+		profileData.setText("inputFilePrefix", profile.getInputFilePrefix());
+		profileData.setSelected("appendUnderscoreToPrefix", profile.isAppendUnderscoreToPrefix());
+
+		// <RegEx Section>
+		profileData.setText("regexpChapter", profile.getRegexpChapter());
+		profileData.setText("regexpSection", profile.getRegexpSection());
+
+		// <Word Counter Section>
+		// outputCountFileText
+		profileData.setText("ouputCountFile", profile.getOutputCountFile());
+
+		// <Formatting Section>
+		profileData.setText("ouputFile", profile.getOutputFormatSingleFile());
+		profileData.setText("outputDir", profile.getOutputFormatChpHtmlDir());
+		profileData.setText("outputFormatChpTextDirText", profile.getOutputFormatChpTextDir());
+
+		profileData.setSelected("cbRemoveDiv", profile.isCbRemoveDiv());
+		profileData.setSelected("cbCenterStars", profile.isCbCenterStars());
+		profileData.setSelected("cbDropCapChapters", profile.isCbDropCapChapters());
+		profileData.setSelected("cbWantTextChptOutput", profile.isWantTextChptOutput());
+
+		//
+		profileData.setInt("counterDigitChoice", profile.getCounterDigitChoice());
+
+		// <DocTag Outliner Section>
+		// profile.setOutputCSVAllFile(setupValue(profileData,
+		// "outputOutlineFile1", ""));
+		// profile.setOutputCSVOutlineFile(setupValue(profileData,
+		// "outputOutlineFile", ""));
+		profileData.setText("outputDocTagsOutlineFile", profile.getOutputDocTagsOutlineFile());
+		profileData.setText("outputDocTagsSceneFile", profile.getOutputDocTagsSceneFile());
+		profileData.setInt("outputDocTagsMaxLineLength", profile.getOutputDocTagsMaxLineLength());
+
+		profileData.setText("outputDocTagsScenePrefix", profile.getOutputDocTagsScenePrefix());
+		profileData.setText("outputDocTagsSubScenePrefix", profile.getOutputDocTagsSubScenePrefix());
+
+		profileData.setText("sceneCoalateDiv", profile.getSceneCoalateDiv());
+		profileData.setText("outputDocTagsOutlineTags", profile.getDocTagsOutlineTags());
+		profileData.setText("outputDocTagsOutlineCTags", profile.getDocTagsOutlineCompressTags());
+		profileData.setText("outputDocTagsSceneTags", profile.getDocTagsSceneTags());
+		profileData.setText("outputDocTagsSceneCoTags", profile.getDocTagsSceneCompressTags());
+
+		// Misnamed in V1
+		profileData.setText("ouputOutlineFile", profile.getOutputCSVOutlineFile());
+		// Misnamed in V1
+		profileData.setText("ouputOutlineFile1", profile.getOutputCSVAllFile());
+
+		// <Input/Output Section>
+		profileData.setText("outputEncoding", profile.getOutputEncoding());
+		profileData.setText("chapterHeaderTag", profile.getChapterHeaderTag());
+		profileData.setText("sectionHeaderTag", profile.getSectionHeaderTag());
+		profileData.setText("fmtMode", profile.getFmtMode());
+		profileData.setText("docTagStart", profile.getDocTagStart());
+		profileData.setText("docTagEnd", profile.getDocTagEnd());
+
+		// Other Files Section
+		profileData.setOutputs(profile.getOutputs());
+
+		//
+		// profile.setOuputFile(setupValue(profileData, "ouputFile", ""));
+		// profile.setOutputDir(setupValue(profileData, "outputDir", ""));
+		// profile.setFmtMode(setupValue(profileData, "ouputCountFile", ""));
+		profileData.setSelected("cbRemoveSectDiv", profile.isCbRemoveSectDiv());
+		profileData.setSelected("cbRemoveSectDiv", profile.isCbRemoveSectDiv());
+		profileData.setText("chpDiv", profile.getChpDiv());
+		profileData.setText("secDiv", profile.getSecDiv());
+		//
+
+		return profileData;
 	}
 
 }

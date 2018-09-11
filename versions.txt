@@ -18,10 +18,11 @@ Confirm on delete/backup
 formatting section output
 HTML output
 
--=VERSION 2 COnvrsion=-
+-=VERSION 2 Conversion=-
 1) verify V2
 2) make V1 use profile manager
 3) move from V1 to V2 if V1 data, and delete V1 
+
 -=BUGS=-
 Formatting in new version, drop caps not working
 Unused tags in MoreFiles are not tracked
@@ -29,6 +30,7 @@ save column sizes?
 ----==--==--==--------==--==--==--------==--==--==----
 2.0.0
 	updated GUI
+	updated object model
 ----==--==--==--------==--==--==--------==--==--==----
 1.0.15 (future version)
 	doctag report file written with _ properly
