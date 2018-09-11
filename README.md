@@ -52,3 +52,7 @@ botday: 29th day
   
 ```
 
+Images of KQF2
+![GUI of KQF2, start screen](screenshots/kqf2 1 start.png?raw=true "First screen" )
+
+
