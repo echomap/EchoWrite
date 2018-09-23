@@ -52,3 +52,10 @@ botday: 29th day
   
 ```
 
+#GUI of KQF2:
+![Start screen](screenshots/kqf2%201%20start.png?raw=true&s=200 "First screen" )
+![Start screen](screenshots/kqf2%202%20start.png?raw=true&s=200 "Filled in screen" )
+![Start screen](screenshots/kqf2%203%20view.png?raw=true&s=200 "View of data screen" )
+![Start screen](screenshots/kqf2%204%20morefiles%201.png?raw=true&s=200 "Morefiles data screen 1" )
+![Start screen](screenshots/kqf2%204%20morefiles%202.png?raw=true&s=200 "Morefiles data screen 2" )
+

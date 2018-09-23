@@ -27,25 +27,44 @@ public class MainFrame extends Application {
 	private final static Logger LOGGER = LogManager.getLogger(MainFrame.class);
 
 	private static final String FXML_START = "/viewstart2.fxml";
-	private static final String NEWProfile = "/viewstart2.fxml";
-	final static Map<String, String> fxmlFrames = new HashMap<>();
+	private static final String FXML_NEWPROFILE = "/viewprofilenew.fxml";
+	private static final String FXML_EDITPROFILE = "/viewprofile.fxml";
+	private static final String FXML_DELETEPROFILE = "/viewprofiledelete.fxml";
 
+	private static final String FXML_MOREFILES = "/viewmorefiles.fxml";
+
+	public static final String SUB_EXPORT = "/viewexport.fxml";
+	public static final String SUB_IMPORT = "/viewimport.fxml";
+
+	final static Map<String, String> fxmlFrames = new HashMap<>();
+	final static Map<String, Class> fxmlCtrl = new HashMap<>();
 	final static Properties appProps = new Properties();
+
 	Preferences appPreferences = null;
+	final static String WINDOW_TITLE_FMT = "Kindle (Ebook) Quick Formatter (MYKFEQF v%s)";
 
 	public static void main(String[] args) {
 		Application.launch(MainFrame.class, args);
 	}
 
 	public MainFrame() {
-		fxmlFrames.put("MainWindow", FXML_START);
-		fxmlFrames.put("NEWProfile", NEWProfile);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_MAINWINDOW, FXML_START);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_PROFILE_NEW, FXML_NEWPROFILE);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_PROFILE_EDIT, FXML_EDITPROFILE);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_PROFILE_DELETE, FXML_DELETEPROFILE);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_EXPORT, SUB_EXPORT);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_IMPORT, SUB_IMPORT);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_MOREFILES, FXML_MOREFILES);
+
+		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_NEW, com.echomap.kqf.view.CtrlProfileEdit.class);
+		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_EDIT, com.echomap.kqf.view.CtrlProfileEdit.class);
+		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_DELETE, com.echomap.kqf.view.CtrlProfileEdit.class);
 
 		appPreferences = Preferences.userNodeForPackage(MainFrame.class);
 
 		InputStream asdf = null;
 		try {
-			asdf = FileLooperHandlerFormatter.class.getClassLoader().getResourceAsStream("cwc.properties");
+			asdf = FileLooperHandlerFormatter.class.getClassLoader().getResourceAsStream("cwc2.properties");
 			if (asdf != null)
 				appProps.load(asdf);
 		} catch (IOException e) {
@@ -75,7 +94,9 @@ public class MainFrame extends Application {
 			fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
 			parent = (Parent) fxmlLoader.load(location.openStream());
 
-			primaryStage.setTitle("Kindle (Ebook) Quick Formatter (MYKFEQF v" + appProps.getProperty("version") + ")");
+			primaryStage.setTitle(String.format(WINDOW_TITLE_FMT, appProps.getProperty("version")));
+			// "Kindle (Ebook) Quick Formatter (MYKFEQF v" +
+			// appProps.getProperty("version") + ")");
 			// primaryStage.setWidth(1024);
 			// primaryStage.setHeight(200);
 

@@ -8,11 +8,13 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -242,10 +244,18 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 
 		@SuppressWarnings("unchecked")
 		final ObservableList<OtherDocTagData> targetList = inputTable.getItems();
+		final List<OtherDocTagData> removeList = new ArrayList<>();
 		if (targetList != null) {
 			for (OtherDocTagData otherDocTagData : targetList) {
 				LOGGER.debug("item: " + otherDocTagData);
+				if (StringUtils.isEmpty(otherDocTagData.getName()))
+					removeList.add(otherDocTagData);
+				if (otherDocTagData.getFile() == null)
+					removeList.add(otherDocTagData);
 			}
+		}
+		for (OtherDocTagData otherDocTagData : removeList) {
+			targetList.remove(otherDocTagData);
 		}
 		final Type listType = new TypeToken<List<OtherDocTagData>>() {
 		}.getType();
@@ -480,9 +490,10 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		sourceDataList = gson.fromJson(listString, listOfTestObject);
 		if (sourceDataList != null) {
 			for (OtherDocTagData otherDocTagData : sourceDataList) {
-//				otherDocTagData.getOptions();
-//				LOGGER.debug("item: " + otherDocTagData);
-//				LOGGER.debug("itemJson: " + XferBiz.objectToJson(otherDocTagData));
+				// otherDocTagData.getOptions();
+				// LOGGER.debug("item: " + otherDocTagData);
+				// LOGGER.debug("itemJson: " +
+				// XferBiz.objectToJson(otherDocTagData));
 			}
 		}
 
@@ -528,7 +539,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		//
 		// // final String optionsJson = jo.get("optionsJson").getAsString();
 		// final JsonArray jsOptions = jo.get("options").getAsJsonArray();//
-		// 
+		//
 		// // final JsonArray jsOptions = (JsonArray) jsOptionsE;
 		// // final DocTagDataOption options
 		//

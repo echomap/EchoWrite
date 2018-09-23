@@ -175,7 +175,7 @@ public class CtrlStart extends BaseCtrl implements Initializable, WorkDoneNotify
 	 * LOADING Functions
 	 */
 
-	private void setProfileChangeMade(final boolean b) {
+	void setProfileChangeMade(final boolean b) {
 		if (b) {
 			profileDataChanged.setText("Unsaved Changes");
 			profileDataChanged1.setText("Unsaved Changes");
@@ -430,7 +430,7 @@ public class CtrlStart extends BaseCtrl implements Initializable, WorkDoneNotify
 	public void handleProfileSelectAction(final ActionEvent event) {
 		LOGGER.debug("handleProfileSelectAction: Called");
 		final String profileKey = titleComboText.getSelectionModel().getSelectedItem();
-		final Profile selProfile = profileManager.selectProfile(profileKey);
+		final Profile selProfile = profileManager.selectProfileByMainTitle(profileKey);
 		// check is not null
 		if (!StringUtils.isEmpty(profileKey)) {
 			if (selProfile != null && !StringUtils.isEmpty(selProfile.getSeriesTitle())) {
@@ -464,7 +464,7 @@ public class CtrlStart extends BaseCtrl implements Initializable, WorkDoneNotify
 		}
 
 		final String profileKey = titleComboText.getSelectionModel().getSelectedItem();
-		final Profile selProfile = profileManager.selectProfile(profileKey);
+		final Profile selProfile = profileManager.selectProfileByMainTitle(profileKey);
 		if (StringUtils.isEmpty(profileKey)) {
 			LOGGER.debug("Please select a profile before running!!");
 			return;
@@ -507,7 +507,7 @@ public class CtrlStart extends BaseCtrl implements Initializable, WorkDoneNotify
 		}
 
 		final String profileKey = titleComboText.getSelectionModel().getSelectedItem();
-		final Profile selProfile = profileManager.selectProfile(profileKey);
+		final Profile selProfile = profileManager.selectProfileByMainTitle(profileKey);
 		if (StringUtils.isEmpty(profileKey)) {
 			LOGGER.debug("Please select a profile before running!!");
 			return;
@@ -550,7 +550,7 @@ public class CtrlStart extends BaseCtrl implements Initializable, WorkDoneNotify
 		}
 
 		final String profileKey = titleComboText.getSelectionModel().getSelectedItem();
-		final Profile selProfile = profileManager.selectProfile(profileKey);
+		final Profile selProfile = profileManager.selectProfileByMainTitle(profileKey);
 		if (StringUtils.isEmpty(profileKey)) {
 			LOGGER.debug("Please select a profile before running!!");
 			return;

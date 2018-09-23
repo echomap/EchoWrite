@@ -1,5 +1,6 @@
 package com.echomap.kqf.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -421,6 +422,12 @@ public class Profile {
 
 	public void setOutputs(List<OtherDocTagData> outputs) {
 		this.outputs = outputs;
+	}
+
+	public void addOutput(final OtherDocTagData output) {
+		if (outputs == null)
+			outputs = new ArrayList<OtherDocTagData>();
+		outputs.add(output);
 	}
 
 }

@@ -7,6 +7,7 @@ public class ProfileExportObj {
 	private boolean export = true;// User wants to Import/Export?
 	private boolean importable = false;// In file?
 	private String name = "";
+	private String key = "";
 	private String series = "";
 	private String inputFile = "";
 	private JsonObject payload = null;
@@ -66,4 +67,13 @@ public class ProfileExportObj {
 	public void setSeries(String series) {
 		this.series = series;
 	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
 }

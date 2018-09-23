@@ -193,17 +193,28 @@ public class ProfileBiz {
 		pd.setText("chapterHeaderTag", child.get("chapterHeaderTag", "[[*"));
 		pd.setText("sectionHeaderTag", child.get("sectionHeaderTag", "*]]"));
 
-		pd.setText("cbCenterStars", child.get("cbCenterStars", "false"));
-		pd.setText("cbDropCapChapters", child.get("cbDropCapChapters", "false"));
-		pd.setText("cbRemoveSectDiv", child.get("cbRemoveSectDiv", "false"));
+		// pd.setText("cbDropCapChapters", child.get("cbDropCapChapters",
+		// "false"));
 		pd.setText("cbRemoveDiv", child.get("cbRemoveDiv", "false"));
-		pd.setText("wantTextChptOutput", child.get("wantTextChptOutput", "false"));
+		pd.setText("cbCenterStars", child.get("cbCenterStars", "false"));
+		// drop chap
+		pd.setText("cbWantTextChptOutput", child.get("cbWantTextChptOutput", "false"));
+		pd.setText("cbRemoveSectDiv", child.get("cbRemoveSectDiv", "false"));
 
-		pd.setSelected("cbCenterStars", child.getBoolean("cbWantTextChptOutput", false));
-		pd.setSelected("cbDropCapChapters", child.getBoolean("cbDropCapChapters", false));
-		pd.setSelected("cbRemoveSectDiv", child.getBoolean("cbRemoveSectDiv", false));
+		// pd.setSelected("cbDropCapChapters",
+		// child.getBoolean("cbDropCapChapters", false));
 		pd.setSelected("cbRemoveDiv", child.getBoolean("cbRemoveDiv", false));
-		pd.setSelected("wantTextChptOutput", child.getBoolean("wantTextChptOutput", false));
+		pd.setSelected("cbCenterStars", child.getBoolean("cbCenterStars", false));
+		final String cbDropCapChaptersS = child.get("cbDropCapChapters", null);
+		if (!StringUtils.isBlank(cbDropCapChaptersS) || cbDropCapChaptersS.compareTo("selected") == 0) {
+			pd.setText("cbDropCapChapters", "true");
+			pd.setSelected("cbDropCapChapters", true);
+		} else {
+			pd.setText("cbDropCapChapters", "false");
+			pd.setSelected("cbDropCapChapters", false);
+		}
+		pd.setSelected("cbWantTextChptOutput", child.getBoolean("cbWantTextChptOutput", false));
+		pd.setSelected("cbRemoveSectDiv", child.getBoolean("cbRemoveSectDiv", false));
 
 		pd.setText("fmtMode", child.get("fmtMode", ""));
 		pd.setText("outputEncoding", child.get("outputEncoding", ""));
@@ -221,11 +232,6 @@ public class ProfileBiz {
 
 		pd.setText("outputDocTagsSceneTags", child.get("outputDocTagsSceneTags", ""));
 		pd.setText("outputDocTagsSceneCoTags", child.get("outputDocTagsSceneCoTags", ""));
-
-		pd.setText("cbDropCapChapters", child.get("cbDropCapChapters", ""));
-		pd.setText("cbWantTextChptOutput", child.get("cbWantTextChptOutput", ""));
-		pd.setSelected("cbDropCapChapters", child.getBoolean("cbDropCapChapters", false));
-		pd.setSelected("cbWantTextChptOutput", child.getBoolean("cbWantTextChptOutput", false));
 
 		pd.setText("counterDigitChoice", child.get("counterDigitChoice", ""));
 		pd.setText("outputDocTagsMaxLineLength", child.get("outputDocTagsMaxLineLength", ""));

@@ -52,7 +52,7 @@ public class BaseRunner {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			baseCtrl.unlockGui();
+			// baseCtrl.unlockGui();
 			String fmtt = "Done running COUNT ( " + baseCtrl.getCurrentDateFmt() + ")";
 			LOGGER.debug("fmtt: " + fmtt);
 			// setLastRunText(fmtt);
@@ -90,7 +90,7 @@ public class BaseRunner {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			baseCtrl.unlockGui();
+			// baseCtrl.unlockGui();
 			String fmtt = "Done running OUTLINE ( " + baseCtrl.getCurrentDateFmt() + ")";
 			LOGGER.debug("fmtt: " + fmtt);
 		}
@@ -126,7 +126,7 @@ public class BaseRunner {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			baseCtrl.unlockGui();
+			// baseCtrl.unlockGui();
 			String fmtt = "Done running FORMAT ( " + baseCtrl.getCurrentDateFmt() + ")";
 			LOGGER.debug("fmtt: " + fmtt);
 		}

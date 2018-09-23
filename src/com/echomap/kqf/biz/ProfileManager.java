@@ -24,6 +24,7 @@ public class ProfileManager {
 	private final Preferences userPrefsV2;
 	String appVersion = null;
 	private final List<String> messages = new ArrayList<>();
+	private Exception error = null;
 	private boolean wasError = false;
 	private List<Profile> profiles = new ArrayList<>();
 	String currentVersion = null;
@@ -61,6 +62,10 @@ public class ProfileManager {
 		return wasError;
 	}
 
+	public Exception getError() {
+		return error;
+	}
+
 	public List<Profile> getProfiles() {
 		return profiles;
 	}
@@ -86,16 +91,16 @@ public class ProfileManager {
 			// FUTURE: offer to import?
 			final ProfilePersistV1 persist = new ProfilePersistV1(userPrefsV1);
 			persist.loadProfiles();
-			LOGGER.debug("Persis error? " + persist.isWasError());
+			LOGGER.debug("Persist error? " + persist.isWasError());
 			final List<String> mgs = persist.getMessages();
 			if (mgs != null) {
 				for (String msg : mgs) {
-					LOGGER.debug("Persis msg?" + msg);
+					LOGGER.debug("Persist msg?" + msg);
 				}
 			}
 			final List<ProfileData> profileDataList = persist.getProfiles();
 			for (ProfileData profileData : profileDataList) {
-				LOGGER.debug("Persis profileData=" + profileData);
+				LOGGER.debug("Persist profileData=" + profileData);
 			}
 
 			// Import from V1 to V2\
@@ -166,7 +171,7 @@ public class ProfileManager {
 
 	public void setupDao(final FormatDao formatDao, final String selectedProfileKey) {
 		LOGGER.debug("setupDao: Called");
-		final Profile selectedProfile = selectProfile(selectedProfileKey);
+		final Profile selectedProfile = selectProfileByMainTitle(selectedProfileKey);
 		setupDao(formatDao, selectedProfile);
 	}
 
@@ -182,7 +187,7 @@ public class ProfileManager {
 		persist.setupDao(formatDao, selectedProfile, appVersion);
 	}
 
-	public Profile selectProfile(String profileKey) {
+	public Profile selectProfileByMainTitle(final String profileKey) {
 		Profile selectedProfile = null;
 		final List<Profile> profiles = getProfiles();
 		for (Profile profile : profiles) {
@@ -192,6 +197,97 @@ public class ProfileManager {
 			}
 		}
 		return selectedProfile;
+	}
+
+	public Profile selectProfileByKey(final String profileKey) {
+		Profile selectedProfile = null;
+		final List<Profile> profiles = getProfiles();
+		for (Profile profile : profiles) {
+			if (profile.getKey().compareTo(profileKey) == 0) {
+				selectedProfile = profile;
+				break;
+			}
+		}
+		return selectedProfile;
+	}
+
+	public void saveProfileData(final Profile profile) {
+		LOGGER.debug("loadProfileData: Called");
+		resetData();
+
+		LOGGER.debug("Check status of Profile V1");
+		int v1Status = checkProfileStatus(userPrefsV1);
+		LOGGER.debug("Check status of Profile V2");
+		int v2Status = checkProfileStatus(userPrefsV2);
+		LOGGER.info("Profile Data V1 Status = " + v1Status);
+		LOGGER.info("Profile Data V2 Status = " + v2Status);
+
+		// try to load ProfilePrefsV2, if nothing, load 1
+		if (v2Status == 0) {
+			// Import from V1 to V2\
+			final ProfilePersistV2 persist2 = new ProfilePersistV2();
+			final ProfileData profile1 = persist2.convertFromV2toV1(profile);
+
+			// Load V1 data for testing
+			// FUTURE: offer to import?
+			final ProfilePersistV1 persist = new ProfilePersistV1(userPrefsV1);
+			try {
+				persist.saveProfiles(profile1);
+				LOGGER.debug("Persist error? " + persist.isWasError());
+				final List<String> mgs = persist.getMessages();
+				if (mgs != null) {
+					for (String msg : mgs) {
+						LOGGER.debug("Persist msg?" + msg);
+					}
+				}
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+				this.wasError = true;
+				this.messages.add(e.getMessage());
+				this.error = e;
+			}
+		} else {
+			// Load V2
+			// Check Version
+		}
+		LOGGER.debug("loadProfileData: Done");
+	}
+
+	public void deleteProfile(final Profile profile) {
+		LOGGER.debug("deleteProfileByKey: Called");
+		resetData();
+
+		LOGGER.debug("Check status of Profile V1");
+		int v1Status = checkProfileStatus(userPrefsV1);
+		LOGGER.debug("Check status of Profile V2");
+		int v2Status = checkProfileStatus(userPrefsV2);
+		LOGGER.info("Profile Data V1 Status = " + v1Status);
+		LOGGER.info("Profile Data V2 Status = " + v2Status);
+
+		// try to load ProfilePrefsV2, if nothing, load 1
+		if (v2Status == 0) {
+
+			final ProfilePersistV1 persist = new ProfilePersistV1(userPrefsV1);
+			try {
+				persist.deleteProfile(profile.getKey());
+				LOGGER.debug("Persist error? " + persist.isWasError());
+				final List<String> mgs = persist.getMessages();
+				if (mgs != null) {
+					for (String msg : mgs) {
+						LOGGER.debug("Persist msg?" + msg);
+					}
+				}
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+				this.wasError = true;
+				this.messages.add(e.getMessage());
+				this.error = e;
+			}
+		} else {
+			// Load V2
+			// Check Version
+		}
+		LOGGER.debug("deleteProfileByKey: Done");
 	}
 
 }

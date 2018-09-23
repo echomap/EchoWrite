@@ -7,8 +7,9 @@
 	<property file="build-${env.COMPUTERNAME}.properties" description="Machine specific build property overrides can go here" />
 	<property file="./build.properties" />
 
-	<property name="jar.name" value="${ant.project.name}.jar" />
-	<property name="jar.name2" value="${ant.project.name}Gui.jar" />
+	<property name="jar.nameA" value="${ant.project.name}.jar" />
+	<property name="jar.nameB" value="${ant.project.name}Gui.jar" />
+	<property name="jar.name2B" value="KQF2_${ant.project.name}Gui.jar" />
 
 	<property name="javac.deprecation" value="on" />
 	<property name="javac.debug" value="on" />
@@ -26,13 +27,10 @@
 	<path id="project.class.path">
 		<fileset dir="lib" includes="*.jar" />
 	</path>
-	<manifestclasspath property="lib.list" jarfile="${dir.dist}/${jar.name}">
-		<classpath refid="project.class.path" />
-	</manifestclasspath>
 
 	<!-- ================= Targets ================= -->
 	<target name="clean" description="Clean the dist.dir">
-		<delete file="${dir.dist}/${jar.name}">
+		<delete file="${dir.dist}/${jar.nameA}">
 		</delete>
 		<delete dir="${dir.dist}">
 		</delete>
@@ -46,7 +44,10 @@
 	</target>
 
 	<target name="build" depends="clean,compile">
-		<jar destfile="${dir.dist}/${jar.name}" excludes="**/Test.class;com/echomap/cwc/gui">
+		<manifestclasspath property="lib.list" jarfile="${dir.dist}/${jar.nameA}">
+			<classpath refid="project.class.path" />
+		</manifestclasspath>
+		<jar destfile="${dir.dist}/${jar.nameA}" excludes="**/Test.class;com/echomap/cwc/gui">
 			<fileset dir="${dir.build.classes}" />
 			<fileset dir="${dir.build.config}" />
 			<manifest>
@@ -54,12 +55,20 @@
 				<attribute name="Class-Path" value="${lib.list}" />
 			</manifest>
 		</jar>
-		<jar destfile="${dir.dist}/${jar.name2}" excludes="**/Test.class;com/echomap/kqf/biz;com/echomap/kqf/cli">
+		<jar destfile="${dir.dist}/${jar.nameB}" excludes="**/Test.class;com/echomap/kqf/biz;com/echomap/kqf/cli">
 			<fileset dir="${dir.build.classes}" />
 			<fileset dir="${dir.build.config}" />
 			<!--fileset dir="${dir.build.config}"/-->
 			<manifest>
 				<attribute name="Main-Class" value="com.echomap.kqf.two.gui.KQFFrame" />
+				<attribute name="Class-Path" value="commons-lang-2.0.jar log4j-1.2.8.jar gson-2.8.2.jar " />
+			</manifest>
+		</jar>
+		<jar destfile="${dir.dist}/${jar.name2B}" excludes="**/Test.class;com/echomap/kqf/biz;com/echomap/kqf/cli;com/echomap/kqf/two">
+			<fileset dir="${dir.build.classes}" />
+			<fileset dir="${dir.build.config}" />
+			<manifest>
+				<attribute name="Main-Class" value="com.echomap.kqf.view.MainFrame" />
 				<attribute name="Class-Path" value="commons-lang-2.0.jar log4j-1.2.8.jar gson-2.8.2.jar " />
 			</manifest>
 		</jar>

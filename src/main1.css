@@ -35,3 +35,13 @@
 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
 	-fx-background-color: #50C888;
 } 
+
+.gradButtonPanel {
+	-fx-background-color: linear-gradient(#7f7fd5,#86a8e7,#91eae4);
+ 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.6) , 5.0, 0.0 , 0.0 , 1.0 );
+}
+
+.gradButtonPanelPink {
+	-fx-background-color: linear-gradient(#f953c6,#b91d73);
+ 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.6) , 5.0, 0.0 , 0.0 , 1.0 );
+}

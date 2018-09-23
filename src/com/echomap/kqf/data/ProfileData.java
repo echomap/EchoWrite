@@ -28,6 +28,11 @@ public class ProfileData {
 		boolEntries.put(key, val);
 	}
 
+	public void setInt(final String key, final Integer val) {
+		final String valS = Integer.toString(val);
+		textEntries.put(key, valS);
+	}
+
 	public Integer getInt(final String key) {
 		final String strVal = textEntries.get(key);
 		try {

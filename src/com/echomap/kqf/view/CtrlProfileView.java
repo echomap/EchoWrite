@@ -1,8 +1,6 @@
 package com.echomap.kqf.view;
 
-import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,23 +18,19 @@ import org.apache.log4j.Logger;
 import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.two.gui.GUIUtils;
-import com.echomap.kqf.two.gui.WorkDoneNotify;
 
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.Transition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -45,38 +39,48 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import javafx.util.Duration;
 
-public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
-	// WorkDoneNotify // {
+public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFinishedCallback {
+	private static final String VIEW_WINDOW_H = "view/pv/WindowH";
+	private static final String VIEW_WINDOW_W = "view/pv/WindowW";
+	private static final String VIEW_WINDOW_Y = "view/pv/WindowY";
+	private static final String VIEW_WINDOW_X = "view/pv/WindowX";
+	private static final String PREF_SPLIT_V = "view/pv/splitV";
+	private static final String PREF_COL_S = "view/pv/col%s";
+	private static final String PREF_SPLIT_H = "view/pv/splitH";
+
 	private final static Logger LOGGER = LogManager.getLogger(CtrlProfileView.class);
 	final ProfileManager profileManager;
 
-	File lastSelectedDirectory = null;
-	Stage primaryStage = null;
+	// File lastSelectedDirectory = null;
 	Profile selectedProfile = null;
 	// final ProfileBiz profileBiz;
 	// final Preferences userPrefs;
 	// Properties appProps = null;
 	// String appVersion = null;
-	private boolean runningMutex = false;
+	// private boolean runningMutex = false;
 	private MyWorkDoneNotify myWorkDoneNotify = null;
 	final Map<String, String> filters = new HashMap<>();
 	Timer timer = new Timer();
 	private MyFilterTimerTask myTimerTask;
 
+	private static int COL_KEY = 1;
+	private static int COL_SERIES = 2;
+	private static int COL_MAINTITLE = 3;
+	private static int COL_SUBTITLE = 4;
+	private static int COL_KEYWORDS = 5;
+
 	@FXML
 	private BorderPane outerMostContainer;
 	@FXML
 	private TextArea loggingText;
+	// @FXML
+	// private TextArea lastRunText
+	// @FXML
+	// private TextArea summaryRunText;
 	@FXML
 	private SplitPane splitVert;
 	@FXML
@@ -149,13 +153,50 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		});
 
 		if (appPreferences != null) {
-			final double splitH = appPreferences.getDouble("view/SplitH", -1);
-			final double splitV = appPreferences.getDouble("view/SplitV", -1);
+			final ObservableList<TableColumn> columns = profileTable.getColumns();
+			final double splitH = appPreferences.getDouble(PREF_SPLIT_H, -1);
+			final double splitV = appPreferences.getDouble(PREF_SPLIT_V, -1);
 			LOGGER.debug("setupController: splitH=" + splitH);
 			if (splitH > -1)
 				splitHoriz.setDividerPositions(splitH);
 			if (splitV > -1)
 				splitVert.setDividerPositions(splitV);
+
+			String key = String.format(PREF_COL_S, 1);
+			double colW = appPreferences.getDouble(key, -1);
+			LOGGER.debug("setupController: colW1=" + colW);
+			if (colW > -1) {
+				final TableColumn col = columns.get(0);
+				col.setPrefWidth(colW);
+			}
+			key = String.format(PREF_COL_S, 2);
+			colW = appPreferences.getDouble(key, -1);
+			LOGGER.debug("setupController: colW2=" + colW);
+			if (colW > -1) {
+				final TableColumn col = columns.get(1);
+				col.setPrefWidth(colW);
+			}
+			key = String.format(PREF_COL_S, 3);
+			colW = appPreferences.getDouble(key, -1);
+			LOGGER.debug("setupController: colW2=" + colW);
+			if (colW > -1) {
+				final TableColumn col = columns.get(2);
+				col.setPrefWidth(colW);
+			}
+			key = String.format(PREF_COL_S, 4);
+			colW = appPreferences.getDouble(key, -1);
+			LOGGER.debug("setupController: colW2=" + colW);
+			if (colW > -1) {
+				final TableColumn col = columns.get(3);
+				col.setPrefWidth(colW);
+			}
+			key = String.format(PREF_COL_S, 5);
+			colW = appPreferences.getDouble(key, -1);
+			LOGGER.debug("setupController: colW2=" + colW);
+			if (colW > -1) {
+				final TableColumn col = columns.get(4);
+				col.setPrefWidth(colW);
+			}
 		}
 	}
 
@@ -164,7 +205,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		LOGGER.debug("initialize: Called");
 		setTooltips(outerMostContainer);
 
-		lockGui();
+		// lockGui();
+		lockGuiPerNoProfile();
 		fixFocus();
 
 		filterTextKey.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -184,7 +226,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 			setupFilter("Keyword", newValue);
 		});
 
-		myWorkDoneNotify = new MyWorkDoneNotify(loggingText, loggingText);
+		myWorkDoneNotify = new MyWorkDoneNotify(loggingText, loggingText, this);
 
 		//
 		setProfileChangeMade(false);
@@ -195,22 +237,30 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 
 	@Override
 	void lockGui() {
-		if (runningMutex) {
-			return;
-		}
+		LOGGER.debug("lockGui: Called");
+		// if (runningMutex) {
+		// return;
+		// }
 		// Prevent Actions
 		// lockGuiPerNoProfile();
 		newProfileBtn.setDisable(true);
 		editProfileBtn.setDisable(true);
+		deleteProfileBtn.setDisable(true);
+		clearProfileBtn.setDisable(true);
+	}
 
-		// btnRunWordCounter
-		// btnRunOutliner
-		// btnRunFormatter
-
+	@Override
+	void unlockGui() {
+		LOGGER.debug("unlockGui: Called");
+		newProfileBtn.setDisable(false);
+		editProfileBtn.setDisable(false);
+		deleteProfileBtn.setDisable(false);
+		clearProfileBtn.setDisable(false);
 	}
 
 	void unlockGui(final String process) {
-		unlockGui();
+		if (!othersRunning())
+			unlockGui();
 		if (!StringUtils.isEmpty(process)) {
 			if ("Counter".compareTo(process) == 0) {
 				btnRunWordCounter.setDisable(false);
@@ -222,10 +272,31 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		}
 	}
 
+	private boolean othersRunning() {
+		int cnt = 0;
+		if (btnRunWordCounter.isDisable())
+			cnt++;
+		if (btnRunOutliner.isDisable())
+			cnt++;
+		if (btnRunFormatter.isDisable())
+			cnt++;
+		if (cnt > 1)
+			return true;
+		return false;
+	}
+
 	@Override
-	void unlockGui() {
-		newProfileBtn.setDisable(false);
-		editProfileBtn.setDisable(false);
+	public void workFinished(final String msg) {
+		this.unlockGui(msg);
+	}
+
+	private void refreshData() {
+		// refresh my data
+		setProfileChangeMade(false);
+		profileManager.loadProfileData();
+		loadTableData();
+		unselectProfile();
+		fixFocus();
 	}
 
 	private void startTimerTask() {
@@ -234,7 +305,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 			this.myTimerTask = new MyFilterTimerTask();
 			timer.cancel();
 			timer = new Timer();
-			timer.schedule(myTimerTask, 2000);
+			timer.schedule(myTimerTask, 1000);
 		}
 	}
 
@@ -264,14 +335,48 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 	private void setupTable() {
 		//
 		final ObservableList<TableColumn> columns = profileTable.getColumns();
-		final TableColumn col1 = columns.get(0);
-		col1.setCellValueFactory(new PropertyValueFactory<>("key"));
-		final TableColumn col2 = columns.get(1);
-		col2.setCellValueFactory(new PropertyValueFactory<>("mainTitle"));
-		final TableColumn col3 = columns.get(2);
-		col3.setCellValueFactory(new PropertyValueFactory<>("seriesTitle"));
-		final TableColumn col4 = columns.get(3);
-		col4.setCellValueFactory(new PropertyValueFactory<>("keywords"));
+		final TableColumn colK = columns.get(0);
+		colK.setCellValueFactory(new PropertyValueFactory<>("key"));
+		final TableColumn colS = columns.get(1);
+		colS.setCellValueFactory(new PropertyValueFactory<>("seriesTitle"));
+		final TableColumn colM = columns.get(2);
+		colM.setCellValueFactory(new PropertyValueFactory<>("mainTitle"));
+		final TableColumn colT = columns.get(3);
+		colT.setCellValueFactory(new PropertyValueFactory<>("subTitle"));
+		final TableColumn colW = columns.get(4);
+		colW.setCellValueFactory(new PropertyValueFactory<>("keywords"));
+
+		// col1. resize handler
+		colK.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(COL_KEY, newValue);
+			}
+		});
+		colS.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(COL_SERIES, newValue);
+			}
+		});
+		colM.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(COL_MAINTITLE, newValue);
+			}
+		});
+		colT.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(COL_SUBTITLE, newValue);
+			}
+		});
+		colW.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(COL_KEYWORDS, newValue);
+			}
+		});
 
 		// Hack: align column headers to the center.
 		GUIUtils.alignColumnLabelsLeftHack(profileTable);
@@ -321,22 +426,28 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 			// if (keys != null && keys.size() > 0)
 			// dataOk = false;
 			for (final String key : keys) {
-				dataFail = true;
+				if (dataFail)
+					continue;
+				// dataFail = false;
 				final String val = filters.get(key);
 				// LOGGER.debug("loadTableData: checking for key:'" + key +
 				// "'");
 				if ("Key" == key && val != null && val.length() > 0) {
-					if (profile.getKey().toLowerCase().contains(val.toLowerCase()))
-						dataFail = false;
-				} else if ("Name" == key && val != null && val.length() > 0) {
-					if (profile.getMainTitle().toLowerCase().contains(val.toLowerCase()))
-						dataFail = false;
-				} else if ("Series" == key && val != null && val.length() > 0) {
-					if (profile.getSeriesTitle().toLowerCase().contains(val.toLowerCase()))
-						dataFail = false;
-				} else if ("Keyword" == key && val != null && val.length() > 0) {
-					if (profile.getKeywords().toLowerCase().contains(val.toLowerCase()))
-						dataFail = false;
+					if (!profile.getKey().toLowerCase().contains(val.toLowerCase()))
+						dataFail = true;
+				}
+				if ("Name" == key && val != null && val.length() > 0 && !dataFail) {
+					if (!profile.getMainTitle().toLowerCase().contains(val.toLowerCase())
+							&& !profile.getSubTitle().toLowerCase().contains(val.toLowerCase()))
+						dataFail = true;
+				}
+				if ("Series" == key && val != null && val.length() > 0 && !dataFail) {
+					if (!profile.getSeriesTitle().toLowerCase().contains(val.toLowerCase()))
+						dataFail = true;
+				}
+				if ("Keyword" == key && val != null && val.length() > 0 && !dataFail) {
+					if (!profile.getKeywords().toLowerCase().contains(val.toLowerCase()))
+						dataFail = true;
 				}
 				if (dataFail)
 					continue;
@@ -356,7 +467,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				profileTable.requestFocus();
+				clearProfileBtn.requestFocus();
 			}
 		});
 	}
@@ -373,22 +484,23 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 
 	// Prevent Actions when there is no profile selected
 	private void lockGuiPerNoProfile() {
-		// Prevent Actions
-		deleteProfileBtn.setDisable(true);
-
 		btnRunWordCounter.setDisable(true);
 		btnRunOutliner.setDisable(true);
 		btnRunFormatter.setDisable(true);
+
+		editProfileBtn.setDisable(true);
+		deleteProfileBtn.setDisable(true);
 		clearProfileBtn.setDisable(true);
 	}
 
 	// Allow Actions when there is no profile selected
 	private void unlockGuiPerProfile() {
-		deleteProfileBtn.setDisable(false);
-
 		btnRunWordCounter.setDisable(false);
 		btnRunOutliner.setDisable(false);
 		btnRunFormatter.setDisable(false);
+
+		editProfileBtn.setDisable(false);
+		deleteProfileBtn.setDisable(false);
 		clearProfileBtn.setDisable(false);
 	}
 
@@ -403,12 +515,6 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 	// fixFocus();
 	// }
 
-	private void setTooltips(Pane outerMostContainer2) {
-		LOGGER.debug("setTooltips: Called ");
-		// TODO
-		LOGGER.debug("setTooltips: Done ");
-	}
-
 	/*
 	 * HANDLE Functions
 	 */
@@ -420,174 +526,6 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		stage.close();
 	}
 
-	public void handleClose2(final ActionEvent event) {
-		final MenuItem source = (MenuItem) event.getSource();
-		final Stage stage = primaryStage;
-		// (Stage) source.getScene().getWindow();
-		persist();
-		doCleanup();
-		stage.close();
-	}
-
-	public void handleProfileNew(final ActionEvent event) {
-		LOGGER.debug("handleProfileNew: Called");
-		LOGGER.debug("handleProfileNew: Done");
-	}
-
-	public void handleProfileLoad(final ActionEvent event) {
-		LOGGER.debug("handleProfileLoad: Called");
-		LOGGER.debug("handleProfileLoad: Done");
-	}
-
-	public void handleProfileDelete(final ActionEvent event) {
-		LOGGER.debug("handleProfileDelete: Called");
-		LOGGER.debug("handleProfileDelete: Done");
-	}
-
-	class MyWorkDoneNotify implements WorkDoneNotify {
-
-		final List<String> errorsReportedKeys = new ArrayList<>();
-		private TextArea summaryReportArea = null;
-		private TextArea loggingReportArea = null;
-
-		public MyWorkDoneNotify(final TextArea summaryReportArea, final TextArea loggingReportArea) {
-			this.summaryReportArea = summaryReportArea;
-			this.loggingReportArea = loggingReportArea;
-		}
-
-		private void showSummaryMessage(final String msg, final boolean clearPrevious) {
-			if (msg == null || StringUtils.isBlank(msg))
-				return;
-			if (summaryReportArea == null)
-				return;
-			final Animation animation = new Transition() {
-				{
-					setCycleDuration(Duration.millis(2000));
-					setInterpolator(Interpolator.EASE_OUT);
-				}
-
-				@Override
-				protected void interpolate(double frac) {
-					Color vColor = new Color(1, 0, 0, 1 - frac);
-					summaryReportArea
-							.setBackground(new Background(new BackgroundFill(vColor, CornerRadii.EMPTY, Insets.EMPTY)));
-				}
-			};
-			animation.play();
-
-			if (clearPrevious) {
-				summaryReportArea.setText(msg);
-			} else {
-				summaryReportArea.setText(msg + "\r\n" + summaryReportArea.getText());
-			}
-		}
-
-		private void showMessage(final String msg, final boolean clearPrevious) {
-			if (loggingReportArea == null)
-				return;
-			final Animation animation = new Transition() {
-				{
-					setCycleDuration(Duration.millis(2000));
-					setInterpolator(Interpolator.EASE_OUT);
-				}
-
-				@Override
-				protected void interpolate(double frac) {
-					Color vColor = new Color(1, 0, 0, 1 - frac);
-					loggingReportArea
-							.setBackground(new Background(new BackgroundFill(vColor, CornerRadii.EMPTY, Insets.EMPTY)));
-				}
-			};
-			animation.play();
-
-			if (clearPrevious) {
-				loggingReportArea.setText(msg);
-			} else {
-				loggingReportArea.setText(msg + "\r\n" + loggingReportArea.getText());
-			}
-			LOGGER.info(msg);
-		}
-
-		@Override
-		public void finalResultFromWork(String msg) {
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					showSummaryMessage(msg, false);
-					unlockGui();
-					runningMutex = false;
-				}
-			});
-		}
-
-		@Override
-		public void finishedWithWork(String msg) {
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					showMessage("Done running " + msg + " Process (" + getCurrentDateFmt() + ")", false);
-					// TODO done type, mapping to enable buttons
-					// Counter , Outliner , Form.,..?
-					unlockGui(msg);
-					runningMutex = false;
-				}
-			});
-		}
-
-		@Override
-		public void errorWithWork(final String msg, final String key) {
-			if (!errorsReportedKeys.contains(key)) {
-				errorsReportedKeys.add(key);
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						showMessage("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + msg, false);
-						LOGGER.error(msg);
-						showSummaryMessage(msg, false);
-						unlockGui();
-						runningMutex = false;
-					}
-				});
-			}
-		}
-
-		@Override
-		public void errorWithWork(final String msg, final Exception e) {
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					showMessage("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e, false);
-					LOGGER.error(e);
-					unlockGui();
-					runningMutex = false;
-				}
-			});
-		}
-
-		@Override
-		public void errorWithWork(final String msg, final Throwable e) {
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					showMessage("Error running " + msg + " Process (" + getCurrentDateFmt() + ")\n" + e, false);
-					LOGGER.error(e);
-					unlockGui();
-					runningMutex = false;
-				}
-			});
-		}
-
-		@Override
-		public void statusUpdateForWork(String header, String msg) {
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					showMessage("---" + header + " Process, " + msg, false);
-				}
-			});
-		}
-	}
-
 	public void handleRunCounter(final ActionEvent event) {
 		LOGGER.debug("handleRunCounter: Called");
 		lockGui();
@@ -597,7 +535,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 			br.handleRunCounter(this, profileManager, this.selectedProfile, loggingText, myWorkDoneNotify);
 		} catch (Exception e) {
 			e.printStackTrace();
-			unlockGui();
+			// unlockGui();
 			btnRunWordCounter.setDisable(false);
 		}
 		LOGGER.debug("handleRunCounter: Done");
@@ -637,43 +575,111 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		LOGGER.debug("handleProfileClear: Done");
 	}
 
-	public void handleProfileEdit(final ActionEvent event) {
-		LOGGER.debug("handleProfileEdit: Called");
-		// TODO test
-		openNewWindow("NEWProfile", "windowTitle1", loggingText, primaryStage);
-		LOGGER.debug("handleProfileEdit: Done");
+	public void handleProfileNew(final ActionEvent event) {
+		LOGGER.debug("handleProfileNew: Called");
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("NEW", true);
+		paramsMap.put("selectedProfile", null);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_PROFILE_NEW, windowTitle, loggingText, primaryStage, this, paramsMap);
+		refreshData();
+		LOGGER.debug("handleProfileNew: Done");
 	}
 
-	public void handleInputFile(final ActionEvent event) {
-		LOGGER.debug("handleInputFile: Called");
-		LOGGER.debug("handleInputFile: Done");
+	public void handleProfileDelete(final ActionEvent event) {
+		LOGGER.debug("handleProfileDelete: Called");
+		if (selectedProfile == null) {
+			showMessage("No profile selected to delete", false);
+			return;
+		}
+
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("DELETE", true);
+
+		paramsMap.put("selectedProfile", selectedProfile);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_PROFILE_DELETE, windowTitle, loggingText, primaryStage, this, paramsMap);
+
+		refreshData();
+		LOGGER.debug("handleProfileDelete: Done");
+	}
+
+	// Handles Showing the Profile Details
+	public void handleProfileEdit(final ActionEvent event) {
+		LOGGER.debug("handleProfileEdit: Called");
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("selectedProfile", selectedProfile);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_PROFILE_EDIT, windowTitle, loggingText, primaryStage, this, paramsMap);
+		LOGGER.debug("handleProfileEdit: Done");
 	}
 
 	public void handleImport(final ActionEvent event) {
 		LOGGER.debug("handleSettingsClear: Called");
+
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("selectedProfile", selectedProfile);
+		paramsMap.put("profileManager", profileManager);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_IMPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
+
 		LOGGER.debug("handleSettingsClear: Done");
 	}
 
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleSettingsClear: Called");
+
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("selectedProfile", selectedProfile);
+		paramsMap.put("profileManager", profileManager);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_EXPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
+
 		LOGGER.debug("handleSettingsClear: Done");
+	}
+
+	public void handleRefreshProfiles(final ActionEvent event) {
+		LOGGER.debug("handleRefreshProfiles: Called");
+		setProfileChangeMade(false);
+		// setupTable();
+		profileManager.loadProfileData();
+		loadTableData();
+		LOGGER.debug("handleRefreshProfiles: Done");
 	}
 
 	public void handleSettingsClear(final ActionEvent event) {
 		LOGGER.debug("handleSettingsClear: Called");
-		appPreferences.remove("view/SplitV");
-		appPreferences.remove("view/SplitH");
 
-		appPreferences.remove("view/WindowX");
-		appPreferences.remove("view/WindowY");
-		appPreferences.remove("view/WindowW");
-		appPreferences.remove("view/WindowH");
+		appPreferences.remove(PREF_SPLIT_H);
+		appPreferences.remove(PREF_SPLIT_V);
+
+		appPreferences.remove(VIEW_WINDOW_X);
+		appPreferences.remove(VIEW_WINDOW_Y);
+		appPreferences.remove(VIEW_WINDOW_W);
+		appPreferences.remove(VIEW_WINDOW_H);
+
+		String key = String.format(PREF_COL_S, 1);
+		appPreferences.remove(key);
+		key = String.format(PREF_COL_S, 2);
+		appPreferences.remove(key);
+		key = String.format(PREF_COL_S, 3);
+		appPreferences.remove(key);
+		key = String.format(PREF_COL_S, 4);
+		appPreferences.remove(key);
+		key = String.format(PREF_COL_S, 5);
+		appPreferences.remove(key);
 
 		LOGGER.debug("handleSettingsClear: Done");
 	}
 
 	public void handleHelpAbout(final ActionEvent event) {
 		LOGGER.debug("handleHelpAbout: Called");
+		// TODO
 		LOGGER.debug("handleHelpAbout: Done");
 	}
 
@@ -688,6 +694,10 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 			timer.cancel();
 		myTimerTask = null;
 		timer = null;
+	}
+
+	void showMessage(final String msg, final boolean clearPrevious) {
+		showMessage(msg, clearPrevious, loggingText);
 	}
 
 	private void persist() {
@@ -724,6 +734,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 			subTitleText.setText(profile.getSubTitle());
 			seriesTitleText.setText(profile.getSeriesTitle());
 			volumeText.setText(profile.getVolume());
+			// Keywords
+
+			final String lastSelectedDirectoryStr = profile.getInputFile();
+			if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {
+				setLastSelectedDirectory(lastSelectedDirectoryStr);
+			}
 			//
 			unlockGuiPerProfile();
 		}
@@ -739,7 +755,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 		lockGuiPerNoProfile();
 	}
 
-	private void setProfileChangeMade(boolean b) {
+	void setProfileChangeMade(boolean b) {
 		if (b) {
 			profileDataChanged.setText("Unsaved Changes");
 		} else {
@@ -759,14 +775,23 @@ public class CtrlProfileView extends BaseCtrl implements Initializable { // ,
 
 	private void splitVertChanged(Number newVal) {
 		if (appPreferences != null) {
-			appPreferences.putDouble("view/SplitV", newVal.doubleValue());
+			appPreferences.putDouble(PREF_SPLIT_V, newVal.doubleValue());
 		}
 	}
 
 	private void splitHorizChanged(Number newVal) {
 		if (appPreferences != null) {
 			LOGGER.debug("splitHorizChanged: splitH=" + newVal.doubleValue());
-			appPreferences.putDouble("view/SplitH", newVal.doubleValue());
+			appPreferences.putDouble(PREF_SPLIT_H, newVal.doubleValue());
+		}
+	}
+
+	private void columnWidthChanged(final int colNum, final Number newValue) {
+		if (appPreferences != null) {
+			final String key = String.format(PREF_COL_S, colNum);
+			// LOGGER.debug("columnWidthChanged: col#" + colNum + " val=" +
+			// newValue.doubleValue());
+			appPreferences.putDouble(key, newValue.doubleValue());
 		}
 	}
 

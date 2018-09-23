@@ -12,7 +12,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.TextBiz;
-import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
@@ -50,26 +49,12 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		// final SimpleChapterDao chpt = ldao.getCurrentChapter();
-		// final CountDao cdao = ldao.getChaptCount();
-		// final CountDao tdao = ldao.getTotalCount();
-		// if (chpt.isChapter) {
-		// cdao.setChapterNumber(tdao.getNumChapters());
-		// } else {
-		// TextBiz.countWords(ldao, cdao, formatDao);
-		// }
-		// cdao.addOneToNumLines();
+		// Not counting anything here
 	}
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		final DocTagLine docTagLine = ldao.getCurrentDocTagLine();
-		final CountDao cdao = ldao.getChaptCount();
-		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
-
-		final String str = docTagLine.getBareLine();
-		TextBiz.countWords(str, cdao, formatDao);
-		cdao.addOneToNumLines();
+		// Not counting anything in a DocTag
 	}
 
 	@Override
@@ -81,7 +66,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		// final DocTagLine dttGL = ldao.getCurrentDocTagLine();
 		final CountDao cdao = ldao.getChaptCount();
 		// final CountDao tdao = ldao.getTotalCount();
-		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine().getLine());
+		LOGGER.debug("CDTL: '" + ldao.getCurrentDocTagLine().getLine() + "'");
 
 		if (sect.isSection) {
 			// TODO SECTIONS!!

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane fx:id="outerMostContainer" prefHeight="400.0" prefWidth="850.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlExport">
+	<columnConstraints>
+		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+		<RowConstraints vgrow="SOMETIMES" />
+		<RowConstraints minHeight="200.0" vgrow="ALWAYS" />
+	</rowConstraints>
+	<children>
+
+		<Label style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: aqua; -fx-background-insets: 4;" text="Profile Export" />
+		<HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: gray;" GridPane.rowIndex="2">
+			<children>
+				<Button onAction="#handleSelectAll" styleClass="selectallbutton" text="Select _All" />
+				<Button onAction="#handleSelectNone" styleClass="selectnonebutton" text="Select _None" />
+				<Separator orientation="VERTICAL" />
+				<Button fx:id="buttonSave" onAction="#handleExport" styleClass="actionbutton" text="_Export" />
+				<Button cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="closebutton" text="_Close" />
+			</children>
+         <padding>
+            <Insets bottom="6.0" top="6.0" />
+         </padding>
+		</HBox>
+		<ScrollPane fitToHeight="true" fitToWidth="true" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3" GridPane.vgrow="SOMETIMES">
+			<content>
+				<GridPane>
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+					</rowConstraints>
+					<children>
+						<TableView fx:id="inputTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+
+
+					</children>
+				</GridPane>
+			</content>
+		</ScrollPane>
+      <HBox style="-fx-border-color: black;" GridPane.rowIndex="1">
+         <children>
+            <Label minWidth="50.0" text="File:" />
+            <TextField fx:id="inputFile" promptText="Enter or browse for file for export" HBox.hgrow="ALWAYS" />
+            <Button minWidth="75.0" mnemonicParsing="false" onAction="#handleBrowse" styleClass="actionbutton" text="Browse" />
+         </children>
+      </HBox>
+	</children>
+</GridPane>
