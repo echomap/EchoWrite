@@ -1,1 +1,5 @@
 /dist/*.log
+/docs/runme-enemy1.cmd
+/docs/runme-enemy2.cmd
+/docs/runme1.cmd
+/lib/KQFRunner.cmd
