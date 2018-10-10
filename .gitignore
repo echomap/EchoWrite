@@ -1,2 +1,6 @@
 /bin/
 /*.log
+/dist/*.log
+/dist/*.cmd
+/*.cmd
+/lib/*.cmd

@@ -37,6 +37,7 @@ public class MainFrame extends Application {
 	public static final String SUB_IMPORT = "/viewimport.fxml";
 
 	final static Map<String, String> fxmlFrames = new HashMap<>();
+	@SuppressWarnings("rawtypes")
 	final static Map<String, Class> fxmlCtrl = new HashMap<>();
 	final static Properties appProps = new Properties();
 

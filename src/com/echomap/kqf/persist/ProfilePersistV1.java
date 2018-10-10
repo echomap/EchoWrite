@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.XferBiz;
 import com.echomap.kqf.data.OtherDocTagData;
+import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -112,7 +113,7 @@ public class ProfilePersistV1 {
 
 		pd.setText("inputFilePrefix", child.get("inputFilePrefix", ""));
 		pd.setSelected("appendUnderscoreToPrefix", child.getBoolean("appendUnderscoreToPrefix", false));
-
+		pd.setText("appendUnderscoreToPrefix", child.get("appendUnderscoreToPrefix", ""));
 		// chpDivText.setText(child.get("chpDiv", ""));
 		// secDivText.setText(child.get("secDiv", ""));
 		pd.setText("regexpChapter", child.get("regexpChapter", ""));
@@ -232,7 +233,10 @@ public class ProfilePersistV1 {
 		setValueIfNotNull(child, "outputDir", pd.getText("outputDir"));
 		setValueIfNotNull(child, "outputFormatChpTextDirText", pd.getText("outputFormatChpTextDirText"));
 		setValueIfNotNull(child, "inputFilePrefix", pd.getText("inputFilePrefix"));
-		setValueIfNotNull(child, "appendUnderscoreToPrefix", pd.getText("appendUnderscoreToPrefix"));
+		child.putBoolean("appendUnderscoreToPrefix", pd.isSelected("appendUnderscoreToPrefix"));
+		// setValueIfNotNull(child, "appendUnderscoreToPrefix",
+		// pd.getText("appendUnderscoreToPrefix"));
+
 		setValueIfNotNull(child, "regexpChapter", pd.getText("regexpChapter"));
 		setValueIfNotNull(child, "regexpSection", pd.getText("regexpSection"));
 
@@ -341,6 +345,26 @@ public class ProfilePersistV1 {
 			throw new BackingStoreException("No such Profile found with the key <" + key + ">");
 		}
 		LOGGER.debug("deleteProfile: Done.");
+	}
+
+	public void renameProfile(final ProfileData profileData, final String oldKey, final String newKey)
+			throws BackingStoreException {
+		LOGGER.debug("renameProfile: Called.");
+		boolean childDeleted = false;
+
+		final Preferences childOld = userPrefs.node(oldKey);
+		if (childOld != null) {
+			childOld.removeNode();
+			childDeleted = true;
+			profileData.setKey(newKey);
+			this.saveProfiles(profileData);
+		}
+		userPrefs.flush();
+
+		if (!childDeleted) {
+			throw new BackingStoreException("No such Profile found with the key <" + profileData + ">");
+		}
+		LOGGER.debug("renameProfile: Done.");
 	}
 
 }

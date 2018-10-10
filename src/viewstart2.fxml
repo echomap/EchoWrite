@@ -19,7 +19,7 @@
 						<MenuItem onAction="#handleClose" text="_Quit" />
 					</items>
 				</Menu>
-				<Menu text="_Profiles">
+				<Menu text="P_rofiles">
 					<items>
 						<MenuItem onAction="#handleImport" text="_Import" />
 						<MenuItem onAction="#handleExport" text="_Export" />
@@ -169,6 +169,21 @@
 																				</TextField>
 																			</children>
 																		</HBox>
+                                                <HBox maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0">
+                                                   <children>
+                                                      <Label minWidth="-Infinity" prefWidth="70.0" text="Key:">
+                                                         <textFill>
+                                                            <Color blue="0.478" green="0.000" red="1.000" fx:id="x62" />
+                                                         </textFill>
+                                                      </Label>
+                                                      <TextField fx:id="inputProfileKey" prefWidth="-1.0" promptText="Profile Name" HBox.hgrow="SOMETIMES">
+                                                         <HBox.margin>
+                                                            <Insets right="8.0" fx:id="x21231" />
+                                                         </HBox.margin>
+                                                      </TextField>
+                                                      <Button fx:id="renameProfileBtn" mnemonicParsing="false" onAction="#handleProfileRenameEdit" styleClass="actionbuttonOther" text="Rename" />
+                                                   </children>
+                                                </HBox>
 																	</children>
 																	<columnConstraints>
 																		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />

@@ -29,17 +29,20 @@ import javafx.collections.ObservableList;
 
 public class Export {
 	private final static Logger LOGGER = LogManager.getLogger(Export.class);
-	// final ProfileManager profileManager;
 
-	// public Export(final ProfileManager profileManager) {
-	// this.profileManager = profileManager;
-	// }
+	/**
+	 * 
+	 */
+	public Export() {
+		//
+	}
+
 	final Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls()
 			.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 
 	public File doExportProfiles(final String fileName, final ObservableList<ProfileExportObj> exportMetadata,
 			final Properties appProps, final Preferences appPreferences, final ProfileManager profileManager)
-					throws IOException {
+			throws IOException {
 		LOGGER.debug("doExportProfiles: Called");
 
 		File outputFilePlain = null;
@@ -102,7 +105,7 @@ public class Export {
 		return outputFilePlain;
 	}
 
-	//https://stackoverflow.com/questions/47193364/using-gson-convert-java-object-into-jsonobject
+	// https://stackoverflow.com/questions/47193364/using-gson-convert-java-object-into-jsonobject
 	private JsonObject convertProfileToJSON(final Profile selProfile) {
 		// final Gson gson2 = new
 		// GsonBuilder().setPrettyPrinting().serializeNulls()

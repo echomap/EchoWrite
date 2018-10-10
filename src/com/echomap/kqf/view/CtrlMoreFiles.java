@@ -1,6 +1,7 @@
 package com.echomap.kqf.view;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,11 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.KqfBiz;
 import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.data.Profile;
+import com.echomap.kqf.persist.Export;
 import com.echomap.kqf.two.gui.GUIUtils;
 
 import javafx.beans.value.ChangeListener;
@@ -37,6 +40,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -53,7 +57,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	private int selectedRow = 0;
 	// Profile Changes in this case are changes made to a docTag element, where
 	// this is overall
-	private boolean overallChangeMade = false;
+	// private boolean overallChangeMade = false;
 	private List<OtherDocTagData> cachedOutputs = null;
 
 	@FXML
@@ -63,6 +67,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	@FXML
 	private HBox mainButtonBar;
 
+	@SuppressWarnings("rawtypes")
 	@FXML
 	private TableView inputTable;
 
@@ -76,6 +81,10 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	@FXML
 	private Label overallDataChanged;
 
+	@FXML
+	private Button buttonExport;
+	@FXML
+	private Button buttonImport;
 	@FXML
 	private Button btnCloseScreen;
 
@@ -113,13 +122,15 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		LOGGER.debug("initialize: Done");
 	}
 
-	@Override
-	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage) {
-		super.setupController(props, appPreferences, primaryStage);
-		LOGGER.debug("setupController: Done");
-		this.appPreferences = Preferences.userNodeForPackage(CtrlProfileView.class);
-		profileManager.setAppVersion(this.appVersion);
-	}
+	// @Override
+	// public void setupController(final Properties props, final Preferences
+	// appPreferences, final Stage primaryStage) {
+	// super.setupController(props, appPreferences, primaryStage);
+	// LOGGER.debug("setupController: Done");
+	// this.appPreferences =
+	// Preferences.userNodeForPackage(CtrlProfileView.class);
+	// profileManager.setAppVersion(this.appVersion);
+	// }
 
 	@Override
 	public void setupController(Properties props, Preferences appPreferences, Stage primaryStage,
@@ -189,7 +200,6 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 
 	public void handleModifySave(final ActionEvent event) {
 		LOGGER.debug("handleModifySave: Called");
-		// TODO
 		if (selectedOtherData == null) {
 			selectedOtherData = new OtherDocTagData();
 			selectedProfile.addOutput(selectedOtherData);
@@ -204,6 +214,50 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		unlockTable();
 		refreshTable();
 		LOGGER.debug("handleModifySave: Done");
+	}
+
+	public void handleDelete(final ActionEvent event) {
+		LOGGER.debug("handleDelete: Called");
+		if (selectedOtherData == null) {
+			showPopupMessage("Error", "Nothing selected to delete", true);
+			return;
+		}
+		// TODO
+		final ConfirmResultDelete confirmResultDelete = new ConfirmResultDelete();
+		showConfirmDialog("Delete?", "Really Delete?", confirmResultDelete);
+		LOGGER.debug("handleDelete: Done");
+	}
+
+	class ConfirmResultDelete implements ConfirmResult {
+
+		@Override
+		public void actionConfirmed(final String title) {
+			LOGGER.debug("actionConfirmed: Called");
+			final List<OtherDocTagData> listo = selectedProfile.getOutputs();
+			for (final OtherDocTagData otherDocTagData : listo) {
+				if (otherDocTagData.getName().compareTo(selectedOtherData.getName()) == 0) {
+					LOGGER.debug("actionConfirmed: Removed name=" + otherDocTagData.getName());
+					listo.remove(otherDocTagData);
+					break;
+				}
+			}
+			selectedOtherData = null;
+
+			// profileManager.saveProfileData(selectedProfile);
+			// cachedOutputs = selectedProfile.getOutputs();
+
+			setOverallChangeMade(true);
+			unselectRow();
+			unlockTable();
+			refreshTable();
+		}
+
+		@Override
+		public void actionCancelled(String title) {
+			LOGGER.debug("actionCancelled: Called");
+			unselectRow();
+			unlockTable();
+		}
 	}
 
 	public void handleCancelChange(final ActionEvent event) {
@@ -221,15 +275,28 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		LOGGER.debug("handleNew: Done");
 	}
 
-	public void handleDelete(final ActionEvent event) {
-		LOGGER.debug("handleDelete: Called");
-		// TODO
-		LOGGER.debug("handleDelete: Done");
-	}
-
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleExport: Called");
-		// TODO
+
+//		try {
+			final File cFile = chooseFile(event, "Choose Export File", null, selectedProfile.getKey() + "_more.json",
+					"JSON");
+			if (cFile == null) {
+				showPopupMessage("Failed", "No file selected.", false);
+				return;
+			}
+//
+//			// final Charset selCharSet = formatDao.getCharSet();
+//			final Export export1 = new Export();
+//			@SuppressWarnings("unchecked")
+//			final File outputFilePlain = export1.doExportMoreFiles(inputFile.getText(), inputTable.getItems(),
+//					this.appProps, this.appPreferences, profileManager);
+//			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
+//		} catch (IOException e) {
+//			LOGGER.error(e);
+//			showPopupMessage("Export Error", e.getMessage(), true);
+//		}
+
 		LOGGER.debug("handleExport: Done");
 	}
 
@@ -269,7 +336,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	}
 
 	void setOverallChangeMade(boolean b) {
-		overallChangeMade = b;
+		// overallChangeMade = b;
 		if (b) {
 			overallDataChanged.setText("Unsaved Changes");
 			btnCloseScreen.setText("_Cancel");
@@ -403,19 +470,19 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	private void loadData() {
 		LOGGER.debug("loadTableData: Called");
 		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
-		if (selectedProfile == null) {
-			return;
-		}
-		final List<OtherDocTagData> listOO = selectedProfile.getOutputs();
-		if (listOO != null) {
-			for (final OtherDocTagData otherDocTagData : listOO) {
-				newList.add(otherDocTagData);
-			}
-		}
 		inputTable.getItems().clear();
-		inputTable.getItems().setAll(newList);
-		inputTable.refresh();
+		if (selectedProfile != null) {
 
+			final List<OtherDocTagData> listOO = selectedProfile.getOutputs();
+			if (listOO != null) {
+				for (final OtherDocTagData otherDocTagData : listOO) {
+					newList.add(otherDocTagData);
+				}
+			}
+			inputTable.getItems().clear();
+			inputTable.getItems().setAll(newList);
+		}
+		inputTable.refresh();
 		setDetectChanges(outerMostContainer);
 		LOGGER.debug("loadTableData: Done");
 	}

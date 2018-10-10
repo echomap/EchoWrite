@@ -22,10 +22,14 @@ public class ProfileData {
 
 	public void setText(final String key, final String val) {
 		textEntries.put(key, val);
+		if ("seriesTitle".compareTo(key) == 0)
+			setSeries(val);
 	}
 
 	public void setSelected(final String key, final Boolean val) {
 		boolEntries.put(key, val);
+		if (val != null)
+			setText("appendUnderscoreToPrefix", val.toString());
 	}
 
 	public void setInt(final String key, final Integer val) {

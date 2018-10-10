@@ -290,4 +290,43 @@ public class ProfileManager {
 		LOGGER.debug("deleteProfileByKey: Done");
 	}
 
+	public void renameProfile(final Profile profile, final String newKey) {
+		LOGGER.debug("renameProfile: Called");
+		resetData();
+
+		LOGGER.debug("Check status of Profile V1");
+		int v1Status = checkProfileStatus(userPrefsV1);
+		LOGGER.debug("Check status of Profile V2");
+		int v2Status = checkProfileStatus(userPrefsV2);
+		LOGGER.info("Profile Data V1 Status = " + v1Status);
+		LOGGER.info("Profile Data V2 Status = " + v2Status);
+
+		// try to load ProfilePrefsV2, if nothing, load 1
+		if (v2Status == 0) {
+
+			final ProfilePersistV2 persist2 = new ProfilePersistV2();
+			final ProfilePersistV1 persist = new ProfilePersistV1(userPrefsV1);
+			try {
+				final ProfileData profileData = persist2.convertFromV2toV1(profile);
+				persist.renameProfile(profileData, profile.getKey(), newKey);
+				LOGGER.debug("Persist error? " + persist.isWasError());
+				final List<String> mgs = persist.getMessages();
+				if (mgs != null) {
+					for (String msg : mgs) {
+						LOGGER.debug("Persist msg?" + msg);
+					}
+				}
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+				this.wasError = true;
+				this.messages.add(e.getMessage());
+				this.error = e;
+			}
+		} else {
+			// Load V2
+			// Check Version
+		}
+		LOGGER.debug("renameProfile: Done");
+	}
+
 }

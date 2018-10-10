@@ -28,6 +28,8 @@ Formatting in new version, drop caps not working
 Unused tags in MoreFiles are not tracked
 save column sizes?
 ----==--==--==--------==--==--==--------==--==--==----
+2.0.1
+	bug fixes and updates to Report File
 2.0.0
 	updated GUI
 	updated object model

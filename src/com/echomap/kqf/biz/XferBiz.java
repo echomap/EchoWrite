@@ -40,7 +40,8 @@ public class XferBiz {
 	public static final String PROFILE_DATA_OPTIONS = "options";
 	// public static final String PROFILEOPTION_DATA = "profileOptionData";
 
-	public static <T> List<T> loadDataListFromJson(final String listString, final Class T) {
+	public static <T> List<T> loadDataListFromJson(final String listString,
+			@SuppressWarnings("rawtypes") final Class T) {
 		final Gson gson = new Gson();
 		final Type listOfTestObject = new TypeToken<List<T>>() {
 		}.getType();
@@ -54,7 +55,7 @@ public class XferBiz {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Object loadDataFromJson(final JsonElement elem, final Class T) {
+	public static <T> Object loadDataFromJson(final JsonElement elem, @SuppressWarnings("rawtypes") final Class T) {
 		// 1
 		final Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls()
 				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
@@ -66,7 +67,7 @@ public class XferBiz {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Object loadDataFromJson(final String listString, final Class T) {
+	public static <T> Object loadDataFromJson(final String listString, @SuppressWarnings("rawtypes") final Class T) {
 		final Gson gson = new Gson();
 		return (T) gson.fromJson(listString, T);
 	}
@@ -146,21 +147,22 @@ public class XferBiz {
 				final JsonArray list = new JsonArray();
 				dsOptions.add("list", list);
 
-//				final SortedMap<String, DocTagDataOption> options = odtd.getOptions();
-//				// final String joString = XferBiz.objectListToJson(options);
-//				// dsOption.addProperty("options", joString);
-//				final Set<String> keys = options.keySet();
-//				for (final String key : keys) {
-//					final JsonObject dsOption = new JsonObject();
-//					final DocTagDataOption dtdo = options.get(key);
-//					dsOption.addProperty("name", dtdo.getName());
-//					dsOption.addProperty("prefix", dtdo.getPrefix());
-//					dsOption.addProperty("showCompress", dtdo.isShowCompress());
-//					dsOption.addProperty("showExpand", dtdo.isShowExpand());
-//					// dsOption.addProperty("rawjson", joString);
-//					list.add(dsOption);
-//				}
-//				exportList.add(dsOptions);
+				// final SortedMap<String, DocTagDataOption> options =
+				// odtd.getOptions();
+				// // final String joString = XferBiz.objectListToJson(options);
+				// // dsOption.addProperty("options", joString);
+				// final Set<String> keys = options.keySet();
+				// for (final String key : keys) {
+				// final JsonObject dsOption = new JsonObject();
+				// final DocTagDataOption dtdo = options.get(key);
+				// dsOption.addProperty("name", dtdo.getName());
+				// dsOption.addProperty("prefix", dtdo.getPrefix());
+				// dsOption.addProperty("showCompress", dtdo.isShowCompress());
+				// dsOption.addProperty("showExpand", dtdo.isShowExpand());
+				// // dsOption.addProperty("rawjson", joString);
+				// list.add(dsOption);
+				// }
+				// exportList.add(dsOptions);
 			}
 		}
 		return exportList;
@@ -422,32 +424,37 @@ public class XferBiz {
 			final String docTags = jo.get("docTags").getAsString();
 
 			// final String optionsJson = jo.get("optionsJson").getAsString();
-			final JsonArray jsOptions = jo.get("options").getAsJsonArray();// TODO
+			final Object jot = jo.get("options");
+			JsonArray jsOptions = null;
+			if (jot != null)
+				jsOptions = jo.get("options").getAsJsonArray();// TODO
 			// final JsonArray jsOptions = (JsonArray) jsOptionsE;
 			// final DocTagDataOption options
-
 			LOGGER.debug("loadTableData: loaded row: '" + name + "'");
 			final OtherDocTagData obj = new OtherDocTagData();
 			obj.setName(name);
 			obj.setFile(inputFile);
 			obj.setDocTags(docTags);
-			for (int j = 0; j < jsOptions.size(); j++) {
-				final JsonElement elem = jsOptions.get(j);
-				// final String json = elem.getAsString();
-//				final DocTagDataOption option = (DocTagDataOption) XferBiz.loadDataFromJson(elem,
-//						DocTagDataOption.class);
-//				LOGGER.debug("loadTableData: option: " + option);
-//				LOGGER.debug("loadTableData: obj: " + obj);
+			if (jsOptions != null)
+				for (int j = 0; j < jsOptions.size(); j++) {
+					// final JsonElement elem = jsOptions.get(j);
+					// final String json = elem.getAsString();
+					// final DocTagDataOption option = (DocTagDataOption)
+					// XferBiz.loadDataFromJson(elem,
+					// DocTagDataOption.class);
+					// LOGGER.debug("loadTableData: option: " + option);
+					// LOGGER.debug("loadTableData: obj: " + obj);
 
-//				obj.addOption(option);
-			}
-
+					// obj.addOption(option);
+				}
 			newList.add(obj);
 		}
 		return newList;
+
 	}
 
 	public static JsonArray readMoreExport(final File file) throws IOException {
+		LOGGER.debug("readMoreExport: Called");
 		// final String stringData = readFile(inputFile.getText(), selCharSet)
 		JsonArray profileDataset = null;
 		String version = null;
@@ -467,7 +474,7 @@ public class XferBiz {
 					reader.skipValue(); // avoid some unhandle events
 				}
 			}
-
+			LOGGER.debug("readMoreExport: Done");
 			return profileDataset;
 		} finally {
 			if (reader != null) {

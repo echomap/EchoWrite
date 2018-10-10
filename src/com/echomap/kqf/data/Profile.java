@@ -16,7 +16,7 @@ public class Profile {
 	private String inputFile = null;
 	private String inputFilePrefix = null;
 	private boolean appendUnderscoreToPrefix = false;
-	private String keywords = null;
+	private String keywords = "";
 
 	// Formatting/Tagging
 	private String docTagStart = null;

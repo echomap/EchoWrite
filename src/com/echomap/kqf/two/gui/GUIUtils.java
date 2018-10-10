@@ -34,7 +34,7 @@ public class GUIUtils {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void autoFitTable(final TableView tableView) {
 		tableView.getItems().addListener(new ListChangeListener<Object>() {
 			@Override
@@ -57,6 +57,7 @@ public class GUIUtils {
 		});
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void alignColumnLabelsLeftHack(final TableView inputTable) {
 		// Hack: align column headers to the center.
 

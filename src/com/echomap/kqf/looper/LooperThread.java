@@ -217,8 +217,8 @@ public class LooperThread extends Thread {
 			if (dttGL.isHasDocTag() && st.contains(formatDao.getDocTagStart())) {
 				LOGGER.error("May contain an unclosed TAG!");
 				if (notifyCtrl != null)
-					notifyCtrl.errorWithWork("May contain an unclosed TAG! (" + ldao.getLineCount() + ")",
-							"UnclosedTag");
+					notifyCtrl.errorWithWork("May contain an unclosed TAG at line <" + ldao.getLineCount()
+							+ "> as line is <" + ldao.getCurrentLine() + ">", "UnclosedTag");
 			}
 		}
 		if (dtt.isLongDocTag() || inLongDocTag) {

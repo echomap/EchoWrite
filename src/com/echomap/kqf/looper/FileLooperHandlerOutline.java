@@ -67,11 +67,15 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private int levelledCount = 0;
 	// private String lastLevelledText = null;
 
-	final List<String> outlineTags = new ArrayList<String>();
+	final List<String> tagListOutlineExpanded = new ArrayList<String>();
+	final List<String> tagListOutlineCompressed = new ArrayList<String>();
+	final List<String> tagListSceneExpanded = new ArrayList<String>();
+	final List<String> tagListSceneCompressed = new ArrayList<String>();
 
 	private final Map<String, List<DocTag>> coalateTextMap = new TreeMap<String, List<DocTag>>();
 	private final List<DocTag> sceneDTList = new ArrayList<DocTag>();
 	private final List<String> unusedTagNameList = new ArrayList<String>();
+	private final List<String> errorTagList = new ArrayList<String>();
 	private final SortedMap<String, List<String>> usedTagFileList = new TreeMap<String, List<String>>();
 	private final SortedMap<String, Integer> tagsCount = new TreeMap<>();
 
@@ -131,6 +135,9 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				for (final DocTag docTag : docTags) {
 					if (StringUtils.isEmpty(docTag.getName())) {
 						LOGGER.error("DocTag has no name: '" + docTag.getFullTag() + "'");
+						errorTagList.add(
+								"(line #" + ldao.getThisLineCharacterCount() + ") text=<" + docTag.getFullText() + ">");
+						continue;
 					}
 					Integer countDt = 0;
 					if (tagsCount.containsKey(docTag.getName()))
@@ -142,26 +149,26 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					// if (StringUtils.isBlank(docTag.getName()))
 					// continue;
 					boolean wroteTag = false;
-					if (outlineTags.contains(docTag.getName())) {
+					if (tagListOutlineExpanded.contains(docTag.getName())) {
 						wroteTag = true;
 						writeEntryToCSV(fWriterOutlineCsv, docTag, cdao, ldao, dttGL);
 						addToUsedTagFileList(dttGL, docTag, "outline");
 					}
 					writeEntryToCSV(fWriterAllTagsCsv, docTag, cdao, ldao, dttGL);
 
-					if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())
-							|| formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
+					if (tagListOutlineCompressed.contains(docTag.getName())
+							|| tagListOutlineExpanded.contains(docTag.getName())) {
 						if (!wroteTag)
 							addToUsedTagFileList(dttGL, docTag, "outline");
 						wroteTag = true;
 						writeEntryToOutline(fWriterOutlineFile, docTag, cdao, formatDao);
 					}
-					if (formatDao.getDocTagsSceneTags().contains(docTag.getName())) {
+					if (tagListSceneExpanded.contains(docTag.getName())) {
 						wroteTag = true;
 						sceneDTList.add(docTag);
 						addToUsedTagFileList(dttGL, docTag, "scene");
 					}
-					if (formatDao.getDocTagsSceneCoTags().contains(docTag.getName())) {
+					if (tagListSceneCompressed.contains(docTag.getName())) {
 						if (!wroteTag)
 							addToUsedTagFileList(dttGL, docTag, "scene");
 						wroteTag = true;
@@ -812,6 +819,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					allKeys.add(docTagName);
 			}
 			Collections.sort(allKeys);
+
 			fWriterDocTagReportFile.write("-= DocTags Report =-");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 			fWriterDocTagReportFile.write("(Used Tags #: ");
@@ -819,8 +827,28 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterDocTagReportFile.write(" ) ");
 			fWriterDocTagReportFile.write("(Unused Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
+			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write("(Errors #: ");
+			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
 			fWriterDocTagReportFile.write(" )");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
+
+			// ERRORS
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Report (Errors) ");
+			fWriterDocTagReportFile.write("Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
+			fWriterDocTagReportFile.write(" =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			if (!errorTagList.isEmpty())
+				for (String err : errorTagList) {
+					fWriterDocTagReportFile.write(err);
+					fWriterDocTagReportFile.write(TextBiz.newLine);
+				}
+			else {
+				fWriterDocTagReportFile.write("<NONE>");
+				fWriterDocTagReportFile.write(TextBiz.newLine);
+			}
 
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 			fWriterDocTagReportFile.write("-= DocTags Report (Used) ");
@@ -828,7 +856,6 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterDocTagReportFile.write(String.valueOf(usedTagFileList.size()));
 			fWriterDocTagReportFile.write(" =-");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
-
 			for (String key : allKeys) {
 				String padStr = StringUtils.rightPad(key, maxkeylengthU, " ");
 				fWriterDocTagReportFile.write(padStr);
@@ -849,11 +876,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
 			fWriterDocTagReportFile.write(" =-");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
-			if (fWriterNotUsedFile != null) {
+			if (fWriterNotUsedFile != null && !unusedTagNameList.isEmpty()) {
 				for (final String docTagName : unusedTagNameList) {
 					fWriterDocTagReportFile.write(docTagName);
 					fWriterDocTagReportFile.write(TextBiz.newLine);
 				}
+			} else {
+				fWriterDocTagReportFile.write("<NONE>");
+				fWriterDocTagReportFile.write(TextBiz.newLine);
 			}
 
 			fWriterDocTagReportFile.write(TextBiz.newLine);
@@ -926,6 +956,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterDocTagReportFile.write(TextBiz.newLine);
 			}
 			//
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Report (EOF)=-");
 		}
 
 		if (fWriterAllTagsCsv != null) {
@@ -968,15 +1000,15 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		return sb.toString();
 	}
 
-	private Object getDoctagNameList(final List<DocTag> docTagList) {
-		final StringBuilder sb = new StringBuilder();
-		for (final DocTag docTag : docTagList) {
-			sb.append(docTag.getName());
-			sb.append(",");
-		}
-		sb.setLength(sb.length() - 1);
-		return sb.toString();
-	}
+	// private Object getDoctagNameList(final List<DocTag> docTagList) {
+	// final StringBuilder sb = new StringBuilder();
+	// for (final DocTag docTag : docTagList) {
+	// sb.append(docTag.getName());
+	// sb.append(",");
+	// }
+	// sb.setLength(sb.length() - 1);
+	// return sb.toString();
+	// }
 
 	private String fromListToCommaDelimString(final List<String> docTagList) {
 		final StringBuilder sb = new StringBuilder();
@@ -1090,15 +1122,34 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		ldao.InitializeCount();
 
-		// outlineTags.add("time");
-		// outlineTags.add("loc");
-		// outlineTags.add("date");
-		// outlineTags.add("loc");
-		// outlineTags.add("eventnote");
-		final List<String> listOT = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
-		outlineTags.addAll(listOT);
+		// tagListOutlineExpanded.add("time");
+		// tagListOutlineExpanded.add("loc");
+		// tagListOutlineExpanded.add("date");
+		// tagListOutlineExpanded.add("loc");
+		// tagListOutlineExpanded.add("eventnote");
+		// final List<String> listOT =
+		// getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
+		// tagListOutlineExpanded.addAll(listOT);
 
-		for (String dtn : listOT) {
+		final List<String> listOC = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineCompressTags());
+		tagListOutlineCompressed.addAll(listOC);
+		final List<String> listOE = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineExpandTags());
+		tagListOutlineExpanded.addAll(listOE);
+		final List<String> listSC = getDocTagsFromStringBlobToList(formatDao.getDocTagsSceneCoTags());
+		tagListSceneCompressed.addAll(listSC);
+		final List<String> listSE = getDocTagsFromStringBlobToList(formatDao.getDocTagsSceneTags());
+		tagListSceneExpanded.addAll(listSE);
+
+		for (String dtn : tagListOutlineExpanded) {
+			tagsCount.put(dtn, 0);
+		}
+		for (String dtn : tagListOutlineCompressed) {
+			tagsCount.put(dtn, 0);
+		}
+		for (String dtn : tagListSceneCompressed) {
+			tagsCount.put(dtn, 0);
+		}
+		for (String dtn : tagListSceneExpanded) {
 			tagsCount.put(dtn, 0);
 		}
 
@@ -1218,8 +1269,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterOutlineFile.write(TextBiz.newLine);
 
 			fWriterOutlineFile.write("Compressed Tags: ");
-			final List<String> compressed = getDocTagsFromStringBlobToList(
-					formatDao.getDocTagsOutlineCompressTagsAsString());
+			final List<String> compressed = getDocTagsFromStringBlobToList(formatDao.getDocTagsOutlineCompressTags());
 			fWriterOutlineFile.write(fromListToCommaDelimString(compressed));
 			fWriterOutlineFile.write(TextBiz.newLine);
 

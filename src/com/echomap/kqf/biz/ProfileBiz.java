@@ -93,7 +93,7 @@ public class ProfileBiz {
 					LOGGER.debug("loadProfiles: str1 = '" + str1 + "'");
 					// final Object obj = userPrefs.nodeExists(pathName)
 					if (!StringUtils.isBlank(str1)) {
-						final Profile profile = new Profile();
+						// final Profile profile = new Profile();
 						// setupProfilePerPrefs(profile, asFdf);
 					}
 				}

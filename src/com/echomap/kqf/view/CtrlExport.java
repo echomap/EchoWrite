@@ -18,6 +18,8 @@ import com.echomap.kqf.data.ProfileExportObj;
 import com.echomap.kqf.persist.Export;
 import com.echomap.kqf.two.gui.GUIUtils;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,6 +27,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -40,20 +44,30 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 	ProfileManager profileManager = null;
 
+	private static int COL_EXPORT = 1;
+	private static int COL_KEY = 2;
+	private static int COL_NAME = 3;
+	private static int COL_INPUTFILE = 4;
+
 	@FXML
 	private Pane outerMostContainer;
+
 	@SuppressWarnings("rawtypes")
 	@FXML
 	private TableView inputTable;
 	@FXML
 	private TextField inputFile;
 
+	@FXML
+	private Button closeBtn;
+	@FXML
+	private Button browseBtn;
+
 	/**
 	 * 
 	 */
 	public CtrlExport() {
-		// profileManager = new ProfileManager();
-		// profileManager.loadProfileData();
+		super();
 	}
 
 	/*
@@ -72,25 +86,50 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 	}
 
 	private void fixFocus() {
-		// TODO Auto-generated method stub
-
+		closeBtn.requestFocus();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void setupTable() {
 		LOGGER.debug("setupTable: Called");
-		final TableColumn<Object, Object> firstCol = new TableColumn<Object, Object>("Export?");
-		firstCol.setCellValueFactory(new PropertyValueFactory<>("export"));
-		final TableColumn<Object, Object> keyCol = new TableColumn<Object, Object>("Key");
+		final TableColumn<ProfileExportObj, Boolean> exportCol = new TableColumn<>("Export?");
+		exportCol.setCellValueFactory(new PropertyValueFactory<>("export"));
+		final TableColumn<Object, Object> keyCol = new TableColumn<>("Key");
 		keyCol.setCellValueFactory(new PropertyValueFactory<>("key"));
-		final TableColumn<Object, Object> secondCol = new TableColumn<Object, Object>("Name");
-		secondCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-		final TableColumn<Object, Object> thirdCol = new TableColumn<Object, Object>("Input File");
-		thirdCol.setCellValueFactory(new PropertyValueFactory<>("inputFile"));
+		final TableColumn<Object, Object> nameCol = new TableColumn<>("Name");
+		nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+		final TableColumn<Object, Object> inputFileCol = new TableColumn<>("Input File");
+		inputFileCol.setCellValueFactory(new PropertyValueFactory<>("inputFile"));
+
+		// col1. resize handler
+		exportCol.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(Prefs.EXPORT_PREF_COL_S, COL_EXPORT, newValue);
+			}
+		});
+		keyCol.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(Prefs.EXPORT_PREF_COL_S, COL_KEY, newValue);
+			}
+		});
+		nameCol.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(Prefs.EXPORT_PREF_COL_S, COL_NAME, newValue);
+			}
+		});
+		inputFileCol.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(Prefs.EXPORT_PREF_COL_S, COL_INPUTFILE, newValue);
+			}
+		});
 
 		//
 		inputTable.getColumns().clear();
-		inputTable.getColumns().addAll(firstCol, keyCol, secondCol, thirdCol);
+		inputTable.getColumns().addAll(exportCol, keyCol, nameCol, inputFileCol);
 
 		// Hack: align column headers to the center.
 		GUIUtils.alignColumnLabelsLeftHack(inputTable);
@@ -119,11 +158,58 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 				return row;
 			}
 		});
+
+		// Trying to set color of these cells
+		exportCol.setCellFactory(tc -> new TableCell<ProfileExportObj, Boolean>() {
+			@Override
+			protected void updateItem(final Boolean item, final boolean empty) {
+				super.updateItem(item, empty);
+				if (item == null || empty) {
+					setText(null);
+					setGraphic(null);
+					return;
+				}
+				if (item) {
+					this.setText("true");
+					this.setStyle("");
+					if (this.getTableRow() != null)
+						this.getTableRow().setStyle("");
+				} else {
+					this.setText("false");
+					// slategray / slategrey
+					this.setStyle("-fx-background-color: #2F4F4F;");
+					this.getTableRow().setStyle("-fx-background-color: #708090;");
+					// this.setStyle("-fx-border-color: red;");
+				}
+			}
+		});
+
+		// set saved col widths
+		if (appPreferences != null) {
+			@SuppressWarnings("rawtypes")
+			final ObservableList columns = inputTable.getColumns();
+			String key = "";
+			key = String.format(Prefs.EXPORT_PREF_COL_S, 1);
+			setColumnWidth(columns, key, 0);
+			key = String.format(Prefs.EXPORT_PREF_COL_S, 2);
+			setColumnWidth(columns, key, 1);
+			key = String.format(Prefs.EXPORT_PREF_COL_S, 3);
+			setColumnWidth(columns, key, 2);
+			key = String.format(Prefs.EXPORT_PREF_COL_S, 4);
+			setColumnWidth(columns, key, 3);
+		} else {
+			LOGGER.warn("NO App preferences set");
+		}
+
+		//
+		inputTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		GUIUtils.autoFitTable(inputTable);
+
 		LOGGER.debug("setupTable: Done");
 	}
 
 	private void loadData() {
-		// TODO Auto-generated method stub
+		// null method
 	}
 
 	@SuppressWarnings("unchecked")
@@ -141,6 +227,7 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 				pobj.setInputFile(profile.getInputFile());
 				pobj.setName(profile.getMainTitle());
 				pobj.setKey(profile.getKey());
+				pobj.setProfile(profile);
 				// pobj.setPayload(profile);
 				pobj.setSeries(profile.getSeriesTitle());
 				newList.add(pobj);
@@ -175,14 +262,19 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 	@Override
 	void lockGui() {
-		// TODO
+		lockAllButtons(outerMostContainer);
+		closeBtn.setDisable(false);
+		browseBtn.setDisable(false);
 	}
 
 	@Override
 	void unlockGui() {
-		// TODO
+		unlockAllButtons(outerMostContainer);
 	}
 
+	// void unlox ckGuiForImport() {
+	// importFileBtn.setDisable(false);
+	// }
 	public void handleSelectAll(final ActionEvent event) {
 		LOGGER.debug("handleSelectAll: Called");
 		@SuppressWarnings("unchecked")
@@ -215,6 +307,7 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 		try {
 			// final Charset selCharSet = formatDao.getCharSet();
 			final Export export1 = new Export();
+			@SuppressWarnings("unchecked")
 			final File outputFilePlain = export1.doExportProfiles(inputFile.getText(), inputTable.getItems(),
 					this.appProps, this.appPreferences, profileManager);
 			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
@@ -237,7 +330,10 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 	public void handleBrowse(final ActionEvent event) {
 		LOGGER.debug("handleBrowse: Called");
-		chooseFile(event, "Export File", inputFile, "ProfileExport.json", "JSON");
+		final File file = chooseFile(event, "Export File", inputFile, "ProfileExport.json", "JSON");
+		if (file != null) {
+			unlockGui();
+		}
 		LOGGER.debug("handleBrowse: Done");
 	}
 

@@ -489,12 +489,12 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		}.getType();
 		sourceDataList = gson.fromJson(listString, listOfTestObject);
 		if (sourceDataList != null) {
-			for (OtherDocTagData otherDocTagData : sourceDataList) {
-				// otherDocTagData.getOptions();
-				// LOGGER.debug("item: " + otherDocTagData);
-				// LOGGER.debug("itemJson: " +
-				// XferBiz.objectToJson(otherDocTagData));
-			}
+			// for (OtherDocTagData otherDocTagData : sourceDataList) {
+			// // otherDocTagData.getOptions();
+			// // LOGGER.debug("item: " + otherDocTagData);
+			// // LOGGER.debug("itemJson: " +
+			// // XferBiz.objectToJson(otherDocTagData));
+			// }
 		}
 
 		inputTable.getItems().clear();
@@ -522,55 +522,57 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		inputDocTags.setText("");
 	}
 
-	@SuppressWarnings("unchecked")
-	private void loadTableDataFromJson(final JsonArray profileDataset) {
-		final ObservableList<OtherDocTagData> newList = XferBiz.readInOtherDocTags(profileDataset);
-		//
-		// final ObservableList<OtherDocTagData> newList =
-		// FXCollections.observableArrayList();
-		//
-		// for (int i = 0; i < profileDataset.size(); i++) {
-		// final JsonElement je = profileDataset.get(i);
-		// final JsonObject jo = je.getAsJsonObject();
-		//
-		// final String name = jo.get("name").getAsString();
-		// final String inputFile = jo.get("file").getAsString();
-		// final String docTags = jo.get("docTags").getAsString();
-		//
-		// // final String optionsJson = jo.get("optionsJson").getAsString();
-		// final JsonArray jsOptions = jo.get("options").getAsJsonArray();//
-		//
-		// // final JsonArray jsOptions = (JsonArray) jsOptionsE;
-		// // final DocTagDataOption options
-		//
-		// LOGGER.debug("loadTableData: loaded row: '" + name + "'");
-		// final OtherDocTagData obj = new OtherDocTagData();
-		// obj.setName(name);
-		// obj.setFile(inputFile);
-		// obj.setDocTags(docTags);
-		// for (int j = 0; j < jsOptions.size(); j++) {
-		// final JsonElement elem = jsOptions.get(i);
-		// // final String json = elem.getAsString();
-		// final DocTagDataOption option = (DocTagDataOption)
-		// XferBiz.loadDataFromJson(elem,
-		// DocTagDataOption.class);
-		// LOGGER.debug("loadTableData: option: " + option);
-		// LOGGER.debug("loadTableData: obj: " + obj);
-		//
-		// obj.addOption(option);
-		// }
-		//
-		// newList.add(obj);
-		// }
-		inputTable.getItems().clear();
-		if (newList != null)
-			inputTable.getItems().setAll(newList);
-		inputTable.refresh();
-		// inputTable.setColumnResizePolicy(callback);
-	}
+	// @SuppressWarnings("unchecked")
+	// private void loadTableDataFromJson(final JsonArray profileDataset) {
+	// final ObservableList<OtherDocTagData> newList =
+	// XferBiz.readInOtherDocTags(profileDataset);
+	// //
+	// // final ObservableList<OtherDocTagData> newList =
+	// // FXCollections.observableArrayList();
+	// //
+	// // for (int i = 0; i < profileDataset.size(); i++) {
+	// // final JsonElement je = profileDataset.get(i);
+	// // final JsonObject jo = je.getAsJsonObject();
+	// //
+	// // final String name = jo.get("name").getAsString();
+	// // final String inputFile = jo.get("file").getAsString();
+	// // final String docTags = jo.get("docTags").getAsString();
+	// //
+	// // // final String optionsJson = jo.get("optionsJson").getAsString();
+	// // final JsonArray jsOptions = jo.get("options").getAsJsonArray();//
+	// //
+	// // // final JsonArray jsOptions = (JsonArray) jsOptionsE;
+	// // // final DocTagDataOption options
+	// //
+	// // LOGGER.debug("loadTableData: loaded row: '" + name + "'");
+	// // final OtherDocTagData obj = new OtherDocTagData();
+	// // obj.setName(name);
+	// // obj.setFile(inputFile);
+	// // obj.setDocTags(docTags);
+	// // for (int j = 0; j < jsOptions.size(); j++) {
+	// // final JsonElement elem = jsOptions.get(i);
+	// // // final String json = elem.getAsString();
+	// // final DocTagDataOption option = (DocTagDataOption)
+	// // XferBiz.loadDataFromJson(elem,
+	// // DocTagDataOption.class);
+	// // LOGGER.debug("loadTableData: option: " + option);
+	// // LOGGER.debug("loadTableData: obj: " + obj);
+	// //
+	// // obj.addOption(option);
+	// // }
+	// //
+	// // newList.add(obj);
+	// // }
+	// inputTable.getItems().clear();
+	// if (newList != null)
+	// inputTable.getItems().setAll(newList);
+	// inputTable.refresh();
+	// // inputTable.setColumnResizePolicy(callback);
+	// }
 
 	@SuppressWarnings("unchecked")
 	private void loadTableDataFromJson(final JsonArray profileDataset, final boolean fixPaths) {
+		LOGGER.debug("loadTableDataFromJson: Called");
 		final ObservableList<OtherDocTagData> newList = XferBiz.readInOtherDocTags(profileDataset);
 		if (fixPaths) {
 			final String filePrefixText = formatDao.getFilePrefix();
@@ -593,6 +595,7 @@ public class KQFSubCtrl extends KQFBaseCtrl {
 		if (newList != null)
 			inputTable.getItems().setAll(newList);
 		inputTable.refresh();
+		LOGGER.debug("loadTableDataFromJson: Done");
 	}
 
 }

@@ -11,6 +11,10 @@ public class ProfileExportObj {
 	private String series = "";
 	private String inputFile = "";
 	private JsonObject payload = null;
+	private Profile profile = null;
+
+	public ProfileExportObj() {
+	}
 
 	public boolean isExport() {
 		return export;
@@ -74,6 +78,14 @@ public class ProfileExportObj {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public Profile getProfile() {
+		return profile;
+	}
+
+	public void setProfile(Profile profile) {
+		this.profile = profile;
 	}
 
 }

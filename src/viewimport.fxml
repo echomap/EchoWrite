@@ -6,17 +6,17 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane fx:id="outerMostContainer" prefHeight="450.0" prefWidth="900.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlExport">
+<GridPane fx:id="outerMostContainer" prefHeight="600.0" prefWidth="1000.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlImport">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
 	</columnConstraints>
 	<rowConstraints>
-      <RowConstraints />
+      <RowConstraints minHeight="20.0" vgrow="SOMETIMES" />
 		<RowConstraints vgrow="SOMETIMES" />
 		<RowConstraints minHeight="200.0" vgrow="ALWAYS" />
 	</rowConstraints>
 	<children>
-      <TitledPane animated="false" collapsible="false" text="Export File:">
+      <TitledPane fx:id="ImportFilePane" collapsible="false" text="Import File:">
          <content>
             <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-border-color: black;">
                <children>
@@ -28,12 +28,12 @@
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="inputFile" promptText="Enter or browse for file for export" HBox.hgrow="ALWAYS">
+                  <TextField fx:id="inputFile" promptText="Enter the file/directory or hit brose, then hit IMPORT FILE" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets right="12.0" />
                      </HBox.margin>
                   </TextField>
-                  <Button fx:id="browseBtn" minWidth="75.0" mnemonicParsing="false" onAction="#handleBrowse" styleClass="actionbutton" text="Browse">
+                  <Button fx:id="browseBtn" minWidth="75.0" onAction="#handleBrowse" styleClass="actionbutton" text="_Browse">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
@@ -48,7 +48,7 @@
 				<Button onAction="#handleSelectNone" styleClass="selectnonebutton" text="Select _None" />
 				<Separator orientation="VERTICAL" />
             <Separator orientation="VERTICAL" />
-				<Button fx:id="buttonSave" onAction="#handleExport" styleClass="actionbutton" text="_Export Profiles" />
+            <Button fx:id="buttonSave1" onAction="#handleImportProfiles" styleClass="actionbutton" text="Import _Profiles" />
 				<Button fx:id="closeBtn" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="closebutton" text="_Close" />
 			</children>
          <padding>

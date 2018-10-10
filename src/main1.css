@@ -1,3 +1,10 @@
+
+.table-view-column-header {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-text-alignment: left;
+    -fx-alignment: top-left;
+}
 .actionbutton {
 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 10.0, 0.4, 3.0, 3.0);
 	-fx-background-color:  #CAA7F9
@@ -5,11 +12,9 @@
 .button {
 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
 }
-.table-view-column-header {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-text-alignment: left;
-    -fx-alignment: top-left;
+.actionbuttonOther {
+	-fx-background-color: linear-gradient(#a2abc8,#86a8e7,#91eae4);
+ 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.6) , 5.0, 0.0 , 0.0 , 1.0 );
 }
 .closebutton {
 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
@@ -44,4 +49,21 @@
 .gradButtonPanelPink {
 	-fx-background-color: linear-gradient(#f953c6,#b91d73);
  	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.6) , 5.0, 0.0 , 0.0 , 1.0 );
+}
+
+.greenOutlinedText {
+	-fx-border-color: #8b2e62;
+	-fx-border-width: 2px;
+	-fx-border-insets: 6;
+	-fx-border-style: solid;
+	-fx-background-color: #50C878;
+	-fx-background-insets: 4;
+}
+.highlightedOutlinedText {
+	-fx-border-color: #8b2e62;
+	-fx-border-width: 2px;
+	-fx-border-insets: 2;
+	-fx-border-style: solid;
+	-fx-background-color: #EEEEA4;
+	-fx-background-insets: 4;
 }

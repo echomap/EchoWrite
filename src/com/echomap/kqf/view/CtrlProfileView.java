@@ -44,13 +44,13 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFinishedCallback {
-	private static final String VIEW_WINDOW_H = "view/pv/WindowH";
-	private static final String VIEW_WINDOW_W = "view/pv/WindowW";
-	private static final String VIEW_WINDOW_Y = "view/pv/WindowY";
-	private static final String VIEW_WINDOW_X = "view/pv/WindowX";
-	private static final String PREF_SPLIT_V = "view/pv/splitV";
-	private static final String PREF_COL_S = "view/pv/col%s";
-	private static final String PREF_SPLIT_H = "view/pv/splitH";
+	private static final String VIEW_WINDOW_H = Prefs.VIEW_WINDOW_H;
+	private static final String VIEW_WINDOW_W = Prefs.VIEW_WINDOW_W;
+	private static final String VIEW_WINDOW_Y = Prefs.VIEW_WINDOW_Y;
+	private static final String VIEW_WINDOW_X = Prefs.VIEW_WINDOW_X;
+	private static final String PREF_SPLIT_V = Prefs.VIEW_PREF_SPLIT_V;
+	private static final String PREF_COL_S = Prefs.VIEW_PREF_COL_S;
+	private static final String PREF_SPLIT_H = Prefs.VIEW_PREF_SPLIT_H;
 
 	private final static Logger LOGGER = LogManager.getLogger(CtrlProfileView.class);
 	final ProfileManager profileManager;
@@ -86,11 +86,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	@FXML
 	private SplitPane splitHoriz;
 
-	@FXML
-	private Label profileDataChanged;
 	@SuppressWarnings("rawtypes")
 	@FXML
 	private TableView profileTable;
+
+	@FXML
+	private Label profileDataChanged;
 	@FXML
 	private Label chosenProfileText;
 
@@ -102,6 +103,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private Button deleteProfileBtn;
 	@FXML
 	private Button clearProfileBtn;
+	@FXML
+	private Button renameProfileBtn;
 
 	@FXML
 	private Button btnRunWordCounter;
@@ -129,6 +132,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private TextField seriesTitleText;
 	@FXML
 	private TextField volumeText;
+	@FXML
+	private TextField inputProfileKey;
 
 	/**
 	 * 
@@ -138,6 +143,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		profileManager.loadProfileData();
 	}
 
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage) {
 		super.setupController(props, appPreferences, primaryStage);
@@ -153,7 +159,9 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		});
 
 		if (appPreferences != null) {
-			final ObservableList<TableColumn> columns = profileTable.getColumns();
+			@SuppressWarnings("rawtypes")
+			final ObservableList columns = profileTable.getColumns();
+
 			final double splitH = appPreferences.getDouble(PREF_SPLIT_H, -1);
 			final double splitV = appPreferences.getDouble(PREF_SPLIT_V, -1);
 			LOGGER.debug("setupController: splitH=" + splitH);
@@ -162,41 +170,17 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			if (splitV > -1)
 				splitVert.setDividerPositions(splitV);
 
-			String key = String.format(PREF_COL_S, 1);
-			double colW = appPreferences.getDouble(key, -1);
-			LOGGER.debug("setupController: colW1=" + colW);
-			if (colW > -1) {
-				final TableColumn col = columns.get(0);
-				col.setPrefWidth(colW);
-			}
+			String key = "";
+			key = String.format(PREF_COL_S, 1);
+			setColumnWidth(columns, key, 0);
 			key = String.format(PREF_COL_S, 2);
-			colW = appPreferences.getDouble(key, -1);
-			LOGGER.debug("setupController: colW2=" + colW);
-			if (colW > -1) {
-				final TableColumn col = columns.get(1);
-				col.setPrefWidth(colW);
-			}
+			setColumnWidth(columns, key, 1);
 			key = String.format(PREF_COL_S, 3);
-			colW = appPreferences.getDouble(key, -1);
-			LOGGER.debug("setupController: colW2=" + colW);
-			if (colW > -1) {
-				final TableColumn col = columns.get(2);
-				col.setPrefWidth(colW);
-			}
+			setColumnWidth(columns, key, 2);
 			key = String.format(PREF_COL_S, 4);
-			colW = appPreferences.getDouble(key, -1);
-			LOGGER.debug("setupController: colW2=" + colW);
-			if (colW > -1) {
-				final TableColumn col = columns.get(3);
-				col.setPrefWidth(colW);
-			}
+			setColumnWidth(columns, key, 3);
 			key = String.format(PREF_COL_S, 5);
-			colW = appPreferences.getDouble(key, -1);
-			LOGGER.debug("setupController: colW2=" + colW);
-			if (colW > -1) {
-				final TableColumn col = columns.get(4);
-				col.setPrefWidth(colW);
-			}
+			setColumnWidth(columns, key, 4);
 		}
 	}
 
@@ -245,6 +229,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		// lockGuiPerNoProfile();
 		newProfileBtn.setDisable(true);
 		editProfileBtn.setDisable(true);
+		renameProfileBtn.setDisable(true);
 		deleteProfileBtn.setDisable(true);
 		clearProfileBtn.setDisable(true);
 	}
@@ -254,6 +239,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("unlockGui: Called");
 		newProfileBtn.setDisable(false);
 		editProfileBtn.setDisable(false);
+		renameProfileBtn.setDisable(false);
 		deleteProfileBtn.setDisable(false);
 		clearProfileBtn.setDisable(false);
 	}
@@ -334,7 +320,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void setupTable() {
 		//
-		final ObservableList<TableColumn> columns = profileTable.getColumns();
+		final ObservableList<TableColumn<Profile, ?>> columns = profileTable.getColumns();
+
 		final TableColumn colK = columns.get(0);
 		colK.setCellValueFactory(new PropertyValueFactory<>("key"));
 		final TableColumn colS = columns.get(1);
@@ -489,6 +476,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		btnRunFormatter.setDisable(true);
 
 		editProfileBtn.setDisable(true);
+		renameProfileBtn.setDisable(true);
 		deleteProfileBtn.setDisable(true);
 		clearProfileBtn.setDisable(true);
 	}
@@ -500,8 +488,11 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		btnRunFormatter.setDisable(false);
 
 		editProfileBtn.setDisable(false);
+
+		renameProfileBtn.setDisable(false);
 		deleteProfileBtn.setDisable(false);
 		clearProfileBtn.setDisable(false);
+		btnRunOutliner.requestFocus();
 	}
 
 	// Reset all UI to base/empty settings
@@ -606,14 +597,27 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleProfileDelete: Done");
 	}
 
+	public void handleProfileRenameEdit(final ActionEvent event) {
+		LOGGER.debug("handleProfileRenameEdit: Called");
+		// TODO
+		profileManager.renameProfile(selectedProfile, inputProfileKey.getText());
+		refreshData();
+		LOGGER.debug("handleProfileRenameEdit: Done");
+	}
+
 	// Handles Showing the Profile Details
 	public void handleProfileEdit(final ActionEvent event) {
 		LOGGER.debug("handleProfileEdit: Called");
 		final Map<String, Object> paramsMap = new HashMap<>();
 		paramsMap.put("appVersion", appVersion);
 		paramsMap.put("selectedProfile", selectedProfile);
+		setLastSelectedDirectory(selectedProfile.getInputFile());
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
 		openNewWindow(BaseCtrl.WINDOWKEY_PROFILE_EDIT, windowTitle, loggingText, primaryStage, this, paramsMap);
+		// TODO reselect profile? final Profile selectedProfileL =
+		// selectedProfile;
+		refreshData();
+		// selectProfile(profile);
 		LOGGER.debug("handleProfileEdit: Done");
 	}
 
@@ -729,6 +733,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				chosenProfileText.setText(msg);
 			}
 			//
+			inputProfileKey.setText(profile.getKey());
 			inputFileText.setText(profile.getInputFile());
 			mainTitleText.setText(profile.getMainTitle());
 			subTitleText.setText(profile.getSubTitle());
@@ -747,6 +752,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 
 	private void unselectProfile() {
 		chosenProfileText.setText("NO PROFILE");
+		inputProfileKey.setText("");
 		inputFileText.setText("");
 		mainTitleText.setText("");
 		subTitleText.setText("");

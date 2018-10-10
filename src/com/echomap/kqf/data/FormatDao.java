@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 
 import com.echomap.kqf.looper.FileLooper;
 
@@ -18,7 +16,8 @@ import com.echomap.kqf.looper.FileLooper;
  */
 public class FormatDao {
 	public static final String DEFAULToutputEncoding = "Cp1252";
-	private final static Logger LOGGER = LogManager.getLogger(FormatDao.class);
+	// private final static Logger LOGGER =
+	// LogManager.getLogger(FormatDao.class);
 	private String version = null;
 
 	// Profile
@@ -83,7 +82,7 @@ public class FormatDao {
 	private String sceneCoalateDivider = "";
 
 	// Calculated once at set of string list
-	private List<String> docTagsOutlineCompressTagsList;
+	// private List<String> docTagsOutlineCompressTagsList;
 
 	/**
 	 *  
@@ -128,7 +127,7 @@ public class FormatDao {
 		// addLine(sbuf, "OutputDocTagsOther1File:",
 		// this.getOutputDocTagsOther1File());
 
-		addLine(sbuf, "DocTagsOutlineCTags:", this.getDocTagsOutlineCompressTagsAsString());
+		addLine(sbuf, "DocTagsOutlineCTags:", this.getDocTagsOutlineCompressTags());
 		addLine(sbuf, "DocTagsOutlineETags:", this.getDocTagsOutlineExpandTags());
 		addLine(sbuf, "DocTagsSceneTags:", this.getDocTagsSceneTags());
 		addLine(sbuf, "DocTagsSceneCoTags:", this.getDocTagsSceneCoTags());
@@ -456,21 +455,22 @@ public class FormatDao {
 		this.docTagsMaxLineLength = docTagsMaxLineLength;
 	}
 
-	public String getDocTagsOutlineCompressTagsAsString() {
+	public String getDocTagsOutlineCompressTags() {
 		return docTagsOutlineCompressTags;
 	}
 
-	public List<String> getDocTagsOutlineCompressTags() {
-		return docTagsOutlineCompressTagsList;
-	}
-
+	// public List<String> getDocTagsOutlineCompressTags() {
+	// return docTagsOutlineCompressTagsList;
+	// }
+	//
 	public void setDocTagsOutlineCompressTags(String docTagsOutlineCompressTags) {
 		this.docTagsOutlineCompressTags = docTagsOutlineCompressTags;
-		if (!StringUtils.isBlank(docTagsOutlineCompressTags)) {
-			final String[] strs = StringUtils.split(docTagsOutlineCompressTags, ", ");
-			this.docTagsOutlineCompressTagsList = Arrays.asList(strs);
-		} else
-			this.docTagsOutlineCompressTagsList = new ArrayList<>();
+		// if (!StringUtils.isBlank(docTagsOutlineCompressTags)) {
+		// final String[] strs = StringUtils.split(docTagsOutlineCompressTags,
+		// ", ");
+		// this.docTagsOutlineCompressTagsList = Arrays.asList(strs);
+		// } else
+		// this.docTagsOutlineCompressTagsList = new ArrayList<>();
 	}
 
 	// TODO create list like for other Lists, to prevent string matches when

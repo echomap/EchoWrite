@@ -41,7 +41,7 @@ public class BaseRunner {
 		this.runningMutex = true;
 
 		LOGGER.info("Running COUNT action");
-		baseCtrl.showMessage("Running COUNT Process (" + baseCtrl.getCurrentDateFmt() + ")", false, loggingText);
+		baseCtrl.showMessage("Running COUNT Process (" + BaseCtrl.getCurrentDateFmt() + ")", false, loggingText);
 		// timer.cancel();
 		// timer = new Timer();
 		try {
@@ -53,7 +53,7 @@ public class BaseRunner {
 			e.printStackTrace();
 		} finally {
 			// baseCtrl.unlockGui();
-			String fmtt = "Done running COUNT ( " + baseCtrl.getCurrentDateFmt() + ")";
+			String fmtt = "Done running COUNT ( " + BaseCtrl.getCurrentDateFmt() + ")";
 			LOGGER.debug("fmtt: " + fmtt);
 			// setLastRunText(fmtt);
 			// startTimerTask();
@@ -81,7 +81,7 @@ public class BaseRunner {
 		this.runningMutex = true;
 
 		LOGGER.info("Running OUTLINE action");
-		baseCtrl.showMessage("Running OUTLINE Process (" + baseCtrl.getCurrentDateFmt() + ")", false, loggingText);
+		baseCtrl.showMessage("Running OUTLINE Process (" + BaseCtrl.getCurrentDateFmt() + ")", false, loggingText);
 		try {
 			final FormatDao formatDao = new FormatDao();
 			profileManager.setupDao(formatDao, selectedProfile);
@@ -91,7 +91,7 @@ public class BaseRunner {
 			e.printStackTrace();
 		} finally {
 			// baseCtrl.unlockGui();
-			String fmtt = "Done running OUTLINE ( " + baseCtrl.getCurrentDateFmt() + ")";
+			String fmtt = "Done running OUTLINE ( " + BaseCtrl.getCurrentDateFmt() + ")";
 			LOGGER.debug("fmtt: " + fmtt);
 		}
 		LOGGER.debug("handleRunOutliner: Done");
@@ -117,7 +117,7 @@ public class BaseRunner {
 		this.runningMutex = true;
 
 		LOGGER.info("Running FORMAT action");
-		baseCtrl.showMessage("Running FORMAT Process (" + baseCtrl.getCurrentDateFmt() + ")", false, loggingText);
+		baseCtrl.showMessage("Running FORMAT Process (" + BaseCtrl.getCurrentDateFmt() + ")", false, loggingText);
 		try {
 			final FormatDao formatDao = new FormatDao();
 			profileManager.setupDao(formatDao, selectedProfile);
@@ -127,7 +127,7 @@ public class BaseRunner {
 			e.printStackTrace();
 		} finally {
 			// baseCtrl.unlockGui();
-			String fmtt = "Done running FORMAT ( " + baseCtrl.getCurrentDateFmt() + ")";
+			String fmtt = "Done running FORMAT ( " + BaseCtrl.getCurrentDateFmt() + ")";
 			LOGGER.debug("fmtt: " + fmtt);
 		}
 		LOGGER.debug("handleRunFormatter: Done");

@@ -133,6 +133,7 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 		// };
 
 		Callback<TableColumn<Object, Object>, TableCell<Object, Object>> booleanCellFactory = new Callback<TableColumn<Object, Object>, TableCell<Object, Object>>() {
+			@SuppressWarnings("rawtypes")
 			@Override
 			public TableCell call(TableColumn<Object, Object> param) {
 				LOGGER.debug("tableCellFact param: " + param.getId());
@@ -172,6 +173,7 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 
 	class MyBooleanFlipEventHandler implements EventHandler<MouseEvent> {
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public void handle(MouseEvent t) {
 			TableCell c = (TableCell) t.getSource();
@@ -232,7 +234,6 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 		actionToCancel();
 	}
 
-	@SuppressWarnings("unchecked")
 	public void handleDelete(final ActionEvent event) {
 		LOGGER.debug("handleDelete: Called");
 		// final OtherDocTagData selObj = (OtherDocTagData)
@@ -327,7 +328,6 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 		buttonSave.setDisable(true);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void loadDataFromSelect() {
 		LOGGER.debug("loadDataFromSelect: Called");
 
@@ -343,7 +343,8 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 		LOGGER.debug("loadDataFromSelect: selItem = " + selItem);
 		if (selItem != null) {
 			// TODO!!
-//			final Map<String, DocTagDataOption> optionList = selItem.getOptions();
+			// final Map<String, DocTagDataOption> optionList =
+			// selItem.getOptions();
 			//
 			// loadMoreFilesOptionsFromPrefs(selItem);
 			// for (DocTagDataOption option : optionList) {
@@ -363,10 +364,10 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 			// }
 
 			inputTable.getItems().clear();
-//			if (optionList != null) {
-//				final Collection<DocTagDataOption> list = optionList.values();
-//				inputTable.getItems().setAll(list);
-//			}
+			// if (optionList != null) {
+			// final Collection<DocTagDataOption> list = optionList.values();
+			// inputTable.getItems().setAll(list);
+			// }
 		}
 		LOGGER.debug("loadDataFromSelect: Done");
 	}

@@ -15,12 +15,14 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.two.gui.KQFBaseCtrl;
+import com.echomap.kqf.view.CtrlMoreFiles.ConfirmResultDelete;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -31,6 +33,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
@@ -39,6 +42,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -65,8 +69,11 @@ public abstract class BaseCtrl {
 	static public final String WINDOWKEY_IMPORT = "Import";
 	static public final String WINDOWKEY_EXPORT = "Export";
 
+	// Loaded from OS
 	Preferences appPreferences = null;
+	// Loaded from file
 	Properties appProps = null;
+	//
 	String appVersion = null;
 	Stage primaryStage = null;
 	boolean profileChangeMade = false;
@@ -93,7 +100,15 @@ public abstract class BaseCtrl {
 
 	void setLastSelectedDirectory(final String lastDir) {
 		if (appPreferences != null) {
-			appPreferences.put("LastSelectedDirectory", lastDir);
+			File tFile = new File(lastDir);
+			if (tFile.exists())
+				if (tFile.isDirectory())
+					appPreferences.put("LastSelectedDirectory", lastDir);
+				else {
+					tFile = tFile.getParentFile();
+					if (!tFile.isDirectory())
+						appPreferences.put("LastSelectedDirectory", lastDir);
+				}
 		}
 	}
 
@@ -114,6 +129,7 @@ public abstract class BaseCtrl {
 		return txt;
 	}
 
+	// TODO different call for Error? w/colors?
 	void showMessage(final String msg, final boolean clearPrevious, TextArea outputArea) {
 		final Animation animation = new Transition() {
 			{
@@ -215,6 +231,105 @@ public abstract class BaseCtrl {
 		dialog.show();
 	}
 
+	void showConfirmDialog(final String msg1, final String msg2, ConfirmResultDelete confirmResultDelete) {
+		final Stage dialog = new Stage();
+		dialog.setTitle("KQF Message Dialog");
+		dialog.setResizable(true);
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.setWidth(420);
+		dialog.setHeight(280);
+		if (primaryStage != null)
+			dialog.initOwner(primaryStage);
+
+		final Button confirmButton = new Button();
+		confirmButton.setText("C_onfirm");
+		confirmButton.setMnemonicParsing(true);
+		// closeButton.setStyle("-fx-padding: 8; -fx-margin: 8;");
+		confirmButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				LOGGER.debug("Action Confirmed");
+				final Node source = (Node) event.getSource();
+				final Stage stage = (Stage) source.getScene().getWindow();
+				confirmResultDelete.actionConfirmed(msg1);
+				stage.close();
+			}
+		});
+		final Button closeButton = new Button();
+		closeButton.setText("_Cancel");
+		closeButton.setMnemonicParsing(true);
+		// closeButton.setStyle("-fx-padding: 8; -fx-margin: 8;");
+		closeButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				LOGGER.debug("Action Cancelled");
+				final Node source = (Node) event.getSource();
+				final Stage stage = (Stage) source.getScene().getWindow();
+				confirmResultDelete.actionCancelled(msg1);
+				stage.close();
+			}
+		});
+		closeButton.setDefaultButton(true);
+
+		final Label text1;
+		if (msg1 != null) {
+			text1 = new Label(msg1);
+			final StringBuilder cssBorder = new StringBuilder();
+			cssBorder.append("-fx-padding: 4 12 4 12;");
+			cssBorder.append("-fx-border-style: solid inside;");
+			cssBorder.append("-fx-border-width: 2;");
+			cssBorder.append("-fx-border-insets: 5;");
+			cssBorder.append("-fx-border-radius: 5;");
+			cssBorder.append("-fx-border-color: black;");
+			text1.setStyle(cssBorder.toString());
+			text1.autosize();
+		} else
+			text1 = null;
+
+		final TextArea text = new TextArea();
+		text.appendText(msg2);
+		text.setWrapText(true);
+		text.setEditable(false);
+		text.autosize();
+		text.setFocusTraversable(false);
+		text.setStyle(
+				"-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-highlight-fill: #00ff00; -fx-highlight-text-fill: #000000; -fx-text-fill: #00ff00; ");
+		// text.setStyle("-fx-background-color: #EEEEA4;");
+		// final Text text = new Text(msg);
+		// text.autosize();
+
+		final VBox dialogVbox = new VBox(10);
+		// dialogVbox.setAlignment(Pos.CENTER);
+		dialogVbox.setStyle(
+				"-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10; ");
+		// VBox.setMargin(dialogVboxI, new Insets(4, 8, 8, 4));
+		final HBox dialogVboxI = new HBox(10);
+		HBox.setMargin(confirmButton, new Insets(4, 8, 8, 4));
+		HBox.setMargin(closeButton, new Insets(4, 8, 8, 4));
+
+		if (text1 != null)
+			dialogVbox.getChildren().add(text1);
+		dialogVbox.getChildren().add(text);
+		dialogVbox.getChildren().add(dialogVboxI);
+		dialogVboxI.getChildren().add(confirmButton);
+		dialogVboxI.getChildren().add(closeButton);
+		dialogVboxI.autosize();
+		dialogVbox.autosize();
+		final Scene dialogScene = new Scene(dialogVbox, 300, 75);
+		// dialogScene.
+		dialog.setScene(dialogScene);
+		// dialog.sizeToScene();
+		dialog.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(final WindowEvent we) {
+				LOGGER.debug("SubStage is cleaning up...");
+				LOGGER.debug("SubStage is closing");
+				dialog.close();
+			}
+		});
+		closeButton.requestFocus();
+		dialog.show();
+	}
+
 	void openNewWindow(String windowName, String windowTitle, final TextArea reportArea, Stage owner,
 			final BaseCtrl callingCtrl, final Map<String, Object> paramsMap) {
 		LOGGER.debug("openNewWindow: Called w/windowName='" + windowName + "'");
@@ -225,6 +340,7 @@ public abstract class BaseCtrl {
 			windowTitle = "MainWindow";
 		try {
 			final String fxmlFile = MainFrame.fxmlFrames.get(windowName);
+			@SuppressWarnings("rawtypes")
 			final Class fxmlCtrl = MainFrame.fxmlCtrl.get(windowName);
 			LOGGER.debug("openNewWindow: fxmlFile=" + fxmlFile + " fxmlCtrl=" + fxmlCtrl);
 			// check fxmlFile
@@ -232,7 +348,7 @@ public abstract class BaseCtrl {
 			final URL location = getClass().getResource(fxmlFile);
 			if (location == null) {
 				LOGGER.error("Failed to get location!!!!!!");
-				showMessage("ERROR loading FXML file for '" + windowTitle + "' screen", false, reportArea);
+				showMessage("ERROR loading FXML file for the <" + fxmlFile + "> screen", false, reportArea);
 				// throw new Exception("Failed to get location!!!!!!")
 				return;
 			}
@@ -472,7 +588,7 @@ public abstract class BaseCtrl {
 		locateFile(event, title, textField, null, null);
 	}
 
-	protected void locateFile(final ActionEvent event, final String title, final TextField textField,
+	protected File locateFile(final ActionEvent event, final String title, final TextField textField,
 			final String defaultName, final String defaultExtension) {
 		final FileChooser chooser = new FileChooser();
 		File startDir = null;
@@ -510,6 +626,7 @@ public abstract class BaseCtrl {
 			textField.setText(file.getAbsolutePath());
 			// lastSelectedDirectory = file.getParentFile();
 		}
+		return file;
 	}
 
 	// For probably new files, not existing ones
@@ -517,7 +634,7 @@ public abstract class BaseCtrl {
 			final String defaultExtension) {
 		final FileChooser chooser = new FileChooser();
 		File startDir = null;
-		if (!StringUtils.isEmpty(textField.getText())) {
+		if (textField != null && !StringUtils.isEmpty(textField.getText())) {
 			startDir = new File(textField.getText());
 			if (!startDir.isDirectory())
 				startDir = startDir.getParentFile();
@@ -559,9 +676,9 @@ public abstract class BaseCtrl {
 		return file;
 	}
 
-//	void chooseDirectory() {
-//		// TODO chooseDirectory
-//	}
+	// void chooseDirectory() {
+	// // TODO chooseDirectory
+	// }
 
 	void setDetectChanges(final Pane pane) {
 		for (Node node : pane.getChildren()) {
@@ -599,14 +716,82 @@ public abstract class BaseCtrl {
 
 				final Node nd2 = ((TitledPane) node).getContent();
 				if (nd2 instanceof Pane) {
+
 					setDetectChanges((Pane) nd2);
 				}
+
 			}
 		}
 	}
 
 	void setProfileChangeMade(boolean b) {
 		profileChangeMade = b;
+	}
+
+	// void setColumnWidth(final ObservableList<TableColumn<?, ?>> columns,
+	// final String key, final int coli) {
+	// LOGGER.debug("setColumnWidth: Called w/key=" + key + " for col#" + coli);
+	// final double colW = appPreferences.getDouble(key, -1);
+	// LOGGER.debug("setColumnWidth: colW1=" + colW);
+	// if (colW > -1) {
+	// final TableColumn<?, ?> col = columns.get(coli);
+	// col.setPrefWidth(colW);
+	// }
+	// }
+
+	@SuppressWarnings("rawtypes")
+	void setColumnWidth(final ObservableList<TableColumn> columns, final String key, final int coli) {
+		LOGGER.debug("setColumnWidth: Called w/key=" + key + " for col#" + coli);
+		final double colW = appPreferences.getDouble(key, -1);
+		LOGGER.debug("setColumnWidth: colW1=" + colW);
+		if (colW > -1) {
+			final TableColumn<?, ?> col = columns.get(coli);
+			col.setPrefWidth(colW);
+		}
+	}
+
+	void columnWidthChanged(final String MYPREFSKEY, final int colNum, final Number newValue) {
+		if (appPreferences != null && MYPREFSKEY != null) {
+			final String key = String.format(MYPREFSKEY, colNum);
+			// LOGGER.debug("columnWidthChanged: col#" + colNum + " val=" +
+			// newValue.doubleValue());
+			appPreferences.putDouble(key, newValue.doubleValue());
+		} else
+			LOGGER.warn("NO app preferences set");
+	}
+
+	void lockAllButtons(final Pane pane) {
+		if (pane == null)
+			return;
+		for (Node node : pane.getChildren()) {
+			if (node instanceof Button) {
+				final Button tf = (Button) node;
+				tf.setDisable(true);
+			} else if (node instanceof Pane) {
+				lockAllButtons((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					lockAllButtons((Pane) nd2);
+				}
+			}
+		}
+	}
+
+	void unlockAllButtons(final Pane pane) {
+		for (Node node : pane.getChildren()) {
+			if (node instanceof Button) {
+				final Button tf = (Button) node;
+				tf.setDisable(false);
+			} else if (node instanceof Pane) {
+				unlockAllButtons((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					unlockAllButtons((Pane) nd2);
+				}
+			}
+		}
 	}
 
 	abstract void doCleanup();

@@ -29,16 +29,14 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFinishedCallback {
 	private final static Logger LOGGER = LogManager.getLogger(CtrlProfileView.class);
 
 	final ProfileManager profileManager;
-	private boolean runningMutex = false;
+	// private boolean runningMutex = false;
 	private MyWorkDoneNotify myWorkDoneNotify = null;
 	Profile selectedProfile = null;
 	private boolean modeNew = false;
@@ -178,13 +176,13 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	 * SETUP Functions
 	 */
 
-	@Override
-	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage) {
-		super.setupController(props, appPreferences, primaryStage);
-		LOGGER.debug("setupController: Done");
-		this.appPreferences = Preferences.userNodeForPackage(CtrlProfileView.class);
-		profileManager.setAppVersion(this.appVersion);
-	}
+//	@Override
+//	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage) {
+//		super.setupController(props, appPreferences, primaryStage);
+//		LOGGER.debug("setupController: Done");
+//		this.appPreferences = Preferences.userNodeForPackage(CtrlProfileView.class);
+//		profileManager.setAppVersion(this.appVersion);
+//	}
 
 	@Override
 	public void setupController(Properties props, Preferences appPreferences, Stage primaryStage,
@@ -272,40 +270,6 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 					inputKeyText.requestFocus();
 			}
 		});
-	}
-
-	private void lockAllButtons(final Pane pane) {
-		if (pane == null)
-			return;
-		for (Node node : pane.getChildren()) {
-			if (node instanceof Button) {
-				final Button tf = (Button) node;
-				tf.setDisable(true);
-			} else if (node instanceof Pane) {
-				lockAllButtons((Pane) node);
-			} else if (node instanceof TitledPane) {
-				final Node nd2 = ((TitledPane) node).getContent();
-				if (nd2 instanceof Pane) {
-					lockAllButtons((Pane) nd2);
-				}
-			}
-		}
-	}
-
-	private void unlockAllButtons(final Pane pane) {
-		for (Node node : pane.getChildren()) {
-			if (node instanceof Button) {
-				final Button tf = (Button) node;
-				tf.setDisable(false);
-			} else if (node instanceof Pane) {
-				unlockAllButtons((Pane) node);
-			} else if (node instanceof TitledPane) {
-				final Node nd2 = ((TitledPane) node).getContent();
-				if (nd2 instanceof Pane) {
-					unlockAllButtons((Pane) nd2);
-				}
-			}
-		}
 	}
 
 	void setProfileChangeMade(boolean b) {
@@ -522,6 +486,8 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 			success = locateDir(event, "Open Output Dir ", outputFormatChpHtmlDirText, inputFileText);
 		else
 			success = locateDir(event, "Open Output Dir ", outputFormatChpHtmlDirText, outputFormatChpHtmlDirText);
+		if (success) {
+		}
 		LOGGER.debug("handleBrowseFmtHTMLFile: Done");
 	}
 
@@ -533,6 +499,8 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 			success = locateDir(event, "Open Output Dir ", outputFormatChpTextDirText, inputFileText);
 		else
 			success = locateDir(event, "Open Output Dir ", outputFormatChpTextDirText, outputFormatChpTextDirText);
+		if (success) {
+		}
 		LOGGER.debug("handleBrowseFmtTextFile: Done");
 	}
 
@@ -780,7 +748,8 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 
 		outputOutlineAllCSVFileText.setText(child.getOutputCSVAllFile());
 
-		final String filenameOnly = TextBiz.getFileNameOnly(new File(inputFileText.getText()).getName());
+		// final String filenameOnly = TextBiz.getFileNameOnly(new
+		// File(inputFileText.getText()).getName());
 
 		outputDocTagsOutlineFileText.setText(child.getOutputDocTagsOutlineFile());
 		outputDocTagsSceneFileText.setText(child.getOutputDocTagsSceneFile());
@@ -972,14 +941,14 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 			inFileName = inFile.getName();// can contain ext
 			if (!StringUtils.isBlank(newExtension)) {
 				int extIdx = inFileName.lastIndexOf(".");
-				String ext = "";
+				// String ext = "";
 				String pre = "";
 				if (extIdx >= 1) {
-					ext = inFileName.substring(extIdx + 1);
+					// ext = inFileName.substring(extIdx + 1);
 					pre = inFileName.substring(0, extIdx);
 					// inFileName = inFileName.replaceAll(ext, newExtension);
 				} else {
-					ext = "";
+					// ext = "";
 					pre = inFileName;
 					// inFileName = inFileName + "." + newExtension;
 				}

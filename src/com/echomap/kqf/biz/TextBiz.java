@@ -225,8 +225,7 @@ public class TextBiz {
 	}
 
 	public static void countWords(final LooperDao ldao, final CountDao dao, final FormatDao fdao) {
-		boolean inWord = false;
-
+		// boolean inWord = false;
 		String text2 = cleanPlainText(ldao.getCurrentLine(), fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
 		if (text2.length() < 1)
 			return;
@@ -415,6 +414,9 @@ public class TextBiz {
 			} else {
 				idx1 = line.indexOf(startTag);
 				idx2 = line.indexOf(endTag);
+				if (idx1 > idx2)
+					idx1 = 0 - startTag.length();
+				LOGGER.debug("isDocTag: idx1=" + idx1 + " idx2=" + idx2);
 				dtl.setupContainsDocTag(line, line.substring(idx1 + startTag.length(), idx2));
 				// Processing line2
 				String line2 = line;// .substring(idx2 + endTag.length());
