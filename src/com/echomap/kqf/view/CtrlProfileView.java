@@ -541,6 +541,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			br.handleRunOutliner(this, profileManager, this.selectedProfile, loggingText, myWorkDoneNotify);
 		} catch (Exception e) {
 			e.printStackTrace();
+			showMessage("ERROR: " + e.getMessage(), false);
 			btnRunOutliner.setDisable(false);
 		}
 		LOGGER.debug("handleRunOutliner: Done");
@@ -687,6 +688,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleHelpAbout: Done");
 	}
 
+	public void handleClearLog(final ActionEvent event) {
+		LOGGER.debug("handleClearLog: Called");
+		loggingText.clear();
+		LOGGER.debug("handleClearLog: Done");
+	}
+
 	/*
 	 * Work Functions
 	 */
@@ -698,6 +705,10 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			timer.cancel();
 		myTimerTask = null;
 		timer = null;
+	}
+
+	void showMessage(final String msg) {
+		showMessage(msg, false, loggingText);
 	}
 
 	void showMessage(final String msg, final boolean clearPrevious) {
@@ -747,6 +758,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			}
 			//
 			unlockGuiPerProfile();
+			showMessage("Selected Profile: <" + chosenProfileText.getText() + ">");
 		}
 	}
 

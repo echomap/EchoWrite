@@ -176,13 +176,15 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	 * SETUP Functions
 	 */
 
-//	@Override
-//	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage) {
-//		super.setupController(props, appPreferences, primaryStage);
-//		LOGGER.debug("setupController: Done");
-//		this.appPreferences = Preferences.userNodeForPackage(CtrlProfileView.class);
-//		profileManager.setAppVersion(this.appVersion);
-//	}
+	// @Override
+	// public void setupController(final Properties props, final Preferences
+	// appPreferences, final Stage primaryStage) {
+	// super.setupController(props, appPreferences, primaryStage);
+	// LOGGER.debug("setupController: Done");
+	// this.appPreferences =
+	// Preferences.userNodeForPackage(CtrlProfileView.class);
+	// profileManager.setAppVersion(this.appVersion);
+	// }
 
 	@Override
 	public void setupController(Properties props, Preferences appPreferences, Stage primaryStage,
@@ -909,6 +911,9 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		final String regExpSec = loadPropFromAppOrDefault("regexpSectionText", "");
 		regexpChapterText.setText(regExpChp);
 		regexpSectionText.setText(regExpSec);
+
+		final String defaultEncoding = loadPropFromAppOrDefault("defaultEncoding", "");
+		outputEncoding.setText(defaultEncoding);
 
 		final String lastSelectedDirectoryStr = appPreferences.get("lastSelectedDirectory", null);
 		if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {

@@ -3,10 +3,8 @@ package com.echomap.kqf.data;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.echomap.kqf.looper.FileLooper;
@@ -31,6 +29,7 @@ public class FormatDao {
 	private String formatMode = null;
 	private String filePrefix = null;
 	private String outputEncoding = DEFAULToutputEncoding;
+	private boolean includeChapterName = true;
 
 	// Count
 
@@ -569,6 +568,14 @@ public class FormatDao {
 
 	public void setVolume(String volume) {
 		this.volume = volume;
+	}
+
+	public boolean isIncludeChapterName() {
+		return includeChapterName;
+	}
+
+	public void setIncludeChapterName(boolean includeChapterName) {
+		this.includeChapterName = includeChapterName;
 	}
 
 }

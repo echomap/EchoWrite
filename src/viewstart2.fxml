@@ -16,7 +16,8 @@
 				<Menu text="_File">
 					<items>
 						<MenuItem onAction="#handleProfileNew" text="New" />
-						<MenuItem onAction="#handleClose" text="_Quit" />
+						<MenuItem onAction="#handleClearLog" text="_Clear Log" />
+                  <MenuItem onAction="#handleClose" text="_Quit" />
 					</items>
 				</Menu>
 				<Menu text="P_rofiles">

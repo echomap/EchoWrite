@@ -274,7 +274,23 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			final String cnumS = cdao.getChapterNumber();
 			final String volume = formatDao.getVolume();
 			final String volStr = (volume == null ? "" : volume + ".");
-			fWriterOutlineFile.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
+			// TODO from formatDao
+			if (formatDao.isIncludeChapterName()) {
+				final String fmtS = String.format("%s%s%s%s%s) [%s]%s", CHAPTER, cnumS, START_STRING2, volStr, cnumS,
+						ldao.getCurrentChapter().title, END_STRING);
+				// final String fmtS = String.format("-= Chapter %s (%s%s) [%s] =-",
+				// cnumS, volStr, cnumS,ldao.getCurrentChapter().title);
+				fWriterOutlineFile.write(fmtS);
+				// fWriterOutlineFile.write(CHAPTER + cnumS + START_STRING2 +
+				// volStr + cnumS + ")"
+				// + " [" + ldao.getCurrentChapter().title + "]" + END_STRING);
+			} else {
+				final String fmtS = String.format("%s%s%s%s%s%s", CHAPTER, cnumS, START_STRING2, volStr, cnumS,
+						END_STRING2);
+				fWriterOutlineFile.write(fmtS);
+				// fWriterOutlineFile.write(CHAPTER + cnumS + START_STRING2 +
+				// volStr + cnumS + END_STRING2);
+			}
 			fWriterOutlineFile.write(TextBiz.newLine);
 		}
 		if (fWriterSceneFile != null) {
@@ -787,24 +803,24 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 		writeChapterData(formatDao, ldao, null);
 
-		Collections.sort(unusedTagNameList);
-		final StringBuilder sb = new StringBuilder();
-		sb.append("Outline: ");
-		sb.append("Unused#: ");
-		sb.append(unusedTagNameList.size());
-		if (unusedTagNameList.size() > 0) {
-			if (fWriterNotUsedFile != null) {
-				fWriterNotUsedFile.write(sb.toString());
-				fWriterNotUsedFile.write(TextBiz.newLine);
-				for (final String docTagName : unusedTagNameList) {
-					fWriterNotUsedFile.write(docTagName);
-					fWriterNotUsedFile.write(TextBiz.newLine);
-				}
-			}
-			sb.append(" (");
-			sb.append(fromListToCommaDelimString(unusedTagNameList));
-			sb.append(")");
-		}
+		// Collections.sort(unusedTagNameList);
+		// final StringBuilder sb = new StringBuilder();
+		// sb.append("Outline: ");
+		// sb.append("Unused#: ");
+		// sb.append(unusedTagNameList.size());
+		// if (unusedTagNameList.size() > 0) {
+		// if (fWriterNotUsedFile != null) {
+		// fWriterNotUsedFile.write(sb.toString());
+		// fWriterNotUsedFile.write(TextBiz.newLine);
+		// for (final String docTagName : unusedTagNameList) {
+		// fWriterNotUsedFile.write(docTagName);
+		// fWriterNotUsedFile.write(TextBiz.newLine);
+		// }
+		// }
+		// sb.append(" (");
+		// sb.append(fromListToCommaDelimString(unusedTagNameList));
+		// sb.append(")");
+		// }
 		if (fWriterDocTagReportFile != null) {
 			final List<String> allKeys = new ArrayList<>();
 			final Set<String> keysU = usedTagFileList.keySet();
@@ -822,12 +838,15 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 			fWriterDocTagReportFile.write("-= DocTags Report =-");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("(All Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(tagsCount.size()));
+			fWriterDocTagReportFile.write(" ) ");
 			fWriterDocTagReportFile.write("(Used Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(keysU.size()));
 			fWriterDocTagReportFile.write(" ) ");
-			fWriterDocTagReportFile.write("(Unused Tags #: ");
-			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
-			fWriterDocTagReportFile.write(" ) ");
+			// fWriterDocTagReportFile.write("(Unused Tags #: ");
+			// fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
+			// fWriterDocTagReportFile.write(" ) ");
 			fWriterDocTagReportFile.write("(Errors #: ");
 			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
 			fWriterDocTagReportFile.write(" )");
@@ -835,7 +854,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 			// ERRORS
 			fWriterDocTagReportFile.write(TextBiz.newLine);
-			fWriterDocTagReportFile.write("-= DocTags Report (Errors) ");
+			fWriterDocTagReportFile.write("-= DocTags Errors Report, ");
 			fWriterDocTagReportFile.write("Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
 			fWriterDocTagReportFile.write(" =-");
@@ -850,44 +869,47 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterDocTagReportFile.write(TextBiz.newLine);
 			}
 
-			fWriterDocTagReportFile.write(TextBiz.newLine);
-			fWriterDocTagReportFile.write("-= DocTags Report (Used) ");
-			fWriterDocTagReportFile.write("Tags #: ");
-			fWriterDocTagReportFile.write(String.valueOf(usedTagFileList.size()));
-			fWriterDocTagReportFile.write(" =-");
-			fWriterDocTagReportFile.write(TextBiz.newLine);
-			for (String key : allKeys) {
-				String padStr = StringUtils.rightPad(key, maxkeylengthU, " ");
-				fWriterDocTagReportFile.write(padStr);
-				fWriterDocTagReportFile.write(" = ");
-				List<String> usedTagList = usedTagFileList.get(key);
-				String str = "<NONE>";
-				if (usedTagList != null) {
-					Collections.sort(usedTagList);
-					str = fromListToCommaDelimString(usedTagList);
-				}
-				fWriterDocTagReportFile.write(str);
-				fWriterDocTagReportFile.write(TextBiz.newLine);
-			}
+			// DUPLICATE report
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// fWriterDocTagReportFile.write("-= DocTags Report (Used) ");
+			// fWriterDocTagReportFile.write("Tags #: ");
+			// fWriterDocTagReportFile.write(String.valueOf(usedTagFileList.size()));
+			// fWriterDocTagReportFile.write(" =-");
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// for (String key : allKeys) {
+			// String padStr = StringUtils.rightPad(key, maxkeylengthU, " ");
+			// fWriterDocTagReportFile.write(padStr);
+			// fWriterDocTagReportFile.write(" = ");
+			// List<String> usedTagList = usedTagFileList.get(key);
+			// String str = "<NONE>";
+			// if (usedTagList != null) {
+			// Collections.sort(usedTagList);
+			// str = fromListToCommaDelimString(usedTagList);
+			// }
+			// fWriterDocTagReportFile.write(str);
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// }
 
-			fWriterDocTagReportFile.write(TextBiz.newLine);
-			fWriterDocTagReportFile.write("-= DocTags Report (Unused) ");
-			fWriterDocTagReportFile.write("Tags #: ");
-			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
-			fWriterDocTagReportFile.write(" =-");
-			fWriterDocTagReportFile.write(TextBiz.newLine);
-			if (fWriterNotUsedFile != null && !unusedTagNameList.isEmpty()) {
-				for (final String docTagName : unusedTagNameList) {
-					fWriterDocTagReportFile.write(docTagName);
-					fWriterDocTagReportFile.write(TextBiz.newLine);
-				}
-			} else {
-				fWriterDocTagReportFile.write("<NONE>");
-				fWriterDocTagReportFile.write(TextBiz.newLine);
-			}
+			// DUPLICATE report
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// fWriterDocTagReportFile.write("-= DocTags Report (Unused) ");
+			// fWriterDocTagReportFile.write("Tags #: ");
+			// fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
+			// fWriterDocTagReportFile.write(" =-");
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// if (fWriterNotUsedFile != null && !unusedTagNameList.isEmpty()) {
+			// for (final String docTagName : unusedTagNameList) {
+			// fWriterDocTagReportFile.write(docTagName);
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// }
+			// } else {
+			// fWriterDocTagReportFile.write("<NONE>");
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
+			// }
 
+			// Show all tags collected
 			fWriterDocTagReportFile.write(TextBiz.newLine);
-			fWriterDocTagReportFile.write("-= DocTags Report (All) ");
+			fWriterDocTagReportFile.write("-= DocTags Used List Report, ");
 			fWriterDocTagReportFile.write("Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(allKeys.size()));
 			fWriterDocTagReportFile.write(" =-");
@@ -898,9 +920,18 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 
+			// Show tags collected
+			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Outline Compressed Report, ",
+					tagListOutlineCompressed);
+			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Outline Expanded Report, ",
+					tagListOutlineExpanded);
+			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Scene Compressed Report, ",
+					tagListSceneCompressed);
+			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Scene Expanded Report, ", tagListSceneExpanded);
+
 			// COUNT - tagsCount
 			fWriterDocTagReportFile.write(TextBiz.newLine);
-			fWriterDocTagReportFile.write("-= DocTags Tag Usage Report ");
+			fWriterDocTagReportFile.write("-= DocTags Tag Usage Report, ");
 			fWriterDocTagReportFile.write("Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(tagsCount.size()));
 			fWriterDocTagReportFile.write(" =-");
@@ -946,20 +977,46 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterDocTagReportFile.write(padC);
 				fWriterDocTagReportFile.write(midpadding);
 
-				List<String> usedTagList = usedTagFileList.get(docTagNameC);
+				final List<String> usedTagList = usedTagFileList.get(docTagNameC);
 				String str = "<NONE>";
 				if (usedTagList != null) {
 					Collections.sort(usedTagList);
 					str = fromListToCommaDelimString(usedTagList);
+				} else {
+					if (!unusedTagNameList.contains(docTagNameC))
+						unusedTagNameList.add(docTagNameC);
 				}
 				fWriterDocTagReportFile.write(str);
 				fWriterDocTagReportFile.write(TextBiz.newLine);
 			}
-			//
+
+			// Output unused Tag Names
+			// Show tags collected
+			Collections.sort(unusedTagNameList);
+			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Unused Report, ", unusedTagNameList);
 			fWriterDocTagReportFile.write(TextBiz.newLine);
+
+			// Summary Report Again
+			fWriterDocTagReportFile.write("(All Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(tagsCount.size()));
+			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write("(Used Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(keysU.size()));
+			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write("(Unused Tags #: ");
+			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
+			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write("(Errors #: ");
+			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
+			fWriterDocTagReportFile.write(" )");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+
+			//
+			// fWriterDocTagReportFile.write(TextBiz.newLine);
 			fWriterDocTagReportFile.write("-= DocTags Report (EOF)=-");
 		}
 
+		// Close output files
 		if (fWriterAllTagsCsv != null) {
 			fWriterAllTagsCsv.flush();
 			fWriterAllTagsCsv.close();
@@ -997,6 +1054,21 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 		}
 
+		// Return report of unused
+		Collections.sort(unusedTagNameList);
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Outline: ");
+		sb.append("Used#: ");
+		sb.append(usedTagFileList.keySet().size());
+		sb.append(", ");
+		sb.append("Unused#: ");
+		sb.append(unusedTagNameList.size());
+		if (unusedTagNameList.size() > 0) {
+			sb.append(" (");
+			sb.append(fromListToCommaDelimString(unusedTagNameList));
+			sb.append(")");
+		}
+
 		return sb.toString();
 	}
 
@@ -1009,6 +1081,21 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	// sb.setLength(sb.length() - 1);
 	// return sb.toString();
 	// }
+
+	private void printSubReportForArray(final BufferedWriter fWriterDocTagReportFile, final String headerLine,
+			final List<String> tagList) throws IOException {
+		fWriterDocTagReportFile.write(TextBiz.newLine);
+		fWriterDocTagReportFile.write(headerLine);
+		fWriterDocTagReportFile.write("Tags #: ");
+		fWriterDocTagReportFile.write(String.valueOf(tagList.size()));
+		fWriterDocTagReportFile.write(" =-");
+		fWriterDocTagReportFile.write(TextBiz.newLine);
+		for (final String docTagName : tagList) {
+			fWriterDocTagReportFile.write(docTagName);
+			fWriterDocTagReportFile.write(",");
+		}
+		fWriterDocTagReportFile.write(TextBiz.newLine);
+	}
 
 	private String fromListToCommaDelimString(final List<String> docTagList) {
 		final StringBuilder sb = new StringBuilder();

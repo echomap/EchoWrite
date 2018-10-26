@@ -151,7 +151,7 @@ public class LooperThread extends Thread {
 
 				if (finalMsg != null) {
 					notifyCtrl.finalResultFromWork(finalMsg);
-					notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
+					//notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
 				}
 			}
 		}

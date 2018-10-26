@@ -95,9 +95,11 @@ public class FileLooper {
 			inputFile = inputFileTemp;
 
 		if (inputFile == null || !inputFile.exists()) {
-			throw new IOException(
+			final IOException e = new IOException(
 					"Input file " + TextBiz.wrapString(inputFile == null ? "null" : inputFile.getAbsolutePath())
 							+ " does not exist!");
+			notifyCtrl.errorWithWork("No file selected!", e);
+			throw e;
 		}
 		final FileLooperHandler flHandler = new FileLooperHandlerOutline();
 		final LooperDao dao = new LooperDao();
