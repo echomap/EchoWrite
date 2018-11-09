@@ -1,5 +1,7 @@
 package com.echomap.kqf.persist;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -127,7 +129,7 @@ public class ProfilePersistV2 {
 		return filePrefixText;
 	}
 
-	public void setupDao(FormatDao formatDao, Profile selectedProfile, final String appVersion) {
+	public void setupDao(final FormatDao formatDao, final Profile selectedProfile, final String appVersion) {
 		LOGGER.debug("setupDao: Called");
 
 		// Setup the argument passed
@@ -301,6 +303,12 @@ public class ProfilePersistV2 {
 		//
 
 		return profileData;
+	}
+
+	public List<Profile> getProfiles() {
+		// TODO Auto-generated method stub
+		// TODO implement loading v2 profile data
+		return null;
 	}
 
 }

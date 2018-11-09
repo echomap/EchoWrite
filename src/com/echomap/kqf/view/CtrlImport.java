@@ -45,6 +45,8 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 
 	ProfileManager profileManager = null;
 
+	File lastLoadedFile = null;
+
 	// enum COLS { IMPORT,EXISTS,IMPORTABLE,SERIES,NAME,INPUTFILE};
 	private static int COL_IMPORT = 1;
 	private static int COL_EXISTS = 2;
@@ -343,6 +345,24 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 
 	}
 
+	private void readImportFile() {
+		LOGGER.debug("readImportFile: Called");
+		try {
+			final Import export1 = new Import();
+			final List<Profile> profilesImported = export1.readProfilesFromFile(inputFile.getText(), this.appProps,
+					this.appPreferences, profileManager);
+			// import into table
+			loadData(profilesImported);
+			unlockGui();
+		} catch (Exception e) {
+			LOGGER.error(e);
+			e.printStackTrace();
+			// todo clear table
+			showPopupMessage("Import Error", "Check Log file for: " + e.getMessage(), true);
+		}
+		LOGGER.debug("readImportFile: Done");
+	}
+
 	public void handleSelectAll(final ActionEvent event) {
 		LOGGER.debug("handleSelectAll: Called");
 		final ObservableList<ProfileExportObj> targetList = inputTable.getItems();
@@ -369,7 +389,13 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 
 	public void handleImportProfiles(final ActionEvent event) {
 		LOGGER.debug("handleImportProfiles: Called");
-		// TODO
+		if (lastLoadedFile != null && lastLoadedFile.getAbsolutePath().compareTo(inputFile.getText()) != 0) {
+			final File cfile = new File(inputFile.getText());
+			if (cfile != null && cfile.exists()) {
+				readImportFile();
+				lastLoadedFile = cfile;
+			}
+		}
 		final Import importBiz = new Import();
 		final List<String> errors = importBiz.doImportProfiles(inputTable.getItems(), appProps, appPreferences,
 				profileManager);
@@ -380,26 +406,18 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 				sb.append("\n");
 			}
 			showPopupMessage("Import Errors", sb.toString(), true);
+		} else {
+			final StringBuilder sb = new StringBuilder();
+			for (final ProfileExportObj data : inputTable.getItems()) {
+				if (data.isExport()) {
+					sb.append("-");
+					sb.append(data.getKey());
+					sb.append("\n");
+				}
+			}
+			showPopupMessage("Import Done!", "Import Done! Imported:\n" + sb.toString(), false);
 		}
 		LOGGER.debug("handleImportProfiles: Done");
-	}
-
-	// 2
-	public void importFile() {
-		LOGGER.debug("handleImportFile: Called");
-		try {
-			final Import export1 = new Import();
-			final List<Profile> profilesImported = export1.readProfilesFromFile(inputFile.getText(), this.appProps,
-					this.appPreferences, profileManager);
-			// import into table
-			loadData(profilesImported);
-			unlockGui();
-		} catch (Exception e) {
-			LOGGER.error(e);
-			// todo clear table
-			showPopupMessage("Import Error", "Check Log file for: " + e.getMessage(), true);
-		}
-		LOGGER.debug("handleImportFile: Done");
 	}
 
 	public void handleClose(final ActionEvent event) {
@@ -415,9 +433,10 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 	public void handleBrowse(final ActionEvent event) {
 		LOGGER.debug("handleBrowse: Called");
 		lockGui();
-		final File cfile = locateFile(event, "Export File", inputFile, "ProfileExport.json", "JSON");
+		final File cfile = locateFile(event, "Export File", inputFile, "ProfileExport.json", FILTERTYPE.JSON);
 		if (cfile != null && cfile.exists()) {
-			importFile();
+			readImportFile();
+			lastLoadedFile = cfile;
 		}
 		LOGGER.debug("handleBrowse: Done");
 	}

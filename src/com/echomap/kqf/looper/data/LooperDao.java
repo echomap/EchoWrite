@@ -10,9 +10,11 @@ public class LooperDao {
 
 	private File inputFile;
 	private CountDao chaptCount = null;
+	private CountDao sectionCount = null;
 	private CountDao totalCount = new CountDao();
 	private long lineCount = 0;
 
+	private final List<SectionDao> sections = new ArrayList<SectionDao>();
 	private final List<ChapterDao> chapters = new ArrayList<ChapterDao>();
 	// private final List<PartitionDao> partitions = new
 	// ArrayList<PartitionDao>();
@@ -25,9 +27,10 @@ public class LooperDao {
 
 	private String originalLine = null;
 	private String currentLine = null;
-	private SimpleChapterDao currentChapter = null;
-	private SimpleSectionDao currentSection = null;
-	private DocTagLine currentDocTagLine = null;
+
+	private SimpleChapterDao lineChapter = null;
+	private SimpleSectionDao lineSection = null;
+	private DocTagLine lineDocTagLine = null;
 
 	public LooperDao() {
 
@@ -108,6 +111,8 @@ public class LooperDao {
 	public void InitializeCount() {
 		setTotalCount(new CountDao());
 		setChaptCount(new CountDao());
+		setSectionCount(new CountDao());
+
 		getChapters().clear();
 
 		getTotalCount().setCounter(1);
@@ -130,8 +135,20 @@ public class LooperDao {
 		this.chaptCount = chaptCount;
 	}
 
+	public CountDao getSectionCount() {
+		return sectionCount;
+	}
+
+	public void setSectionCount(CountDao sectionCount) {
+		this.sectionCount = sectionCount;
+	}
+
 	public List<ChapterDao> getChapters() {
 		return chapters;
+	}
+
+	public List<SectionDao> getSections() {
+		return sections;
 	}
 
 	public String getOriginalLine() {
@@ -150,28 +167,28 @@ public class LooperDao {
 		this.currentLine = currentLine;
 	}
 
-	public SimpleChapterDao getCurrentChapter() {
-		return currentChapter;
+	public SimpleChapterDao getLineChapter() {
+		return lineChapter;
 	}
 
-	public void setCurrentChapter(SimpleChapterDao currentChapter) {
-		this.currentChapter = currentChapter;
+	public void setLineChapter(SimpleChapterDao lineChapter) {
+		this.lineChapter = lineChapter;
 	}
 
-	public SimpleSectionDao getCurrentSection() {
-		return currentSection;
+	public SimpleSectionDao getLineSection() {
+		return lineSection;
 	}
 
-	public void setCurrentSection(SimpleSectionDao currentSection) {
-		this.currentSection = currentSection;
+	public void setLineSection(SimpleSectionDao lineSection) {
+		this.lineSection = lineSection;
 	}
 
-	public DocTagLine getCurrentDocTagLine() {
-		return currentDocTagLine;
+	public DocTagLine getLineDocTagLine() {
+		return lineDocTagLine;
 	}
 
-	public void setCurrentDocTagLine(DocTagLine currentDocTagLine) {
-		this.currentDocTagLine = currentDocTagLine;
+	public void setLineDocTagLine(DocTagLine lineDocTagLine) {
+		this.lineDocTagLine = lineDocTagLine;
 	}
 
 	public long getLineCount() {

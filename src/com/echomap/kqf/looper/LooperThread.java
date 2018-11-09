@@ -14,6 +14,7 @@ import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
+import com.echomap.kqf.looper.data.SectionDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 import com.echomap.kqf.looper.data.SimpleSectionDao;
 import com.echomap.kqf.two.gui.WorkDoneNotify;
@@ -116,7 +117,7 @@ public class LooperThread extends Thread {
 				//
 				flHandler.handleLine(formatDao, ldao);
 
-				final DocTagLine dttGL = ldao.getCurrentDocTagLine();
+				final DocTagLine dttGL = ldao.getLineDocTagLine();
 
 				if (dttGL != null) {
 					// flHandler.handleDocTagMaybeTag(formatDao, ldao);
@@ -126,8 +127,10 @@ public class LooperThread extends Thread {
 						if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
 							flHandler.handleDocTag(formatDao, ldao);
 						}
-					} else
+					} else {
+						ldao.getChaptCount().addOneToNumLines();
 						flHandler.handleDocTagNotTag(formatDao, ldao);
+					}
 				}
 
 				flHandler.postLine(formatDao, ldao);
@@ -151,7 +154,8 @@ public class LooperThread extends Thread {
 
 				if (finalMsg != null) {
 					notifyCtrl.finalResultFromWork(finalMsg);
-					//notifyCtrl.statusUpdateForWork(flHandler.getWorkType(), finalMsg);
+					// notifyCtrl.statusUpdateForWork(flHandler.getWorkType(),
+					// finalMsg);
 				}
 			}
 		}
@@ -171,25 +175,46 @@ public class LooperThread extends Thread {
 		//
 		ldao.setOriginalLine(st);
 		ldao.setCurrentLine(st);
-		final SimpleChapterDao chpt = TextBiz.isChapter(st, formatDao.getRegexpChapter());
-		final SimpleSectionDao sectionType = TextBiz.isSection(st, formatDao.getRegexpSection());
-		ldao.setCurrentChapter(chpt);
-		ldao.setCurrentSection(sectionType);
+		final SimpleChapterDao lineChptData = TextBiz.isChapter(st, formatDao.getRegexpChapter());
+		final SimpleSectionDao lineSectData = TextBiz.isSection(st, formatDao.getRegexpSection());
+		ldao.setLineChapter(lineChptData);
+		ldao.setLineSection(lineSectData);
 
 		//
+		final CountDao sdao = ldao.getSectionCount();
+
+		if (lineSectData.isSection) {
+			if (sdao.getName() != null && sdao.getName().length() > 0) {
+				// tdao.addNumWords(cdao.getNumWords());
+				ldao.getSections().add(new SectionDao(lineSectData));
+				sdao.clear();
+				// tdao.addChapterCount(1);
+			}
+			sdao.setName(lineSectData.sname);
+			sdao.setTitle(lineSectData.title);
+			sdao.setNumber(lineSectData.snum);
+
+			// ldao.getSections().add(new SectionDao(lineSectData));
+		}
+		// else
+		// cdao.setSectionNumber(ldao.getCurrentSection().snum);
+
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
-		if (chpt.isChapter) {
-			if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0) {
+
+		// cdao.setSectionNumber(lineSectData.snum);
+
+		if (lineChptData.isChapter) {
+			if (cdao.getName() != null && cdao.getName().length() > 0) {
 				tdao.addNumWords(cdao.getNumWords());
 				ldao.getChapters().add(new ChapterDao(cdao));
 				cdao.clear();
 				tdao.addChapterCount(1);
 			}
-			cdao.setChapterName(chpt.name);
-			cdao.setChapterTitle(chpt.title);
-			cdao.setChapterNumber(chpt.chpNum);// numerical);//
-												// tdao.getNumChapters());
+			cdao.setName(lineChptData.name);
+			cdao.setTitle(lineChptData.title);
+			cdao.setNumber(lineChptData.chpNum);
+			cdao.setParent(sdao.getNumber());
 		}
 		//
 		// final DocTagLine currentDocTagLine = TextBiz.isDocTag(st,
@@ -206,7 +231,7 @@ public class LooperThread extends Thread {
 		LOGGER.debug("IS: END: " + dtt.isEndDocTag() + " HAS: " + dtt.isHasDocTag() + " LNG: " + dtt.isLongDocTag()
 				+ " ONY: " + dtt.isOnlyDoctag());
 
-		DocTagLine dttGL = ldao.getCurrentDocTagLine();
+		DocTagLine dttGL = ldao.getLineDocTagLine();
 		if (dttGL != null) {
 			LOGGER.debug("GL: END: " + dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: "
 					+ dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
@@ -259,7 +284,7 @@ public class LooperThread extends Thread {
 			dttGL.setLineNumber(ldao.getLineCount());
 		}
 
-		ldao.setCurrentDocTagLine(dttGL);
+		ldao.setLineDocTagLine(dttGL);
 	}
 
 }

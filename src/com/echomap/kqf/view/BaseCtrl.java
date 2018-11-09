@@ -69,6 +69,14 @@ public abstract class BaseCtrl {
 	static public final String WINDOWKEY_IMPORT = "Import";
 	static public final String WINDOWKEY_EXPORT = "Export";
 
+	static public enum FILTERTYPE {
+		NONE, JSON, HTML, TEXT, CSV;
+	}
+
+	// static public final String FILTERTYPE_JSON = "JSON";
+	// static public final String FILTERTYPE_HTML = "HTML";
+	// static public final String FILTERTYPE_TEXT = "TXT";
+
 	// Loaded from OS
 	Preferences appPreferences = null;
 	// Loaded from file
@@ -589,7 +597,8 @@ public abstract class BaseCtrl {
 	}
 
 	protected File locateFile(final ActionEvent event, final String title, final TextField textField,
-			final String defaultName, final String defaultExtension) {
+			final String defaultName, final FILTERTYPE defaultExtension) {
+		LOGGER.debug("locateFile: Called");
 		final FileChooser chooser = new FileChooser();
 		File startDir = null;
 		if (!StringUtils.isEmpty(textField.getText())) {
@@ -612,11 +621,23 @@ public abstract class BaseCtrl {
 			setLastSelectedDirectory(startDir);
 		}
 		chooser.setTitle(title);
+		LOGGER.debug("locateFile: defaultName='" + defaultName + "'");
 		if (!StringUtils.isEmpty(defaultName))
 			chooser.setInitialFileName(defaultName);
 		// chooser.setInitialFileName("ChapterCount1.csv");
 		// System.out.println("lastSelectedDirectory = '" +
 		// lastSelectedDirectory + "'");
+
+		LOGGER.debug("locateFile: defaultExtension=" + defaultExtension);
+		if (FILTERTYPE.JSON == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("JSON", "*.json"));
+		if (FILTERTYPE.HTML == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("HTML", "*.html"));
+		if (FILTERTYPE.TEXT == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("TEXT", "*.txt"));
+		if (FILTERTYPE.CSV == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("CSV", "*.csv"));
+		chooser.getExtensionFilters().addAll(new ExtensionFilter("ALL", "*.*"));
 
 		final File file = chooser.showOpenDialog(new Stage());
 		if (file == null) {
@@ -626,12 +647,14 @@ public abstract class BaseCtrl {
 			textField.setText(file.getAbsolutePath());
 			// lastSelectedDirectory = file.getParentFile();
 		}
+		LOGGER.debug("locateFile: Done");
 		return file;
 	}
 
 	// For probably new files, not existing ones
+	// https://docs.oracle.com/javase/8/javafx/api/javafx/stage/FileChooser.html#setSelectedExtensionFilter-javafx.stage.FileChooser.ExtensionFilter-
 	File chooseFile(final ActionEvent event, final String title, final TextField textField, final String defaultName,
-			final String defaultExtension) {
+			final FILTERTYPE defaultExtension) {
 		final FileChooser chooser = new FileChooser();
 		File startDir = null;
 		if (textField != null && !StringUtils.isEmpty(textField.getText())) {
@@ -656,14 +679,17 @@ public abstract class BaseCtrl {
 		chooser.setTitle(title);
 		if (!StringUtils.isEmpty(defaultName))
 			chooser.setInitialFileName(defaultName);
-		if (!StringUtils.isEmpty(defaultExtension)) {
-			if ("JSON".compareTo(defaultExtension) == 0)
-				chooser.setSelectedExtensionFilter(new ExtensionFilter("JSON", "json"));
-			else if ("HTML".compareTo(defaultExtension) == 0)
-				chooser.setSelectedExtensionFilter(new ExtensionFilter("HTML", "html"));
-			else if ("TXT".compareTo(defaultExtension) == 0)
-				chooser.setSelectedExtensionFilter(new ExtensionFilter("TEXT", "txt"));
-		}
+
+		LOGGER.debug("locateFile: defaultExtension=" + defaultExtension);
+		if (FILTERTYPE.JSON == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("JSON", "*.json"));
+		if (FILTERTYPE.HTML == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("HTML", "*.html"));
+		if (FILTERTYPE.TEXT == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("TEXT", "*.txt"));
+		if (FILTERTYPE.CSV == (defaultExtension))
+			chooser.getExtensionFilters().addAll(new ExtensionFilter("CSV", "*.csv"));
+		chooser.getExtensionFilters().addAll(new ExtensionFilter("ALL", "*.*"));
 
 		final File file = chooser.showSaveDialog(new Stage());
 		if (file == null) {

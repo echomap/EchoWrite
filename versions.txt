@@ -1,31 +1,30 @@
--=TODO=-
-other pre (+x) tags to control tabbing and stuff?
-	(+v) verbose area / preformatted?
-Fix UI again for elasticity?
-Perhaps by first Series or <NoSeries> <ALL>
-add tag helpers, for what to show for that tag in the output?, ie: *outlinedata:
-	show tag, show symbol, show spaces, tabs, short tag, etc
-Rename and save doesn't keep 'More Files'
-Add Replace path to import?
--One long scene into another, line between fixes!?
--Format not respect rules like for DocTag start/end?
--section number if put in, not outputted?
-	section NAME /number formatting needs work
-formatting section output
-HTML output
+----==--==--==--------==--=====--==--------==--==--==----
+----==--==--==--------==Version 2==--------==--==--==----
 
+----==--==--==--------==--TODO--==--------==--==--==----
+----==--==--==--------==--=====--==--------==--==--==----
+-other pre (+x) tags to control tabbing and stuff?
+	(+v) verbose area / preformatted?
+-add tag helpers, for what to show for that tag in the output?, ie: *outlinedata:
+	show tag, show symbol, show spaces, tabs, short tag, etc
+-Add Replace path to import?
+-HTML output
+
+----==--==--==-----==CONFIRM WORKING==-----==--==--==----
+----==--==--==--------==--=====--==--------==--==--==----
 -=CONFIRM WORKING=-
 -Confirm on delete/backup
--Profile searching and sorting?
--errors log not clearing at run start?
--MM scene file not reflect volume
-
--=BUGS=-
--Formatting in new version, drop caps not working
+-Rename and save doesn't keep 'More Files'
+-section number if put in, not outputted?
+-section NAME /number formatting needs work
 -save column sizes?
 
-----==--==--==--------==--==--==--------==--==--==----
-             ------====Version 2====------
+----==--==--==--------==--BUGS--==--------==--==--==----
+----==--==--==--------==--=====--==--------==--==--==----
+-
+
+----==--==--==-----==---CHANGELOG---==-----==--==--==----
+----==--==--==--------==---------==--------==--==--==----
 Changed GUI, simplified UI shown when only wanting to run process like outliner/counter
 
 -=VERSION 2 Conversion Final Checklist =-
@@ -34,23 +33,39 @@ Changed GUI, simplified UI shown when only wanting to run process like outliner/
 3) move from V1 to V2 if V1 data, and delete V1 
 
 Unpublished:
+	added section number to count
+	cleaned up some code for counting and looping
+	fixed import not pulling in Outputs
+	fixed null in Outputs causing error
+v2.0.2
+	cleanup TODOs, forget v1 todos
 	Updates to code
+	Formatting drop caps 
 	Unused tags in MoreFiles tracked
 	Report updates
 	start default UTF8
-2.0.1
+	Formater not unset button.
+	fixed import and export file filters
+v2.0.1
 	bug fixes and updates to Report File
-2.0.0
+v2.0.0
 	updated GUI
 	updated object model
-----==--==--==--------==--==--==--------==--==--==----
+
+----==--==--==--------==--=====--==--------==--==--==----
+----==--==--==--------==Version 1==--------==--==--==----
+TODO:
+-Fix UI again for elasticity?
+-Perhaps by first Series or <NoSeries> <ALL>
+-Profile searching and sorting?
+
 1.0.15 (future version)
 	doctag report file written with _ properly
 	new file report for doctags
 	updates to MoreDoctags
 	Bugfixes
 	oh heck, fine, java 8
-----==--==--==--------==--==--==--------==--==--==----
+----==--==--==--------==--=====--==--------==--==--==----
 NEWEST
 	showing message in outliner when UNCLOSED tag is possible
 2018 06 18
@@ -181,3 +196,4 @@ NEWEST
 2014 08 23
 	- added fix for <center>....</center> for sigil validation
 	- Sigil doc type
+----==--==--==--------==--=====--==--------==--==--==----

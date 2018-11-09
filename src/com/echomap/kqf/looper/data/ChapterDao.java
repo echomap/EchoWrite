@@ -12,15 +12,17 @@ public class ChapterDao implements PartitionDao {
 	private String chapterTitle = "";
 	private String chapterNumber = "";
 
+	private String sectionNumber = "";
+
 	public ChapterDao() {
 		clear();
 	}
 
 	public ChapterDao(final CountDao cdao) {
-		this.setChapterName(cdao.getChapterName());
-		this.setChapterNumber(cdao.getChapterNumber());
-		this.setChapterTitle(cdao.getChapterTitle());
-		// cdao.getNumChapters());
+		this.setChapterName(cdao.getName());
+		this.setChapterNumber(cdao.getNumber());
+		this.setChapterTitle(cdao.getTitle());
+		this.setSectionNumber(cdao.getParent());
 		this.setNumChars(cdao.getNumChars());
 		this.setNumLines(cdao.getNumLines());
 		this.setNumWords(cdao.getNumWords());
@@ -88,10 +90,19 @@ public class ChapterDao implements PartitionDao {
 		this.chapterTitle = chapterTitle;
 	}
 
+	public String getSectionNumber() {
+		return sectionNumber;
+	}
+
+	public void setSectionNumber(String sectionNumber) {
+		this.sectionNumber = sectionNumber;
+	}
+
 	public void clear() {
 		this.chapterName = null;
 		this.chapterTitle = null;
 		this.chapterNumber = "";
+		this.sectionNumber = "";
 		this.numChars = 0;
 		this.numLines = 0;
 		this.numWords = 0;
@@ -101,6 +112,7 @@ public class ChapterDao implements PartitionDao {
 		this.chapterName = cdao.chapterName;
 		this.chapterTitle = cdao.chapterTitle;
 		this.chapterNumber = cdao.chapterNumber;
+		this.sectionNumber = cdao.sectionNumber;
 		this.numChars = cdao.numChars;
 		this.numLines = cdao.numLines;
 		this.numWords = cdao.numWords;

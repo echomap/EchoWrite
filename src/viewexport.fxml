@@ -48,7 +48,7 @@
 				<Button onAction="#handleSelectNone" styleClass="selectnonebutton" text="Select _None" />
 				<Separator orientation="VERTICAL" />
             <Separator orientation="VERTICAL" />
-				<Button fx:id="buttonSave" onAction="#handleExport" styleClass="actionbutton" text="_Export Profiles" />
+				<Button fx:id="exportBtn" onAction="#handleExport" styleClass="actionbutton" text="_Export Profiles" />
 				<Button fx:id="closeBtn" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="closebutton" text="_Close" />
 			</children>
          <padding>

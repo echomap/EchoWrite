@@ -35,6 +35,7 @@ import com.echomap.kqf.looper.data.SimpleSectionDao;
  */
 public class FileLooperHandlerFormatter implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerFormatter.class);
+	public static final String WORKTYPE = "Formatter";
 
 	Writer fWriterHTML = null;
 	Writer fWriterPlain = null;
@@ -53,68 +54,82 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	File outputChapterDirText = null;
 	File outputSectionDir = null;
 
-	String formatOutputNumber = "%03d"; // TODO Param
+	String formatOutputNumber = "%03d"; // formatDao.getOutputFormatDigits();
 
 	public FileLooperHandlerFormatter() {
 
 	}
 
-	// @Override
-	// public String getWorkResult() {
-	// return workResult;
-	// }
-
 	@Override
 	public String getWorkType() {
-		return "Formatter";
+		return WORKTYPE;
 	}
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		LOGGER.info("handleLine-->");
-
-		LOGGER.info("Formatter...>");
-		LOGGER.info(formatDao);
-		LOGGER.info("\n" + formatDao.prettyPrint());
-		LOGGER.info("..>");
-
-		final int numDigits = formatDao.getOutputFormatDigits();
-		if (numDigits != 3 && numDigits > 0)
-			formatOutputNumber = "%0" + numDigits + "d";
-
-		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
-
-		final CountDao cdao = ldao.getChaptCount();
-		final CountDao tdao = ldao.getTotalCount();
-		if (chpt.isChapter) {
-			if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0) {
-				tdao.addNumWords(cdao.getNumWords());
-				ldao.getChapters().add(new ChapterDao(cdao));
-				cdao.clear();
-				tdao.addChapterCount(1);
-			}
-			cdao.setChapterName(chpt.name);
-			cdao.setChapterTitle(chpt.title);
-			String cn = Integer.toString(tdao.getCounter());
-			cdao.setChapterNumber(cn);// tdao.getNumChapters());
-			// formatLine(st, cdao, formatDao);
-		} else {
-			// TextBiz.isSection(line, miscDiv, isInSpecial);
-			// formatLine(st, cdao, formatDao);
-		}
-
-		// XXXX formatLine(formatDao, ldao, cdao, chpt);
-		// parseLine(st, fWriter, chapterDivider, storyTitle1,
-		// storyTitle2);
-		cdao.addOneToNumLines();
+		// if (ldao.getCurrentSection() != null &&
+		// ldao.getCurrentSection().isSection) {
+		// writeChapterData(formatDao, ldao, null);
+		// writeSectionData(formatDao, ldao);
+		// }
+		// final SimpleChapterDao chpt = ldao.getCurrentChapter();
+		// final CountDao cdao = ldao.getChaptCount();
+		// if (chpt.isChapter) {
+		// writeChapterData(formatDao, ldao, cdao);
+		// levelledCount = 0;
+		// }
+		// cdao.addOneToNumLines();
 	}
+
+	// @Override
+	// public void handleLine(final FormatDao formatDao, final LooperDao ldao)
+	// throws IOException {
+	// LOGGER.info("handleLine-->");
+	//
+	// LOGGER.info("Formatter...>");
+	// LOGGER.info(formatDao);
+	// LOGGER.info("\n" + formatDao.prettyPrint());
+	// LOGGER.info("..>");
+	//
+	// final int numDigits = formatDao.getOutputFormatDigits();
+	// if (numDigits != 3 && numDigits > 0)
+	// formatOutputNumber = "%0" + numDigits + "d";
+	//
+	// final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(),
+	// formatDao.getRegexpChapter());
+	//
+	// final CountDao cdao = ldao.getChaptCount();
+	// final CountDao tdao = ldao.getTotalCount();
+	// if (chpt.isChapter) {
+	// if (cdao.getChapterName() != null && cdao.getChapterName().length() > 0)
+	// {
+	// tdao.addNumWords(cdao.getNumWords());
+	// ldao.getChapters().add(new ChapterDao(cdao));
+	// cdao.clear();
+	// tdao.addChapterCount(1);
+	// }
+	// cdao.setChapterName(chpt.name);
+	// cdao.setChapterTitle(chpt.title);
+	// String cn = Integer.toString(tdao.getCounter());
+	// cdao.setChapterNumber(cn);// tdao.getNumChapters());
+	// // formatLine(st, cdao, formatDao);
+	// } else {
+	// // TextBiz.isSection(line, miscDiv, isInSpecial);
+	// // formatLine(st, cdao, formatDao);
+	// }
+	//
+	// // XXXX formatLine(formatDao, ldao, cdao, chpt);
+	// // parseLine(st, fWriter, chapterDivider, storyTitle1,
+	// // storyTitle2);
+	// cdao.addOneToNumLines();
+	// }
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		// LOGGER.debug("handleDocTag: xx ");
 		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
 		final CountDao cdao = ldao.getChaptCount();
-		final DocTagLine docTagLine = ldao.getCurrentDocTagLine();
+		final DocTagLine docTagLine = ldao.getLineDocTagLine();
 		if (!docTagLine.isLongDocTag() && !docTagLine.isOnlyDoctag())
 			formatLine(formatDao, ldao, cdao, chpt);
 	}
@@ -123,7 +138,6 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
 		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
 		final CountDao cdao = ldao.getChaptCount();
-
 		formatLine(formatDao, ldao, cdao, chpt);
 	}
 
@@ -176,6 +190,11 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	@Override
 	public void preHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.debug("preHandler-->");
+
+		final int numDigits = formatDao.getOutputFormatDigits();
+		if (numDigits != 3 && numDigits > 0)
+			formatOutputNumber = "%0" + numDigits + "d";
+
 		if (formatDao.getFormatMode() == null) {
 			formatMode = new MobiMode();
 		} else if (formatDao.getFormatMode().toLowerCase().compareTo("sigil") == 0) {
@@ -228,7 +247,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 			// fWriter = new FileWriter(outputFile, false);
 			fWriterHTML = new OutputStreamWriter(new FileOutputStream(outputFileHTML), selCharSet);
 		}
-		//Why am I renaming the extension to TXT, was it a problem once?
+		// Why am I renaming the extension to TXT, was it a problem once?
 		if (outputDirHTML != null) {
 			String outFilename = null;
 			final String filenameOnly = outputFileHTML.getName();
@@ -267,7 +286,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 		String preTag = "";
 		String postTag = null;
 
-		final DocTagLine docTagLine = ldao.getCurrentDocTagLine();
+		final DocTagLine docTagLine = ldao.getLineDocTagLine();
 		String st = docTagLine.getBareLine();
 		if (st == null)
 			return;
@@ -528,7 +547,7 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 				}
 			}
 			if (chapterWriter != null) {
-				// TODO REMOVE
+				// TODO REMOVE?
 				chapterWriter.flush();
 				fWriterHTML.flush();
 			}

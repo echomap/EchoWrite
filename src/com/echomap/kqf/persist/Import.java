@@ -22,7 +22,9 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -115,6 +117,28 @@ public class Import {
 		return gson2.toJson(pdList);
 	}
 
+	// //
+	// https://stackoverflow.com/questions/47193364/using-gson-convert-java-object-into-jsonobject
+	// private JsonObject convertProfileToJSON(final Profile selProfile) {
+	// // final Gson gson2 = new
+	// // GsonBuilder().setPrettyPrinting().serializeNulls()
+	// // .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+	// // Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'
+	// // 'HH:mm:ss").create();
+	// JsonElement jsonElement = gson2.toJsonTree(selProfile);
+	// JsonObject jsonObject = (JsonObject) jsonElement;
+	// return jsonObject;
+	// }
+	// //
+	// https://stackoverflow.com/questions/47193364/using-gson-convert-java-object-into-jsonobject
+	// private JsonObject convertProfileFromJSON(final JsonArray profileDataset)
+	// {
+	// JsonElement jsonElement = gson2.fromJson(json,
+	// typeOfT)toJsonTree(selProfile);
+	// JsonObject jsonObject = (JsonObject) jsonElement;
+	// return jsonObject;
+	// }
+
 	// https://stackoverflow.com/questions/47193364/using-gson-convert-java-object-into-jsonobject
 	private List<Profile> convertJSONToProfile(final JsonArray profileDataset) {
 		final Type listOfTestObject = new TypeToken<List<Profile>>() {
@@ -176,19 +200,42 @@ public class Import {
 	private JsonArray readProfiles(final JsonReader reader) throws IOException {
 		LOGGER.debug("readProfiles: Called");
 		final JsonArray exportProfiles = new JsonArray();
-		reader.beginArray();
-		while (reader.hasNext()) {
-			// reader.beginObject();
-			// while (reader.hasNext()) {
-			// String objectNewsName = reader.nextName();
-			final JsonObject jo = readProfileItem(reader);
-			jo.addProperty("exists", false);
-			jo.addProperty("import", false);
-			exportProfiles.add(jo);
-			// }
-			// reader.endObject();
+
+		JsonParser parser = new JsonParser();
+		JsonElement tree = parser.parse(reader);
+		JsonArray array = tree.getAsJsonArray();
+		for (JsonElement element : array) {
+			if (element.isJsonObject()) {
+				JsonObject car = element.getAsJsonObject();
+				System.out.println("********************");
+				System.out.println(car.get("Key").getAsString());
+				System.out.println(car.get("MainTitle").getAsString());
+				System.out.println(car.get("InputFile").getAsString());
+				if (car.has("Outputs") 
+					&& !car.get("Outputs").isJsonNull()) {
+					final JsonArray cols = car.getAsJsonArray("Outputs");
+					cols.forEach(col -> {
+						System.out.println(col);
+					});
+				}
+				exportProfiles.add(element);
+			}
 		}
-		reader.endArray();
+		//
+		// final JsonArray exportProfiles = new JsonArray();
+		// reader.beginArray();
+		// while (reader.hasNext()) {
+		// // reader.beginObject();
+		// // while (reader.hasNext()) {
+		// // String objectNewsName = reader.nextName();
+		// final JsonObject jo = readProfileItem(reader);
+		// jo.addProperty("exists", false);
+		// jo.addProperty("import", false);
+		// exportProfiles.add(jo);
+		// // }
+		// // reader.endObject();
+		// }
+		// reader.endArray();
 		LOGGER.debug("readProfiles: Done");
 		return exportProfiles;
 	}

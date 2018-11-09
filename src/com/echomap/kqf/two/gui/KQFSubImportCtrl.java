@@ -251,7 +251,7 @@ public class KQFSubImportCtrl extends KQFSubBaseExportCtrl {
 			} else if (objectNewsDataName.equals("filePrefixCheckbox")) {
 				dataset.addProperty(objectNewsDataName, reader.nextBoolean());
 			} else if (objectNewsDataName.equals(XferBiz.PROFILE_DATA)) {
-				// TODO Really WORKING? XXX
+				// 
 				// dataset.add(XferBiz.PROFILE_DATA, reader.nex);
 				final JsonObject pdata = readProfileDataSection(reader);
 				final JsonArray pdList = pdata.getAsJsonArray("list");

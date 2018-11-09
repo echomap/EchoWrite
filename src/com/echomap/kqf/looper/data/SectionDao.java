@@ -16,6 +16,16 @@ public class SectionDao implements PartitionDao {
 		clear();
 	}
 
+	public SectionDao(final SimpleSectionDao ssDao) {
+		clear();
+		this.setName(ssDao.sname);
+		this.setNumber(ssDao.snum);
+		this.setTitle(ssDao.title);
+		// this.setNumChars(ssDao.getNumChars());
+		// this.setNumLines(ssDao.getNumLines());
+		// this.setNumWords(ssDao.getNumWords());
+	}
+
 	public SectionDao(final SectionDao cdao) {
 		this.setName(cdao.getName());
 		this.setNumber(cdao.getNumber());

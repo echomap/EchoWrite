@@ -17,6 +17,7 @@
 	<property name="includeantruntime" value="false" />
 
 	<property name="dir.src" value="./src" />
+	<property name="dir.test" value="./test" />
 	<property name="dir.build" value="./build" />
 	<property name="dir.build.classes" value="${dir.build}/classes" />
 	<property name="dir.build.config" value="${dir.build}/config" />

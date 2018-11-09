@@ -150,7 +150,8 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 
 	@Override
 	void doCleanup() {
-		// TODO Auto-generated method stub
+		// MAYBE: Anything to do here?
+		// if(profileManager!=null)profileManager.close();
 	}
 
 	@Override
@@ -222,7 +223,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 			showPopupMessage("Error", "Nothing selected to delete", true);
 			return;
 		}
-		// TODO
+		//
 		final ConfirmResultDelete confirmResultDelete = new ConfirmResultDelete();
 		showConfirmDialog("Delete?", "Really Delete?", confirmResultDelete);
 		LOGGER.debug("handleDelete: Done");
@@ -278,24 +279,26 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleExport: Called");
 
-//		try {
-			final File cFile = chooseFile(event, "Choose Export File", null, selectedProfile.getKey() + "_more.json",
-					"JSON");
-			if (cFile == null) {
-				showPopupMessage("Failed", "No file selected.", false);
-				return;
-			}
-//
-//			// final Charset selCharSet = formatDao.getCharSet();
-//			final Export export1 = new Export();
-//			@SuppressWarnings("unchecked")
-//			final File outputFilePlain = export1.doExportMoreFiles(inputFile.getText(), inputTable.getItems(),
-//					this.appProps, this.appPreferences, profileManager);
-//			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
-//		} catch (IOException e) {
-//			LOGGER.error(e);
-//			showPopupMessage("Export Error", e.getMessage(), true);
-//		}
+		// try {
+		final File cFile = chooseFile(event, "Choose Export File", null, selectedProfile.getKey() + "_more.json",
+				FILTERTYPE.JSON);
+		if (cFile == null) {
+			showPopupMessage("Failed", "No file selected.", false);
+			return;
+		}
+		//
+		// // final Charset selCharSet = formatDao.getCharSet();
+		// final Export export1 = new Export();
+		// @SuppressWarnings("unchecked")
+		// final File outputFilePlain =
+		// export1.doExportMoreFiles(inputFile.getText(), inputTable.getItems(),
+		// this.appProps, this.appPreferences, profileManager);
+		// showPopupMessage("Export Done!", "Export Done! Written to '" +
+		// outputFilePlain + "'", false);
+		// } catch (IOException e) {
+		// LOGGER.error(e);
+		// showPopupMessage("Export Error", e.getMessage(), true);
+		// }
 
 		LOGGER.debug("handleExport: Done");
 	}

@@ -25,6 +25,7 @@ import com.echomap.kqf.looper.data.SimpleSectionDao;
  */
 public class FileLooperHandlerCount implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerCount.class);
+	public static final String WORKTYPE = "Counter";
 
 	// String workResult = null;
 
@@ -34,7 +35,7 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public String getWorkType() {
-		return "Counter";
+		return WORKTYPE;
 	}
 
 	// @Override
@@ -59,26 +60,20 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleDocTagNotTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
+		LOGGER.debug("CDTL: " + ldao.getLineDocTagLine());
 
-		final SimpleSectionDao sect = ldao.getCurrentSection();
-		final SimpleChapterDao chpt = ldao.getCurrentChapter();
-		// final DocTagLine dttGL = ldao.getCurrentDocTagLine();
+		final SimpleSectionDao sect = ldao.getLineSection();
+		final SimpleChapterDao chpt = ldao.getLineChapter();
 		final CountDao cdao = ldao.getChaptCount();
-		// final CountDao tdao = ldao.getTotalCount();
-		LOGGER.debug("CDTL: '" + ldao.getCurrentDocTagLine().getLine() + "'");
-
 		if (sect.isSection) {
-			// TODO SECTIONS!!
 			// cdao.setSectionNumber(sect.snum);
 		} else if (chpt.isChapter) {
-			// final String cn = Integer.toString(tdao.getCounter());
-			// cdao.setChapterNumber(cn);
-			cdao.setChapterNumber(chpt.chpNum);
+			// cdao.setChapterNumber(chpt.chpNum);
+			// cdao.setSectionNumber(sect.snum);
 		} else {
 			TextBiz.countWords(ldao, cdao, formatDao);
 		}
-		cdao.addOneToNumLines();
+		// cdao.addOneToNumLines();
 	}
 
 	// @Override
@@ -95,13 +90,13 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	@Override
 	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.info("postHandler-->");
-		// outputSummaryOutputFile(summaryOut, outputDir, chapters);
 		Integer totalWords = 0;
 		for (ChapterDao cdao : ldao.getChapters()) {
 			LOGGER.debug("cdao = " + cdao);
 			totalWords += cdao.getNumWords();
 		}
 		LOGGER.debug("TotalWords: " + totalWords.toString());
+		// outputSummaryOutputFile(summaryOut, outputDir, chapters);
 		outputSummaryOutputFile(formatDao.getOutputCountFile(), null, ldao.getChapters(), formatDao);
 		LOGGER.debug("Version:, " + formatDao.getVersion());
 		// TODO format with commas...
@@ -146,13 +141,13 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 			fWriter = new OutputStreamWriter(new FileOutputStream(summaryOutputFile), selCharSet);
 
 			// fWriter = new FileWriter(summaryOutputFile, false);
-			fWriter.write("Chapter,Words,Title,Chars,Lines");
+			fWriter.write("Chapter,Words,Title,Chars,Lines,Section");
 			fWriter.write(TextBiz.newLine);
 			for (ChapterDao countDao : chapters) {
 				// TODO format for leading zeros?
 				fWriter.write(countDao.getChapterName() + " " + countDao.getChapterNumber() + ","
 						+ countDao.getNumWords() + "," + countDao.getChapterTitle() + "," + countDao.getNumChars() + ","
-						+ countDao.getNumLines());
+						+ countDao.getNumLines() + "," + countDao.getSectionNumber());
 				fWriter.write(TextBiz.newLine);
 				totalWords += countDao.getNumWords();
 			}

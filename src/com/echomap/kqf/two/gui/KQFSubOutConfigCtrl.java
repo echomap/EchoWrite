@@ -342,7 +342,7 @@ public class KQFSubOutConfigCtrl extends KQFBaseCtrl {
 		}
 		LOGGER.debug("loadDataFromSelect: selItem = " + selItem);
 		if (selItem != null) {
-			// TODO!!
+			// 
 			// final Map<String, DocTagDataOption> optionList =
 			// selItem.getOptions();
 			//

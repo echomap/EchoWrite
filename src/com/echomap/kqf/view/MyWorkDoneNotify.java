@@ -147,6 +147,7 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 			@Override
 			public void run() {
 				showMessage("Error running " + msg + " Process (" + BaseCtrl.getCurrentDateFmt() + ")\n" + e, false);
+				//TODO show more of the exception?
 				LOGGER.error(e);
 				workFinishedCallback.workFinished("");
 				// unlockGui();

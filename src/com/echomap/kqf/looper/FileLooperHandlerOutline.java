@@ -42,6 +42,8 @@ import com.echomap.kqf.looper.data.SimpleSectionDao;
  * @author mkatz
  */
 public class FileLooperHandlerOutline implements FileLooperHandler {
+	public static final String WORKTYPE = "Outliner";
+
 	private static final String START_STRING2 = " (";
 
 	private static final String END_STRING2 = ") =-";
@@ -93,7 +95,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	@Override
 	public String getWorkType() {
-		return "Outliner";
+		return WORKTYPE;
 	}
 
 	@Override
@@ -103,25 +105,24 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		if (ldao.getCurrentSection() != null && ldao.getCurrentSection().isSection) {
+		if (ldao.getLineSection() != null && ldao.getLineSection().isSection) {
 			writeChapterData(formatDao, ldao, null);
 			writeSectionData(formatDao, ldao);
 		}
-		final SimpleChapterDao chpt = ldao.getCurrentChapter();
+		final SimpleChapterDao chpt = ldao.getLineChapter();
 		final CountDao cdao = ldao.getChaptCount();
 		if (chpt.isChapter) {
 			writeChapterData(formatDao, ldao, cdao);
 			levelledCount = 0;
 		}
-		cdao.addOneToNumLines();
-
+		// cdao.addOneToNumLines();
 	}
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		LOGGER.debug("CDTL: " + ldao.getCurrentDocTagLine());
+		LOGGER.debug("CDTL: " + ldao.getLineDocTagLine());
 
-		dttGL = ldao.getCurrentDocTagLine();
+		dttGL = ldao.getLineDocTagLine();
 		final CountDao cdao = ldao.getChaptCount();
 
 		if (dttGL.isHasDocTag()) {
@@ -226,7 +227,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	// }
 
 	private void writeSectionData(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		final SimpleSectionDao ssd = ldao.getCurrentSection();
+		final SimpleSectionDao ssd = ldao.getLineSection();
 		if (!ssd.isSection)
 			return;
 		// String nameS = ssd.sname;
@@ -271,14 +272,15 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
 			// tdao.getChapterNumber() > -1)
 			fWriterOutlineFile.write(TextBiz.newLine);
-			final String cnumS = cdao.getChapterNumber();
+			final String cnumS = cdao.getNumber();
 			final String volume = formatDao.getVolume();
 			final String volStr = (volume == null ? "" : volume + ".");
 			// TODO from formatDao
 			if (formatDao.isIncludeChapterName()) {
 				final String fmtS = String.format("%s%s%s%s%s) [%s]%s", CHAPTER, cnumS, START_STRING2, volStr, cnumS,
-						ldao.getCurrentChapter().title, END_STRING);
-				// final String fmtS = String.format("-= Chapter %s (%s%s) [%s] =-",
+						ldao.getLineChapter().title, END_STRING);
+				// final String fmtS = String.format("-= Chapter %s (%s%s) [%s]
+				// =-",
 				// cnumS, volStr, cnumS,ldao.getCurrentChapter().title);
 				fWriterOutlineFile.write(fmtS);
 				// fWriterOutlineFile.write(CHAPTER + cnumS + START_STRING2 +
@@ -307,7 +309,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// TODO only for non-first if (cdao.getChapterNumber() > -1)// &&
 			// tdao.getChapterNumber() > -1)
 			fWriterSceneFile.write(TextBiz.newLine);
-			String cnumS = cdao.getChapterNumber();
+			String cnumS = cdao.getNumber();
 
 			final String volume = formatDao.getVolume();
 			final String volStr = (volume == null ? "" : volume + ".");
@@ -317,7 +319,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		}
 		if (fWriterOther1File != null && cdao != null) {
 			fWriterOther1File.write(TextBiz.newLine);
-			final String cnumS = cdao.getChapterNumber();
+			final String cnumS = cdao.getNumber();
 			final String volume = formatDao.getVolume();
 			final String volStr = (volume == null ? "" : volume + ".");
 			fWriterOther1File.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
@@ -329,7 +331,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			BufferedWriter bw = entry.getValue();
 			if (bw != null && cdao != null) {
 				bw.write(TextBiz.newLine);
-				final String cnumS = cdao.getChapterNumber();
+				final String cnumS = cdao.getNumber();
 				final String volume = formatDao.getVolume();
 				final String volStr = (volume == null ? "" : volume + ".");
 				bw.write(CHAPTER + cnumS + START_STRING2 + volStr + cnumS + END_STRING2);
@@ -628,7 +630,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			final DocTagLine docTagLine) throws IOException {
 		if (fWriterL == null)
 			return;
-		fWriterL.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
+		fWriterL.write(String.valueOf(cdao.getNumber()));// chapterCount));
 		fWriterL.write(",");
 		fWriterL.write(String.valueOf(docTagLine.getLineCount()));
 		fWriterL.write(",");
@@ -658,8 +660,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			final Matcher m = p.matcher(docTag.getFullText());
 			if (m.matches()) {
 				if (m.groupCount() > 2) {
-					String gr0 = m.group();
-					String gr1 = m.group("dname");
+					// String gr0 = m.group();
+					// String gr1 = m.group("dname");
 					String gr2 = m.group("dhdr");
 					String gr3 = m.group("drest");
 
@@ -712,7 +714,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	private void writeEntryToCSV2(final Writer fWriterL, final String lineCount, final CountDao cdao,
 			final String fullText1, final String fullText2) throws IOException {
-		fWriterL.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
+		fWriterL.write(String.valueOf(cdao.getNumber()));// chapterCount));
 		fWriterL.write(",");
 		fWriterL.write(lineCount);
 		fWriterL.write(",");
@@ -729,7 +731,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	private void writeEntryToCSV2B(final Writer fWriterL, final String lineCount, final CountDao cdao,
 			final String tagName, final String subTagName, final String tagValue) throws IOException {
-		fWriterL.write(String.valueOf(cdao.getChapterNumber()));// chapterCount));
+		fWriterL.write(String.valueOf(cdao.getNumber()));// chapterCount));
 		fWriterL.write(",");
 		fWriterL.write(lineCount);
 		fWriterL.write(",");
@@ -765,7 +767,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			final String mVal = (m.group("value") == null ? "" : m.group("value"));
 			LOGGER.debug("group #" + i + ": [" + (gr == null ? "null" : gr.trim()) + "]");
 			if (gr != null && !StringUtils.isEmpty(mKey)) {
-				fWriterL.write(String.valueOf(cdao.getChapterNumber()));
+				fWriterL.write(String.valueOf(cdao.getNumber()));
 				fWriterL.write(",");
 				fWriterL.write(lineCount);
 				fWriterL.write(",");
@@ -948,12 +950,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				}
 			}
 			int maxkeylengthIC = 6;
-			for (String key : keysC) {
-				Integer iC = tagsCount.get(key);
-				// TODO
-				// if (iC. > maxkeylengthC)
-				// maxkeylengthIC = key.length();
-			}
+			// for (String key : keysC) {
+			// Integer iC = tagsCount.get(key);
+			// // if (iC. > maxkeylengthC)
+			// // maxkeylengthIC = key.length();
+			// }
 			for (String key : allKeys) {
 				if (key.length() > maxkeylengthU)
 					maxkeylengthU = key.length();
@@ -1103,6 +1104,9 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			sb.append(docTag);
 			sb.append(", ");
 		}
+		if (sb.length() < 1)
+			return "";
+		// LOGGER.debug("cds='" + sb + "'");
 		sb.setLength(sb.length() - 2);
 		return sb.toString();
 	}
@@ -1185,16 +1189,16 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		final File inFile = new File(formatDao.getInputFilename());
 		final File inFilePath = inFile.getParentFile();
 		final String filePrefix = formatDao.getFilePrefix();
-		File notUsedFile = null;
-		if (!StringUtils.isBlank(filePrefix))
-			notUsedFile = new File(inFilePath, filePrefix + "DocTagsNotUsed.txt");
-		else
-			notUsedFile = new File(inFilePath, "DocTagsNotUsed.txt");
-		// fWriterNotUsedFile = Files.newBufferedWriter(notUsedFile.toPath(),
-		// selCharSet, StandardOpenOption.CREATE,
-		// StandardOpenOption.TRUNCATE_EXISTING);
-		fWriterNotUsedFile = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(notUsedFile.toPath(),
-				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING), selCharSet));
+		// File notUsedFile = null;
+		// if (!StringUtils.isBlank(filePrefix))
+		// notUsedFile = new File(inFilePath, filePrefix +
+		// "DocTagsNotUsed.txt");
+		// else
+		// notUsedFile = new File(inFilePath, "DocTagsNotUsed.txt");
+		// fWriterNotUsedFile = new BufferedWriter(new
+		// OutputStreamWriter(Files.newOutputStream(notUsedFile.toPath(),
+		// StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
+		// selCharSet));
 
 		File docTagReportFile = null;
 		if (!StringUtils.isBlank(filePrefix))

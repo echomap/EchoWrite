@@ -462,7 +462,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	public void handleProfileSelectSeriesAction(final ActionEvent event) {
 		LOGGER.debug("handleProfileSelectSeriesAction: Called");
 		if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
-			// TODO SERIES
+			//  SERIES
 		}
 		LOGGER.debug("handleProfileSelectSeriesAction: Done");
 	}

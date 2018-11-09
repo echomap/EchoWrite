@@ -16,6 +16,9 @@ import org.apache.log4j.Logger;
 import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.Profile;
+import com.echomap.kqf.looper.FileLooperHandlerCount;
+import com.echomap.kqf.looper.FileLooperHandlerFormatter;
+import com.echomap.kqf.looper.FileLooperHandlerOutline;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -244,14 +247,15 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	void unlockGui(final String process) {
 		unlockGui();
 		if (!StringUtils.isEmpty(process)) {
-			if ("Counter".compareTo(process) == 0) {
+			if (FileLooperHandlerCount.WORKTYPE.compareTo(process) == 0) {
 				btnRunWordCounter.setDisable(false);
-			} else if ("Outliner".compareTo(process) == 0) {
+			} else if (FileLooperHandlerOutline.WORKTYPE.compareTo(process) == 0) {
 				btnRunOutliner.setDisable(false);
-			} else if ("Formattre".compareTo(process) == 0) {
+			} else if (FileLooperHandlerFormatter.WORKTYPE.compareTo(process) == 0) {
 				btnRunFormatter.setDisable(false);
 			}
 		}
+
 	}
 
 	@Override
@@ -476,7 +480,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	public void handleBrowseFmtSingleFile(final ActionEvent event) {
 		LOGGER.debug("handleBrowseFmtSingleFile: Called");
 		final String inFileName = getInputFileName("html");
-		chooseFile(event, "Single HTML Format File", outputFormatSingleFileText, inFileName, "HTML");
+		chooseFile(event, "Single HTML Format File", outputFormatSingleFileText, inFileName, FILTERTYPE.HTML);
 		LOGGER.debug("handleBrowseFmtSingleFile: Done");
 	}
 
@@ -510,7 +514,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	public void handleOutlineOutlineCSV(final ActionEvent event) {
 		LOGGER.debug("handleOutlineOutlineCSV: Called");
 		final String inFileName = getInputFileName("Outline", "csv");
-		chooseFile(event, "Output All, CSV File", outputOutlineCSVFileText, inFileName, "CSV");
+		chooseFile(event, "Output All, CSV File", outputOutlineCSVFileText, inFileName, FILTERTYPE.CSV);
 		LOGGER.debug("handleOutlineOutlineCSV: Done");
 	}
 
@@ -518,7 +522,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	public void handleOutputOutlineCSVAll(final ActionEvent event) {
 		LOGGER.debug("handleOutputOutlineCSVAll: Called");
 		final String inFileName = getInputFileName("DocTags", "csv");
-		chooseFile(event, "Output All, CSV File", outputOutlineAllCSVFileText, inFileName, "CSV");
+		chooseFile(event, "Output All, CSV File", outputOutlineAllCSVFileText, inFileName, FILTERTYPE.CSV);
 		LOGGER.debug("handleOutputOutlineCSVAll: Done");
 	}
 
@@ -526,7 +530,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	public void handleOutputOutlineFile(final ActionEvent event) {
 		LOGGER.debug("handleOutputOutlineFile: Called");
 		final String inFileName = getInputFileName("outline", "txt");
-		chooseFile(event, "Output All, CSV File", outputDocTagsOutlineFileText, inFileName, "TXT");
+		chooseFile(event, "Output All, CSV File", outputDocTagsOutlineFileText, inFileName, FILTERTYPE.TEXT);
 		LOGGER.debug("handleOutputOutlineFile: Done");
 	}
 
@@ -534,7 +538,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	public void handleOutputSceneFile(final ActionEvent event) {
 		LOGGER.debug("handleOutputSceneFile: Called");
 		final String inFileName = getInputFileName("scenes", "txt");
-		chooseFile(event, "Output All, CSV File", outputDocTagsSceneFileText, inFileName, "TXT");
+		chooseFile(event, "Output All, CSV File", outputDocTagsSceneFileText, inFileName, FILTERTYPE.TEXT);
 		LOGGER.debug("handleOutputSceneFile: Done");
 	}
 

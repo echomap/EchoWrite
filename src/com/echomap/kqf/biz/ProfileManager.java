@@ -1,5 +1,6 @@
 package com.echomap.kqf.biz;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
@@ -109,12 +110,18 @@ public class ProfileManager {
 				final Profile profile = persist2.convertFromV1toV2(profileData);
 				profiles.add(profile);
 			}
-
-		} else {
+			return true;
+		} else if (v2Status == 1) {
+			LOGGER.info("Load V2 data");
 			// Load V2
-			// Check Version
+			final ProfilePersistV2 persist2 = new ProfilePersistV2();
+			final List<Profile> profileDataList = persist2.getProfiles();
+			for (Profile profile : profileDataList) {
+				LOGGER.debug("Persist profile=" + profile);
+				profiles.add(profile);
+			}
+			return true;
 		}
-
 		return false;
 	}
 
@@ -163,25 +170,31 @@ public class ProfileManager {
 		return status;
 	}
 
+	private void resetStatus() {
+		this.wasError = false;
+		this.messages.clear();
+	}
+
 	private void resetData() {
 		this.wasError = false;
 		this.profiles.clear();
 		this.messages.clear();
 	}
 
-	public void setupDao(final FormatDao formatDao, final String selectedProfileKey) {
+	public void setupDao(final FormatDao formatDao, final String selectedProfileKey) throws IOException {
 		LOGGER.debug("setupDao: Called");
 		final Profile selectedProfile = selectProfileByMainTitle(selectedProfileKey);
 		setupDao(formatDao, selectedProfile);
 	}
 
-	public void setupDao(final FormatDao formatDao, final Profile selectedProfile) {
+	public void setupDao(final FormatDao formatDao, final Profile selectedProfile) throws IOException {
 		LOGGER.debug("setupDao: Called");
 
 		if (selectedProfile == null) {
 			LOGGER.debug("Please select a profile before running!!");
-			// TODO throw exception
-			return;
+			// 
+			throw new IOException("Please select a profile before running!!");
+			// return;
 		}
 		final ProfilePersistV2 persist = new ProfilePersistV2();
 		persist.setupDao(formatDao, selectedProfile, appVersion);
@@ -191,7 +204,7 @@ public class ProfileManager {
 		Profile selectedProfile = null;
 		final List<Profile> profiles = getProfiles();
 		for (Profile profile : profiles) {
-			if (profile.getMainTitle().compareTo(profileKey) == 0) {
+			if (profile.getMainTitle().trim().compareTo(profileKey.trim()) == 0) {
 				selectedProfile = profile;
 				break;
 			}
@@ -213,7 +226,7 @@ public class ProfileManager {
 
 	public void saveProfileData(final Profile profile) {
 		LOGGER.debug("loadProfileData: Called");
-		resetData();
+		resetStatus();
 
 		LOGGER.debug("Check status of Profile V1");
 		int v1Status = checkProfileStatus(userPrefsV1);
@@ -250,12 +263,13 @@ public class ProfileManager {
 			// Load V2
 			// Check Version
 		}
+		loadProfileData();// TODO ix so refresh not necessary
 		LOGGER.debug("loadProfileData: Done");
 	}
 
 	public void deleteProfile(final Profile profile) {
 		LOGGER.debug("deleteProfileByKey: Called");
-		resetData();
+		resetStatus();
 
 		LOGGER.debug("Check status of Profile V1");
 		int v1Status = checkProfileStatus(userPrefsV1);
@@ -287,12 +301,13 @@ public class ProfileManager {
 			// Load V2
 			// Check Version
 		}
+		loadProfileData();// TODO ix so refresh not necessary
 		LOGGER.debug("deleteProfileByKey: Done");
 	}
 
 	public void renameProfile(final Profile profile, final String newKey) {
 		LOGGER.debug("renameProfile: Called");
-		resetData();
+		resetStatus();
 
 		LOGGER.debug("Check status of Profile V1");
 		int v1Status = checkProfileStatus(userPrefsV1);
@@ -312,7 +327,7 @@ public class ProfileManager {
 				LOGGER.debug("Persist error? " + persist.isWasError());
 				final List<String> mgs = persist.getMessages();
 				if (mgs != null) {
-					for (String msg : mgs) {
+					for (final String msg : mgs) {
 						LOGGER.debug("Persist msg?" + msg);
 					}
 				}
@@ -326,6 +341,7 @@ public class ProfileManager {
 			// Load V2
 			// Check Version
 		}
+		loadProfileData();// TODO ix so refresh not necessary
 		LOGGER.debug("renameProfile: Done");
 	}
 

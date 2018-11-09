@@ -62,6 +62,8 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 	private Button closeBtn;
 	@FXML
 	private Button browseBtn;
+	@FXML
+	private Button exportBtn;
 
 	/**
 	 * 
@@ -257,14 +259,16 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 	@Override
 	void doCleanup() {
-		// TODO
+		// MAYBE: anything to cleanup?
 	}
 
 	@Override
 	void lockGui() {
-		lockAllButtons(outerMostContainer);
-		closeBtn.setDisable(false);
-		browseBtn.setDisable(false);
+		// unlockAllButtons(outerMostContainer);
+		exportBtn.setDisable(true);
+		// lockAllButtons(outerMostContainer);
+		// closeBtn.setDisable(false);
+		// browseBtn.setDisable(false);
 	}
 
 	@Override
@@ -272,9 +276,6 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 		unlockAllButtons(outerMostContainer);
 	}
 
-	// void unlox ckGuiForImport() {
-	// importFileBtn.setDisable(false);
-	// }
 	public void handleSelectAll(final ActionEvent event) {
 		LOGGER.debug("handleSelectAll: Called");
 		@SuppressWarnings("unchecked")
@@ -303,9 +304,7 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 	public void handleExport(final ActionEvent event) {
 		LOGGER.debug("handleExport: Called");
-
 		try {
-			// final Charset selCharSet = formatDao.getCharSet();
 			final Export export1 = new Export();
 			@SuppressWarnings("unchecked")
 			final File outputFilePlain = export1.doExportProfiles(inputFile.getText(), inputTable.getItems(),
@@ -330,7 +329,7 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 	public void handleBrowse(final ActionEvent event) {
 		LOGGER.debug("handleBrowse: Called");
-		final File file = chooseFile(event, "Export File", inputFile, "ProfileExport.json", "JSON");
+		final File file = chooseFile(event, "Export File", inputFile, "ProfileExport.json", FILTERTYPE.JSON);
 		if (file != null) {
 			unlockGui();
 		}

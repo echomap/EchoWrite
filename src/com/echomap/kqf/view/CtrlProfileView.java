@@ -252,7 +252,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				btnRunWordCounter.setDisable(false);
 			} else if ("Outliner".compareTo(process) == 0) {
 				btnRunOutliner.setDisable(false);
-			} else if ("Formattre".compareTo(process) == 0) {
+			} else if ("Formatter".compareTo(process) == 0) {
 				btnRunFormatter.setDisable(false);
 			}
 		}
@@ -600,7 +600,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 
 	public void handleProfileRenameEdit(final ActionEvent event) {
 		LOGGER.debug("handleProfileRenameEdit: Called");
-		// TODO
+		//
 		profileManager.renameProfile(selectedProfile, inputProfileKey.getText());
 		refreshData();
 		LOGGER.debug("handleProfileRenameEdit: Done");
@@ -654,6 +654,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		// setupTable();
 		profileManager.loadProfileData();
 		loadTableData();
+		showMessage("--Refreshed Profile Data--", false);
 		LOGGER.debug("handleRefreshProfiles: Done");
 	}
 
@@ -814,6 +815,6 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	}
 
 	/*
-	 * XXX Functions
+	 * XYX Functions
 	 */
 }

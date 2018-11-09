@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.XferBiz;
 import com.echomap.kqf.data.OtherDocTagData;
-import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -349,7 +348,7 @@ public class ProfilePersistV1 {
 
 	public void renameProfile(final ProfileData profileData, final String oldKey, final String newKey)
 			throws BackingStoreException {
-		LOGGER.debug("renameProfile: Called.");
+		LOGGER.debug("renameProfile: Called. oldKey='" + oldKey + " newKey='" + newKey + "'");
 		boolean childDeleted = false;
 
 		final Preferences childOld = userPrefs.node(oldKey);
@@ -358,6 +357,8 @@ public class ProfilePersistV1 {
 			childDeleted = true;
 			profileData.setKey(newKey);
 			this.saveProfiles(profileData);
+		} else {
+			LOGGER.warn("renameProfile: Child with old key not found!");
 		}
 		userPrefs.flush();
 

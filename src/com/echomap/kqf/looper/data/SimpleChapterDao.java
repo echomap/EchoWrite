@@ -6,6 +6,7 @@ public class SimpleChapterDao implements SimpleTypeDao {
 	// public int numerical = -1;
 	public String chpNum = null;
 	public String title = null;
+	public String sectionnum = null;
 
 	public SimpleChapterDao() {
 

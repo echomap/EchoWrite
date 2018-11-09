@@ -1,5 +1,9 @@
 package com.echomap.kqf.looper.data;
 
+/**
+ * @author mkatz
+ *
+ */
 public class CountDao {
 	private int numChars = 0;
 	private int numWords = 0;
@@ -7,9 +11,11 @@ public class CountDao {
 	private int counter = -1;
 	// private int numChapters = -1;
 
-	private String chapterName = "";
-	private String chapterTitle = "";
-	private String chapterNumber = "";
+	private String name = "";
+	private String title = "";
+	private String number = "";
+
+	private String parent = "";
 
 	public CountDao() {
 		clear();
@@ -39,47 +45,56 @@ public class CountDao {
 		this.numWords = numWords;
 	}
 
-	public String getChapterName() {
-		return chapterName;
+	public String getName() {
+		return name;
 	}
 
-	public void setChapterName(String chapterName) {
-		this.chapterName = chapterName;
+	public void setName(String cName) {
+		this.name = cName;
 	}
 
-	public String getChapterNumber() {
-		return chapterNumber;
+	public String getNumber() {
+		return number;
 	}
 
-	public void setChapterNumber(String chapterNumber) {
-		this.chapterNumber = chapterNumber;
+	public void setNumber(String chapterNumber) {
+		this.number = chapterNumber;
 	}
 
-	public String getChapterTitle() {
-		return chapterTitle;
+	public String getParent() {
+		return parent;
+	}
+
+	public void setParent(String parent) {
+		this.parent = parent;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 
 	public String getQuotedChapterTitle() {
-		if (chapterTitle != null) {
-			chapterTitle = chapterTitle.trim();
-			if (!chapterTitle.startsWith("\"")) {
-				chapterTitle = "\"" + chapterTitle;
+		if (title != null) {
+			title = title.trim();
+			if (!title.startsWith("\"")) {
+				title = "\"" + title;
 			}
-			if (!chapterTitle.endsWith("\"")) {
-				chapterTitle = chapterTitle + "\"";
+			if (!title.endsWith("\"")) {
+				title = title + "\"";
 			}
 		}
-		return chapterTitle;
+		return title;
 	}
 
-	public void setChapterTitle(String chapterTitle) {
-		this.chapterTitle = chapterTitle;
+	public void setTitle(String chapterTitle) {
+		this.title = chapterTitle;
 	}
 
 	public void clear() {
-		this.chapterName = null;
-		this.chapterTitle = null;
-		this.chapterNumber = "";
+		this.name = null;
+		this.title = null;
+		this.number = "";
+		this.parent = "";
 		this.numChars = 0;
 		this.numLines = 0;
 		this.numWords = 0;
@@ -87,9 +102,10 @@ public class CountDao {
 	}
 
 	public void copy(CountDao cdao) {
-		this.chapterName = cdao.chapterName;
-		this.chapterTitle = cdao.chapterTitle;
-		this.chapterNumber = cdao.chapterNumber;
+		this.name = cdao.name;
+		this.title = cdao.title;
+		this.number = cdao.number;
+		this.parent = cdao.parent;
 		this.numChars = cdao.numChars;
 		this.numLines = cdao.numLines;
 		this.numWords = cdao.numWords;
