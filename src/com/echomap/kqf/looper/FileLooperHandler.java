@@ -39,7 +39,7 @@ public interface FileLooperHandler {
 	void preHandler(FormatDao formatDao, LooperDao ldao) throws IOException;
 
 	/**
-	 * Always called after
+	 * Always called in the finally after the looper ends
 	 */
 	String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException;
 

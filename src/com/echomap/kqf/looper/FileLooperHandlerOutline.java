@@ -946,7 +946,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					maxkeylengthC = key.length();
 				if (!allKeys.contains(key)) {
 					allKeys.add(key);
-					LOGGER.error("New tag for all: '" + key + "'");
+					LOGGER.error("New tag for all list: '" + key + "'");
 				}
 			}
 			int maxkeylengthIC = 6;
@@ -960,6 +960,9 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					maxkeylengthU = key.length();
 			}
 			Collections.sort(allKeys);
+
+			//
+			final List<String> noneButUsed = new ArrayList<>();
 			final String midpadding = StringUtils.leftPad(" - ", maxkeylengthIC);
 			// Header
 			final String headerLine = String.format("%s%s%s%s", StringUtils.rightPad("DocTag", maxkeylengthU + 4, " "),
@@ -984,8 +987,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					Collections.sort(usedTagList);
 					str = fromListToCommaDelimString(usedTagList);
 				} else {
-					if (!unusedTagNameList.contains(docTagNameC))
+					if (!unusedTagNameList.contains(docTagNameC)) {
 						unusedTagNameList.add(docTagNameC);
+					}
+					if (tagsCount.get(docTagNameC) > 0)
+						noneButUsed.add(docTagNameC);
 				}
 				fWriterDocTagReportFile.write(str);
 				fWriterDocTagReportFile.write(TextBiz.newLine);
@@ -995,9 +1001,13 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// Show tags collected
 			Collections.sort(unusedTagNameList);
 			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Unused Report, ", unusedTagNameList);
-			fWriterDocTagReportFile.write(TextBiz.newLine);
+
+			//
+			Collections.sort(noneButUsed);
+			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags NONE Report, ", noneButUsed);
 
 			// Summary Report Again
+			fWriterDocTagReportFile.write(TextBiz.newLine);
 			fWriterDocTagReportFile.write("(All Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(tagsCount.size()));
 			fWriterDocTagReportFile.write(" ) ");
@@ -1058,8 +1068,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// Return report of unused
 		Collections.sort(unusedTagNameList);
 		final StringBuilder sb = new StringBuilder();
-		sb.append("Outline: ");
-		sb.append("Used#: ");
+		sb.append("Outline: Used#: ");
 		sb.append(usedTagFileList.keySet().size());
 		sb.append(", ");
 		sb.append("Unused#: ");
@@ -1069,6 +1078,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			sb.append(fromListToCommaDelimString(unusedTagNameList));
 			sb.append(")");
 		}
+		sb.append("\n");
+		sb.append("Outline: DocTag counter: Start = ");
+		sb.append(ldao.getDtStartCount());
+		sb.append(" End=");
+		sb.append(ldao.getDtEndCount());
 
 		return sb.toString();
 	}
@@ -1086,14 +1100,20 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private void printSubReportForArray(final BufferedWriter fWriterDocTagReportFile, final String headerLine,
 			final List<String> tagList) throws IOException {
 		fWriterDocTagReportFile.write(TextBiz.newLine);
+
 		fWriterDocTagReportFile.write(headerLine);
 		fWriterDocTagReportFile.write("Tags #: ");
 		fWriterDocTagReportFile.write(String.valueOf(tagList.size()));
 		fWriterDocTagReportFile.write(" =-");
-		fWriterDocTagReportFile.write(TextBiz.newLine);
-		for (final String docTagName : tagList) {
-			fWriterDocTagReportFile.write(docTagName);
-			fWriterDocTagReportFile.write(",");
+		if (tagList.size() < 1) {
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("<NONE>");
+		} else {
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			for (final String docTagName : tagList) {
+				fWriterDocTagReportFile.write(docTagName);
+				fWriterDocTagReportFile.write(",");
+			}
 		}
 		fWriterDocTagReportFile.write(TextBiz.newLine);
 	}

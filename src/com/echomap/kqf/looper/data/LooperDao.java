@@ -32,6 +32,10 @@ public class LooperDao {
 	private SimpleSectionDao lineSection = null;
 	private DocTagLine lineDocTagLine = null;
 
+	// Count of tags for validity
+	private long dtStartCount = 0;
+	private long dtEndCount = 0;
+
 	public LooperDao() {
 
 	}
@@ -40,6 +44,8 @@ public class LooperDao {
 		setInSpecial(false);
 		setInLongDocTag(false);
 		setHtmlLine(false);
+		dtStartCount = 0;
+		dtEndCount = 0;
 	}
 
 	public void preReadLine() {
@@ -199,4 +205,27 @@ public class LooperDao {
 		this.lineCount = lineCount;
 	}
 
+	public long getDtStartCount() {
+		return dtStartCount;
+	}
+
+	public long getDtEndCount() {
+		return dtEndCount;
+	}
+
+	public void addOneStartTag() {
+		dtStartCount += 1;
+	}
+
+	public void addOneEndTag() {
+		dtEndCount += 1;
+	}
+
+	public void addStartTag(final long cnt) {
+		dtStartCount += cnt;
+	}
+
+	public void addEndTag(final long cnt) {
+		dtEndCount += cnt;
+	}
 }

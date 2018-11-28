@@ -32,6 +32,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextArea;
@@ -696,7 +697,8 @@ public abstract class BaseCtrl {
 			// textField.setText("");
 			// lastSelectedDirectory = null;
 		} else {
-			textField.setText(file.getAbsolutePath());
+			if (textField != null)
+				textField.setText(file.getAbsolutePath());
 			// lastSelectedDirectory = file.getParentFile();
 		}
 		return file;
@@ -736,6 +738,17 @@ public abstract class BaseCtrl {
 					}
 				});
 				//
+			} else if (node instanceof CheckBox) {
+				final CheckBox cb = (CheckBox) node;
+				cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
+					@Override
+					public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+							Boolean newValue) {
+						LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
+						if (newValue.compareTo(oldValue) != 0)
+							setProfileChangeMade(true);
+					}
+				});
 			} else if (node instanceof Pane) {
 				setDetectChanges((Pane) node);
 			} else if (node instanceof TitledPane) {

@@ -401,6 +401,7 @@ public class TextBiz {
 			// return DOCTAGTYPE.NONE;
 			return dtl;
 		}
+		verifyLineCheck(dtl, line, startTag, endTag);
 
 		if (line.contains(startTag) && line.contains(endTag)) {
 			final String trimLine = line.trim();
@@ -473,6 +474,40 @@ public class TextBiz {
 
 		// return DOCTAGTYPE.NONE;
 		return dtl;
+	}
+
+	private static void verifyLineCheck(final DocTagLine dtl, final String line, final String startTag,
+			final String endTag) {
+		// Start Tags
+		int idx1 = line.indexOf(startTag);
+		int idx2 = idx1 + startTag.length();
+		while (idx1 > -1) {
+			try {
+				dtl.addNumberToStartTags(1);
+				idx1 = line.indexOf(startTag, idx2);
+				idx2 = idx1 + startTag.length();
+			} catch (java.lang.StringIndexOutOfBoundsException e) {
+				LOGGER.error(e);
+				LOGGER.error(e.getMessage(), e);
+				throw new RuntimeException("Probably a errant tag in line: <" + line + ">");
+			}
+		}
+
+		// End Tags
+		idx1 = line.indexOf(endTag);
+		idx2 = idx1 + endTag.length();
+		while (idx1 > -1) {
+			try {
+				dtl.addNumberToEndTags(1);
+				idx1 = line.indexOf(endTag, idx2);
+				idx2 = idx1 + endTag.length();
+			} catch (java.lang.StringIndexOutOfBoundsException e) {
+				LOGGER.error(e);
+				LOGGER.error(e.getMessage(), e);
+				throw new RuntimeException("Probably a errant tag in line: <" + line + ">");
+			}
+		}
+
 	}
 
 	private static DocTag findNextDocTag(final String startTag, final String endTag, final String line) {

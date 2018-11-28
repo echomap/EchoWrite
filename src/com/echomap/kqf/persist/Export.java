@@ -105,6 +105,49 @@ public class Export {
 		return outputFilePlain;
 	}
 
+	public File doExportMoreFiles(final String fileName, final Profile selectedProfile, final Properties appProps,
+			final Preferences appPreferences, final ProfileManager profileManager) throws IOException {
+		LOGGER.debug("doExportProfiles: Called");
+
+		File outputFilePlain = null;
+		// TODO set CharSet as param from prefs?
+		final Charset selCharSet = StandardCharsets.UTF_8;
+		LOGGER.debug("exportProfiles: Charset chosen: " + selCharSet);
+		Writer fWriterPlain = null;
+		try {
+			outputFilePlain = new File(fileName);
+			LOGGER.info("Writing export file to: " + outputFilePlain);
+			if (StringUtils.isEmpty(fileName)) {
+				LOGGER.warn("No file set, can't export!");
+				throw new IOException("No File set!");
+			}
+			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
+
+			final JsonObject exportDataset = new JsonObject();
+			exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			LOGGER.debug("exportProfiles: exporting profile: '" + selectedProfile.getKey() + "'");
+			final JsonObject dataset = convertProfileToJSON(selectedProfile);
+			final JsonElement moreFiles = dataset.get("Outputs");
+			exportDataset.add("Outputs", moreFiles);
+
+			fWriterPlain.write(gson2.toJson(exportDataset));
+			//
+		} catch (IOException e) {
+			LOGGER.error(e);
+			throw e;
+			// showPopupMessage("Export Error!" + e.getMessage(), true);
+		} finally {
+			if (fWriterPlain != null)
+				try {
+					fWriterPlain.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+		LOGGER.debug("doExportProfiles: Done");
+		return outputFilePlain;
+	}
+
 	// https://stackoverflow.com/questions/47193364/using-gson-convert-java-object-into-jsonobject
 	private JsonObject convertProfileToJSON(final Profile selProfile) {
 		// final Gson gson2 = new
@@ -112,8 +155,8 @@ public class Export {
 		// .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 		// Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'
 		// 'HH:mm:ss").create();
-		JsonElement jsonElement = gson2.toJsonTree(selProfile);
-		JsonObject jsonObject = (JsonObject) jsonElement;
+		final JsonElement jsonElement = gson2.toJsonTree(selProfile);
+		final JsonObject jsonObject = (JsonObject) jsonElement;
 		return jsonObject;
 	}
 

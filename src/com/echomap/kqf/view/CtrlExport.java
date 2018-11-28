@@ -314,7 +314,6 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 			LOGGER.error(e);
 			showPopupMessage("Export Error", e.getMessage(), true);
 		}
-
 		LOGGER.debug("handleExport: Done");
 	}
 

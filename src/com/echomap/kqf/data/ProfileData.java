@@ -49,11 +49,26 @@ public class ProfileData {
 	}
 
 	public String getText(final String key) {
-		return textEntries.get(key);
+		if (textEntries.get(key) != null)
+			return textEntries.get(key);
+		if (boolEntries.get(key) != null) {
+			final Boolean b = boolEntries.get(key);
+			if (b != null)
+				return b.toString();
+		}
+		return null;
 	}
 
 	public Boolean getSelected(final String key) {
-		return boolEntries.get(key);
+		if (boolEntries.get(key) != null)
+			return boolEntries.get(key);
+		if (textEntries.get(key) != null) {
+			final String s = textEntries.get(key);
+			final Boolean b = Boolean.valueOf(s);
+			if (b != null)
+				return b;
+		}
+		return null;
 	}
 
 	public Boolean isSelected(final String key) {

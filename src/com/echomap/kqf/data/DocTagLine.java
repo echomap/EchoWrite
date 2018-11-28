@@ -13,6 +13,8 @@ public class DocTagLine {
 	// bareLine= The line without this tag
 	private String bareLine = null;
 	private long lineCount = 0;
+	private long numberOfStartTags = 0;
+	private long numberOfEndTags = 0;
 	private boolean onlyDoctag = false;
 	private boolean hasDocTag = false;
 	private boolean longDocTag = false;
@@ -192,6 +194,22 @@ public class DocTagLine {
 
 	public void setRawLine(String rawLine) {
 		this.rawLine = rawLine;
+	}
+
+	public long getNumberOfStartTags() {
+		return numberOfStartTags;
+	}
+
+	public long getNumberOfEndTags() {
+		return numberOfEndTags;
+	}
+
+	public void addNumberToStartTags(long numberOfStartTags) {
+		this.numberOfStartTags += numberOfStartTags;
+	}
+
+	public void addNumberToEndTags(long numberOfEndTags) {
+		this.numberOfEndTags += numberOfEndTags;
 	}
 
 }

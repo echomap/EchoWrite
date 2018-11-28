@@ -286,6 +286,18 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 			showPopupMessage("Failed", "No file selected.", false);
 			return;
 		}
+
+		try {
+			final Export export1 = new Export();
+			@SuppressWarnings("unchecked")
+			final File outputFilePlain = export1.doExportMoreFiles(cFile.getAbsolutePath(), selectedProfile, this.appProps,
+					this.appPreferences, profileManager);
+			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
+		} catch (IOException e) {
+			LOGGER.error(e);
+			showPopupMessage("Export Error", e.getMessage(), true);
+		}
+
 		//
 		// // final Charset selCharSet = formatDao.getCharSet();
 		// final Export export1 = new Export();

@@ -9,6 +9,7 @@
 	show tag, show symbol, show spaces, tabs, short tag, etc
 -Add Replace path to import?
 -HTML output
+-report line for NONE but count>0
 
 ----==--==--==-----==CONFIRM WORKING==-----==--==--==----
 ----==--==--==--------==--=====--==--------==--==--==----
@@ -22,7 +23,7 @@
 ----==--==--==--------==--BUGS--==--------==--==--==----
 ----==--==--==--------==--=====--==--------==--==--==----
 -
-
+-
 ----==--==--==-----==---CHANGELOG---==-----==--==--==----
 ----==--==--==--------==---------==--------==--==--==----
 Changed GUI, simplified UI shown when only wanting to run process like outliner/counter
@@ -33,6 +34,10 @@ Changed GUI, simplified UI shown when only wanting to run process like outliner/
 3) move from V1 to V2 if V1 data, and delete V1 
 
 Unpublished:
+v2.0.4
+	added counter of start and end tags to help verify tags aren't missing
+	-Drop caps, not saving
+	-Text chapters too, not saving
 	added section number to count
 	cleaned up some code for counting and looping
 	fixed import not pulling in Outputs

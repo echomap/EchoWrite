@@ -24,6 +24,7 @@ public class LooperThread extends Thread {
 	final FileLooperHandler flHandler;
 	final LooperDao ldao;
 	final String workType = null;
+	boolean reportedCountError = false;
 
 	private WorkDoneNotify notifyCtrl = null;
 
@@ -180,6 +181,12 @@ public class LooperThread extends Thread {
 		ldao.setLineChapter(lineChptData);
 		ldao.setLineSection(lineSectData);
 
+		// Could be multiple!
+		// if (st.indexOf(formatDao.getDocTagStart()) > 0)
+		// ldao.containsStartTag();
+		// if (st.indexOf(formatDao.getDocTagEnd()) > 0)
+		// ldao.containsEndTag();
+
 		//
 		final CountDao sdao = ldao.getSectionCount();
 
@@ -231,7 +238,21 @@ public class LooperThread extends Thread {
 		LOGGER.debug("IS: END: " + dtt.isEndDocTag() + " HAS: " + dtt.isHasDocTag() + " LNG: " + dtt.isLongDocTag()
 				+ " ONY: " + dtt.isOnlyDoctag());
 
+		// Global Tag
 		DocTagLine dttGL = ldao.getLineDocTagLine();
+
+		// Verify start and end
+		ldao.addStartTag(dtt.getNumberOfStartTags());
+		ldao.addEndTag(dtt.getNumberOfEndTags());
+		final long cntDiff = ldao.getDtEndCount() - ldao.getDtStartCount();
+		if (!reportedCountError && (dttGL != null && !dttGL.isLongDocTag()) && (cntDiff < 0 || cntDiff > 0)) {
+			LOGGER.error("Count is off! (" + cntDiff + ") at line:" + ldao.getCurrentLine());
+			if (!dtt.isLongDocTag() && dttGL != null && !dttGL.isLongDocTag()) {
+				reportedCountError = true;
+				notifyCtrl.statusUpdateForWork("WARNING", "Count is off! at line:" + ldao.getCurrentLine());
+			}
+		}
+
 		if (dttGL != null) {
 			LOGGER.debug("GL: END: " + dttGL.isEndDocTag() + " HAS: " + dttGL.isHasDocTag() + " LNG: "
 					+ dttGL.isLongDocTag() + " ONY: " + dttGL.isOnlyDoctag());
