@@ -1,0 +1,1 @@
+start javaw -jar KQF2_KindleQuickFormatterGui.jar
