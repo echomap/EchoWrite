@@ -25,10 +25,14 @@
 
 ####
 ## Unreleased :
-	-Format numbers outputted to gui by counter
+	-Format numbers output to gui by counter
 	-Added defaults to NEW profile via cwc2.properties
 	-update section parsing code and regexp
 	-using Java8's Optional
+	-tag (--) at the start and end of a DOCTAG will act sort of like a <PRE> tag
+	-tag (+s) will be a sublist, mabye tabbed latter, for now it shows with an extra STAR, ie: "**"
+	-Updated Import, color and reporting
+	-Updated title of project and output jar's filename
 ## v2.0.6
 	-Added total chapters to counter output
 	-Added space after comma in CSV to see if winmerge shows changes better
