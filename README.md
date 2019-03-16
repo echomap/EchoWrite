@@ -1,11 +1,11 @@
-# KindleQuickFormatter
+# EchoWrite
 
-## Programed in Java.
-Made for me, as I write my novels/stories in plain text, and then need to get them into Sigil for Kindle or general EPUB publishing.
+## Runs in Java.
+Made for me, as I write my novels/stories in plain text, and then need to get them into Sigil EPUB to publish.
 
 ## Output, Capabilities
 * Outputs via the "Formatter" a clean copy of the originial text with no DOCTAGS, can do both plaintext and HTML.
-* Outputs files that contain only the [[*scene: xx *]] tags, or "character:"
+* Outputs files that contain only the tags you specify, [[*scene: xx *]] tags, or "character:"
 * Can output many differnet such files, as you can configure via the UI.
 
 ## Output, Mine
