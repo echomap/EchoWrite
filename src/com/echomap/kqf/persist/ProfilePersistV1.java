@@ -102,6 +102,7 @@ public class ProfilePersistV1 {
 		pd.setSeries(child.get("seriesTitle", ""));
 		pd.setText("seriesTitle", child.get("seriesTitle", ""));
 		pd.setText("volume", child.get("volume", "1"));
+		pd.setText("keywords", child.get("keywords", ""));
 		pd.setText("titleOne", child.get("titleTwo", key));
 		pd.setText("titleTwo", child.get("titleThree", ""));
 		// pd.setText("titleThree", child.get("titleThree", ""));
@@ -224,6 +225,8 @@ public class ProfilePersistV1 {
 		child.put("titleOne", key);
 		setValueIfNotNull(child, "seriesTitle", pd.getSeries());
 		setValueIfNotNull(child, "volume", pd.getText("volume"));
+		setValueIfNotNull(child, "keywords", pd.getText("keywords"));
+		
 		setValueIfNotNull(child, "titleOne", pd.getText("titleOne"));
 		setValueIfNotNull(child, "titleTwo", pd.getText("titleTwo"));
 		setValueIfNotNull(child, "titleThree", pd.getText("titleThree"));

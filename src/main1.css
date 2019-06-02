@@ -5,16 +5,35 @@
     -fx-text-alignment: left;
     -fx-alignment: top-left;
 }
-.actionbutton {
-	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 10.0, 0.4, 3.0, 3.0);
-	-fx-background-color:  #CAA7F9
-}
+/* defualt gray button */
 .button {
 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
+	-fx-background-color: #a3b2bf;
 }
+/* purple button #CAA7F9;  */
+.actionbutton {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 10.0, 0.4, 3.0, 3.0);
+	/* -fx-background-color:  #bfa3b2; */
+	-fx-background-color: linear-gradient(#bfa3b2,#b9b8b2,#a2abc8);
+}
+/* action buttons, runners */
+.actionbuttonRunner {
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 10.0, 0.4, 3.0, 3.0);
+	/*-fx-background-color:  #bfa3b2;*/
+	-fx-background-color: linear-gradient(#bfa3b2,#bfa3b2,#b9b8b2);
+}
+.actionbuttonQuit {
+	-fx-background-color: linear-gradient(#61a2b1,#a3b2bf 90%,#61a2b1);
+	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 10.0, 0.4, 3.0, 3.0);
+}
+/* blue action buttons */
 .actionbuttonOther {
 	-fx-background-color: linear-gradient(#a2abc8,#86a8e7,#91eae4);
  	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.6) , 5.0, 0.0 , 0.0 , 1.0 );
+}
+.actionbuttonGreen {
+	-fx-background-color:  linear-gradient(#61a2b1, #72cc00, #91eae4);
+ 	-fx-effect:  dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.6) , 5.0, 0.0 , 0.0 , 1.0 );
 }
 .closebutton {
 	-fx-effect: dropshadow( three-pass-box , rgba(0.0,0.0,0.0,0.5), 2.0, 0.4, 3.0, 3.0);
@@ -59,7 +78,7 @@
 	-fx-background-color: #50C878;
 	-fx-background-insets: 4;
 }
-.highlightedOutlinedText {
+.highlightedOnOutlinedText {
 	-fx-border-color: #8b2e62;
 	-fx-border-width: 2px;
 	-fx-border-insets: 2;
@@ -67,3 +86,37 @@
 	-fx-background-color: #EEEEA4;
 	-fx-background-insets: 4;
 }
+.highlightedOffOutlinedText {
+	-fx-border-color: #8b2e62;
+	-fx-border-width: 2px;
+	-fx-border-insets: 2;
+	-fx-border-style: solid;
+	-fx-background-color: #63ce87; 
+	-fx-background-insets: 4;
+}
+.chosenProfileSet{
+	-fx-border-color: #8b2e62;
+	-fx-border-width: 2px;
+	-fx-border-insets: 6;
+	-fx-border-style: solid;
+	-fx-background-color: #50C878;
+	-fx-background-insets: 4;											
+}
+.chosenProfileNone {
+	-fx-border-color: #8b2e62;
+	-fx-border-width: 2px;
+	-fx-border-insets: 6;
+	-fx-border-style: solid;
+	-fx-background-color: #99b2a2;
+	-fx-background-insets: 4;	
+}
+.disabledForEditText {
+	-fx-background-color: #EEEEA4;
+	
+	-fx-border-color: #86a8e7;
+	-fx-border-width: 1px;
+	-fx-border-insets: 1;
+	-fx-border-style: solid;
+	-fx-background-insets: 1;	
+}
+

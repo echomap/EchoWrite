@@ -158,6 +158,11 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	}
 
 	@Override
+	public Object postHandlerPackage(FormatDao formatDao, LooperDao ldao) {
+		return null;
+	}
+
+	@Override
 	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		closeSectionWriter(sectionCounter, chapterCounter, formatDao);
 		closeChapterWriter(chapterCounter, formatDao);
@@ -413,8 +418,15 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 
 			String textPClean = TextBiz.cleanPlainText(st, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
 			if (isChapter) {
-				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveChptDiv(), null, // formatDao.getChapterDivider(),
-						formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				if (formatDao.getRemoveChptDiv()) {
+					// @TODO put this format in formatDao to be picked up from
+					// UI or settings
+					textToWrite = String.format("%s %s: %s", chpt.name, chpt.chpNum, chpt.title);
+				} else {
+					textToWrite = TextBiz.cleanText(st, formatDao.getRemoveChptDiv(), null,
+							// formatDao.getChapterDivider(),
+							formatDao.getDocTagStart(), formatDao.getDocTagEnd());
+				}
 			} else if (sectionType != null && sectionType.isSection) {
 				textToWrite = TextBiz.cleanText(st, formatDao.getRemoveSectDiv(), null, // formatDao.getSectionDivider(),
 						sectionType, formatDao.getDocTagStart(), formatDao.getDocTagEnd());
@@ -701,6 +713,10 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 
 	private boolean outputHeader(final Writer fWriter, final FormatDao formatDao) {
 		LOGGER.debug("Outputting file: header.html");
+		if (formatMode == null)
+			throw new NullPointerException("No format mode specified.");
+		if (formatMode.getHeaderFile() == null)
+			throw new NullPointerException("No format mode specified with a good header file");
 		return outputFromFile(fWriter, formatMode.getHeaderFile(), formatDao);// "/header.html");
 	}
 

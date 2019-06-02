@@ -20,17 +20,17 @@
 	<children>
 		<FlowPane id="closeBtn" hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="530.0" prefWrapLength="800.0" style="-fx-border-color: #2e8b57;&#10;-fx-border-width: 2px;&#10;-fx-border-insets: 5;&#10;-fx-border-style: solid;&#10;" vgap="10.0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="TOP">
 			<children>
-				<Button id="wordCountBtn" fx:id="btnRunWordCounter" mnemonicParsing="true" onAction="#handleRunCounter" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Word Count">
+				<Button id="wordCountBtn" fx:id="btnRunWordCounter" mnemonicParsing="true" onAction="#handleRunCounter" styleClass="actionbuttonRunner" text="_Word Count">
 					<tooltip>
 						<Tooltip text="Runs the &quot;Word Counter function" />
 					</tooltip>
 				</Button>
-				<Button id="outlineBtn" fx:id="btnRunOutliner" mnemonicParsing="true" onAction="#handleRunOutliner" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Outline">
+				<Button id="outlineBtn" fx:id="btnRunOutliner" mnemonicParsing="true" onAction="#handleRunOutliner" styleClass="actionbuttonRunner" text="_Outline">
 					<tooltip>
 						<Tooltip text="Runs the &quot;DocTag Outliner&quot; function" />
 					</tooltip>
 				</Button>
-				<Button id="formatBtn" fx:id="btnRunFormatter" mnemonicParsing="true" onAction="#handleRunFormatter" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00); -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="_Format!">
+				<Button id="formatBtn" fx:id="btnRunFormatter" mnemonicParsing="true" onAction="#handleRunFormatter" styleClass="actionbuttonRunner" text="_Format!">
 					<tooltip>
 						<Tooltip text="Runs the &quot;Formating&quot; function" />
 					</tooltip>
@@ -38,7 +38,7 @@
                   <Insets />
                </FlowPane.margin>
 				</Button>
-				<Button id="outlineBtn" fx:id="btnClearLog" layoutX="229.0" layoutY="23.0" mnemonicParsing="true" onAction="#handleDoClearLogAction" style="-fx-background-color: linear-gradient(#61a2b1, #72cc00);&#10;-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Clear Lo_g">
+				<Button id="outlineBtn" fx:id="btnClearLog" layoutX="229.0" layoutY="23.0" mnemonicParsing="true" onAction="#handleDoClearLogAction" styleClass="actionbuttonGreen" text="Clear Lo_g">
 					<tooltip>
 						<Tooltip text="Runs the &quot;DocTag Outliner&quot; function" />
 					</tooltip>
@@ -46,7 +46,7 @@
                   <Insets left="8.0" />
                </FlowPane.margin>
 				</Button>
-				<Button fx:id="btnCloseScreen" cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" text="_Quit" textFill="#fefefe">
+				<Button fx:id="btnCloseScreen" cancelButton="true" defaultButton="true" disable="false" mnemonicParsing="true" onAction="#handleClose" styleClass="actionbuttonQuit" text="_Quit" textFill="#fefefe">
                <FlowPane.margin>
                   <Insets left="12.0" />
                </FlowPane.margin></Button>
@@ -86,17 +86,17 @@
 											<children>
 												<HBox fx:id="profileButtonBox" alignment="CENTER" fillHeight="false" spacing="4.0" style="    -fx-border-color: #2e8b57;&#10;    -fx-border-width: 2px;&#10;">
 													<children>
-														<Button id="savePrefsBtn" fx:id="saveProfileBtn" disable="true" mnemonicParsing="true" onAction="#handleSaveProfile" text="_Save" HBox.hgrow="SOMETIMES">
+														<Button id="savePrefsBtn" fx:id="saveProfileBtn" disable="true" mnemonicParsing="true" onAction="#handleSaveProfile" styleClass="actionbuttonOther" text="_Save" HBox.hgrow="SOMETIMES">
 															<HBox.margin>
 																<Insets />
 															</HBox.margin>
 														</Button>
-														<Button fx:id="deleteProfileBtn" disable="true" mnemonicParsing="false" onAction="#handleDeleteProfile" text="Delete" HBox.hgrow="SOMETIMES">
+														<Button fx:id="deleteProfileBtn" disable="true" mnemonicParsing="false" onAction="#handleDeleteProfile" styleClass="actionbuttonOther" text="Delete" HBox.hgrow="SOMETIMES">
 															<HBox.margin>
 																<Insets />
 															</HBox.margin>
 														</Button>
-														<Button fx:id="clearProfileBtn" disable="true" onAction="#handleClearProfile" text="_Clear" />
+														<Button fx:id="clearProfileBtn" disable="true" onAction="#handleClearProfile" styleClass="actionbuttonOther" text="_Clear" />
 													</children>
 													<padding>
 														<Insets bottom="6.0" left="6.0" right="6.0" />
@@ -207,18 +207,24 @@
 										</HBox>
 										<HBox maxWidth="1.7976931348623157E308">
 											<children>
-												<Label fx:id="chosenProfileText" style="-fx-border-color: #8b2e62; -fx-border-width: 2px; -fx-border-insets: 6; -fx-border-style: solid; -fx-background-color: #50C878; -fx-background-insets: 4;" text="NO PROFILE">
-													<HBox.margin>
-														<Insets bottom="6.0" />
-													</HBox.margin>
-												</Label>
-												<Label fx:id="profileDataChanged" text="Unsaved Changes">
+												<Label fx:id="profileDataChanged" styleClass="highlightedOffOutlinedText" text="Up to date">
 													<font>
 														<Font name="Bitstream Charter Bold" size="14.0" />
 													</font>
 													<HBox.margin>
-														<Insets left="10.0" />
+														<Insets bottom="6.0" left="4.0" top="4.0" />
 													</HBox.margin>
+                                       <padding>
+                                          <Insets left="6.0" right="6.0" />
+                                       </padding>
+												</Label>
+												<Label fx:id="chosenProfileText" styleClass="chosenProfileNone" text="NO PROFILE" textAlignment="CENTER" wrapText="true">
+													<HBox.margin>
+														<Insets bottom="6.0" left="56.0" />
+													</HBox.margin>
+                                       <padding>
+                                          <Insets left="20.0" right="20.0" />
+                                       </padding>
 												</Label>
 											</children>
 										</HBox>
@@ -250,6 +256,20 @@
                                     </TextField>
                                  </children>
                               </HBox>
+                              <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="8">
+                                 <children>
+                                    <Label minWidth="-Infinity" prefWidth="70.0" text="Keywords:">
+                                       <textFill>
+                                          <Color blue="0.478" green="0.000" red="1.000" fx:id="x61111" />
+                                       </textFill>
+                                    </Label>
+                                    <TextField fx:id="keywordsText" maxWidth="-1.0" prefWidth="-1.0" promptText="Keywords" HBox.hgrow="SOMETIMES">
+                                       <HBox.margin>
+                                          <Insets right="54.0" fx:id="x51111" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                              </HBox>
 
 									</children>
 									<columnConstraints>
@@ -266,6 +286,7 @@
 										<RowConstraints />
 										<RowConstraints />
 										<RowConstraints minHeight="10.0" prefHeight="30.0" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" />
 									</rowConstraints>
 								</GridPane>

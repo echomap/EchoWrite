@@ -10,11 +10,14 @@ public class DocTag {
 	private String fullText;
 	private String name;
 	private String value;
+	private String tagInfo;// TODO
 
 	// The line without this tag
 	private String bareLine = null;
 	// The full tag, start and end
 	private String fullTag = null;
+	private String baseAdded = null;
+	private List<String> addedLines = new ArrayList<>();
 
 	private List<DocTag> sublist = null;
 
@@ -28,7 +31,32 @@ public class DocTag {
 		// return super.toString();
 	}
 
-	public void parseText(String docTagText) {
+	public void appendText(final String newDataString) {
+		// parseText(newDataString);
+		this.fullText = getFullText() + newDataString;
+
+		if (StringUtils.isEmpty(this.name)) {
+			int idx1 = this.fullText.indexOf(":");
+			if (idx1 > -1) {
+				String onet = this.fullText.substring(0, idx1);
+				String twot = this.fullText.substring(idx1 + 1);
+				this.setName(onet);
+				this.setValue(twot);
+				appendFullText(twot);
+				// TODO REGEX Collect # from twot: "[+in#]"
+				// TODO REGEX Collect # from twot: "[+out#]"
+				return;
+			}
+		}
+		// Don't bother to get a new name for this tag if we already have one!
+		this.setValue(this.fullText);
+		addToAddedLines(newDataString);
+		// addedLines.add(newDataString);
+		// if (addedLines.size() > 1)
+		// System.out.println("asdf");
+	}
+
+	public void parseText(final String docTagText) {
 		this.fullText = docTagText;
 
 		if (StringUtils.isEmpty(this.name)) {
@@ -46,6 +74,18 @@ public class DocTag {
 		}
 		// Don't bother to get a new name for this tag if we already have one!
 		this.setValue(docTagText);
+		addToAddedLines(docTagText);
+	}
+
+	private void addToAddedLines(final String docTagText) {
+		if (docTagText == null || docTagText == "")
+			return;
+		if (baseAdded == null && getFullTag() != null) {
+			baseAdded = this.getValue();
+		}
+		addedLines.add(docTagText.trim());
+		// if (addedLines.size() > 1)
+		// System.out.println("asdf");
 	}
 
 	private void appendFullText(String twot) {
@@ -54,6 +94,10 @@ public class DocTag {
 		else
 			this.fullText = twot;
 		this.fullText = this.fullText.trim();
+		//
+		if (baseAdded == null && this.getValue() != null) {
+			baseAdded = this.getValue();
+		}
 	}
 
 	public String getName() {
@@ -119,5 +163,22 @@ public class DocTag {
 	public void setFullTag(String fullTag) {
 		this.fullTag = fullTag;
 	}
+
+	public List<String> getAddedLines() {
+		return addedLines;
+	}
+
+	public String getBaseAdded() {
+		return baseAdded;
+	}
+
+	public String getTagInfo() {
+		return tagInfo;
+	}
+
+	public void setTagInfo(String tagInfo) {
+		this.tagInfo = tagInfo;
+	}
+	
 
 }

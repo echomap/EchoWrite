@@ -16,7 +16,6 @@ import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileExportObj;
 import com.echomap.kqf.persist.Import;
-import com.echomap.kqf.two.gui.GUIUtils;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -54,6 +53,9 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 	private static int COL_SERIES = 4;
 	private static int COL_NAME = 5;
 	private static int COL_INPUTFILE = 6;
+
+	private static String COLORSTYLE_FALSE = "-fx-background-color: #abb8b8;";
+	// #2F4F4F;");// slategray
 
 	@FXML
 	private Pane outerMostContainer;
@@ -243,7 +245,7 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 		inputTable.getColumns().addAll(firstCol, secondCol, importableCol, seriesCol, nameCol, forthCol);
 
 		// Hack: align column headers to the center.
-		GUIUtils.alignColumnLabelsLeftHack(inputTable);
+		BaseCtrl.alignColumnLabelsLeftHack(inputTable);
 
 		inputTable.setRowFactory(new Callback<TableView<ProfileExportObj>, TableRow<ProfileExportObj>>() {
 			@Override
@@ -286,9 +288,12 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 						this.getTableRow().setStyle("");
 				} else {
 					this.setText("false");
-					this.setStyle("-fx-background-color: #2F4F4F;");// slategray
-					if (this.getTableRow() != null)
-						this.getTableRow().setStyle("-fx-background-color: #708090;");
+					// this.setStyle("-fx-background-color: #2F4F4F;");//
+					// slategray
+					this.setStyle(COLORSTYLE_FALSE);
+					// if (this.getTableRow() != null)
+					// this.getTableRow().setStyle("-fx-background-color:
+					// #708090;");
 				}
 			}
 		});
@@ -309,7 +314,9 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 					// this.getTableRow().setStyle("");
 				} else {
 					this.setText("false");// TODO change color
-					this.setStyle("-fx-background-color: #2F4F4F;");// slategray
+					// this.setStyle("-fx-background-color: #2F4F4F;");//
+					// slategray
+					this.setStyle(COLORSTYLE_FALSE);
 					// if (this.getTableRow() != null)
 					// this.getTableRow().setStyle("-fx-background-color:
 					// #708090;");
@@ -340,7 +347,7 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 
 		//
 		inputTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		GUIUtils.autoFitTable(inputTable);
+		BaseCtrl.autoFitTable(inputTable);
 		LOGGER.debug("setupTable: Done");
 
 	}
@@ -411,7 +418,7 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 			for (final ProfileExportObj data : inputTable.getItems()) {
 				if (data.isExport()) {
 					sb.append("-");
-					sb.append(data.getKey());
+					sb.append(data.getName());// Key());
 					sb.append("\n");
 				}
 			}

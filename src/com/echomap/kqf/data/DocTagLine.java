@@ -160,7 +160,8 @@ public class DocTagLine {
 		} else {
 			lastDt = getDocTags().get(getDocTags().size() - 1);
 		}
-		lastDt.parseText(lastDt.getFullText() + line2);
+		// lastDt.appendText(lastDt.getFullText() + line2);
+		lastDt.appendText(line2);
 		this.appendBareLine(line2);
 	}
 

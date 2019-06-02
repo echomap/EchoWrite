@@ -3,6 +3,7 @@ package com.echomap.kqf.biz;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -16,7 +17,7 @@ import com.echomap.kqf.data.ProfileData;
 import com.echomap.kqf.persist.ProfilePersist;
 import com.echomap.kqf.persist.ProfilePersistV1;
 import com.echomap.kqf.persist.ProfilePersistV2;
-import com.echomap.kqf.two.gui.KQFCtrl;
+import com.echomap.kqf.two.gui.EmptyTwoClass;
 
 public class ProfileManager {
 	private final static Logger LOGGER = LogManager.getLogger(ProfileManager.class);
@@ -31,7 +32,16 @@ public class ProfileManager {
 	String currentVersion = null;
 
 	public ProfileManager() {
-		userPrefsV1 = Preferences.userNodeForPackage(KQFCtrl.class);
+		// try {
+		// final Class oldPackage =
+		// Class.forName("com.echomap.kqf.two.gui.KQFCtrl");
+		// userPrefsV1 = Preferences.userNodeForPackage(oldPackage);
+		// } catch (ClassNotFoundException e) {
+		// userPrefsV1 = Preferences.userNodeForPackage(KQFCtrl.class);
+		// e.printStackTrace();
+		// }
+		// userPrefsV1 = Preferences.userNodeForPackage(KQFCtrl.class);
+		userPrefsV1 = Preferences.userNodeForPackage(EmptyTwoClass.class);
 		userPrefsV2 = Preferences.userNodeForPackage(ProfileBiz.class);
 		// this.appVersion = appVersion;
 		resetData();
@@ -192,7 +202,7 @@ public class ProfileManager {
 
 		if (selectedProfile == null) {
 			LOGGER.debug("Please select a profile before running!!");
-			// 
+			//
 			throw new IOException("Please select a profile before running!!");
 			// return;
 		}
@@ -343,6 +353,42 @@ public class ProfileManager {
 		}
 		loadProfileData();// TODO ix so refresh not necessary
 		LOGGER.debug("renameProfile: Done");
+	}
+
+	//
+	public Profile createDefaultProfile(final String inputKey, final Properties appProps) {
+		LOGGER.debug("createDefaultProfile: Called ");
+		final Profile profile = new Profile();
+		profile.setKey(inputKey);
+		//
+		profile.setFmtMode(loadPropFromAppOrDefault("defaultOutputFormatting", "", appProps));
+		profile.setOutputEncoding(loadPropFromAppOrDefault("defaultEncoding", "", appProps));
+
+		final String sceneM = loadPropFromAppOrDefault("sceneMain", "scene, subscene", appProps);
+		final String sceneC = loadPropFromAppOrDefault("sceneCoalate", "description, scene", appProps);
+		final String outC = loadPropFromAppOrDefault("outlineCompress", "subscene, outlinedata, outlinesub, suboutline",
+				appProps);
+		final String outE = loadPropFromAppOrDefault("outineExpand", "outline, scene", appProps);
+		profile.setDocTagsOutlineTags(outE);
+		profile.setDocTagsOutlineCompressTags(outC);
+		profile.setDocTagsSceneTags(sceneM);
+		profile.setDocTagsSceneCompressTags(sceneC);
+
+		final String regExpChp = loadPropFromAppOrDefault("regexpChapterText", "", appProps);
+		final String regExpSec = loadPropFromAppOrDefault("regexpSectionText", "", appProps);
+		profile.setRegexpChapter(regExpChp);
+		profile.setRegexpSection(regExpSec);
+		//
+		LOGGER.debug("createDefaultProfile: Done ");
+		return profile;
+	}
+
+	private String loadPropFromAppOrDefault(final String key, final String defaultValue, final Properties appProps) {
+		if (appProps != null) {
+			final String value = appProps.getProperty(key);
+			return value;
+		}
+		return defaultValue;
 	}
 
 }

@@ -9,7 +9,7 @@ import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.looper.FileLooper;
-import com.echomap.kqf.two.gui.WorkDoneNotify;
+import com.echomap.kqf.looper.WorkDoneNotify;
 
 import javafx.scene.control.TextArea;
 

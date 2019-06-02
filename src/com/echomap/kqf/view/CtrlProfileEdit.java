@@ -92,6 +92,8 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	@FXML
 	private TextField volumeText;
 	@FXML
+	private TextField keywordsText;
+	@FXML
 	private CheckBox filePrefixCheckbox;
 	@FXML
 	private TextField inputKeyText;
@@ -263,6 +265,16 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		this.unlockGui(msg);
 	}
 
+	@Override
+	public void workFinished() {
+		this.unlockGui();
+	}
+
+	@Override
+	public void workFinished(final Object payload) {
+		this.unlockGui();
+	}
+
 	void showMessage(final String msg, final boolean clearPrevious) {
 		showMessage(msg, clearPrevious, lastRunText);
 	}
@@ -281,8 +293,14 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	void setProfileChangeMade(boolean b) {
 		if (b) {
 			profileDataChanged.setText("Unsaved Changes");
+			profileDataChanged.getStyleClass().clear();
+			profileDataChanged.getStyleClass().add("highlightedOnOutlinedText");
+			btnCloseScreen.setText("C_ancel");
 		} else {
-			profileDataChanged.setText("");
+			profileDataChanged.setText("Up to date");
+			profileDataChanged.getStyleClass().clear();
+			profileDataChanged.getStyleClass().add("highlightedOffOutlinedText");
+			btnCloseScreen.setText("_Back");
 		}
 	}
 
@@ -353,8 +371,10 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 	public void handleSaveNewProfile(final ActionEvent event) {
 		LOGGER.debug("handleSaveNewProfile: Called");
 
-		final Profile profile = new Profile();
-		profile.setKey(inputKeyText.getText());
+		// final Profile profile = new Profile();
+		// profile.setKey(inputKeyText.getText());
+		final Profile profile = profileManager.createDefaultProfile(inputKeyText.getText(), appProps);
+		//
 		profileManager.saveProfileData(profile);
 		if (profileManager.isWasError()) {
 			showMessage("Error=" + profileManager.getError(), false);
@@ -707,6 +727,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		subTitleText.setText(child.getSubTitle());
 		seriesTitleText.setText(child.getSeriesTitle());
 		volumeText.setText(child.getVolume());
+		keywordsText.setText(child.getKeywords());
 		inputFileText.setText(child.getInputFile());
 
 		if (modeDelete) {
@@ -739,6 +760,10 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		// TODO formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
 
 		fmtModeText.setText(child.getFmtMode());
+		// if (StringUtils.isBlank(fmtModeText.getText())) {
+		// fmtModeText.setText("Sigil");
+		// }
+
 		outputEncoding.setText(child.getOutputEncoding());
 
 		counterDigitChoice.getSelectionModel().select(child.getCounterDigitChoice());
@@ -818,6 +843,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		child.setSubTitle(subTitleText.getText());
 		child.setSeriesTitle(seriesTitleText.getText());
 		child.setVolume(volumeText.getText());
+		child.setKeywords(keywordsText.getText());
 
 		child.setInputFile(inputFileText.getText());
 		child.setOutputFormatSingleFile(outputFormatSingleFileText.getText());
@@ -923,6 +949,9 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {
 			setLastSelectedDirectory(lastSelectedDirectoryStr);
 		}
+		// if (StringUtils.isBlank(fmtModeText.getText())) {
+		// fmtModeText.setText("Sigil");
+		// }
 	}
 
 	private File getInputAsFile() {

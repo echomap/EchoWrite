@@ -122,6 +122,7 @@ public class LooperDao {
 		getChapters().clear();
 
 		getTotalCount().setCounter(1);
+		getSectionCount().setCounter(0);
 		getChaptCount().addOneToNumLines();
 	}
 

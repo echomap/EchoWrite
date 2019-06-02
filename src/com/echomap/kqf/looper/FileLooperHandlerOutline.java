@@ -1,5 +1,7 @@
 package com.echomap.kqf.looper;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,7 +52,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 
 	private static final String END_STRING = " =-";
 
-	private static final String SECTION = "-= Section ";
+	private static final String SECTION = "-= Section";
 
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerOutline.class);
 
@@ -232,23 +234,28 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			return;
 		// String nameS = ssd.sname;
 		// String numS = ssd.snum;
-		String titleS = ssd.title;
-
+		// final String titleS = ssd.title;
+		final String outputText = String.format("%1$s %2$s- %3$s%5$s", SECTION, ofNullable(ssd.snum).orElse(""),
+				ofNullable(ssd.title).orElse(""), ofNullable(ssd.sname).orElse(""), END_STRING);
+		// format("%1$" + length + "s", str)
 		if (fWriterOutlineFile != null) {
 			fWriterOutlineFile.write(TextBiz.newLine);
-			fWriterOutlineFile.write(SECTION + titleS + END_STRING);
+			// fWriterOutlineFile.write(SECTION + titleS + END_STRING);
+			fWriterOutlineFile.write(outputText);
 			fWriterOutlineFile.write(TextBiz.newLine);
 			fWriterOutlineFile.flush();
 		}
 		if (fWriterSceneFile != null) {
 			fWriterSceneFile.write(TextBiz.newLine);
-			fWriterSceneFile.write(SECTION + titleS + END_STRING);
+			// fWriterSceneFile.write(SECTION + titleS + END_STRING);
+			fWriterSceneFile.write(outputText);
 			fWriterSceneFile.write(TextBiz.newLine);
 			fWriterSceneFile.flush();
 		}
 		if (fWriterOther1File != null) {
 			fWriterOther1File.write(TextBiz.newLine);
-			fWriterOther1File.write(SECTION + titleS + END_STRING);
+			// fWriterOther1File.write(SECTION + titleS + END_STRING);
+			fWriterOther1File.write(outputText);
 			fWriterOther1File.write(TextBiz.newLine);
 			fWriterOther1File.flush();
 		}
@@ -257,7 +264,8 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			BufferedWriter bw = entry.getValue();
 			if (bw != null) {
 				bw.write(TextBiz.newLine);
-				bw.write(SECTION + titleS + END_STRING);
+				// bw.write(SECTION + titleS + END_STRING);
+				bw.write(outputText);
 				bw.write(TextBiz.newLine);
 				bw.flush();
 			}
@@ -353,43 +361,33 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterSceneFile.write(docTag.getName());
 				fWriterSceneFile.write(": ");
 
-				final String val = docTag.getValue();
-				writeDataToFileWithCrop(val, formatDao, fWriterSceneFile);
+				// final String val = docTag.getValue();
+				writeDataToFileWithCrop(docTag, formatDao, fWriterSceneFile);
+				// writeDataToFileWithCrop(val, formatDao, fWriterSceneFile);
 			}
-
-			// docTagLast = docTag;
 		}
 		sceneDTList.clear();
 	}
 
-	// Write all the coalted doctags to the start of the chapter
+	// Write all the coalated doctags to the start of the chapter
 	private void writeToSceneFileCo(final FormatDao formatDao) throws IOException {
 		for (Map.Entry<String, List<DocTag>> entry : coalateTextMap.entrySet()) {
 			System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
 			final String key = entry.getKey();
 			final List<DocTag> vals = entry.getValue();
-			fWriterSceneFile.write(key);
+			fWriterSceneFile.write(key.trim());
 			fWriterSceneFile.write(":");
-			fWriterSceneFile.write(TextBiz.newLine);
+
+			// if (vals.size() < 1 || vals.get(0).getAddedLines().size() < 1) {}
+			if (vals.size() > 0 && vals.get(0).getAddedLines().size() > 0) {
+				fWriterSceneFile.write(" ");
+			} else {
+				fWriterSceneFile.write(TextBiz.newLine);
+			}
 
 			for (final DocTag docTag : vals) {
-				String fullText2 = docTag.getValue();
-
-				writeDataToFileWithCrop(fullText2, formatDao, fWriterSceneFile, "\t");
-
-				// fullText2 = fullText2.replace("(+n)", "\n\t");
-				// fullText2 = fullText2.replace("(+u)", "\t*");
-				// // if (fullText2.startsWith("\n"))
-				// // fullText2 = fullText2.substring(2, fullText2.length());
-				// // if (fullText2.endsWith("\n\n"))
-				// // fullText2 = fullText2.substring(0, fullText2.length() -
-				// 4);
-				// fullText2 = fullText2.trim();
-				// fullText2 = fullText2.replace(" \n", "\n");
-				//
-				// fWriterSceneFile.write("\t");
-				// fWriterSceneFile.write(fullText2);
-				// fWriterSceneFile.write(TextBiz.newLine);
+				// String fullText2 = docTag.getValue();
+				writeDataToFileWithCrop(docTag, formatDao, fWriterSceneFile, "\t");
 			}
 		}
 		// TODO use sublist of doctags to put sub(s) into mains
@@ -401,15 +399,111 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			}
 	}
 
-	private void writeDataToFileWithCrop(final String textData, final FormatDao formatDao,
+	private void writeDataToFileWithCrop(final DocTag docTag, final FormatDao formatDao,
 			final BufferedWriter fWriterFile2) throws IOException {
-		writeDataToFileWithCrop(textData, formatDao, fWriterFile2, null);
+		writeDataToFileWithCrop(docTag, formatDao, fWriterFile2, null);
 	}
 
-	private void writeDataToFileWithCrop(final String textData, final FormatDao formatDao,
+	private void writeDataToFileWithCrop(final DocTag docTag, final FormatDao formatDao,
+			final BufferedWriter fWriterFile2, final String basepad) throws IOException {
+		boolean endedInNewline = false;
+		if (docTag.getFullText().indexOf(FileLooper.DOCTAG_PRE1) > -1) {
+			String prepad = basepad == null ? "\t" : basepad;
+			final StringBuilder sb = new StringBuilder();
+			// if (docTag.getBaseAdded() != null &&
+			// docTag.getBaseAdded().length() > 0) {
+			// sb.append(docTag.getBaseAdded().trim());
+			// sb.append(FileLooper.DOCTAG_NEWLINE);
+			// endedInNewline = writeDataToFileWithCrop(sb.toString(),
+			// formatDao, fWriterFile2, prepad);
+			// sb.setLength(0);
+			// }
+			for (String stral : docTag.getAddedLines()) {
+				stral = stral.trim();
+				if (docTag.getBaseAdded() != null && docTag.getBaseAdded().length() > 0) {
+					final String bastr = docTag.getBaseAdded().trim();
+					if (bastr.compareTo(stral) == 0) {
+						continue;
+					}
+				}
+				if (stral != null && stral.compareTo("") != 0 && stral.compareTo(FileLooper.DOCTAG_PRE1) != 0) {
+					sb.append(stral);
+					sb.append(" ");
+					sb.append(FileLooper.DOCTAG_NEWLINE);
+					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
+					sb.setLength(0);
+				} else if (stral != null && stral.compareTo(FileLooper.DOCTAG_PRE1) == 0) {
+					sb.append(FileLooper.DOCTAG_NEWLINE);
+					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
+					sb.setLength(0);
+				}
+			}
+			if (sb.length() > 0) {
+				sb.setLength(sb.length() - FileLooper.DOCTAG_NEWLINE.length());
+				endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
+			}
+		}
+		if (docTag.getFullText().indexOf(FileLooper.DOCTAG_PRE2) > -1) {
+			String prepad = basepad == null ? "\t" : basepad;
+			final StringBuilder sb = new StringBuilder();
+			if (docTag.getBaseAdded() != null && docTag.getBaseAdded().length() > 0) {
+				sb.append(docTag.getBaseAdded().trim());
+				sb.append(FileLooper.DOCTAG_NEWLINE);
+				endedInNewline = writeDataToFileWithCrop(sb.toString(), formatDao, fWriterFile2, "");
+				sb.setLength(0);
+			}
+			for (String stral : docTag.getAddedLines()) {
+				stral = stral.trim();
+				if (stral != null && stral.compareTo("") != 0 && stral.compareTo(FileLooper.DOCTAG_PRE2) != 0) {
+					sb.append(stral);
+					sb.append(" ");
+					sb.append(FileLooper.DOCTAG_NEWLINE);
+					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
+					sb.setLength(0);
+				} else if (stral != null && stral.compareTo(FileLooper.DOCTAG_PRE2) == 0 && !endedInNewline) {
+					sb.append(FileLooper.DOCTAG_NEWLINE);
+					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
+					sb.setLength(0);
+				}
+			}
+			if (sb.length() > 0) {
+				sb.setLength(sb.length() - FileLooper.DOCTAG_NEWLINE.length());
+				endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
+			}
+		}
+		// if (textData.indexOf("(--)") > -1) {
+		// int idxMinus2 = textData.indexOf("(--)");
+		// if (idxMinus2 > -1) {
+		// LOGGER.debug("ENTRY HAS --");
+		// String textData3 = textData;
+		// while (idxMinus2 > -1) {
+		// final char nextC = textData.charAt(idxMinus2 + 4);
+		// if (nextC != '\n')
+		// textData3 = textData3.replace("(--)", "(+n)");
+		// else
+		// textData3 = textData3.replace("(--)", "");
+		// idxMinus2 = textData3.indexOf("(--)");
+		// }
+		// textData3 = textData3.replaceAll("\t", "(+n)");
+		// textData3 = textData3.replaceAll("\n", "(+n)");
+		// textData2.append(textData3);
+		// }
+		else
+			writeDataToFileWithCrop(docTag.getValue().trim(), formatDao, fWriterFile2, basepad);
+	}
+
+	// private void writeDataToFileWithCrop(final String textData, final
+	// FormatDao formatDao,
+	// final BufferedWriter fWriterFile2) throws IOException {
+	// writeDataToFileWithCrop(textData, formatDao, fWriterFile2, null);
+	// }
+
+	// Returns if ended in Newline
+	private boolean writeDataToFileWithCrop(final String textData, final FormatDao formatDao,
 			final BufferedWriter fWriterFile2, final String basepad) throws IOException {
 		int maxLineLen = 70; // param
 		maxLineLen = formatDao.getDocTagsMaxLineLength();
+		boolean endedInNewline = false;
 		// if (maxLineLen > 0 && val.length() > maxLineLen) {
 		// if (pad)
 		// fWriterFile2.write(TextBiz.newLine);
@@ -419,9 +513,10 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		final StringBuilder strToWrite = new StringBuilder();
 
 		StringBuilder textData2 = new StringBuilder();
-		int idxU = textData.indexOf("(+u)");
-		if (idxU > -1) {
-			LOGGER.debug("Has embeded +U");
+		boolean didEmbed = false;
+		if (textData.indexOf("(+u)") > -1 || textData.indexOf("(+s)") > -1) {
+			// int idxU = textData.indexOf("(+u)");
+			LOGGER.debug("Has embeded +U or +S");
 			// pre="\t\t";
 			if (textData.indexOf("(+n)(+u)") > -1) {
 				String textData3 = textData.replace("(+n)(+u)", "(+u)");
@@ -431,10 +526,76 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				textData2.append(textData3.replace("(+u)", "(+n)\t*"));
 			} else
 				textData2.append(textData.replace("(+u)", "(+n)\t*"));
+
+			// int idxS = textData2.indexOf("(+s)");
+			// while (idxS > -1) {
+			// textData2.replace(idxS, idxS+
+			// FileLooper.DOCTAG_SUBLIST.length(),
+			// "\t\t*" );
+			// idxS = textData2.indexOf("(+s)");
+			// }
+			// if (textData.indexOf("(+n)(+s)") > -1) {
+			// String textData3 = textData.replace("(+n)(+s)", "(+u)");
+			// textData2.append(textData3.replace("(+s)", "(+n)\t*"));
+			// } else if (textData.indexOf("(+n)\t(+s)") > -1) {
+			// String textData3 = textData.replace("(+n)\t(+s)", "(+s)");
+			// textData2.append(textData3.replace("(+s)", "(+n)\t*"));
+			// } else
+			// textData2.append(textData.replace("(+s)", "(+n)\t*"));
 			// textData2.append("(+n)");
-		} else {
-			textData2.append(textData);
+			// } else if (textData.indexOf("(--)") > -1) {
+			// int idxMinus2 = textData.indexOf("(--)");
+			// if (idxMinus2 > -1) {
+			// LOGGER.debug("ENTRY HAS --");
+			// String textData3 = textData;
+			// while (idxMinus2 > -1) {
+			// final char nextC = textData.charAt(idxMinus2 + 4);
+			// if (nextC != '\n')
+			// textData3 = textData3.replace("(--)", "(+n)");
+			// else
+			// textData3 = textData3.replace("(--)", "");
+			// idxMinus2 = textData3.indexOf("(--)");
+			// }
+			// textData3 = textData3.replaceAll("\t", "(+n)");
+			// textData3 = textData3.replaceAll("\n", "(+n)");
+			// textData2.append(textData3);
+			// }
+			didEmbed = true;
 		}
+		// if (textData.indexOf(FileLooper.DOCTAG_SUBLIST) > -1) {
+		// int idxU = textData.indexOf(FileLooper.DOCTAG_SUBLIST);
+		// LOGGER.debug("Has embeded +S");
+		// // pre="\t\t";
+		// if (textData.indexOf("(+n)(+s)") > -1) {
+		// String textData3 = textData.replace("(+n)(+s)",
+		// FileLooper.DOCTAG_SUBLIST);
+		// textData2.append(textData3.replace(FileLooper.DOCTAG_SUBLIST,
+		// "(+n)\t*"));
+		// } else if (textData.indexOf("(+n)\t(+s)") > -1) {
+		// String textData3 = textData.replace("(+n)\t(+s)",
+		// FileLooper.DOCTAG_SUBLIST);
+		// textData2.append(textData3.replace(FileLooper.DOCTAG_SUBLIST,
+		// "(+n)\t*"));
+		// } else
+		// textData2.append(textData.replace(FileLooper.DOCTAG_SUBLIST,
+		// "(+n)\t*"));
+		// didEmbed = true;
+		// }
+		if (!didEmbed)
+			textData2.append(textData);
+
+		int idxS = textData2.indexOf("(+n)(+s)");
+		while (idxS > -1) {
+			textData2.replace(idxS, idxS + FileLooper.DOCTAG_SUBLIST.length() + FileLooper.DOCTAG_NEWLINE.length(),
+					"(+n)\t\t**");
+			idxS = textData2.indexOf("(+n)(+s)");
+		}
+		idxS = textData2.indexOf("(+s)");
+		while (idxS > -1) {
+			textData2.replace(idxS, idxS + FileLooper.DOCTAG_SUBLIST.length(), "(+n)\t\t**");
+			idxS = textData2.indexOf("(+s)");
+		}
+		// TODO gotta pass the second TAB in somehow?
 
 		// boolean lineIsListItem = false;
 		final StringTokenizer st = new StringTokenizer(textData2.toString(), " \t", false);
@@ -443,6 +604,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		while (st.hasMoreTokens()) {
 			String wd = st.nextToken();
 			pre2 = (secondLvl ? preBase + "\t" : preBase);
+			endedInNewline = false;
 			// if (wd.contains("\t")) {
 			// if (strToWrite.length() > 0)
 			// wd.replace("\t", "");
@@ -451,14 +613,36 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterFile2.write(pre2);
 				fWriterFile2.write(strToWrite.toString().trim());
 				fWriterFile2.write(TextBiz.newLine);
+				endedInNewline = true;
 				strToWrite.setLength(0);
 				// pre += "\t";
 				secondLvl = true;
 				// no strToWrite.append(wd);
+				// } else if (wd.compareTo(FileLooper.DOCTAG_SUBLIST) == 0) {
+				// fWriterFile2.write(pre2);
+				// fWriterFile2.write("\t");
+				// fWriterFile2.write(strToWrite.toString().trim());
+				// fWriterFile2.write(wd);
+				// // fWriterFile2.write(TextBiz.newLine);
+				// strToWrite.setLength(0);
+				// pre += "\t";
+				// secondLvl = true;
+				// } else if (wd.indexOf(FileLooper.DOCTAG_SUBLIST) > -1) {
+				// //fWriterFile2.write("\n");
+				// fWriterFile2.write(pre2);
+				// fWriterFile2.write("\t\t");
+				// fWriterFile2.write(strToWrite.toString().trim());
+				// // fWriterFile2.write(TextBiz.newLine);
+				// strToWrite.setLength(0);
+				// // pre += "\t";
+				// // secondLvl = true;
 			} else if ((strToWrite.length() + wd.length()) > maxLineLen) {
 				fWriterFile2.write(pre2);
 				fWriterFile2.write(strToWrite.toString().trim());
 				fWriterFile2.write(TextBiz.newLine);
+				endedInNewline = true;
+				if (wd.length() < 1)
+					LOGGER.warn("wd is 0");
 				strToWrite.setLength(0);
 				// pre += "\t";
 				secondLvl = true;
@@ -487,6 +671,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 				fWriterFile2.write(pre2);
 				fWriterFile2.write(str1.trim());
 				fWriterFile2.write(TextBiz.newLine);
+				endedInNewline = true;
 				strToWrite.delete(0, idx + 4);
 				// pre = "\t";
 				secondLvl = true;
@@ -498,6 +683,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterFile2.write(pre2);
 			fWriterFile2.write(strToWrite.toString().trim());
 			fWriterFile2.write(TextBiz.newLine);
+			endedInNewline = true;
 		}
 		// else if (lineIsListItem)
 		// fWriterFile2.write(TextBiz.newLine);
@@ -505,6 +691,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// fWriterFile2.write(val);// docTag.getValue());
 		// fWriterFile2.write(TextBiz.newLine);
 		// }
+		return endedInNewline;
 	}
 
 	DocTagLine dttGL = null;
@@ -529,7 +716,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			return;
 		fWriterL.write(docTag.getName());
 		fWriterL.write(": ");
-		writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL);
+		writeDataToFileWithCrop(docTag, formatDao, fWriterL);
 
 	}
 
@@ -580,15 +767,20 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// fWriterL.write("-");
 			// else if (levelledCount == 2)
 			// fWriterL.write("--");
-			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL);
+			writeDataToFileWithCrop(docTag, formatDao, fWriterL);
 			// writeDataToFileWithCrop(" [" + levelledCount + "]", formatDao,
 			// fWriterL, false);
 			// fWriterL.write(docTag.getValue());
 			// fWriterL.write(TextBiz.newLine);
 		} else if (formatDao.getDocTagsOutlineExpandTags().contains(docTag.getName())) {
-			fWriterL.write(docTag.getName());
+			fWriterL.write(docTag.getName().trim());
 			fWriterL.write(": ");
-			writeDataToFileWithCrop(docTag.getValue(), formatDao, fWriterL);
+			// TODO need to add a new line here if (==) in sub tags
+			if (docTag.getAddedLines().size() > 0) {
+				// fWriterL.write(TextBiz.newLine);
+				// fWriterL.write("\t");
+			}
+			writeDataToFileWithCrop(docTag, formatDao, fWriterL);
 			// writeDataToFileWithCrop(" [" + levelledCount + "]", formatDao,
 			// fWriterL, false);
 			// fWriterL.write(docTag.getValue());
@@ -801,6 +993,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	}
 
 	@Override
+	public Object postHandlerPackage(FormatDao formatDao, LooperDao ldao) {
+		return null;
+	}
+
+	@Override
 	public String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException {
 
 		writeChapterData(formatDao, ldao, null);
@@ -930,6 +1127,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Scene Compressed Report, ",
 					tagListSceneCompressed);
 			printSubReportForArray(fWriterDocTagReportFile, "-= DocTags Scene Expanded Report, ", tagListSceneExpanded);
+
+			// More files
+			if (formatDao.getOutputs() != null && formatDao.getOutputs().size() > 0) {
+				for (OtherDocTagData odtData : formatDao.getOutputs()) {
+					printSubReportForArray(fWriterDocTagReportFile,
+							"-= DocTags MoreFiles (" + odtData.getName() + ")  Report, ", odtData.getDocTagsList());
+				}
+			}
 
 			// COUNT - tagsCount
 			fWriterDocTagReportFile.write(TextBiz.newLine);
@@ -1068,7 +1273,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		// Return report of unused
 		Collections.sort(unusedTagNameList);
 		final StringBuilder sb = new StringBuilder();
-		sb.append("Outline: Used#: ");
+		sb.append("--Outliner Report: Used#: ");
 		sb.append(usedTagFileList.keySet().size());
 		sb.append(", ");
 		sb.append("Unused#: ");
@@ -1079,10 +1284,20 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			sb.append(")");
 		}
 		sb.append("\n");
-		sb.append("Outline: DocTag counter: Start = ");
+		sb.append("--Outliner DocTags Counter: Start= ");
 		sb.append(ldao.getDtStartCount());
 		sb.append(" End=");
 		sb.append(ldao.getDtEndCount());
+
+		sb.append("\n");
+		sb.append("--Outliner DocTags Errors: count=");
+		sb.append(errorTagList.size());
+		if (errorTagList.size() > 0) {
+			sb.append(" Err=");
+			sb.append(" (");
+			sb.append(fromListToCommaDelimString(errorTagList));
+			sb.append(")");
+		}
 
 		return sb.toString();
 	}
@@ -1158,6 +1373,17 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		docTagsTextBlob = docTagsTextBlob.replace("\t", "");
 		docTagsTextBlob = docTagsTextBlob.replace(" ", "");
 		final String[] strs = StringUtils.split(docTagsTextBlob, ", ");
+		for (final String strTag : strs) {
+			// TODO check if tag is of format:
+			// <Name>:<taginfo> or
+			// <Name>:<taginfo>:<tagInfoData>
+			//Regexp?
+			//
+			//final Pattern r1 = Pattern.compile("@(?<mKey>\\w+):(?<mInfo>\\w+):(?<mInfoData>\\w+)");
+			//final Pattern r2 = Pattern.compile("@(?<mKey>\\w+):(?<mInfo>\\w+)");
+			// Now create matcher object.
+			//final Matcher matcher = r.matcher(line);
+		}
 		return Arrays.asList(strs);
 	}
 
@@ -1321,6 +1547,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 					outputDirS2.getParentFile().mkdirs();
 					outputDirS2.mkdirs();
 				}
+				// Can throw exception if file doesn't exist
 				final BufferedWriter fWriterOthersFile = new BufferedWriter(
 						new OutputStreamWriter(Files.newOutputStream(outputFileS2.toPath(), StandardOpenOption.CREATE,
 								StandardOpenOption.TRUNCATE_EXISTING), selCharSet));

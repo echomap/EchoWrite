@@ -26,6 +26,7 @@ public class FormatDao {
 	// private String storyTitle3 = null;
 	private String seriesTitle = null;
 	private String volume = null;
+	private String keywords = null;
 	private String formatMode = null;
 	private String filePrefix = null;
 	private String outputEncoding = DEFAULToutputEncoding;
@@ -100,6 +101,7 @@ public class FormatDao {
 		addLine(sbuf, "ProfileName", this.profileName);
 		addLine(sbuf, "SeriesTitle", this.seriesTitle);
 		addLine(sbuf, "volume", this.volume);
+		addLine(sbuf, "keywords", this.keywords);
 
 		addLine(sbuf, "StoryTitle1", this.storyTitle1);
 		addLine(sbuf, "StoryTitle2", this.storyTitle2);
@@ -568,6 +570,14 @@ public class FormatDao {
 
 	public void setVolume(String volume) {
 		this.volume = volume;
+	}
+
+	public String getKeywords() {
+		return keywords;
+	}
+
+	public void setKeywords(String keywords) {
+		this.keywords = keywords;
 	}
 
 	public boolean isIncludeChapterName() {

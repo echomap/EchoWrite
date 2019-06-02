@@ -13,14 +13,14 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.OtherDocTagData;
-import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileData;
-import com.echomap.kqf.two.gui.KQFCtrl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class ProfileBiz {
 	private final static Logger LOGGER = LogManager.getLogger(ProfileBiz.class);
+
+	public static final String PROP_KEY_VERSION = "version";
 
 	private final Preferences userPrefs;
 	String appVersion = null;
@@ -329,7 +329,7 @@ public class ProfileBiz {
 		formatDao.setOutputs(pr.getOutputs());
 
 		//
-		formatDao.setVersion(appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+		formatDao.setVersion(appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 		LOGGER.debug("setupDao: Version = " + formatDao.getVersion());
 		LOGGER.debug("setupDao: Done");
 	}

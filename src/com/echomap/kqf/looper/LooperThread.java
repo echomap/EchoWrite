@@ -17,7 +17,6 @@ import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SectionDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 import com.echomap.kqf.looper.data.SimpleSectionDao;
-import com.echomap.kqf.two.gui.WorkDoneNotify;
 
 public class LooperThread extends Thread {
 	final FormatDao formatDao;
@@ -158,6 +157,10 @@ public class LooperThread extends Thread {
 					// notifyCtrl.statusUpdateForWork(flHandler.getWorkType(),
 					// finalMsg);
 				}
+				final Object finalObj = flHandler.postHandlerPackage(formatDao, ldao);
+				if (finalObj != null) {
+					notifyCtrl.finalResultPackageFromWork(finalObj);
+				}
 			}
 		}
 		LOGGER.info("Loop: Done" + (workType != null ? "(" + workType + ")" : ""));
@@ -191,25 +194,23 @@ public class LooperThread extends Thread {
 		final CountDao sdao = ldao.getSectionCount();
 
 		if (lineSectData.isSection) {
-			if (sdao.getName() != null && sdao.getName().length() > 0) {
-				// tdao.addNumWords(cdao.getNumWords());
-				ldao.getSections().add(new SectionDao(lineSectData));
-				sdao.clear();
-				// tdao.addChapterCount(1);
-			}
+			// Sections dont always have full data like chapters
+			// if (sdao.getName() != null && sdao.getName().length() > 0) {
+			// tdao.addNumWords(cdao.getNumWords());
+			ldao.getSections().add(new SectionDao(lineSectData));
+			ldao.getSectionCount().addChapterCount(1);
+			sdao.clear();
+			// tdao.addChapterCount(1);
+			// }
 			sdao.setName(lineSectData.sname);
 			sdao.setTitle(lineSectData.title);
 			sdao.setNumber(lineSectData.snum);
 
 			// ldao.getSections().add(new SectionDao(lineSectData));
 		}
-		// else
-		// cdao.setSectionNumber(ldao.getCurrentSection().snum);
 
 		final CountDao cdao = ldao.getChaptCount();
 		final CountDao tdao = ldao.getTotalCount();
-
-		// cdao.setSectionNumber(lineSectData.snum);
 
 		if (lineChptData.isChapter) {
 			if (cdao.getName() != null && cdao.getName().length() > 0) {
@@ -246,10 +247,14 @@ public class LooperThread extends Thread {
 		ldao.addEndTag(dtt.getNumberOfEndTags());
 		final long cntDiff = ldao.getDtEndCount() - ldao.getDtStartCount();
 		if (!reportedCountError && (dttGL != null && !dttGL.isLongDocTag()) && (cntDiff < 0 || cntDiff > 0)) {
-			LOGGER.error("Count is off! (" + cntDiff + ") at line:" + ldao.getCurrentLine());
+			String eLine = ldao.getCurrentLine();
+			eLine = eLine.replace("\n", "").replace("\t", "").replace("\r", "");
+			LOGGER.error("Count is off! (" + cntDiff + ") at line: [" + ldao.getLineCount() + "] <" + eLine + ">");
 			if (!dtt.isLongDocTag() && dttGL != null && !dttGL.isLongDocTag()) {
 				reportedCountError = true;
-				notifyCtrl.statusUpdateForWork("WARNING", "Count is off! at line:" + ldao.getCurrentLine());
+				final String msg = "Count is off! at line: [" + ldao.getLineCount() + "] <" + eLine + ">";
+				// TODO not always being able to pass eline???
+				notifyCtrl.statusUpdateForWork("WARNING", msg);
 			}
 		}
 

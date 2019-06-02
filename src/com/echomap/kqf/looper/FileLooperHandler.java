@@ -43,4 +43,9 @@ public interface FileLooperHandler {
 	 */
 	String postHandler(FormatDao formatDao, LooperDao ldao) throws IOException;
 
+	/**
+	 * Always called in the finally after the looper ends
+	 */
+	Object postHandlerPackage(FormatDao formatDao, LooperDao ldao);
+
 }

@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.data.ProfileExportObj;
-import com.echomap.kqf.two.gui.KQFCtrl;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -103,7 +102,7 @@ public class XferBiz {
 	public static JsonObject ProfileDataExportFromMemory(List<OtherDocTagData> targetList, final Properties appProps) {
 		final JsonObject exportDataset = new JsonObject();
 		if (appProps != null)
-			exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			exportDataset.addProperty("version", appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 		LOGGER.debug("handleExport: exportDataset: " + exportDataset);
 		final JsonArray exportList = new JsonArray();
 		if (targetList != null) {
@@ -212,7 +211,7 @@ public class XferBiz {
 		LOGGER.debug("createJsonFromPrefsProfileData: Called");
 		final JsonObject albums = new JsonObject();
 		if (appProps != null)
-			albums.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			albums.addProperty("version", appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 
 		// create array
 		final JsonArray profileDataArray = new JsonArray();
@@ -328,7 +327,7 @@ public class XferBiz {
 			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
 
 			final JsonObject exportDataset = new JsonObject();
-			exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			exportDataset.addProperty("version", appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 			LOGGER.debug("exportProfiles: exportDataset: " + exportDataset);
 			final JsonArray exportProfiles = new JsonArray();
 			if (targetList != null) {

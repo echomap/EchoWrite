@@ -9,15 +9,15 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.echomap.kqf.biz.KqfBiz;
 import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.persist.Export;
-import com.echomap.kqf.two.gui.GUIUtils;
+import com.echomap.kqf.persist.Import;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,6 +30,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -40,7 +41,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -61,7 +61,11 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	private List<OtherDocTagData> cachedOutputs = null;
 
 	@FXML
-	private GridPane outerMostContainer;
+	private SplitPane outerMostContainer;
+	@FXML
+	private GridPane outerFirstContainer;
+	@FXML
+	private GridPane outerSecondContainer;
 	@FXML
 	private VBox editProfilePane;
 	@FXML
@@ -187,6 +191,11 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	public void handleBrowse(final ActionEvent event) {
 		LOGGER.debug("handleBrowse: Called");
 		final String filePrefixText = selectedProfile.getInputFilePrefix();
+		if (StringUtils.isBlank(inputFile.getText())) {
+			final File inFile = new File(selectedProfile.getInputFile());
+			if (inFile != null)
+				inputFile.setText(inFile.getParent());
+		}
 		boolean success = locateDir(event, "Open Output Dir", inputFile, inputFile);
 		if (success) {
 			final String outFilename = filePrefixText == null ? "/" + inputName.getText() + ".txt"
@@ -272,6 +281,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	public void handleNew(final ActionEvent event) {
 		LOGGER.debug("handleNew: Called");
 		setProfileChangeMade(true);
+		selectedOtherData = null;
 		unlockNewInputArea();
 		LOGGER.debug("handleNew: Done");
 	}
@@ -289,9 +299,8 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 
 		try {
 			final Export export1 = new Export();
-			@SuppressWarnings("unchecked")
-			final File outputFilePlain = export1.doExportMoreFiles(cFile.getAbsolutePath(), selectedProfile, this.appProps,
-					this.appPreferences, profileManager);
+			final File outputFilePlain = export1.doExportMoreFiles(cFile.getAbsolutePath(), selectedProfile,
+					this.appProps, this.appPreferences, profileManager);
 			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
 		} catch (IOException e) {
 			LOGGER.error(e);
@@ -318,6 +327,31 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	public void handleImport(final ActionEvent event) {
 		LOGGER.debug("handleImport: Called");
 		// TODO
+		// try {
+		final File cFile = locateFile(event, "Choose Import File", null, selectedProfile.getKey() + "_more.json",
+				FILTERTYPE.JSON);
+		if (cFile == null) {
+			showPopupMessage("Failed", "No file selected.", false);
+			return;
+		}
+
+		try {
+			final Import export1 = new Import();
+			// final List<Profile> output =
+			// TODO return data
+			export1.doImportMoreFiles(cFile.getAbsolutePath(), selectedProfile, this.appProps, this.appPreferences,
+					profileManager);
+			// showPopupMessage("Import Done!", "Import Done! Written from '" +
+			// outputFilePlain + "'", false);
+			setProfileChangeMade(true);
+			setOverallChangeMade(true);
+			loadData();
+			LOGGER.debug("Import Done");
+		} catch (IOException e) {
+			LOGGER.error(e);
+			showPopupMessage("Import Error", e.getMessage(), true);
+		}
+
 		LOGGER.debug("handleImport: Done");
 	}
 
@@ -345,8 +379,14 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		super.setProfileChangeMade(b);
 		if (b) {
 			profileDataChanged.setText("Unsaved Changes");
+			profileDataChanged.getStyleClass().clear();
+			profileDataChanged.getStyleClass().add("highlightedOnOutlinedText");
+			// btnCloseScreen.setText("C_ancel");
 		} else {
-			profileDataChanged.setText("");
+			profileDataChanged.setText("Up to date");
+			profileDataChanged.getStyleClass().clear();
+			profileDataChanged.getStyleClass().add("highlightedOffOutlinedText");
+			// btnCloseScreen.setText("_Back");
 		}
 	}
 
@@ -355,9 +395,14 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		if (b) {
 			overallDataChanged.setText("Unsaved Changes");
 			btnCloseScreen.setText("_Cancel");
+			btnCloseScreen.setStyle("-fx-background-color: ##F58E9D");
+			// btnCloseScreen.getStyleClass().remove(1);
+			// btnCloseScreen.getStyleClass().add("deletebutton");
 		} else {
 			overallDataChanged.setText("");
 			btnCloseScreen.setText("_Close");
+			btnCloseScreen.setStyle("-fx-background-color: #6473A4");
+			// btnCloseScreen.getStyleClass().remove(1);
 		}
 	}
 
@@ -393,7 +438,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		});
 
 		// Hack: align column headers to the center.
-		GUIUtils.alignColumnLabelsLeftHack(inputTable);
+		BaseCtrl.alignColumnLabelsLeftHack(inputTable);
 
 		inputTable.setRowFactory(new Callback<TableView<OtherDocTagData>, TableRow<OtherDocTagData>>() {
 			@Override
@@ -499,6 +544,9 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		}
 		inputTable.refresh();
 		setDetectChanges(outerMostContainer);
+		setDetectChanges(outerMostContainer.getItems());
+		// outerFirstContainer
+		// outerSecondContainer
 		LOGGER.debug("loadTableData: Done");
 	}
 

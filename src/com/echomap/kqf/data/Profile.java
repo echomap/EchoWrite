@@ -427,6 +427,7 @@ public class Profile {
 	public void addOutput(final OtherDocTagData output) {
 		if (outputs == null)
 			outputs = new ArrayList<OtherDocTagData>();
+		//TODO Compare for duplicats!!
 		outputs.add(output);
 	}
 

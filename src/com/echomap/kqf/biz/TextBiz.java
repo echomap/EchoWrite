@@ -73,6 +73,7 @@ public class TextBiz {
 		return cleanText(st2, removeSectDiv, sectionDivider, docTagStart, docTagEnd);
 	}
 
+	// @TODO change misc to be a list?
 	public static String cleanText(final String st, final boolean remChapterDiv, final String miscChapterDiv,
 			final String docTagStart, final String docTagEnd) {
 		if (remChapterDiv) {
@@ -332,10 +333,11 @@ public class TextBiz {
 		if (matcher.find()) {
 			dao.isChapter = true;
 			String mNum = null;
-			Integer mNumI = null;
+			// Integer mNumI = null;
 			try {
 				mNum = matcher.group("cnum");
-				mNumI = Integer.valueOf(mNum);
+				// mNumI =
+				Integer.valueOf(mNum);
 			} catch (NumberFormatException e1) {
 				LOGGER.warn("Failed to convert Chapter Number to a NUMBER.");
 				// e1.printStackTrace(); // TODO report exception

@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.echomap.kqf.two.gui.WorkDoneNotify;
+import com.echomap.kqf.looper.WorkDoneNotify;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -95,7 +95,7 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 	}
 
 	@Override
-	public void finalResultFromWork(String msg) {
+	public void finalResultFromWork(final String msg) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -108,7 +108,20 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 	}
 
 	@Override
-	public void finishedWithWork(String msg) {
+	public void finalResultPackageFromWork(final Object finalObj) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				// showSummaryMessage(msg, false);
+				workFinishedCallback.workFinished(finalObj);
+				// unlockGui();
+				// runningMutex = false;
+			}
+		});
+	}
+
+	@Override
+	public void finishedWithWork(final String msg) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -147,7 +160,7 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 			@Override
 			public void run() {
 				showMessage("Error running " + msg + " Process (" + BaseCtrl.getCurrentDateFmt() + ")\n" + e, false);
-				//TODO show more of the exception?
+				// TODO show more of the exception?
 				LOGGER.error(e);
 				workFinishedCallback.workFinished("");
 				// unlockGui();
@@ -171,11 +184,12 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 	}
 
 	@Override
-	public void statusUpdateForWork(String header, String msg) {
+	public void statusUpdateForWork(final String header, final String msg) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				showMessage("---" + header + " Process, " + msg, false);
+				showMessage("---" + (header == null ? "" : header) + " Process, " + (msg == null ? "" : msg.trim()),
+						false);
 			}
 		});
 	}

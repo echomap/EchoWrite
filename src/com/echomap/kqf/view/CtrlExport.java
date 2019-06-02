@@ -16,7 +16,6 @@ import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileExportObj;
 import com.echomap.kqf.persist.Export;
-import com.echomap.kqf.two.gui.GUIUtils;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -134,7 +133,7 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 		inputTable.getColumns().addAll(exportCol, keyCol, nameCol, inputFileCol);
 
 		// Hack: align column headers to the center.
-		GUIUtils.alignColumnLabelsLeftHack(inputTable);
+		BaseCtrl.alignColumnLabelsLeftHack(inputTable);
 
 		inputTable.setRowFactory(new Callback<TableView<ProfileExportObj>, TableRow<ProfileExportObj>>() {
 			@Override
@@ -205,7 +204,7 @@ public class CtrlExport extends BaseCtrl implements Initializable {
 
 		//
 		inputTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		GUIUtils.autoFitTable(inputTable);
+		BaseCtrl.autoFitTable(inputTable);
 
 		LOGGER.debug("setupTable: Done");
 	}

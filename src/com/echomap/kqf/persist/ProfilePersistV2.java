@@ -26,6 +26,8 @@ public class ProfilePersistV2 {
 		profile.setSubTitle(setupValue(profileData, "titleTwo", ""));
 		profile.setSeriesTitle(profileData.getText("seriesTitle"));
 		profile.setVolume(setupValue(profileData, "volume", "1"));
+		profile.setKeywords(setupValue(profileData, "keywords", ""));
+		
 		profile.setInputFile(setupValue(profileData, "inputFile", ""));
 		profile.setInputFilePrefix(setupValue(profileData, "inputFilePrefix", ""));
 		profile.setAppendUnderscoreToPrefix(profileData.getSelected("appendUnderscoreToPrefix"));
@@ -214,7 +216,8 @@ public class ProfilePersistV2 {
 
 		formatDao.setSeriesTitle(selectedProfile.getSeriesTitle());
 		formatDao.setVolume(selectedProfile.getVolume());
-
+		formatDao.setKeywords(selectedProfile.getKeywords());
+		
 		formatDao.setVersion(appVersion);// appProps.getProperty(PROP_KEY_VERSION));
 		LOGGER.debug("setupDao: Done");
 	}
@@ -233,6 +236,7 @@ public class ProfilePersistV2 {
 		profileData.setText("titleThree", profile.getSubTitle());
 		profileData.setText("seriesTitle", profile.getSeriesTitle());
 		profileData.setText("volume", profile.getVolume());
+		profileData.setText("keywords", profile.getKeywords());
 		profileData.setText("inputFile", profile.getInputFile());
 		profileData.setText("inputFilePrefix", profile.getInputFilePrefix());
 		profileData.setSelected("appendUnderscoreToPrefix", profile.isAppendUnderscoreToPrefix());

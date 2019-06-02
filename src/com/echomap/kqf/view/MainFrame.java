@@ -32,6 +32,7 @@ public class MainFrame extends Application {
 	private static final String FXML_DELETEPROFILE = "/viewprofiledelete.fxml";
 
 	private static final String FXML_MOREFILES = "/viewmorefiles.fxml";
+	private static final String FXML_TIMELINE = "/timeline.fxml";
 
 	public static final String SUB_EXPORT = "/viewexport.fxml";
 	public static final String SUB_IMPORT = "/viewimport.fxml";
@@ -42,7 +43,9 @@ public class MainFrame extends Application {
 	final static Properties appProps = new Properties();
 
 	Preferences appPreferences = null;
-	final static String WINDOW_TITLE_FMT = "Kindle (Ebook) Quick Formatter (MYKFEQF v%s)";
+	final static String WINDOW_TITLE_FMT = "EchoWrite: A simple parser for safely documenting writing inside the source text (v%s)";
+	// a Quick Text Formatter and Markup Aid for Writing
+	// "Kindle (Ebook) Quick Formatter (MYKFEQF v%s)";
 
 	public static void main(String[] args) {
 		Application.launch(MainFrame.class, args);
@@ -56,10 +59,12 @@ public class MainFrame extends Application {
 		fxmlFrames.put(BaseCtrl.WINDOWKEY_EXPORT, SUB_EXPORT);
 		fxmlFrames.put(BaseCtrl.WINDOWKEY_IMPORT, SUB_IMPORT);
 		fxmlFrames.put(BaseCtrl.WINDOWKEY_MOREFILES, FXML_MOREFILES);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_TIMELINE, FXML_TIMELINE);
 
 		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_NEW, com.echomap.kqf.view.CtrlProfileEdit.class);
 		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_EDIT, com.echomap.kqf.view.CtrlProfileEdit.class);
 		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_DELETE, com.echomap.kqf.view.CtrlProfileEdit.class);
+		// fxmlCtrl.put(key, value)
 
 		appPreferences = Preferences.userNodeForPackage(MainFrame.class);
 

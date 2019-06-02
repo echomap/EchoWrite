@@ -2,39 +2,48 @@ package com.echomap.kqf.view;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.echomap.kqf.two.gui.KQFBaseCtrl;
-import com.echomap.kqf.view.CtrlMoreFiles.ConfirmResultDelete;
+import com.sun.javafx.scene.control.skin.TableViewSkin;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
@@ -56,7 +65,7 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public abstract class BaseCtrl {
-	private final static Logger LOGGER = LogManager.getLogger(KQFBaseCtrl.class);
+	private final static Logger LOGGER = LogManager.getLogger(BaseCtrl.class);
 	public static final String PROP_KEY_VERSION = "version";
 	static public final DateFormat myDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
@@ -70,6 +79,8 @@ public abstract class BaseCtrl {
 	static public final String WINDOWKEY_IMPORT = "Import";
 	static public final String WINDOWKEY_EXPORT = "Export";
 
+	static public final String WINDOWKEY_TIMELINE = "Timeline";
+
 	static public enum FILTERTYPE {
 		NONE, JSON, HTML, TEXT, CSV;
 	}
@@ -82,15 +93,29 @@ public abstract class BaseCtrl {
 	Preferences appPreferences = null;
 	// Loaded from file
 	Properties appProps = null;
+	ResourceBundle messageBundle = null;
+
 	//
 	String appVersion = null;
 	Stage primaryStage = null;
 	boolean profileChangeMade = false;
 
 	// String lastNofificationMsg = null;
+	private static Method columnToFitMethod;
+
+	static {
+		try {
+			columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class,
+					int.class);
+			columnToFitMethod.setAccessible(true);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public BaseCtrl() {
 		// appPreferences = Preferences.userNodeForPackage(BaseCtrl.class);
+		// messageBundle = cwc2messages.properties
 	}
 
 	String loadPropFromAppOrDefault(final String key, final String defaultValue) {
@@ -127,6 +152,9 @@ public abstract class BaseCtrl {
 			final String fn = appPreferences.get("LastSelectedDirectory", null);
 			fnF = (fn == null ? null : new File(fn));
 		}
+		if (fnF == null || !fnF.exists() || !fnF.isDirectory()) {
+			// Get input file's directory? Or outputs?
+		}
 		return fnF;
 	}
 
@@ -139,7 +167,7 @@ public abstract class BaseCtrl {
 	}
 
 	// TODO different call for Error? w/colors?
-	void showMessage(final String msg, final boolean clearPrevious, TextArea outputArea) {
+	void showMessage(final String msg, final boolean clearPrevious, final TextArea outputArea) {
 		final Animation animation = new Transition() {
 			{
 				setCycleDuration(Duration.millis(2000));
@@ -240,7 +268,7 @@ public abstract class BaseCtrl {
 		dialog.show();
 	}
 
-	void showConfirmDialog(final String msg1, final String msg2, ConfirmResultDelete confirmResultDelete) {
+	void showConfirmDialog(final String msg1, final String msg2, final ConfirmResult confirmResult) {
 		final Stage dialog = new Stage();
 		dialog.setTitle("KQF Message Dialog");
 		dialog.setResizable(true);
@@ -260,7 +288,7 @@ public abstract class BaseCtrl {
 				LOGGER.debug("Action Confirmed");
 				final Node source = (Node) event.getSource();
 				final Stage stage = (Stage) source.getScene().getWindow();
-				confirmResultDelete.actionConfirmed(msg1);
+				confirmResult.actionConfirmed(msg1);
 				stage.close();
 			}
 		});
@@ -274,7 +302,7 @@ public abstract class BaseCtrl {
 				LOGGER.debug("Action Cancelled");
 				final Node source = (Node) event.getSource();
 				final Stage stage = (Stage) source.getScene().getWindow();
-				confirmResultDelete.actionCancelled(msg1);
+				confirmResult.actionCancelled(msg1);
 				stage.close();
 			}
 		});
@@ -427,6 +455,11 @@ public abstract class BaseCtrl {
 		this.appPreferences = appPreferences;
 		this.primaryStage = primaryStage;
 		this.appVersion = appProps.getProperty(PROP_KEY_VERSION);
+		final String local1 = appPreferences.get("localization1", "en");
+		final String local2 = appPreferences.get("localization2", "US");
+		final Locale sLocal = new Locale(local1, local2);
+		this.messageBundle = ResourceBundle.getBundle("cwc2messages", sLocal);
+
 		primaryStage.widthProperty().addListener((obs, oldVal, newVal) -> {
 			this.windowWidthChanged(newVal);
 		});
@@ -455,12 +488,98 @@ public abstract class BaseCtrl {
 		}
 	}
 
-	// todo working?
+	@SuppressWarnings("rawtypes")
+	public static void alignColumnLabelsLeftHack(final TableView inputTable) {
+		// Hack: align column headers to the center.
+
+		inputTable.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> ov, final Number t, final Number t1) {
+				Platform.runLater(new Runnable() {
+					public void run() {
+						// System.out.print(listerColumn.getText() + " ");
+						// System.out.println(t1);
+						if (t != null && t.intValue() > 0)
+							return; // already aligned
+						for (Node node : inputTable.lookupAll(".column-header > .label")) {
+							if (node instanceof Label)
+								((Label) node).setAlignment(Pos.TOP_LEFT);
+						}
+					}
+				});
+			};
+		});
+
+		// TODO when I make this Java 8 or like whatever
+		// inputTable.widthProperty().addListener((src, o, n) ->
+		// Platform.runLater(() -> {
+		// if (o != null && o.intValue() > 0)
+		// return; // already aligned
+		// for (Node node : inputTable.lookupAll(".column-header > .label")) {
+		// if (node instanceof Label)
+		// ((Label) node).setAlignment(Pos.TOP_LEFT);
+		// }
+		// }));
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void autoFitTable(final TableView tableView) {
+		tableView.getItems().addListener(new ListChangeListener<Object>() {
+			@Override
+			public void onChanged(Change<?> c) {
+				for (final Object column : tableView.getColumns()) {
+					try {
+						if (column == null)
+							continue;
+						if (tableView == null)
+							continue;
+						if (tableView.getSkin() == null)
+							continue;
+						// if (columnToFitMethod == null) continue;
+						columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+	}
+
+	String getLocalizedText(final String key, final String defaultText) {
+		if (!messageBundle.containsKey(key)) {
+			return defaultText;
+		}
+		return messageBundle.getString(key);
+	}
+
+	// todo working/needed?
 	void setTooltips(final Pane pane) {
 		// LOGGER.debug("setTooltips: Called ");
 		if (pane == null)
 			return;
 		for (Node node : pane.getChildren()) {
+			if (node instanceof TextField) {
+				final TextField tf = (TextField) node;
+				if (tf.getTooltip() == null && !StringUtils.isBlank(tf.getPromptText())) {
+					tf.setTooltip(new Tooltip(tf.getPromptText()));
+				}
+			} else if (node instanceof Pane) {
+				setTooltips((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					setTooltips((Pane) nd2);
+				}
+			}
+		}
+		// LOGGER.debug("setTooltips: Done ");
+	}// todo working?
+
+	void setTooltips(final SplitPane pane) {
+		// LOGGER.debug("setTooltips: Called ");
+		if (pane == null)
+			return;
+		for (Node node : pane.getItems()) {
 			if (node instanceof TextField) {
 				final TextField tf = (TextField) node;
 				if (tf.getTooltip() == null && !StringUtils.isBlank(tf.getPromptText())) {
@@ -602,7 +721,7 @@ public abstract class BaseCtrl {
 		LOGGER.debug("locateFile: Called");
 		final FileChooser chooser = new FileChooser();
 		File startDir = null;
-		if (!StringUtils.isEmpty(textField.getText())) {
+		if (textField != null && !StringUtils.isEmpty(textField.getText())) {
 			startDir = new File(textField.getText());
 			if (!startDir.isDirectory())
 				startDir = startDir.getParentFile();
@@ -645,7 +764,8 @@ public abstract class BaseCtrl {
 			textField.setText("");
 			// lastSelectedDirectory = null;
 		} else {
-			textField.setText(file.getAbsolutePath());
+			if (textField != null)
+				textField.setText(file.getAbsolutePath());
 			// lastSelectedDirectory = file.getParentFile();
 		}
 		LOGGER.debug("locateFile: Done");
@@ -708,58 +828,70 @@ public abstract class BaseCtrl {
 	// // TODO chooseDirectory
 	// }
 
+	void setDetectChangesNodeElem(final Node node) {
+		if (node instanceof TextField) {
+			final TextField tf = (TextField) node;
+			// LOGGER.debug("setDetectChanges: adding to field=" +
+			// tf.getId());
+			tf.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+					LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
+					if (newValue.compareTo(oldValue) != 0)
+						setProfileChangeMade(true);
+				}
+			});
+		} else if (node instanceof TextArea) {
+			final TextArea tf = (TextArea) node;
+			// LOGGER.debug("setDetectChanges: adding to field=" +
+			// tf.getId());
+			tf.textProperty().addListener(new ChangeListener<String>() {
+
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+					LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
+					if (newValue.compareTo(oldValue) != 0)
+						setProfileChangeMade(true);
+				}
+			});
+			//
+		} else if (node instanceof CheckBox) {
+			final CheckBox cb = (CheckBox) node;
+			cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+					LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
+					if (newValue.compareTo(oldValue) != 0)
+						setProfileChangeMade(true);
+				}
+			});
+		} else if (node instanceof Pane) {
+			setDetectChanges((Pane) node);
+		} else if (node instanceof TitledPane) {
+
+			final Node nd2 = ((TitledPane) node).getContent();
+			if (nd2 instanceof Pane) {
+
+				setDetectChanges((Pane) nd2);
+			}
+		}
+	}
+
 	void setDetectChanges(final Pane pane) {
 		for (Node node : pane.getChildren()) {
-			if (node instanceof TextField) {
-				final TextField tf = (TextField) node;
-				// LOGGER.debug("setDetectChanges: adding to field=" +
-				// tf.getId());
-				tf.textProperty().addListener(new ChangeListener<String>() {
-					@Override
-					public void changed(ObservableValue<? extends String> observable, String oldValue,
-							String newValue) {
-						LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
-						if (newValue.compareTo(oldValue) != 0)
-							setProfileChangeMade(true);
-					}
-				});
-			} else if (node instanceof TextArea) {
-				final TextArea tf = (TextArea) node;
-				// LOGGER.debug("setDetectChanges: adding to field=" +
-				// tf.getId());
-				tf.textProperty().addListener(new ChangeListener<String>() {
+			setDetectChangesNodeElem(node);
+		}
+	}
 
-					@Override
-					public void changed(ObservableValue<? extends String> observable, String oldValue,
-							String newValue) {
-						LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
-						if (newValue.compareTo(oldValue) != 0)
-							setProfileChangeMade(true);
-					}
-				});
-				//
-			} else if (node instanceof CheckBox) {
-				final CheckBox cb = (CheckBox) node;
-				cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-					@Override
-					public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-							Boolean newValue) {
-						LOGGER.debug("setDetectChanges: newValue='" + newValue + "'");
-						if (newValue.compareTo(oldValue) != 0)
-							setProfileChangeMade(true);
-					}
-				});
-			} else if (node instanceof Pane) {
-				setDetectChanges((Pane) node);
-			} else if (node instanceof TitledPane) {
+	void setDetectChanges(final ObservableList<Node> nodes) {
+		for (Node node : nodes) {
+			setDetectChangesNodeElem(node);
+		}
+	}
 
-				final Node nd2 = ((TitledPane) node).getContent();
-				if (nd2 instanceof Pane) {
-
-					setDetectChanges((Pane) nd2);
-				}
-
-			}
+	void setDetectChanges(final Control pane) {
+		for (Node node : pane.getChildrenUnmodifiable()) {
+			setDetectChangesNodeElem(node);
 		}
 	}
 

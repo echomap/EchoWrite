@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -16,6 +18,7 @@ import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
+import com.echomap.kqf.looper.data.SectionDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 import com.echomap.kqf.looper.data.SimpleSectionDao;
 
@@ -26,11 +29,11 @@ import com.echomap.kqf.looper.data.SimpleSectionDao;
 public class FileLooperHandlerCount implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerCount.class);
 	public static final String WORKTYPE = "Counter";
-
+	NumberFormat numberFormat;
 	// String workResult = null;
 
 	public FileLooperHandlerCount() {
-
+		numberFormat = NumberFormat.getInstance(Locale.getDefault());
 	}
 
 	@Override
@@ -88,20 +91,45 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
+	public Object postHandlerPackage(FormatDao formatDao, LooperDao ldao) {
+		return null;
+	}
+
+	@Override
 	public String postHandler(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		LOGGER.info("postHandler-->");
 		Integer totalWords = 0;
 		for (ChapterDao cdao : ldao.getChapters()) {
-			LOGGER.debug("cdao = " + cdao);
+			LOGGER.debug("cdao = " + cdao.getChapterNumber() + " [" + cdao + "]");
 			totalWords += cdao.getNumWords();
 		}
-		LOGGER.debug("TotalWords: " + totalWords.toString());
+		for (SectionDao sdao : ldao.getSections()) {
+			LOGGER.debug("sdao = " + sdao.getNumber() + " [" + sdao + "]");
+			// totalWords += sdao.getNumWords();
+		}
+		final CountDao cdTC = ldao.getTotalCount();
+		LOGGER.debug("TotalWords: " + numberFormat.format(totalWords));
+		LOGGER.debug("ChaptCount: " + cdTC.getCounter());
+		// TODO THIS IS WRONG!
+		LOGGER.debug("TotalWords: " + numberFormat.format(cdTC.getNumWords()));
 		// outputSummaryOutputFile(summaryOut, outputDir, chapters);
 		outputSummaryOutputFile(formatDao.getOutputCountFile(), null, ldao.getChapters(), formatDao);
 		LOGGER.debug("Version:, " + formatDao.getVersion());
 		// TODO format with commas...
+		final StringBuilder sbResult = new StringBuilder();
+		sbResult.append("--Counter Process: TotalWords: ");
+		sbResult.append(numberFormat.format(totalWords));
 
-		return "TotalWords: " + totalWords.toString();
+		sbResult.append("\n");
+		sbResult.append("--Counter Process: Chapters: ");
+		sbResult.append(numberFormat.format(cdTC.getCounter()));
+
+		sbResult.append("\n");
+		sbResult.append("--Counter Process: Sections: ");
+		final CountDao sCount = ldao.getSectionCount();
+		sbResult.append(numberFormat.format(sCount.getCounter()));
+
+		return sbResult.toString();
 	}
 
 	@Override
@@ -143,11 +171,13 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 			// fWriter = new FileWriter(summaryOutputFile, false);
 			fWriter.write("Chapter,Words,Title,Chars,Lines,Section");
 			fWriter.write(TextBiz.newLine);
+			final String CSV_DIV = ", ";
 			for (ChapterDao countDao : chapters) {
 				// TODO format for leading zeros?
-				fWriter.write(countDao.getChapterName() + " " + countDao.getChapterNumber() + ","
-						+ countDao.getNumWords() + "," + countDao.getChapterTitle() + "," + countDao.getNumChars() + ","
-						+ countDao.getNumLines() + "," + countDao.getSectionNumber());
+				fWriter.write(
+						countDao.getChapterName() + " " + countDao.getChapterNumber() + CSV_DIV + countDao.getNumWords()
+								+ CSV_DIV + countDao.getChapterTitle() + CSV_DIV + countDao.getNumChars() + CSV_DIV
+								+ countDao.getNumLines() + CSV_DIV + countDao.getSectionNumber());
 				fWriter.write(TextBiz.newLine);
 				totalWords += countDao.getNumWords();
 			}

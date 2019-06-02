@@ -14,10 +14,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.biz.ProfileBiz;
 import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.Profile;
 import com.echomap.kqf.data.ProfileExportObj;
-import com.echomap.kqf.two.gui.KQFCtrl;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -60,7 +60,7 @@ public class Export {
 			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
 
 			final JsonObject exportDataset = new JsonObject();
-			exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			exportDataset.addProperty("version", appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 			LOGGER.debug("exportProfiles: exportDataset: " + exportDataset);
 			final JsonArray exportProfiles = new JsonArray();
 			if (exportMetadata != null) {
@@ -124,7 +124,7 @@ public class Export {
 			fWriterPlain = new OutputStreamWriter(new FileOutputStream(outputFilePlain), selCharSet);
 
 			final JsonObject exportDataset = new JsonObject();
-			exportDataset.addProperty("version", appProps.getProperty(KQFCtrl.PROP_KEY_VERSION));
+			exportDataset.addProperty("version", appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 			LOGGER.debug("exportProfiles: exporting profile: '" + selectedProfile.getKey() + "'");
 			final JsonObject dataset = convertProfileToJSON(selectedProfile);
 			final JsonElement moreFiles = dataset.get("Outputs");

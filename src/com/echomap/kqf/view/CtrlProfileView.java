@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.ProfileManager;
 import com.echomap.kqf.data.Profile;
-import com.echomap.kqf.two.gui.GUIUtils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -90,8 +89,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	@FXML
 	private TableView profileTable;
 
-	@FXML
-	private Label profileDataChanged;
+	// @FXML
+	// private Label profileDataChanged;
 	@FXML
 	private Label chosenProfileText;
 
@@ -112,6 +111,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private Button btnRunOutliner;
 	@FXML
 	private Button btnRunFormatter;
+	@FXML
+	private Button btnRunTimeline;
 
 	@FXML
 	private TextField filterTextKey;
@@ -132,6 +133,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private TextField seriesTitleText;
 	@FXML
 	private TextField volumeText;
+	@FXML
+	private TextField keywordsText;
 	@FXML
 	private TextField inputProfileKey;
 
@@ -182,6 +185,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			key = String.format(PREF_COL_S, 5);
 			setColumnWidth(columns, key, 4);
 		}
+
+		// final Locale list[] = DateFormat.getAvailableLocales();
+		// for (Locale aLocale : list) {
+		// showMessage("Available Local:" + aLocale.toString());
+		// }
+
 	}
 
 	@Override
@@ -254,6 +263,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				btnRunOutliner.setDisable(false);
 			} else if ("Formatter".compareTo(process) == 0) {
 				btnRunFormatter.setDisable(false);
+			} else if ("Timeline".compareTo(process) == 0) {
+				btnRunTimeline.setDisable(false);
 			}
 		}
 	}
@@ -266,6 +277,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			cnt++;
 		if (btnRunFormatter.isDisable())
 			cnt++;
+		// if (btnRunTimeline.isDisable())
+		// cnt++;
 		if (cnt > 1)
 			return true;
 		return false;
@@ -274,6 +287,16 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	@Override
 	public void workFinished(final String msg) {
 		this.unlockGui(msg);
+	}
+
+	@Override
+	public void workFinished() {
+		this.unlockGui();
+	}
+
+	@Override
+	public void workFinished(final Object payload) {
+		this.unlockGui();
 	}
 
 	private void refreshData() {
@@ -366,7 +389,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		});
 
 		// Hack: align column headers to the center.
-		GUIUtils.alignColumnLabelsLeftHack(profileTable);
+		BaseCtrl.alignColumnLabelsLeftHack(profileTable);
 
 		profileTable.setRowFactory(new Callback<TableView<Profile>, TableRow<Profile>>() {
 			@Override
@@ -474,11 +497,15 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		btnRunWordCounter.setDisable(true);
 		btnRunOutliner.setDisable(true);
 		btnRunFormatter.setDisable(true);
+		btnRunTimeline.setDisable(true);
 
 		editProfileBtn.setDisable(true);
 		renameProfileBtn.setDisable(true);
 		deleteProfileBtn.setDisable(true);
 		clearProfileBtn.setDisable(true);
+
+		chosenProfileText.getStyleClass().clear();
+		chosenProfileText.getStyleClass().add("chosenProfileNone");
 	}
 
 	// Allow Actions when there is no profile selected
@@ -486,6 +513,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		btnRunWordCounter.setDisable(false);
 		btnRunOutliner.setDisable(false);
 		btnRunFormatter.setDisable(false);
+		btnRunTimeline.setDisable(false);
 
 		editProfileBtn.setDisable(false);
 
@@ -493,6 +521,10 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		deleteProfileBtn.setDisable(false);
 		clearProfileBtn.setDisable(false);
 		btnRunOutliner.requestFocus();
+
+		chosenProfileText.getStyleClass().clear();
+		chosenProfileText.getStyleClass().add("chosenProfileSet");
+
 	}
 
 	// Reset all UI to base/empty settings
@@ -515,6 +547,40 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		persist();
 		doCleanup();
 		stage.close();
+	}
+
+	public void handleRunTimeline(final ActionEvent event) {
+		LOGGER.debug("handleRunCounter: Called");
+		// lockGui();
+		try {
+			btnRunTimeline.setDisable(true);
+			final BaseRunner br = new BaseRunner();
+			// br.handleRunTimeline(this, profileManager, this.selectedProfile,
+			// loggingText, myWorkDoneNotify);
+
+			if (selectedProfile == null) {
+				LOGGER.debug("Please select a profile before running!!");
+				loggingText.appendText("Please select a profile before running!!");
+				// notifyCtrl.errorWithWork("Counter", "Please select a profile
+				// before running!!");
+				return;
+			}
+
+			final Map<String, Object> paramsMap = new HashMap<>();
+			paramsMap.put("appVersion", appVersion);
+			paramsMap.put("selectedProfile", selectedProfile);
+			paramsMap.put("profileManager", profileManager);
+			// TODO extract
+			final String WINDOW_TITLE_FMT = "EchoWrite: Timeline: (v%s)";
+			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
+			openNewWindow(BaseCtrl.WINDOWKEY_TIMELINE, windowTitle, loggingText, primaryStage, this, paramsMap);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			// unlockGui();
+			btnRunTimeline.setDisable(false);
+		}
+		LOGGER.debug("handleRunTimeline: Done");
 	}
 
 	public void handleRunCounter(final ActionEvent event) {
@@ -622,8 +688,20 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleProfileEdit: Done");
 	}
 
+	public void handleProfilesDeleteAll(final ActionEvent event) {
+		LOGGER.debug("handleProfilesDeleteAll: Called");
+
+		final ConfirmResultDeleteAllProfiles confirmResultDelete = new ConfirmResultDeleteAllProfiles();
+		showConfirmDialog(getLocalizedText("text_deleteprofiles_title", "Delete ALL Profiles?"),
+				getLocalizedText("text_deleteprofiles_text",
+						"Really Delete all Saved Profiles Data, including Series/Titles/More Files?\r\nThis can not be undone."),
+				confirmResultDelete);
+		LOGGER.debug("handleDelete: Done");
+		LOGGER.debug("handleProfilesDeleteAll: Done");
+	}
+
 	public void handleImport(final ActionEvent event) {
-		LOGGER.debug("handleSettingsClear: Called");
+		LOGGER.debug("handleImport: Called");
 
 		final Map<String, Object> paramsMap = new HashMap<>();
 		paramsMap.put("appVersion", appVersion);
@@ -632,11 +710,11 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
 		openNewWindow(BaseCtrl.WINDOWKEY_IMPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
 
-		LOGGER.debug("handleSettingsClear: Done");
+		LOGGER.debug("handleImport: Done");
 	}
 
 	public void handleExport(final ActionEvent event) {
-		LOGGER.debug("handleSettingsClear: Called");
+		LOGGER.debug("handleExport: Called");
 
 		final Map<String, Object> paramsMap = new HashMap<>();
 		paramsMap.put("appVersion", appVersion);
@@ -645,7 +723,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
 		openNewWindow(BaseCtrl.WINDOWKEY_EXPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
 
-		LOGGER.debug("handleSettingsClear: Done");
+		LOGGER.debug("handleExport: Done");
 	}
 
 	public void handleRefreshProfiles(final ActionEvent event) {
@@ -661,25 +739,9 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	public void handleSettingsClear(final ActionEvent event) {
 		LOGGER.debug("handleSettingsClear: Called");
 
-		appPreferences.remove(PREF_SPLIT_H);
-		appPreferences.remove(PREF_SPLIT_V);
-
-		appPreferences.remove(VIEW_WINDOW_X);
-		appPreferences.remove(VIEW_WINDOW_Y);
-		appPreferences.remove(VIEW_WINDOW_W);
-		appPreferences.remove(VIEW_WINDOW_H);
-
-		String key = String.format(PREF_COL_S, 1);
-		appPreferences.remove(key);
-		key = String.format(PREF_COL_S, 2);
-		appPreferences.remove(key);
-		key = String.format(PREF_COL_S, 3);
-		appPreferences.remove(key);
-		key = String.format(PREF_COL_S, 4);
-		appPreferences.remove(key);
-		key = String.format(PREF_COL_S, 5);
-		appPreferences.remove(key);
-
+		final ConfirmResultDelete confirmResultDelete = new ConfirmResultDelete();
+		showConfirmDialog("Delete?", "Really Delete all Saved Settings Data?", confirmResultDelete);
+		LOGGER.debug("handleDelete: Done");
 		LOGGER.debug("handleSettingsClear: Done");
 	}
 
@@ -736,8 +798,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		this.selectedProfile = profile;
 		if (profile != null) {
 			if (!StringUtils.isEmpty(profile.getSeriesTitle())) {
-				final String msg = String.format("[%s] %s (%s)", profile.getKey(), profile.getMainTitle(),
-						profile.getSeriesTitle());
+				final String msg = String.format("[%s] %s - %s (%s)", profile.getKey(), profile.getMainTitle(),
+						profile.getSubTitle(), profile.getSeriesTitle());
 				chosenProfileText.setText(msg);
 			} else {
 				final String msg = String.format("[%s] %s", profile.getKey(), profile.getMainTitle(),
@@ -751,7 +813,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			subTitleText.setText(profile.getSubTitle());
 			seriesTitleText.setText(profile.getSeriesTitle());
 			volumeText.setText(profile.getVolume());
-			// Keywords
+			keywordsText.setText(profile.getKeywords());
 
 			final String lastSelectedDirectoryStr = profile.getInputFile();
 			if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {
@@ -759,7 +821,9 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			}
 			//
 			unlockGuiPerProfile();
-			showMessage("Selected Profile: <" + chosenProfileText.getText() + ">");
+			// showMessage("Selected Profile: <" + chosenProfileText.getText() +
+			// ">");
+			showMessage(String.format("Selected Profile: <%s> %s", chosenProfileText.getText(), "\n"));
 		}
 	}
 
@@ -771,14 +835,21 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		subTitleText.setText("");
 		seriesTitleText.setText("");
 		volumeText.setText("");
+		keywordsText.setText("");
 		lockGuiPerNoProfile();
 	}
 
 	void setProfileChangeMade(boolean b) {
 		if (b) {
-			profileDataChanged.setText("Unsaved Changes");
+			// profileDataChanged.setText("Unsaved Changes");
+			// profileDataChanged.getStyleClass().clear();
+			// profileDataChanged.getStyleClass().add("highlightedOnOutlinedText");
+			// btnCloseScreen.setText("C_ancel");
 		} else {
-			profileDataChanged.setText("");
+			// profileDataChanged.setText("Up to date");
+			// profileDataChanged.getStyleClass().clear();
+			// profileDataChanged.getStyleClass().add("highlightedOffOutlinedText");
+			// btnCloseScreen.setText("_Back");
 		}
 	}
 	// private void setProfileChangeMade(boolean b) {
@@ -817,4 +888,62 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	/*
 	 * XYX Functions
 	 */
+	class ConfirmResultDeleteAllProfiles implements ConfirmResult {
+
+		@Override
+		public void actionConfirmed(String title) {
+			LOGGER.debug("actionConfirmed: Called");
+
+			// TODO
+
+			refreshData();
+			LOGGER.debug("actionConfirmed: Done");
+		}
+
+		@Override
+		public void actionCancelled(String title) {
+			LOGGER.debug("actionCancelled: Called");
+			refreshData();
+			LOGGER.debug("actionCancelled: Done");
+		}
+
+	}
+
+	class ConfirmResultDelete implements ConfirmResult {
+
+		@Override
+		public void actionConfirmed(final String title) {
+			LOGGER.debug("actionConfirmed: Called");
+
+			appPreferences.remove(PREF_SPLIT_H);
+			appPreferences.remove(PREF_SPLIT_V);
+
+			appPreferences.remove(VIEW_WINDOW_X);
+			appPreferences.remove(VIEW_WINDOW_Y);
+			appPreferences.remove(VIEW_WINDOW_W);
+			appPreferences.remove(VIEW_WINDOW_H);
+
+			String key = String.format(PREF_COL_S, 1);
+			appPreferences.remove(key);
+			key = String.format(PREF_COL_S, 2);
+			appPreferences.remove(key);
+			key = String.format(PREF_COL_S, 3);
+			appPreferences.remove(key);
+			key = String.format(PREF_COL_S, 4);
+			appPreferences.remove(key);
+			key = String.format(PREF_COL_S, 5);
+			appPreferences.remove(key);
+
+			refreshData();
+			LOGGER.debug("actionConfirmed: Done");
+		}
+
+		@Override
+		public void actionCancelled(String title) {
+			LOGGER.debug("actionCancelled: Called");
+			refreshData();
+			LOGGER.debug("actionCancelled: Done");
+		}
+	}
+
 }

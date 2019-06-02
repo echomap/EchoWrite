@@ -24,6 +24,7 @@ import com.echomap.kqf.biz.XferBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.looper.FileLooper;
+import com.echomap.kqf.looper.WorkDoneNotify;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -65,7 +66,6 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotify {
-	public static final String PROP_KEY_VERSION = "version";
 
 	private final static Logger LOGGER = LogManager.getLogger(KQFCtrl.class);
 
@@ -365,6 +365,11 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	}
 
 	@Override
+	public void finalResultPackageFromWork(final Object finalObj) {
+		//
+	}
+
+	@Override
 	public void finalResultFromWork(final String msg) {
 		Platform.runLater(new Runnable() {
 			@Override
@@ -462,7 +467,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	public void handleProfileSelectSeriesAction(final ActionEvent event) {
 		LOGGER.debug("handleProfileSelectSeriesAction: Called");
 		if (titleOneText.getSelectionModel().getSelectedIndex() > -1) {
-			//  SERIES
+			// SERIES
 		}
 		LOGGER.debug("handleProfileSelectSeriesAction: Done");
 	}
@@ -837,7 +842,10 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	}
 
 	private void persist() {
-		getPrefs().put("lastSelectedDirectory", lastSelectedDirectory.getAbsolutePath());
+		if (lastSelectedDirectory != null)
+			getPrefs().put("lastSelectedDirectory", lastSelectedDirectory.getAbsolutePath());
+		else
+			getPrefs().remove("lastSelectedDirectory");
 	}
 
 	public void handleDoCountAction(final ActionEvent event) {
@@ -1158,7 +1166,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 		formatDao.setSeriesTitle(seriesTitleText.getText());
 		formatDao.setVolume(volumeText.getText());
 
-		formatDao.setVersion(appProps.getProperty(PROP_KEY_VERSION));
+		formatDao.setVersion(appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 		LOGGER.debug("setupDao: Done");
 	}
 
@@ -1609,7 +1617,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	// }
 
 	private String loadPropFromAppOrDefault(final String key, final String defaultValue) {
-		if (appProps != null && appProps.containsKey(PROP_KEY_VERSION)) {
+		if (appProps != null && appProps.containsKey(ProfileBiz.PROP_KEY_VERSION)) {
 			final String value = appProps.getProperty(key);
 			return value;
 		}
@@ -1818,7 +1826,7 @@ public class KQFCtrl extends KQFBaseCtrl implements Initializable, WorkDoneNotif
 	public void setProps(final Properties props) {
 		this.appProps = props;
 		loadDefaults();
-		profileBiz.setVersion(appProps.getProperty(PROP_KEY_VERSION));
+		profileBiz.setVersion(appProps.getProperty(ProfileBiz.PROP_KEY_VERSION));
 	}
 
 	// private void automaticFromInput() {

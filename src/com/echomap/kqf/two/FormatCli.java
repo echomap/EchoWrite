@@ -22,8 +22,8 @@ import com.echomap.kqf.biz.ProfileBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.ProfileData;
 import com.echomap.kqf.looper.FileLooper;
+import com.echomap.kqf.looper.WorkDoneNotify;
 import com.echomap.kqf.two.gui.KQFCtrl;
-import com.echomap.kqf.two.gui.WorkDoneNotify;
 
 /**
  * 
@@ -145,6 +145,11 @@ public class FormatCli implements WorkDoneNotify {
 	@Override
 	public void finishedWithWork(String msg) {
 		LOGGER.info("Done with process: " + msg);
+	}
+
+	@Override
+	public void finalResultPackageFromWork(Object finalObj) {
+		//
 	}
 
 	@Override
