@@ -75,6 +75,7 @@ public class FormatDao {
 	// private String docTagsOther1Tags;
 
 	private List<OtherDocTagData> outputs = new ArrayList<>();
+	private List<KeyValuePair> externalIDs = new ArrayList<>();
 
 	private Integer docTagsMaxLineLength = 70;
 	private String docTagsScenePrefix = "";
@@ -546,6 +547,14 @@ public class FormatDao {
 
 	public void setOutputs(List<OtherDocTagData> outputs) {
 		this.outputs = outputs;
+	}
+
+	public List<KeyValuePair> getExternalIDs() {
+		return externalIDs;
+	}
+
+	public void setExternalIDs(List<KeyValuePair> externalIDs) {
+		this.externalIDs = externalIDs;
 	}
 
 	public String getSeriesTitle() {

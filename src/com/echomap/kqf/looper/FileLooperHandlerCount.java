@@ -14,6 +14,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.TextBiz;
+import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
 import com.echomap.kqf.looper.data.CountDao;
@@ -47,6 +48,11 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	// }
 
 	@Override
+	public void looperMsgWarn(final String errorMsg) {
+		LOGGER.warn(errorMsg);
+	}
+
+	@Override
 	public void preLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		// LOGGER.info("preLine-->");
 	}
@@ -54,6 +60,21 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	@Override
 	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		// Not counting anything here
+	}
+
+	@Override
+	public void handleMetaDocTag(final FormatDao formatDao, final LooperDao ldao, final DocTag metaDocTag) {
+		// Not counting anything here
+	}
+
+	@Override
+	public void handleSection(final FormatDao formatDao, final LooperDao ldao) {
+		//
+	}
+
+	@Override
+	public void handleChapter(final FormatDao formatDao, final LooperDao ldao) {
+		//
 	}
 
 	@Override
@@ -117,18 +138,49 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 		LOGGER.debug("Version:, " + formatDao.getVersion());
 		// TODO format with commas...
 		final StringBuilder sbResult = new StringBuilder();
-		sbResult.append("--Counter Process: TotalWords: ");
+		sbResult.append("--Counter Process: TotalWords: #");
 		sbResult.append(numberFormat.format(totalWords));
-
 		sbResult.append("\n");
-		sbResult.append("--Counter Process: Chapters: ");
+
+		sbResult.append("--Counter Process: Chapters: #");
 		sbResult.append(numberFormat.format(cdTC.getCounter()));
-
 		sbResult.append("\n");
-		sbResult.append("--Counter Process: Sections: ");
+
+		sbResult.append("--Counter Process: Sections: #");
 		final CountDao sCount = ldao.getSectionCount();
 		sbResult.append(numberFormat.format(sCount.getCounter()));
+		sbResult.append("\n");
 
+		sbResult.append("--Counter Process: Chapters: ");
+		int cntCh = 0;
+		for (ChapterDao cdao : ldao.getChapters()) {
+			// LOGGER.debug("cdao = " + cdao.getChapterNumber() + " [" + cdao +
+			// "]");
+			if (cntCh > 0)
+				sbResult.append(", ");
+			totalWords += cdao.getNumWords();
+			sbResult.append("(");
+			sbResult.append(cdao.getChapterNumber()); // TODO format K
+			sbResult.append(")");
+			sbResult.append("=");
+			sbResult.append(cdao.getNumWords());
+			cntCh++;
+		}
+		sbResult.append("\n");
+
+		sbResult.append("--Counter Process: Sections: ");
+		int secCh = 0;
+		for (SectionDao cdao : ldao.getSections()) {
+			if (secCh > 0)
+				sbResult.append(", ");
+			totalWords += cdao.getNumWords();
+			sbResult.append("(");
+			sbResult.append(cdao.getNumber()); // TODO format K
+			sbResult.append(")");
+			sbResult.append("=");
+			sbResult.append(cdao.getNumWords());
+			secCh++;
+		}
 		return sbResult.toString();
 	}
 

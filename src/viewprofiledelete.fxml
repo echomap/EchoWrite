@@ -154,6 +154,20 @@
                                     </TextField>
                                  </children>
                               </HBox>
+                              <HBox prefHeight="-1.0" prefWidth="-1.0" GridPane.rowIndex="7">
+                                 <children>
+                                    <Label minWidth="-Infinity" prefWidth="80.0" text="Keywords:">
+                                       <textFill>
+                                          <Color blue="0.478" green="0.000" red="1.000" fx:id="x61111" />
+                                       </textFill>
+                                    </Label>
+                                    <TextField fx:id="keywordsText" editable="false" maxWidth="-1.0" prefWidth="-1.0" promptText="Keywords" HBox.hgrow="SOMETIMES">
+                                       <HBox.margin>
+                                          <Insets fx:id="x51111" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                              </HBox>
                            </children>
                            <columnConstraints>
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
@@ -167,6 +181,7 @@
                               <RowConstraints />
                               <RowConstraints vgrow="ALWAYS" />
                               <RowConstraints vgrow="ALWAYS" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                            </rowConstraints>

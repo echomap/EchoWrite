@@ -3,13 +3,13 @@ package com.echomap.kqf.looper.data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TreeTimeData implements TreeData{
+public class TreeTimeData implements TreeData {
 	private String tag;
 	private List<String> data = new ArrayList<>();
 	private List<TreeTimeSubData> dataParsed = new ArrayList<>();
 
 	public TreeTimeData(final String name) {
-		this.tag = name;
+		this.tag = name.trim();
 	}
 
 	@Override

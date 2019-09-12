@@ -75,11 +75,13 @@ public abstract class BaseCtrl {
 	static public final String WINDOWKEY_PROFILE_DELETE = "DELProfile";
 
 	static public final String WINDOWKEY_MOREFILES = "MoreFiles";
+	static public final String WINDOWKEY_EXTERNALLINKS = "ExternalLinks";
 
 	static public final String WINDOWKEY_IMPORT = "Import";
 	static public final String WINDOWKEY_EXPORT = "Export";
 
 	static public final String WINDOWKEY_TIMELINE = "Timeline";
+	public static final String WINDOWKEY_EXTERNALIDS = "ExternalIDs";
 
 	static public enum FILTERTYPE {
 		NONE, JSON, HTML, TEXT, CSV;
@@ -369,6 +371,11 @@ public abstract class BaseCtrl {
 
 	void openNewWindow(String windowName, String windowTitle, final TextArea reportArea, Stage owner,
 			final BaseCtrl callingCtrl, final Map<String, Object> paramsMap) {
+		openNewWindow(windowName, windowTitle, reportArea, owner, callingCtrl, paramsMap, true);
+	}
+
+	void openNewWindow(String windowName, String windowTitle, final TextArea reportArea, Stage owner,
+			final BaseCtrl callingCtrl, final Map<String, Object> paramsMap, final boolean modal) {
 		LOGGER.debug("openNewWindow: Called w/windowName='" + windowName + "'");
 		// Parent root;
 		if (StringUtils.isEmpty(windowName))
@@ -412,19 +419,12 @@ public abstract class BaseCtrl {
 			if (owner == null)
 				LOGGER.warn("OWNER Is null for this window");
 			stage.initOwner(owner);
-			stage.initModality(Modality.APPLICATION_MODAL);
-			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-				public void handle(final WindowEvent we) {
-					LOGGER.debug("SubStage is cleaning up...");
-					// myController.saveProps();
-					// myController.doCleanup();
-					// if (owner != null)
-					// TODO callback owner.subviewBackToMe();
-					LOGGER.debug("SubStage is closing");
-					stage.close();
-				}
-
-			});
+			if (modal) {
+				stage.initModality(Modality.APPLICATION_MODAL);
+			} else {
+				stage.initModality(Modality.NONE);
+				stage.setX(owner.getX() + owner.getWidth());
+			}
 			//
 			// final String key = titleOneText.getValue();
 			// LOGGER.debug("Key = '" + key + "'");
@@ -435,6 +435,19 @@ public abstract class BaseCtrl {
 			// final FormatDao formatDao = new FormatDao();
 			// setupDao(formatDao);
 			// myController.setProfileLoaded(child, formatDao, appProps, stage);
+
+			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				public void handle(final WindowEvent we) {
+					LOGGER.debug("SubStage is cleaning up...");
+					// myController.saveProps();
+					myController.doCleanup();
+					// if (owner != null)
+					// TODO callback owner.subviewBackToMe();
+					LOGGER.debug("SubStage is closing");
+					stage.close();
+				}
+
+			});
 
 			stage.showAndWait();
 			// stage.show();
@@ -960,6 +973,44 @@ public abstract class BaseCtrl {
 				final Node nd2 = ((TitledPane) node).getContent();
 				if (nd2 instanceof Pane) {
 					unlockAllButtons((Pane) nd2);
+				}
+			}
+		}
+	}
+
+	void hideAllInArea(final Pane pane) {
+		if (pane == null)
+			return;
+		for (Node node : pane.getChildren()) {
+			node.setVisible(false);
+			if (node instanceof Button) {
+				// final Button tf = (Button) node;
+				// tf.setDisable(true);
+			} else if (node instanceof Pane) {
+				hideAllInArea((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					hideAllInArea((Pane) nd2);
+				}
+			}
+		}
+	}
+
+	void showAllInArea(final Pane pane) {
+		if (pane == null)
+			return;
+		for (Node node : pane.getChildren()) {
+			node.setVisible(true);
+			if (node instanceof Button) {
+				// final Button tf = (Button) node;
+				// tf.setDisable(true);
+			} else if (node instanceof Pane) {
+				showAllInArea((Pane) node);
+			} else if (node instanceof TitledPane) {
+				final Node nd2 = ((TitledPane) node).getContent();
+				if (nd2 instanceof Pane) {
+					showAllInArea((Pane) nd2);
 				}
 			}
 		}

@@ -14,6 +14,7 @@ public class ProfileData {
 	private final Map<String, String> textEntries = new HashMap<String, String>();
 	private final Map<String, Boolean> boolEntries = new HashMap<String, Boolean>();
 	private List<OtherDocTagData> outputs = null;
+	private List<KeyValuePair> externalIDs = null;
 
 	@Override
 	public String toString() {
@@ -85,6 +86,14 @@ public class ProfileData {
 
 	public void setOutputs(final List<OtherDocTagData> outputs) {
 		this.outputs = outputs;
+	}
+
+	public List<KeyValuePair> getExternalIDs() {
+		return externalIDs;
+	}
+
+	public void setExternalIDs(List<KeyValuePair> externalIDs) {
+		this.externalIDs = externalIDs;
 	}
 
 	public Map<String, String> getTextEntries() {

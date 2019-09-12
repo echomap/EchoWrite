@@ -17,6 +17,7 @@ import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 import com.echomap.kqf.looper.data.SimpleSectionDao;
+import com.echomap.kqf.looper.data.TreeTimeSubData;
 
 public class TextBiz {
 	private final static Logger LOGGER = LogManager.getLogger(TextBiz.class);
@@ -476,6 +477,48 @@ public class TextBiz {
 
 		// return DOCTAGTYPE.NONE;
 		return dtl;
+	}
+
+	public static DocTag isMetaTag(final DocTagLine dttGL) {
+		if (dttGL.isLongDocTag() || !dttGL.isOnlyDoctag() || dttGL.getDocTags() == null
+				|| dttGL.getDocTags().size() < 1)
+			return null;
+		final DocTag docTag0 = dttGL.getDocTags().get(0);
+		if (docTag0 == null)
+			return null;
+		if ("meta".compareToIgnoreCase(docTag0.getName()) == 0) {
+			parseDocTagSubValues(docTag0);
+			return docTag0;
+		}
+		return null;
+	}
+
+	private static void parseDocTagSubValues(final DocTag docTag) {
+		String mKey = null;
+		String mValue = null;
+		String line = docTag.getFullText().trim();
+
+		// Create a Pattern object
+		// -=\s+(?<sname>Section)\s+((?<snum>\w+):\s+)?(?<stitle>.*)\s+=-
+		// timeline: include chapters.
+		final Pattern r = Pattern.compile("@(?<mKey>\\w+):\\s+(?<mValue>.*)[\\.]");//TODO end of line is? 
+		// Now create matcher object.
+		final Matcher matcher = r.matcher(line);
+		if (matcher.find()) {
+			try {
+				mKey = matcher.group("mKey");
+			} catch (Exception e) {
+				LOGGER.error("mKey in text not found", e);
+				e.printStackTrace();
+			}
+			try {
+				mValue = matcher.group("mValue");
+			} catch (Exception e) {
+				LOGGER.error("mValue in text not found", e);
+				e.printStackTrace();
+			}
+			// ttsd.addData(mKey, mValue);
+		}
 	}
 
 	private static void verifyLineCheck(final DocTagLine dtl, final String line, final String startTag,

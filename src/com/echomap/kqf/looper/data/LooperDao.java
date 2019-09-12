@@ -106,6 +106,18 @@ public class LooperDao {
 		return this.thisLineCharacterCount;
 	}
 
+	public SectionDao getLastSection() {
+		SectionDao sd = null;
+		int idx = getSections().size() - 1;
+		if (idx > -1)
+			sd = getSections().get(getSections().size() - 1);
+		if (sd == null) {
+			sd = new SectionDao();
+			getSections().add(sd);
+		}
+		return sd;
+	}
+
 	public File getInputFile() {
 		return inputFile;
 	}

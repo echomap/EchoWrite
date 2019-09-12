@@ -2,12 +2,20 @@ package com.echomap.kqf.looper;
 
 import java.io.IOException;
 
+import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.LooperDao;
 
 public interface FileLooperHandler {
-
+	/**
+	 * 
+	 */
 	String getWorkType();
+
+	/**
+	 * 
+	 */
+	void looperMsgWarn(String errorMsg);
 
 	/**
 	 * Always called for each line, before any handleLine methods
@@ -19,8 +27,14 @@ public interface FileLooperHandler {
 	 */
 	void handleLine(FormatDao formatDao, LooperDao ldao) throws IOException;
 
+	/**
+	 * 
+	 */
 	void handleDocTag(FormatDao formatDao, LooperDao ldao) throws IOException;
 
+	/**
+	 * 
+	 */
 	void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException;
 
 	/**
@@ -47,5 +61,20 @@ public interface FileLooperHandler {
 	 * Always called in the finally after the looper ends
 	 */
 	Object postHandlerPackage(FormatDao formatDao, LooperDao ldao);
+
+	/**
+	 * 
+	 */
+	void handleMetaDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag);
+
+	/**
+	 * 
+	 */
+	void handleSection(FormatDao formatDao, LooperDao ldao);
+
+	/**
+	 * 
+	 */
+	void handleChapter(FormatDao formatDao, LooperDao ldao);
 
 }

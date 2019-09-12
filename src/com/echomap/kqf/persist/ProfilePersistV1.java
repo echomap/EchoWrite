@@ -11,6 +11,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.XferBiz;
+import com.echomap.kqf.data.KeyValuePair;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.data.ProfileData;
 import com.google.gson.Gson;
@@ -178,8 +179,29 @@ public class ProfilePersistV1 {
 		final List<OtherDocTagData> outputs = loadOutputs(child);
 		pd.setOutputs(outputs);
 
+		//
+		final List<KeyValuePair> externalIds = loadExternalIDs(child);
+		pd.setExternalIDs(externalIds);
+
 		LOGGER.debug("loadOldProfileObject: Done");
 		return pd;
+	}
+
+	private List<KeyValuePair> loadExternalIDs(final Preferences child) {
+		LOGGER.debug("loadOutputs: Called for child");
+
+		final String listString = child.get(XferBiz.EXTERNALIDS_DATA, "");
+		final Gson gson = new Gson();
+
+		final Type listOfTestObject = new TypeToken<List<KeyValuePair>>() {
+		}.getType();
+		final List<KeyValuePair> listODTD = gson.fromJson(listString, listOfTestObject);
+		if (listODTD != null) {
+			for (KeyValuePair otherData : listODTD) {
+				LOGGER.debug("listODTD item: " + otherData);
+			}
+		}
+		return listODTD;
 	}
 
 	private List<OtherDocTagData> loadOutputs(final Preferences child) {
@@ -226,7 +248,7 @@ public class ProfilePersistV1 {
 		setValueIfNotNull(child, "seriesTitle", pd.getSeries());
 		setValueIfNotNull(child, "volume", pd.getText("volume"));
 		setValueIfNotNull(child, "keywords", pd.getText("keywords"));
-		
+
 		setValueIfNotNull(child, "titleOne", pd.getText("titleOne"));
 		setValueIfNotNull(child, "titleTwo", pd.getText("titleTwo"));
 		setValueIfNotNull(child, "titleThree", pd.getText("titleThree"));
@@ -285,13 +307,43 @@ public class ProfilePersistV1 {
 		// More Files - were saved in their own interface
 		// final List<OtherDocTagData> outputs = loadOutputs(child);
 		saveOutputs(child, pd);
+		saveExternalIds(child, pd);
 		// pd.setOutputs(outzputs);
 
 		child.flush();
 	}
 
+	private void saveExternalIds(final Preferences child, final ProfileData pd) {
+		LOGGER.debug("saveExternalIds: Called");
+		final List<KeyValuePair> outputs = pd.getExternalIDs();
+		// final ObservableList<OtherDocTagData> targetList =
+		// inputTable.getItems();
+		final List<KeyValuePair> removeList = new ArrayList<>();
+		if (outputs != null) {
+			for (KeyValuePair otherData : outputs) {
+				LOGGER.debug("item: " + otherData);
+				if (StringUtils.isEmpty(otherData.getKey()))
+					removeList.add(otherData);
+				if (otherData.getValue() == null)
+					removeList.add(otherData);
+			}
+		}
+		for (KeyValuePair otherData : removeList) {
+			outputs.remove(otherData);
+		}
+		final Type listType = new TypeToken<List<KeyValuePair>>() {
+		}.getType();
+		final Gson gson = new Gson();
+		String json = gson.toJson(outputs, listType);
+		LOGGER.debug("saveExternalIds: json: '" + json + "'");
+		// Save
+		child.put(XferBiz.EXTERNALIDS_DATA, json);
+		//
+		LOGGER.debug("saveExternalIds: Done");
+	}
+
 	void saveOutputs(final Preferences child, final ProfileData pd) {
-		LOGGER.debug("handleSave: Called");
+		LOGGER.debug("saveOutputs: Called");
 		final List<OtherDocTagData> outputs = pd.getOutputs();
 		// final ObservableList<OtherDocTagData> targetList =
 		// inputTable.getItems();
@@ -312,11 +364,11 @@ public class ProfilePersistV1 {
 		}.getType();
 		final Gson gson = new Gson();
 		String json = gson.toJson(outputs, listType);
-		LOGGER.debug("handleSave: json: '" + json + "'");
+		LOGGER.debug("saveOutputs: json: '" + json + "'");
 		// Save
 		child.put(XferBiz.PROFILE_DATA, json);
 		//
-		LOGGER.debug("handleSave: Done");
+		LOGGER.debug("saveOutputs: Done");
 	}
 
 	private void setValueIfNotNull(final Preferences child, final String key, String val) throws BackingStoreException {

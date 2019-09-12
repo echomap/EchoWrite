@@ -27,7 +27,7 @@ public class ProfilePersistV2 {
 		profile.setSeriesTitle(profileData.getText("seriesTitle"));
 		profile.setVolume(setupValue(profileData, "volume", "1"));
 		profile.setKeywords(setupValue(profileData, "keywords", ""));
-		
+
 		profile.setInputFile(setupValue(profileData, "inputFile", ""));
 		profile.setInputFilePrefix(setupValue(profileData, "inputFilePrefix", ""));
 		profile.setAppendUnderscoreToPrefix(profileData.getSelected("appendUnderscoreToPrefix"));
@@ -99,6 +99,7 @@ public class ProfilePersistV2 {
 
 		// Other Files Section
 		profile.setOutputs(profileData.getOutputs());
+		profile.setExternalIDs(profileData.getExternalIDs());
 
 		//
 		// profile.setOuputFile(setupValue(profileData, "ouputFile", ""));
@@ -210,6 +211,7 @@ public class ProfilePersistV2 {
 		// XferBiz.loadOutputsFromPrefs(titleOneText.getValue(),
 		// getPrefs());
 		formatDao.setOutputs(selectedProfile.getOutputs());
+		formatDao.setExternalIDs(selectedProfile.getExternalIDs());
 		// final List<OtherDocTagData> thisProfileOutputList = loadOutputs();
 		// formatDao.setOutputs(thisProfileOutputList);
 		// final List<OtherDocTagData> outputs
@@ -217,7 +219,7 @@ public class ProfilePersistV2 {
 		formatDao.setSeriesTitle(selectedProfile.getSeriesTitle());
 		formatDao.setVolume(selectedProfile.getVolume());
 		formatDao.setKeywords(selectedProfile.getKeywords());
-		
+
 		formatDao.setVersion(appVersion);// appProps.getProperty(PROP_KEY_VERSION));
 		LOGGER.debug("setupDao: Done");
 	}
@@ -295,6 +297,7 @@ public class ProfilePersistV2 {
 
 		// Other Files Section
 		profileData.setOutputs(profile.getOutputs());
+		profileData.setExternalIDs(profile.getExternalIDs());
 
 		//
 		// profile.setOuputFile(setupValue(profileData, "ouputFile", ""));

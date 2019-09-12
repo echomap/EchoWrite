@@ -8,14 +8,15 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="outerMostContainer" prefHeight="575.0" prefWidth="777.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlTImeline">
+<BorderPane fx:id="outerMostContainer" prefHeight="900.0" prefWidth="800.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlTImeline">
 
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
 			<menus>
 				<Menu text="_File">
 					<items>
-						<MenuItem onAction="#handleClearLog" text="_Clear Log" />
+						<MenuItem onAction="#handleRefreshData" text="_Refresh" />
+                  <MenuItem onAction="#handleClearLog" text="_Clear Log" />
                   <MenuItem onAction="#handleClose" text="_Quit" />
 					</items>
 				</Menu>
@@ -33,7 +34,7 @@
 		</MenuBar>
 	</top>
    <center>
-      <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+      <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
           <Tab text="Time/Date">
             <content>
@@ -60,10 +61,34 @@
                      </children></AnchorPane>
               </content>
             </Tab>
+            <Tab text="At the End">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="dataThingsEndTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TableColumn prefWidth="75.0" text="C1" />
+                            <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
         </tabs>
       </TabPane>
    </center>
    <bottom>
       <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </bottom>
+   <right>
+      <VBox fx:id="paneButtons" alignment="CENTER" spacing="14.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" text="_Close" />
+            <Button fx:id="buttonRefresh" layoutX="10.0" layoutY="329.0" onAction="#handleRefreshData" text="_Refresh" />
+         </children>
+      </VBox>
+   </right>
 </BorderPane>

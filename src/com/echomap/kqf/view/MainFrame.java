@@ -33,6 +33,8 @@ public class MainFrame extends Application {
 
 	private static final String FXML_MOREFILES = "/viewmorefiles.fxml";
 	private static final String FXML_TIMELINE = "/timeline.fxml";
+	private static final String FXML_EXTERNALLINKS = "/viewexternallinks.fxml";
+	private static final String FXML_EXTERNALIDS = "/viewexternalids.fxml";
 
 	public static final String SUB_EXPORT = "/viewexport.fxml";
 	public static final String SUB_IMPORT = "/viewimport.fxml";
@@ -60,6 +62,9 @@ public class MainFrame extends Application {
 		fxmlFrames.put(BaseCtrl.WINDOWKEY_IMPORT, SUB_IMPORT);
 		fxmlFrames.put(BaseCtrl.WINDOWKEY_MOREFILES, FXML_MOREFILES);
 		fxmlFrames.put(BaseCtrl.WINDOWKEY_TIMELINE, FXML_TIMELINE);
+
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_EXTERNALLINKS, FXML_EXTERNALLINKS);
+		fxmlFrames.put(BaseCtrl.WINDOWKEY_EXTERNALIDS, FXML_EXTERNALIDS);
 
 		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_NEW, com.echomap.kqf.view.CtrlProfileEdit.class);
 		fxmlCtrl.put(BaseCtrl.WINDOWKEY_PROFILE_EDIT, com.echomap.kqf.view.CtrlProfileEdit.class);
@@ -92,7 +97,8 @@ public class MainFrame extends Application {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 		try {
 			// parent = fxmlLoader.load(CWCFrame.class.getResource(FXML_FILE));
-			final URL location = getClass().getResource(FXML_START);
+			final URL location = getClass().getResource(fxmlFrames.get(BaseCtrl.WINDOWKEY_MAINWINDOW));// ,
+																										// FXML_START
 			if (location == null) {
 				System.out.println("Failed to get location!!!!!!");
 			}

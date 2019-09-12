@@ -37,6 +37,7 @@ public class XferBiz {
 	private final static Logger LOGGER = LogManager.getLogger(XferBiz.class);
 	public static final String PROFILE_DATA = "profileData";
 	public static final String PROFILE_DATA_OPTIONS = "options";
+	public static final String EXTERNALIDS_DATA = "exernalIdsData";
 	// public static final String PROFILEOPTION_DATA = "profileOptionData";
 
 	public static <T> List<T> loadDataListFromJson(final String listString,

@@ -99,10 +99,14 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				showSummaryMessage(msg, false);
-				workFinishedCallback.workFinished("");
-				// unlockGui();
-				// runningMutex = false;
+				if ("CtrlTImeline".equals(msg)) {
+					workFinishedCallback.workFinished("CtrlTImeline");
+				} else {
+					showSummaryMessage(msg, false);
+					workFinishedCallback.workFinished("");
+					// unlockGui();
+					// runningMutex = false;
+				}
 			}
 		});
 	}

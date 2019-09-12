@@ -113,6 +113,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private Button btnRunFormatter;
 	@FXML
 	private Button btnRunTimeline;
+	@FXML
+	private Button btnCmdBookLookup;
 
 	@FXML
 	private TextField filterTextKey;
@@ -263,7 +265,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				btnRunOutliner.setDisable(false);
 			} else if ("Formatter".compareTo(process) == 0) {
 				btnRunFormatter.setDisable(false);
-			} else if ("Timeline".compareTo(process) == 0) {
+			} else if ("Timeline".compareTo(process) == 0 || "CtrlTImeline".compareTo(process) == 0) {
 				btnRunTimeline.setDisable(false);
 			}
 		}
@@ -498,6 +500,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		btnRunOutliner.setDisable(true);
 		btnRunFormatter.setDisable(true);
 		btnRunTimeline.setDisable(true);
+		// btnCmdBookLookup.setDisable(true);
 
 		editProfileBtn.setDisable(true);
 		renameProfileBtn.setDisable(true);
@@ -514,6 +517,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		btnRunOutliner.setDisable(false);
 		btnRunFormatter.setDisable(false);
 		btnRunTimeline.setDisable(false);
+		// btnCmdBookLookup.setDisable(false);
 
 		editProfileBtn.setDisable(false);
 
@@ -554,7 +558,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		// lockGui();
 		try {
 			btnRunTimeline.setDisable(true);
-			final BaseRunner br = new BaseRunner();
+			// btnRunTimeline.setDisable(true);
+			// final BaseRunner br = new BaseRunner();
 			// br.handleRunTimeline(this, profileManager, this.selectedProfile,
 			// loggingText, myWorkDoneNotify);
 
@@ -570,10 +575,11 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			paramsMap.put("appVersion", appVersion);
 			paramsMap.put("selectedProfile", selectedProfile);
 			paramsMap.put("profileManager", profileManager);
+			paramsMap.put("processDoneNotify", myWorkDoneNotify);
 			// TODO extract
 			final String WINDOW_TITLE_FMT = "EchoWrite: Timeline: (v%s)";
 			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
-			openNewWindow(BaseCtrl.WINDOWKEY_TIMELINE, windowTitle, loggingText, primaryStage, this, paramsMap);
+			openNewWindow(BaseCtrl.WINDOWKEY_TIMELINE, windowTitle, loggingText, primaryStage, this, paramsMap, false);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -751,10 +757,37 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleHelpAbout: Done");
 	}
 
+	public void handleHelpTest1(final ActionEvent event) {
+		LOGGER.debug("handleHelpTest1: Called");
+		//
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("selectedProfile", selectedProfile);
+		paramsMap.put("profileManager", profileManager);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_EXTERNALLINKS, windowTitle, loggingText, primaryStage, this, paramsMap);
+		//
+		LOGGER.debug("handleHelpTest1: Done");
+	}
+
 	public void handleClearLog(final ActionEvent event) {
 		LOGGER.debug("handleClearLog: Called");
 		loggingText.clear();
 		LOGGER.debug("handleClearLog: Done");
+	}
+
+	// btnCmdBookLookup
+	public void handleRunBookLookup(final ActionEvent event) {
+		LOGGER.debug("handleRunBookLookup: Called");
+		//
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("selectedProfile", selectedProfile);
+		paramsMap.put("profileManager", profileManager);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_EXTERNALLINKS, windowTitle, loggingText, primaryStage, this, paramsMap);
+		//
+		LOGGER.debug("handleRunBookLookup: Done");
 	}
 
 	/*

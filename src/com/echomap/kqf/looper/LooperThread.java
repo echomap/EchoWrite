@@ -9,6 +9,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.TextBiz;
+import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.data.ChapterDao;
@@ -124,7 +125,10 @@ public class LooperThread extends Thread {
 					if (dttGL.isHasDocTag()) {
 						// If still processing a long tag, don't throw it to the
 						// handlers
-						if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
+						final DocTag metaDocTag = TextBiz.isMetaTag(dttGL);
+						if (metaDocTag != null) {
+							flHandler.handleMetaDocTag(formatDao, ldao, metaDocTag);
+						} else if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
 							flHandler.handleDocTag(formatDao, ldao);
 						}
 					} else {
@@ -134,7 +138,8 @@ public class LooperThread extends Thread {
 				}
 
 				flHandler.postLine(formatDao, ldao);
-			}
+			} // while lines
+			postHandler(formatDao, ldao);
 			flHandler.postLastLine(formatDao, ldao);
 
 			if (notifyCtrl != null)
@@ -164,6 +169,12 @@ public class LooperThread extends Thread {
 			}
 		}
 		LOGGER.info("Loop: Done" + (workType != null ? "(" + workType + ")" : ""));
+	}
+
+	private void postHandler(final FormatDao formatDao, final LooperDao ldao) {
+		// ?? needed??
+		int wds = ldao.getChaptCount().getNumWords();
+		ldao.getLastSection().addNumWords(wds);
 	}
 
 	// private DocTagLine dttGL = null;
@@ -197,7 +208,10 @@ public class LooperThread extends Thread {
 			// Sections dont always have full data like chapters
 			// if (sdao.getName() != null && sdao.getName().length() > 0) {
 			// tdao.addNumWords(cdao.getNumWords());
-			ldao.getSections().add(new SectionDao(lineSectData));
+			// int wds = ldao.getChaptCount().getNumWords();
+			// ldao.getLastSection().addNumWords(wds);
+			final SectionDao sectionDao = new SectionDao(lineSectData);
+			ldao.getSections().add(sectionDao);
 			ldao.getSectionCount().addChapterCount(1);
 			sdao.clear();
 			// tdao.addChapterCount(1);
@@ -207,6 +221,7 @@ public class LooperThread extends Thread {
 			sdao.setNumber(lineSectData.snum);
 
 			// ldao.getSections().add(new SectionDao(lineSectData));
+			flHandler.handleSection(formatDao, ldao);
 		}
 
 		final CountDao cdao = ldao.getChaptCount();
@@ -215,6 +230,7 @@ public class LooperThread extends Thread {
 		if (lineChptData.isChapter) {
 			if (cdao.getName() != null && cdao.getName().length() > 0) {
 				tdao.addNumWords(cdao.getNumWords());
+				ldao.getLastSection().addNumWords(cdao.getNumWords());
 				ldao.getChapters().add(new ChapterDao(cdao));
 				cdao.clear();
 				tdao.addChapterCount(1);
@@ -223,6 +239,7 @@ public class LooperThread extends Thread {
 			cdao.setTitle(lineChptData.title);
 			cdao.setNumber(lineChptData.chpNum);
 			cdao.setParent(sdao.getNumber());
+			flHandler.handleChapter(formatDao, ldao);
 		}
 		//
 		// final DocTagLine currentDocTagLine = TextBiz.isDocTag(st,
@@ -267,9 +284,12 @@ public class LooperThread extends Thread {
 			}
 			if (dttGL.isHasDocTag() && st.contains(formatDao.getDocTagStart())) {
 				LOGGER.error("May contain an unclosed TAG!");
-				if (notifyCtrl != null)
-					notifyCtrl.errorWithWork("May contain an unclosed TAG at line <" + ldao.getLineCount()
-							+ "> as line is <" + ldao.getCurrentLine() + ">", "UnclosedTag");
+				if (notifyCtrl != null) {
+					final String errmsg = "May contain an unclosed TAG at line <" + ldao.getLineCount()
+							+ "> as line is <" + ldao.getCurrentLine() + ">";
+					notifyCtrl.errorWithWork(errmsg, "UnclosedTag");
+					flHandler.looperMsgWarn(errmsg);
+				}
 			}
 		}
 		if (dtt.isLongDocTag() || inLongDocTag) {

@@ -80,6 +80,7 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	private final List<DocTag> sceneDTList = new ArrayList<DocTag>();
 	private final List<String> unusedTagNameList = new ArrayList<String>();
 	private final List<String> errorTagList = new ArrayList<String>();
+	private final List<String> errorStringList = new ArrayList<String>();
 	private final SortedMap<String, List<String>> usedTagFileList = new TreeMap<String, List<String>>();
 	private final SortedMap<String, Integer> tagsCount = new TreeMap<>();
 
@@ -101,6 +102,11 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 	}
 
 	@Override
+	public void looperMsgWarn(final String errorMsg) {
+		this.errorStringList.add(errorMsg);
+	}
+
+	@Override
 	public void preLine(FormatDao formatDao, LooperDao ldao) {
 		//
 	}
@@ -118,6 +124,21 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			levelledCount = 0;
 		}
 		// cdao.addOneToNumLines();
+	}
+
+	@Override
+	public void handleMetaDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) {
+		//
+	}
+
+	@Override
+	public void handleSection(FormatDao formatDao, LooperDao ldao) {
+		//
+	}
+
+	@Override
+	public void handleChapter(FormatDao formatDao, LooperDao ldao) {
+		//
 	}
 
 	@Override
@@ -1046,20 +1067,42 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// fWriterDocTagReportFile.write("(Unused Tags #: ");
 			// fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
 			// fWriterDocTagReportFile.write(" ) ");
-			fWriterDocTagReportFile.write("(Errors #: ");
+			fWriterDocTagReportFile.write("(Errors Tag #: ");
 			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
 			fWriterDocTagReportFile.write(" )");
+			//
+
+			fWriterDocTagReportFile.write("(Errors #: ");
+			fWriterDocTagReportFile.write(String.valueOf(errorStringList.size()));
+			fWriterDocTagReportFile.write(" )");
+
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 
 			// ERRORS
 			fWriterDocTagReportFile.write(TextBiz.newLine);
-			fWriterDocTagReportFile.write("-= DocTags Errors Report, ");
+			fWriterDocTagReportFile.write("-= DocTags Tag Errors Report, ");
 			fWriterDocTagReportFile.write("Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
 			fWriterDocTagReportFile.write(" =-");
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 			if (!errorTagList.isEmpty())
 				for (String err : errorTagList) {
+					fWriterDocTagReportFile.write(err);
+					fWriterDocTagReportFile.write(TextBiz.newLine);
+				}
+			else {
+				fWriterDocTagReportFile.write("<NONE>");
+				fWriterDocTagReportFile.write(TextBiz.newLine);
+			}
+			//
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			fWriterDocTagReportFile.write("-= DocTags Errors Report, ");
+			fWriterDocTagReportFile.write("Errors #: ");
+			fWriterDocTagReportFile.write(String.valueOf(errorStringList.size()));
+			fWriterDocTagReportFile.write(" =-");
+			fWriterDocTagReportFile.write(TextBiz.newLine);
+			if (!errorStringList.isEmpty())
+				for (String err : errorStringList) {
 					fWriterDocTagReportFile.write(err);
 					fWriterDocTagReportFile.write(TextBiz.newLine);
 				}
@@ -1215,16 +1258,20 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 			fWriterDocTagReportFile.write("(All Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(tagsCount.size()));
-			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write(") ");
 			fWriterDocTagReportFile.write("(Used Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(keysU.size()));
-			fWriterDocTagReportFile.write(" ) ");
+			fWriterDocTagReportFile.write(") ");
 			fWriterDocTagReportFile.write("(Unused Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(unusedTagNameList.size()));
-			fWriterDocTagReportFile.write(" ) ");
-			fWriterDocTagReportFile.write("(Errors #: ");
+			fWriterDocTagReportFile.write(") ");
+			fWriterDocTagReportFile.write("(Errors Tags #: ");
 			fWriterDocTagReportFile.write(String.valueOf(errorTagList.size()));
-			fWriterDocTagReportFile.write(" )");
+			fWriterDocTagReportFile.write(")");
+			fWriterDocTagReportFile.write("(Errors #: ");
+			fWriterDocTagReportFile.write(String.valueOf(errorStringList.size()));
+			fWriterDocTagReportFile.write(")");
+
 			fWriterDocTagReportFile.write(TextBiz.newLine);
 
 			//
@@ -1290,12 +1337,22 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 		sb.append(ldao.getDtEndCount());
 
 		sb.append("\n");
-		sb.append("--Outliner DocTags Errors: count=");
+		sb.append("--Outliner DocTags Tag Errors: count=");
 		sb.append(errorTagList.size());
 		if (errorTagList.size() > 0) {
 			sb.append(" Err=");
 			sb.append(" (");
 			sb.append(fromListToCommaDelimString(errorTagList));
+			sb.append(")");
+		}
+
+		sb.append("\n");
+		sb.append("--Outliner DocTags Errors: count=");
+		sb.append(errorStringList.size());
+		if (errorStringList.size() > 0) {
+			sb.append(" Err=");
+			sb.append(" (");
+			sb.append(fromListToCommaDelimString(errorStringList));
 			sb.append(")");
 		}
 
@@ -1377,12 +1434,14 @@ public class FileLooperHandlerOutline implements FileLooperHandler {
 			// TODO check if tag is of format:
 			// <Name>:<taginfo> or
 			// <Name>:<taginfo>:<tagInfoData>
-			//Regexp?
+			// Regexp?
 			//
-			//final Pattern r1 = Pattern.compile("@(?<mKey>\\w+):(?<mInfo>\\w+):(?<mInfoData>\\w+)");
-			//final Pattern r2 = Pattern.compile("@(?<mKey>\\w+):(?<mInfo>\\w+)");
+			// final Pattern r1 =
+			// Pattern.compile("@(?<mKey>\\w+):(?<mInfo>\\w+):(?<mInfoData>\\w+)");
+			// final Pattern r2 =
+			// Pattern.compile("@(?<mKey>\\w+):(?<mInfo>\\w+)");
 			// Now create matcher object.
-			//final Matcher matcher = r.matcher(line);
+			// final Matcher matcher = r.matcher(line);
 		}
 		return Arrays.asList(strs);
 	}

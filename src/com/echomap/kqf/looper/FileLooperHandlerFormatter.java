@@ -18,6 +18,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.biz.TextBiz;
+import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.data.FormatMode;
@@ -63,6 +64,11 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	@Override
 	public String getWorkType() {
 		return WORKTYPE;
+	}
+
+	@Override
+	public void looperMsgWarn(final String errorMsg) {
+		LOGGER.warn(errorMsg);
 	}
 
 	@Override
@@ -123,6 +129,21 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	// // storyTitle2);
 	// cdao.addOneToNumLines();
 	// }
+
+	@Override
+	public void handleMetaDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) {
+		//
+	}
+
+	@Override
+	public void handleSection(FormatDao formatDao, LooperDao ldao) {
+		//
+	}
+
+	@Override
+	public void handleChapter(FormatDao formatDao, LooperDao ldao) {
+		//
+	}
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {

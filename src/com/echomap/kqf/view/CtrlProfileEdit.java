@@ -407,24 +407,40 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleSaveProfile: Done");
 	}
 
+	class ConfirmResultDelete implements ConfirmResult {
+
+		@Override
+		public void actionConfirmed(final String title) {
+			LOGGER.debug("actionConfirmed: Called");
+			profileManager.deleteProfile(selectedProfile);
+			if (profileManager.isWasError()) {
+				showMessage("Error=" + profileManager.getError(), false);
+				final List<String> list = profileManager.getMessages();
+				for (String str : list) {
+					if (!StringUtils.isEmpty(str))
+						showMessage(str, false);
+				}
+			} else {
+				showMessage("Profile <" + selectedProfile.getKey() + "> was deleted", false);
+				setProfileChangeMade(false);
+				deleteProfileBtn.setDisable(true);
+				// lastNofificationMsg = "Profile <" + selectedProfile.getKey()
+				// + ">
+				// was deleted";
+			}
+			LOGGER.debug("actionConfirmed: Done");
+		}
+
+		@Override
+		public void actionCancelled(String title) {
+			LOGGER.debug("actionCancelled: Called");
+		}
+	}
+
 	public void handleDeleteProfile(final ActionEvent event) {
 		LOGGER.debug("handleDeleteProfile: Called");
-
-		profileManager.deleteProfile(selectedProfile);
-		if (profileManager.isWasError()) {
-			showMessage("Error=" + profileManager.getError(), false);
-			final List<String> list = profileManager.getMessages();
-			for (String str : list) {
-				if (!StringUtils.isEmpty(str))
-					showMessage(str, false);
-			}
-		} else {
-			showMessage("Profile <" + selectedProfile.getKey() + "> was deleted", false);
-			setProfileChangeMade(false);
-			deleteProfileBtn.setDisable(true);
-			// lastNofificationMsg = "Profile <" + selectedProfile.getKey() + ">
-			// was deleted";
-		}
+		final ConfirmResultDelete confirmResultDelete = new ConfirmResultDelete();
+		showConfirmDialog("Delete?", "Really Delete?", confirmResultDelete);
 		LOGGER.debug("handleDeleteProfile: Done");
 	}
 
@@ -579,6 +595,20 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleShowScreenOutputConfig: Called");
 		// TODO
 		LOGGER.debug("handleShowScreenOutputConfig: Done");
+	}
+
+	// handleExternalIDs->
+	public void handleExternalIDs(final ActionEvent event) {
+		LOGGER.debug("handleExternalIDs: Called");
+		// TODO
+		final Map<String, Object> paramsMap = new HashMap<>();
+		paramsMap.put("appVersion", appVersion);
+		paramsMap.put("selectedProfile", selectedProfile);
+		paramsMap.put("profileManager", profileManager);
+		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
+		openNewWindow(BaseCtrl.WINDOWKEY_EXTERNALIDS, windowTitle, lastRunText, primaryStage, this, paramsMap);
+
+		LOGGER.debug("handleExternalIDs: Done");
 	}
 
 	/*

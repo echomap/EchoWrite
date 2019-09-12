@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="outerMostContainer" prefHeight="575.0" prefWidth="777.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlProfileView">
+<BorderPane fx:id="outerMostContainer" prefHeight="700.0" prefWidth="777.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.CtrlProfileView">
 
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
@@ -38,6 +38,7 @@
 				<Menu text="_Help">
 					<items>
 						<MenuItem onAction="#handleHelpAbout" text="About" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleHelpTest1" text="Test1" />
 					</items>
 				</Menu>
 			</menus>
@@ -207,9 +208,9 @@
 																		<RowConstraints />
 																		<RowConstraints vgrow="ALWAYS" />
 																		<RowConstraints vgrow="ALWAYS" />
-																		<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
-																		<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+																		<RowConstraints vgrow="ALWAYS" />
+																		<RowConstraints vgrow="ALWAYS" />
+                                                <RowConstraints vgrow="ALWAYS" />
 																	</rowConstraints>
 																</GridPane>
 
@@ -241,7 +242,7 @@
 												<Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
 											</padding>
 										</HBox>
-										<HBox alignment="CENTER" fillHeight="false" spacing="6.0" style="-fx-border-color: #2e8b57; -fx-border-width: 2px;">
+										<HBox fx:id="asdf123" alignment="CENTER" fillHeight="false" spacing="6.0" style="-fx-border-color: #2e8b57; -fx-border-width: 2px;" styleClass="greenBorderBox">
 											<children>
 												<Button fx:id="btnRunWordCounter" onAction="#handleRunCounter" styleClass="actionbuttonRunner" text="_Word Count">
 													<HBox.margin>
@@ -264,6 +265,14 @@
 												<Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
 											</padding>
 										</HBox>
+                              <HBox fillHeight="false" spacing="6.0" styleClass="greenBorderBox">
+                                 <children>
+                                    <Button fx:id="btnCmdBookLookup" onAction="#handleRunBookLookup" styleClass="actionbuttonRunner" text="_Book Lookup" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="4.0" left="6.0" right="6.0" top="2.0" />
+                                 </padding>
+                              </HBox>
 									</children>
 									<padding>
 										<Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />

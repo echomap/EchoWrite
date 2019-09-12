@@ -75,6 +75,8 @@ public class Profile {
 
 	private List<OtherDocTagData> outputs = null;
 
+	private List<KeyValuePair> externalIDs = null;
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
@@ -427,8 +429,23 @@ public class Profile {
 	public void addOutput(final OtherDocTagData output) {
 		if (outputs == null)
 			outputs = new ArrayList<OtherDocTagData>();
-		//TODO Compare for duplicats!!
+		// TODO Compare for duplicats!!
 		outputs.add(output);
+	}
+
+	public List<KeyValuePair> getExternalIDs() {
+		return externalIDs;
+	}
+
+	public void setExternalIDs(List<KeyValuePair> externalIDs) {
+		this.externalIDs = externalIDs;
+	}
+
+	public void addExternalIDs(final KeyValuePair output) {
+		if (externalIDs == null)
+			externalIDs = new ArrayList<KeyValuePair>();
+		// TODO Compare for duplicats!!
+		externalIDs.add(output);
 	}
 
 }

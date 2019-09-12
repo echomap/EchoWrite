@@ -3,8 +3,10 @@ package com.echomap.kqf.looper;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -18,19 +20,22 @@ import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.TreeTimeData;
 import com.echomap.kqf.looper.data.TreeTimeSubData;
 
-public class FileLooperHandlerTimeline implements FileLooperHandler {
+public class FileLooperHandlerTimeline extends FileLoopHandlerAbsract implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerTimeline.class);
 	public static final String WORKTYPE = "Timeline";
 	NumberFormat numberFormat;
-	// String workResult = null;
-	private final List<String> errorTagList = new ArrayList<String>();
-
-	final List<String> tagListTimeDate = new ArrayList<String>();
-	final List<String> tagListActors = new ArrayList<String>();
-	final List<String> tagListItems = new ArrayList<String>();
-
+	// For errors
+	private final List<String> errorTagList = new ArrayList<>();
+	// all the lists
+	final List<String> tagListTimeDate = new ArrayList<>();
+	final List<String> tagListActors = new ArrayList<>();
+	final List<String> tagListItems = new ArrayList<>();
+	// all the dates
 	final List<TreeTimeData> datalistTimeDate = new ArrayList<>();
+	// all the meta doctags
+	private final List<DocTag> metaDocTagList = new ArrayList<>();
 
+	// that last time...
 	private String lastDateTime = null;
 
 	public FileLooperHandlerTimeline() {
@@ -42,13 +47,44 @@ public class FileLooperHandlerTimeline implements FileLooperHandler {
 		return WORKTYPE;
 	}
 
-	@Override
-	public void preLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-
+	public List<DocTag> getMetaDocTagList() {
+		return metaDocTagList;
 	}
 
 	@Override
-	public void handleLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
+	public void looperMsgWarn(final String errorMsg) {
+		LOGGER.warn(errorMsg);
+	}
+
+	@Override
+	public void handleMetaDocTag(final FormatDao formatDao, final LooperDao ldao, final DocTag metaDocTag) {
+		LOGGER.debug("metaDocTag: " + metaDocTag);
+		final String mtag = metaDocTag.getName();
+		final String mval = metaDocTag.getValue();
+		metaDocTagList.add(metaDocTag);
+
+		if ("listtimedate".compareToIgnoreCase(mtag) == 0) {
+			tagListTimeDate.add(mval);
+		}
+		if ("listActors".compareToIgnoreCase(mtag) == 0) {
+			tagListActors.add(mval);
+		}
+		if ("ListItems".compareToIgnoreCase(mtag) == 0) {
+			tagListItems.add(mval);
+		}
+		// defaults
+		// tagListTimeDate "date" "timemark");
+		// tagListActors "char" "who");
+		// tagListItems "inv" "what" "count"
+	}
+
+	@Override
+	public void handleSection(FormatDao formatDao, LooperDao ldao) {
+		//
+	}
+
+	@Override
+	public void handleChapter(FormatDao formatDao, LooperDao ldao) {
 		//
 	}
 
@@ -72,12 +108,12 @@ public class FileLooperHandlerTimeline implements FileLooperHandler {
 					//
 					if (tagListTimeDate.contains(docTag.getName())) {
 						LOGGER.debug("Found 'time/date' tag");
-						addToTreeTimeData(docTag);
+						addToTreeTimeData(docTag);// , cdao.getNumber());
 					}
 					//
 					if (tagListItems.contains(docTag.getName())) {
 						LOGGER.debug("Found 'item' tag");
-						addToTreeTimeDataItem(docTag);
+						addToTreeTimeDataItem(docTag);// , cdao.getNumber());
 					}
 					//
 				}
@@ -100,6 +136,23 @@ public class FileLooperHandlerTimeline implements FileLooperHandler {
 		timeDate.addData(docTag.getValue());
 	}
 
+	private TreeTimeData findTreeTimeData(final DocTag docTag) {
+		// check if already on list
+		TreeTimeData found = null;
+		for (final TreeTimeData treeTimeData : datalistTimeDate) {
+			if (treeTimeData.getTag().compareTo(docTag.getName()) == 0) {
+				found = treeTimeData;
+			}
+		}
+		// if so add data to that element
+		// if not, make a new element
+		if (found == null) {
+			found = new TreeTimeData(docTag.getValue());// TODO parse?
+			datalistTimeDate.add(found);
+		}
+		return found;
+	}
+
 	private TreeTimeData findTreeTimeData(final String dateTime) {
 		TreeTimeData found = null;
 		for (final TreeTimeData treeTimeData : datalistTimeDate) {
@@ -116,35 +169,9 @@ public class FileLooperHandlerTimeline implements FileLooperHandler {
 
 	private void addToTreeTimeData(final DocTag docTag) {
 		// check if already on list
-		TreeTimeData found = null;
-		for (final TreeTimeData treeTimeData : datalistTimeDate) {
-			if (treeTimeData.getTag().compareTo(docTag.getName()) == 0) {
-				found = treeTimeData;
-			}
-		}
-		// if so add data to that element
-		// if not, make a new element
-		if (found == null) {
-			found = new TreeTimeData(docTag.getValue());
-			datalistTimeDate.add(found);
-		}
+		final TreeTimeData found = findTreeTimeData(docTag);
 		// found.addData(docTag.getValue());
 		lastDateTime = docTag.getValue().trim();
-	}
-
-	@Override
-	public void handleDocTagNotTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		//
-	}
-
-	@Override
-	public void postLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-		//
-	}
-
-	@Override
-	public void postLastLine(final FormatDao formatDao, final LooperDao ldao) throws IOException {
-
 	}
 
 	@Override
@@ -152,11 +179,14 @@ public class FileLooperHandlerTimeline implements FileLooperHandler {
 		ldao.InitializeCount();
 
 		tagListTimeDate.add("date");
-		tagListTimeDate.add("time");
+		tagListTimeDate.add("timemark");
 
 		tagListActors.add("char");
+		tagListActors.add("who");
 
 		tagListItems.add("inv");
+		tagListItems.add("what");
+		tagListItems.add("count");
 	}
 
 	@Override
@@ -169,6 +199,10 @@ public class FileLooperHandlerTimeline implements FileLooperHandler {
 
 	@Override
 	public Object postHandlerPackage(final FormatDao formatDao, final LooperDao ldao) {
-		return datalistTimeDate;
+		final Map<String, Object> mapp = new HashMap<>();
+		mapp.put("datalistTimeDate", datalistTimeDate);
+		mapp.put("metaDocTagList", metaDocTagList);
+		return mapp;
 	}
+
 }
