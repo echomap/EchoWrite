@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="outerMostContainer" prefHeight="900.0" prefWidth="800.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.ctrl.CtrlOutliner">
+
+	<top>
+		<MenuBar BorderPane.alignment="CENTER">
+			<menus>
+				<Menu text="_File">
+					<items>
+						<MenuItem onAction="#handleRefreshData" text="_Refresh" />
+                  <MenuItem onAction="#handleClearLog" text="_Clear Log" />
+                  <MenuItem onAction="#handleClose" text="_Quit" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="_Settings">
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#handleSettingsClear" text="Clear" />
+					</items>
+				</Menu>
+				<Menu text="_Help">
+					<items>
+						<MenuItem onAction="#handleHelpAbout" text="About" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+	</top>
+   <center>
+      <SplitPane dividerPositions="0.8383371824480369" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+        <items>
+            <SplitPane dividerPositions="0.8646616541353384" prefHeight="160.0" prefWidth="200.0">
+              <items>
+                  <TabPane fx:id="mainTabPane" prefHeight="722.0" prefWidth="610.0" tabClosingPolicy="UNAVAILABLE" />
+                  <VBox fx:id="paneButtons" alignment="CENTER" spacing="14.0">
+                     <children>
+                        <Label text="Window" underline="true" wrapText="true" />
+                        <Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="actionbuttonQuit" text="_Close" />
+                        <Button fx:id="buttonRefresh" layoutX="10.0" layoutY="329.0" onAction="#handleRefreshData" styleClass="actionbuttonRunner" text="_Refresh" wrapText="true" />
+                        <Label text="Tree Controls" underline="true" wrapText="true">
+                           <VBox.margin>
+                              <Insets top="24.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Button fx:id="buttonRefresh1" onAction="#handleTreeColapse" styleClass="actionbuttonRunner" text="Collapse All" wrapText="true">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </Button>
+                        <Button fx:id="buttonRefresh11" onAction="#handleTreeExpand" styleClass="actionbuttonRunner" text="Expand All" wrapText="true" />
+                        <Label text="Misc." underline="true" wrapText="true">
+                           <VBox.margin>
+                              <Insets top="24.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Button fx:id="buttonShowCharacters" onAction="#handleShowCharacters" styleClass="actionbuttonRunner" text="_Characters" wrapText="true">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </Button>
+                     </children>
+                  </VBox>
+              </items>
+            </SplitPane>
+            <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" promptText="Logging Area" />
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>

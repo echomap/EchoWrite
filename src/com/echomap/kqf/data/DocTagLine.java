@@ -8,17 +8,35 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class DocTagLine {
 
 	private List<DocTag> docTags = null;
-	// rawLine = The full tag, start and end
+	// rawLine = The line without the TagName, (sometimes has tags in it!!)
 	private String rawLine = null;
-	// bareLine= The line without this tag
+	// bareLine= Seems to be used when there is text data on a doctag line?
 	private String bareLine = null;
+	//bare line but without tags
+	private String innerLine = null;
+	//
 	private long lineCount = 0;
+	// Counter
 	private long numberOfStartTags = 0;
+	// Counter
 	private long numberOfEndTags = 0;
+	//
 	private boolean onlyDoctag = false;
+	//
 	private boolean hasDocTag = false;
+	//
 	private boolean longDocTag = false;
+	//
 	private boolean endDocTag = false;
+
+	// The entire text of the input line
+	private String textLine;
+	// The text used as the tag's value
+	private String textTagLine;
+
+	//
+	private String parentTag;
+	private String childTag;
 
 	@Override
 	public String toString() {
@@ -92,6 +110,9 @@ public class DocTagLine {
 		this.onlyDoctag = true;
 		this.hasDocTag = true;
 		this.longDocTag = false;
+		// second try at standardizing fields
+		this.textLine = dt.getFullTag();
+		this.textTagLine = dt.getFullText();
 	}
 
 	// public void setupOnlyDocTag(final String docTagText) {
@@ -117,6 +138,9 @@ public class DocTagLine {
 		this.hasDocTag = true;
 		this.longDocTag = false;
 		// return dt;
+		// second try at standardizing fields
+		this.textLine = line;
+		this.textTagLine = docTagText;
 	}
 
 	public void setupLongDocTag(String line, String docTagText) {
@@ -130,6 +154,9 @@ public class DocTagLine {
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
 		this.longDocTag = true;
+		// second try at standardizing fields
+		this.addToTextLine(line);
+		this.textTagLine = docTagText;
 	}
 
 	public void addDocTag(final DocTag docTag) {
@@ -145,9 +172,14 @@ public class DocTagLine {
 			return;
 		for (DocTag docTag : docTagsl) {
 			this.getDocTags().add(docTag);
+			// TODO ? this.textLine = this.textLine + docTag.get
 		}
 		this.onlyDoctag = false;
 		this.hasDocTag = true;
+
+		// second try at standardizing fields
+		// this.textLine = docTagsl.getFullTag();
+		// this.textTagLine = docTagsl.getFullText();
 	}
 
 	public void appendTextToLast(String line2) {
@@ -163,6 +195,10 @@ public class DocTagLine {
 		// lastDt.appendText(lastDt.getFullText() + line2);
 		lastDt.appendText(line2);
 		this.appendBareLine(line2);
+
+		// second try at standardizing fields
+		addToTextLine(line2);
+		this.textTagLine = lastDt.getFullText();
 	}
 
 	private void appendBareLine(String line2) {
@@ -205,12 +241,60 @@ public class DocTagLine {
 		return numberOfEndTags;
 	}
 
+	public String getTextLine() {
+		return textLine;
+	}
+
+	public void setTextLine(String textLine) {
+		this.textLine = textLine;
+	}
+
+	public String getTextTagLine() {
+		return textTagLine;
+	}
+
+	public void setTextTagLine(String textTagLine) {
+		this.textTagLine = textTagLine;
+	}
+
+	public String getParentTag() {
+		return parentTag;
+	}
+
+	public void setParentTag(String parentTag) {
+		this.parentTag = parentTag;
+	}
+
+	public String getChildTag() {
+		return childTag;
+	}
+
+	public void setChildTag(String childTag) {
+		this.childTag = childTag;
+	}
+
 	public void addNumberToStartTags(long numberOfStartTags) {
 		this.numberOfStartTags += numberOfStartTags;
 	}
 
 	public void addNumberToEndTags(long numberOfEndTags) {
 		this.numberOfEndTags += numberOfEndTags;
+	}
+
+	public void addToTextLine(final String line2) {
+		if (this.textLine != null)
+			this.textLine = this.textLine + line2;
+		else
+			this.textLine = line2;
+		this.textLine = this.textLine.trim();
+	}
+
+	public String getInnerLine() {
+		return innerLine;
+	}
+
+	public void setInnerLine(String innerLine) {
+		this.innerLine = innerLine;
 	}
 
 }

@@ -33,6 +33,12 @@ public class ChapterDao implements PartitionDao {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
+	// @Override
+	// public int hashCode() {
+	// if()
+	// return super.hashCode();
+	// }
+
 	public int getNumChars() {
 		return numChars;
 	}

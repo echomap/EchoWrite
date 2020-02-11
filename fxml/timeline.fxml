@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="outerMostContainer" prefHeight="900.0" prefWidth="800.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.ctrl.CtrlTImeline">
+
+	<top>
+		<MenuBar BorderPane.alignment="CENTER">
+			<menus>
+				<Menu text="_File">
+					<items>
+						<MenuItem onAction="#handleRefreshData" text="_Refresh" />
+                  <MenuItem onAction="#handleClearLog" text="_Clear Log" />
+                  <MenuItem onAction="#handleClose" text="_Quit" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="_Settings">
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#handleSettingsClear" text="Clear" />
+					</items>
+				</Menu>
+				<Menu text="_Help">
+					<items>
+						<MenuItem onAction="#handleHelpAbout" text="About" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+	</top>
+   <center>
+      <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab text="Time/Date">
+            <content>
+              <AnchorPane>
+                     <children>
+                        <TreeView fx:id="dataTimeTree" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="Scenes">
+               <content>
+                  <AnchorPane>
+                     <children>
+                        <TreeView fx:id="scenesTree" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="alltable" text="All Table">
+               <content>
+                  <ScrollPane fx:id="alltableScrollPane" fitToHeight="true" fitToWidth="true">
+                     <content>
+                        <AnchorPane>
+                           <children>
+                              <BorderPane fx:id="adf431" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <center>
+                                    <TableView fx:id="dataAllThingsTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <columns>
+                                          <TableColumn prefWidth="75.0" text="C1" />
+                                          <TableColumn prefWidth="75.0" text="C2" />
+                                          <TableColumn prefWidth="75.0" text="C2" />
+                                          <TableColumn prefWidth="75.0" text="C2" />
+                                       </columns>
+                                    </TableView>
+                                 </center>
+                                 <top>
+                                    <HBox fx:id="allTabFilterHeader" BorderPane.alignment="CENTER">
+                                       <children>
+                                          <TextField fx:id="filterTextChar1" promptText="Char FIlter" />
+                                          <TextField fx:id="filterTextMarker1" promptText="Marker FIlter" />
+                                          <TextField fx:id="filterTextNum1" promptText="# FIlter" />
+                                       </children>
+                                    </HBox>
+                                 </top>
+                              </BorderPane>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </ScrollPane>
+               </content>
+            </Tab>
+            <Tab text="End Table">
+               <content>
+                  <BorderPane fx:id="endtableScrollPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">  
+                     <center>
+                        <TableView fx:id="dataThingsEndTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TableColumn prefWidth="75.0" text="C1" />
+                            <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                          </columns>
+                        </TableView>
+                     </center>
+                     <top>
+                        <HBox fx:id="endThingsTabFilterHeader" BorderPane.alignment="CENTER">
+                           <children>
+                              <TextField fx:id="filterTextChar" promptText="Char FIlter" />
+                              <TextField fx:id="filterTextMarker" promptText="Marker FIlter" />
+                              <TextField fx:id="filterTextNum" promptText="# FIlter" />
+                              <TextField fx:id="filterTextItem" promptText="Item FIlter" />
+                              <TextField fx:id="filterTextLoc" promptText="Loc FIlter" />
+                              <TextField fx:id="filterTextText" promptText="Text FIlter" />
+                           </children>
+                        </HBox>
+                     </top>
+                  </BorderPane>
+               </content>
+            </Tab>
+            <Tab text="Things Table">
+               <content>
+                  <BorderPane fx:id="tableThingsPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <center>
+                        <TableView fx:id="dataThingsTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <columns>
+                              <TableColumn prefWidth="75.0" text="C1" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                              <TableColumn prefWidth="75.0" text="C2" />
+                           </columns>
+                        </TableView>
+                     </center>
+                     <top>
+                        <HBox fx:id="thingsTabFilterHeader" BorderPane.alignment="CENTER">
+                           <children>
+                              <TextField fx:id="filterTextThingName" promptText="Name FIlter" />
+                              <TextField fx:id="filterTextThingMarker" promptText="Marker FIlter" />
+                              <TextField fx:id="filterTextThingNum" promptText="# FIlter" />
+                              <TextField fx:id="filterTextThingDesc" promptText="Desc FIlter" />
+                              <TextField fx:id="filterTextThingLoc" promptText="Loc FIlter" />
+                              <TextField fx:id="filterTextThingText" promptText="Text FIlter" />
+                           </children>
+                        </HBox>
+                     </top>
+                  </BorderPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </center>
+   <bottom>
+      <TextArea fx:id="loggingArea" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <right>
+      <VBox fx:id="paneButtons" alignment="CENTER" spacing="14.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="actionbuttonQuit" text="_Close" />
+            <Button fx:id="buttonRefresh" layoutX="10.0" layoutY="329.0" onAction="#handleRefreshData" styleClass="actionbuttonRunner" text="_Refresh" />
+         </children>
+      </VBox>
+   </right>
+</BorderPane>

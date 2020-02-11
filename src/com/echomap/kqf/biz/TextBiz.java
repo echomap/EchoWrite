@@ -17,7 +17,6 @@ import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.SimpleChapterDao;
 import com.echomap.kqf.looper.data.SimpleSectionDao;
-import com.echomap.kqf.looper.data.TreeTimeSubData;
 
 public class TextBiz {
 	private final static Logger LOGGER = LogManager.getLogger(TextBiz.class);
@@ -26,239 +25,24 @@ public class TextBiz {
 	// TODO need this? special1
 	public final static String special1 = "* * * * * * * *";
 
-	// public static enum DOCTAGTYPE {
-	// NONE, ALLDOCTAG, HASDOCTAG, LONGDOCTAG
-	// };
-
-	public static enum LINETYPE {
-		PLAIN, CHAPTER, SECTION
-	};
-
-	// public static enum SECTIONTYPE {
-	// PLAIN, INSPECIAL, NOTSPECIAL
-	// };
-
-	public static boolean lineEmpty(String st) {
-		if (StringUtils.isBlank(st))
-			return true;
-		if (st.compareTo("&nbsp;") == 0)
-			return true;
-		return false;
-	}
-
-	public static String getFileNameOnly(final String filename) {
-		String outFilename = null;
-		// final String filenameOnly = outputFile.getName();
-		final int extIdx = filename.lastIndexOf(".");
-		if (extIdx >= 1) {
-			// String ext = filename.substring(extIdx + 1);
-			// outFilename = filename.replaceAll(ext, "txt");
-			outFilename = filename.substring(0, extIdx);
-		} else {
-			outFilename = filename;
-		}
-		return outFilename;
-	}
-
-	public static String createPreTag(final String tagname) {
-		return "<" + tagname + ">";
-	}
-
-	public static String createPostTag(final String tagname) {
-		return "</" + tagname + ">";
-	}
-
-	public static String cleanText(final String st, final Boolean removeSectDiv, final String sectionDivider,
-			final SimpleSectionDao sectionType, final String docTagStart, final String docTagEnd) {
-		final String st2 = st.replaceAll("Section: ", "");
-		return cleanText(st2, removeSectDiv, sectionDivider, docTagStart, docTagEnd);
-	}
-
-	// @TODO change misc to be a list?
-	public static String cleanText(final String st, final boolean remChapterDiv, final String miscChapterDiv,
-			final String docTagStart, final String docTagEnd) {
-		if (remChapterDiv) {
-			String st2 = st.replaceAll("--", "");
-			st2 = st2.replaceAll("--", "");
-			st2 = st2.replaceAll("-=", "");
-			st2 = st2.replaceAll("=-", "");
-			if (miscChapterDiv != null)
-				st2 = st2.replaceAll(miscChapterDiv, "");
-
-			// st2 = st2.substring(st2.indexOf(docTagStart) + 1);
-			// st2 = st2.substring(0, st2.indexOf(docTagEnd));
-
-			if (st2.startsWith(" "))
-				st2 = st2.substring(1, st2.length());
-			if (st2.endsWith(" "))
-				st2 = st2.substring(0, st2.length() - 1);
-			LOGGER.debug("  Cleaned Chapter-Divs: " + st2);
-			return st2.trim();
-		}
-		return st;
-	}
-
-	public static String doDropCaps(final String st, final String docTagStart, final String docTagEnd)
-			throws IOException {
-		String st2 = "";
-		List<String> dropCapsList = doDropCapsList(st, docTagStart, docTagEnd);
-		for (String dct : dropCapsList) {
-			st2 += dct;
-		}
-		return st2;
-	}
-
-	public static List<String> doDropCapsList(final String st, final String docTagStart, final String docTagEnd)
-			throws IOException {
-		final List<String> slist = new ArrayList<String>();
-		// <span class="dropcaps">I</span>
-		String st2 = cleanPlainText(st, docTagStart, docTagEnd);
-		LOGGER.debug("st = '" + st2 + "'");
-		final String str1 = st2.substring(0, 1);
-		LOGGER.debug("str1 = '" + str1 + "'");
-		final String str2 = st2.substring(1);
-		LOGGER.debug("str2 = '" + str2 + "'");
-
-		slist.add("<span class=\"dropcaps\">");
-		slist.add(str1);
-		slist.add("</span>");
-		slist.add(str2);
-		return slist;
-	}
-
-	public static boolean checkHTMLCenterLine(FormatDao formatDao, String st) {
-		if (st.startsWith("<center>") && st.endsWith("</center>"))
-			return true;
-		return false;
-	}
-
-	public static boolean centerCheck(final FormatDao formatDao, final String st) {
-		if (formatDao.getCenterableLineText() != null && st.compareTo(formatDao.getCenterableLineText()) == 0)
-			return true;
-		if (formatDao.getCenterStars()) {
-			if (st.startsWith("*")) {
-				String stIn = st.trim();
-				stIn = stIn.replace("", "");
-				if (stIn.matches(".*[**]")) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public static boolean isAnHtmlLine(final String line) {
-		if (line == null)
-			return false;
-		String line2 = line.toLowerCase();
-		final int idx1 = line2.indexOf("<div");
-		final int idx2 = line2.indexOf("/div");
-		if (idx1 > -1)
-			return true;
-		if (idx2 > -1)
-			return true;
-		// if (line2.startsWith("<div")) return true;
-		// if (line2.endsWith("/div>")) return true;
-		return false;
-	}
-
-	public static String fixedLengthString(final String str, final int length) {
-		return String.format("%1$" + length + "s", str);
-	}
-
-	public static String fixedLengthString(final int intv, final int length) {
-		final String str = new Integer(intv).toString();
-		return fixedLengthString(str, length);
-	}
-
 	public static String wrapString(final String str) {
 		if (null == str)
 			return "<null>";
 		return "'" + str + "'";
 	}
 
-	public static String cleanPlainText(String st, final String docTagStart, final String docTagEnd) {
-		return cleanPlainText(st, docTagStart, docTagEnd, true);
-	}
-
-	public static String cleanPlainText(final String stIn, final String docTagStart, final String docTagEnd,
-			boolean htmlIfy) {
-		// String st2 = st.replaceAll("\x", ""\"x");
-		String st = stIn;
-		if (StringUtils.isEmpty(st))
-			if (htmlIfy)
-				st = "&nbsp;";
-			else
-				st = "";
-
-		int idx1 = st.indexOf(docTagStart);
-		while (idx1 > -1) {
-			// final int idx2 = st.indexOf(docTagEnd);
-			final String st2 = st.substring(0, st.indexOf(docTagStart));
-			// int idx2 = st.indexOf(docTagEnd);
-			final String st3 = st.substring(st.indexOf(docTagEnd) + docTagEnd.length());
-			// st = st.substring(0, st.indexOf(docTagStart) +
-			// docTagStart.length());
-			st = st2 + st3;
-			// st = st.substring(st.indexOf(docTagEnd));
-			idx1 = st.indexOf(docTagStart);
-			// if (st.length() > idx2)
-			// idx1 = st.substring(idx2).indexOf(docTagStart);
-			// else
-			// idx1 = -1;
+	public static DocTag isMetaTag(final DocTagLine dttGL) {
+		if (dttGL.isLongDocTag() || !dttGL.isOnlyDoctag() || dttGL.getDocTags() == null
+				|| dttGL.getDocTags().size() < 1)
+			return null;
+		final DocTag docTag0 = dttGL.getDocTags().get(0);
+		if (docTag0 == null)
+			return null;
+		if ("meta".compareToIgnoreCase(docTag0.getName()) == 0) {
+			TextParsingBiz.parseDocTagSubValues(docTag0);
+			return docTag0;
 		}
-
-		// if (StringUtils.isEmpty(st))
-		// st = "&nbsp;";
-		st = stripHTMLTags(st);
-		return st.trim();
-	}
-
-	// TODO use a real library to do this
-	private static String stripHTMLTags(final String htmlText) {
-		final Pattern pattern = Pattern.compile("<[^>]*>");
-		final Matcher matcher = pattern.matcher(htmlText);
-		final StringBuffer sb = new StringBuffer(htmlText.length());
-		while (matcher.find()) {
-			matcher.appendReplacement(sb, "");
-		}
-		matcher.appendTail(sb);
-		return sb.toString().trim();
-	}
-
-	public static void countWords(final LooperDao ldao, final CountDao dao, final FormatDao fdao) {
-		// boolean inWord = false;
-		String text2 = cleanPlainText(ldao.getCurrentLine(), fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
-		if (text2.length() < 1)
-			return;
-		countWords(text2, dao, fdao);
-	}
-
-	public static void countWords(String text2, final CountDao dao, final FormatDao fdao) {
-		boolean inWord = false;
-		if (text2 == null || text2.length() < 1)
-			return;
-
-		final int len = text2.length();
-		for (int i = 0; i < len; i++) {
-			final char c = text2.charAt(i);
-			dao.addOneToNumChars();
-			switch (c) {
-			case '\n':
-			case '\t':
-				break;
-			case ' ':
-				if (inWord) {
-					dao.addOneToNumWords();
-					inWord = false;
-				}
-				break;
-			default:
-				inWord = true;
-			}
-		}
-		if (inWord)
-			dao.addOneToNumWords();
+		return null;
 	}
 
 	public static SimpleSectionDao isSection(final String line, final String miscDiv) {
@@ -297,30 +81,7 @@ public class TextBiz {
 			ssd.sname = mName;
 			ssd.snum = mNum;
 			ssd.title = mTitle;
-
-			// if (isInSpecial)
-			// return SECTIONTYPE.INSPECIAL;
-			// else
-			// return SECTIONTYPE.PLAIN;
 		}
-
-		// if (line.startsWith("Section")) {
-		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoSection>";
-		// return SECTIONTYPE.PLAIN;
-		// } else if (line.indexOf("Section:") > -1) {
-		// // preTag = "<p class=MsoSection>";
-		// return SECTIONTYPE.PLAIN;
-		// } else if (line.startsWith(special1) && !isInSpecial) {
-		// // preTag = "<mbp:pagebreak/>\n" + "<p class=MsoPlainText>";
-		// return SECTIONTYPE.NOTSPECIAL;
-		// } else if (line.indexOf("Section") > -1 && isInSpecial) {
-		// // preTag = "<p class=MsoSection>";
-		// return SECTIONTYPE.INSPECIAL;
-		// }
-		// if (miscDiv != null) {
-		// if (line.contains(miscDiv))// && line.contains("Section"))
-		// return SECTIONTYPE.PLAIN;
-		// }
 		return ssd;
 	}
 
@@ -366,32 +127,6 @@ public class TextBiz {
 			}
 			return dao;
 		}
-
-		// if (line.startsWith("Chapter")) {
-		// dao.isChapter = true;
-		// // dao.name = parseChapterName(line, null);
-		// dao = parseChapterName(line, null);
-		// return dao;
-		// }
-		// if (line.contains("--") && line.contains("Chapter")) {
-		// dao.isChapter = true;
-		// // dao.name = parseChapterName(line, "--");
-		// dao = parseChapterName(line, "--");
-		// return dao;
-		// }
-		// if (line.contains("-=") && line.contains("Chapter")) {
-		// dao.isChapter = true;
-		// // dao.name = parseChapterName(line, "-=");
-		// dao = parseChapterName(line, "-=");
-		// return dao;
-		// }
-		// if (chapterDivider != null && line.contains(chapterDivider) &&
-		// line.contains("Chapter")) {
-		// dao.isChapter = true;
-		// // dao.name = parseChapterName(line, chapterDivider);
-		// dao = parseChapterName(line, chapterDivider);
-		// return dao;
-		// }
 		dao.isChapter = false;
 		dao.name = null;
 		return dao;
@@ -402,6 +137,7 @@ public class TextBiz {
 		if (StringUtils.isBlank(startTag) || StringUtils.isBlank(endTag)) {
 			dtl.setupNotADocTag(line);
 			// return DOCTAGTYPE.NONE;
+			parseInnerLIne(dtl, endTag, endTag);
 			return dtl;
 		}
 		verifyLineCheck(dtl, line, startTag, endTag);
@@ -459,6 +195,8 @@ public class TextBiz {
 				dtl.setBareLine(strBare.trim());
 				if (StringUtils.isEmpty(dtl.getBareLine()))
 					dtl.setOnlyDoctag(true);
+				else
+					LOGGER.debug("docTag: has more data after DocTag...");
 			}
 
 		} else if (line.contains(startTag)) {
@@ -475,50 +213,222 @@ public class TextBiz {
 			dtl.setupNotADocTag(line);
 		}
 
+		//
+		parseLineForMasterSub(dtl);
+
 		// return DOCTAGTYPE.NONE;
+		parseInnerLIne(dtl, startTag, endTag);
 		return dtl;
 	}
 
-	public static DocTag isMetaTag(final DocTagLine dttGL) {
-		if (dttGL.isLongDocTag() || !dttGL.isOnlyDoctag() || dttGL.getDocTags() == null
-				|| dttGL.getDocTags().size() < 1)
-			return null;
-		final DocTag docTag0 = dttGL.getDocTags().get(0);
-		if (docTag0 == null)
-			return null;
-		if ("meta".compareToIgnoreCase(docTag0.getName()) == 0) {
-			parseDocTagSubValues(docTag0);
-			return docTag0;
-		}
-		return null;
+	public static void countWords(final LooperDao ldao, final CountDao dao, final FormatDao fdao) {
+		// boolean inWord = false;
+		String text2 = cleanPlainText(ldao.getCurrentLine(), fdao.getDocTagStart(), fdao.getDocTagEnd(), false);
+		if (text2.length() < 1)
+			return;
+		countWords(text2, dao, fdao);
 	}
 
-	private static void parseDocTagSubValues(final DocTag docTag) {
-		String mKey = null;
-		String mValue = null;
-		String line = docTag.getFullText().trim();
+	public static void countWords(String text2, final CountDao dao, final FormatDao fdao) {
+		boolean inWord = false;
+		if (text2 == null || text2.length() < 1)
+			return;
 
-		// Create a Pattern object
-		// -=\s+(?<sname>Section)\s+((?<snum>\w+):\s+)?(?<stitle>.*)\s+=-
-		// timeline: include chapters.
-		final Pattern r = Pattern.compile("@(?<mKey>\\w+):\\s+(?<mValue>.*)[\\.]");//TODO end of line is? 
-		// Now create matcher object.
-		final Matcher matcher = r.matcher(line);
-		if (matcher.find()) {
-			try {
-				mKey = matcher.group("mKey");
-			} catch (Exception e) {
-				LOGGER.error("mKey in text not found", e);
-				e.printStackTrace();
+		final int len = text2.length();
+		for (int i = 0; i < len; i++) {
+			final char c = text2.charAt(i);
+			dao.addOneToNumChars();
+			switch (c) {
+			case '\n':
+			case '\t':
+				break;
+			case ' ':
+				if (inWord) {
+					dao.addOneToNumWords();
+					inWord = false;
+				}
+				break;
+			default:
+				inWord = true;
 			}
-			try {
-				mValue = matcher.group("mValue");
-			} catch (Exception e) {
-				LOGGER.error("mValue in text not found", e);
-				e.printStackTrace();
-			}
-			// ttsd.addData(mKey, mValue);
 		}
+		if (inWord)
+			dao.addOneToNumWords();
+	}
+
+	public static boolean isAnHtmlLine(final String line) {
+		if (line == null)
+			return false;
+		String line2 = line.toLowerCase();
+		final int idx1 = line2.indexOf("<div");
+		final int idx2 = line2.indexOf("/div");
+		if (idx1 > -1)
+			return true;
+		if (idx2 > -1)
+			return true;
+		// if (line2.startsWith("<div")) return true;
+		// if (line2.endsWith("/div>")) return true;
+		return false;
+	}
+
+	public static boolean centerCheck(final FormatDao formatDao, final String st) {
+		if (formatDao.getCenterableLineText() != null && st.compareTo(formatDao.getCenterableLineText()) == 0)
+			return true;
+		if (formatDao.getCenterStars()) {
+			if (st.startsWith("*")) {
+				String stIn = st.trim();
+				stIn = stIn.replace("", "");
+				if (stIn.matches(".*[**]")) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean checkHTMLCenterLine(FormatDao formatDao, String st) {
+		if (st.startsWith("<center>") && st.endsWith("</center>"))
+			return true;
+		return false;
+	}
+
+	public static String cleanPlainText(String st, final String docTagStart, final String docTagEnd) {
+		return cleanPlainText(st, docTagStart, docTagEnd, true);
+	}
+
+	public static String cleanPlainText(final String stIn, final String docTagStart, final String docTagEnd,
+			boolean htmlIfy) {
+		// String st2 = st.replaceAll("\x", ""\"x");
+		String st = stIn;
+		if (StringUtils.isEmpty(st))
+			if (htmlIfy)
+				st = "&nbsp;";
+			else
+				st = "";
+
+		int idx1 = st.indexOf(docTagStart);
+		while (idx1 > -1) {
+			// final int idx2 = st.indexOf(docTagEnd);
+			final String st2 = st.substring(0, st.indexOf(docTagStart));
+			// int idx2 = st.indexOf(docTagEnd);
+			final String st3 = st.substring(st.indexOf(docTagEnd) + docTagEnd.length());
+			// st = st.substring(0, st.indexOf(docTagStart) +
+			// docTagStart.length());
+			st = st2 + st3;
+			// st = st.substring(st.indexOf(docTagEnd));
+			idx1 = st.indexOf(docTagStart);
+			// if (st.length() > idx2)
+			// idx1 = st.substring(idx2).indexOf(docTagStart);
+			// else
+			// idx1 = -1;
+		}
+
+		// if (StringUtils.isEmpty(st))
+		// st = "&nbsp;";
+		st = stripHTMLTags(st);
+		return st.trim();
+	}
+
+	public static String cleanText(final String st, final Boolean removeSectDiv, final String sectionDivider,
+			final SimpleSectionDao sectionType, final String docTagStart, final String docTagEnd) {
+		final String st2 = st.replaceAll("Section: ", "");
+		return cleanText(st2, removeSectDiv, sectionDivider, docTagStart, docTagEnd);
+	}
+
+	// @TODO change misc to be a list?
+	public static String cleanText(final String st, final boolean remChapterDiv, final String miscChapterDiv,
+			final String docTagStart, final String docTagEnd) {
+		if (remChapterDiv) {
+			String st2 = st.replaceAll("--", "");
+			st2 = st2.replaceAll("--", "");
+			st2 = st2.replaceAll("-=", "");
+			st2 = st2.replaceAll("=-", "");
+			if (miscChapterDiv != null)
+				st2 = st2.replaceAll(miscChapterDiv, "");
+
+			// st2 = st2.substring(st2.indexOf(docTagStart) + 1);
+			// st2 = st2.substring(0, st2.indexOf(docTagEnd));
+
+			if (st2.startsWith(" "))
+				st2 = st2.substring(1, st2.length());
+			if (st2.endsWith(" "))
+				st2 = st2.substring(0, st2.length() - 1);
+			LOGGER.debug("  Cleaned Chapter-Divs: " + st2);
+			return st2.trim();
+		}
+		return st;
+	}
+
+	public static boolean lineEmpty(String st) {
+		if (StringUtils.isBlank(st))
+			return true;
+		if (st.compareTo("&nbsp;") == 0)
+			return true;
+		return false;
+	}
+
+	public static String createPreTag(final String tagname) {
+		return "<" + tagname + ">";
+	}
+
+	public static String createPostTag(final String tagname) {
+		return "</" + tagname + ">";
+	}
+
+	public static String doDropCaps(final String st, final String docTagStart, final String docTagEnd)
+			throws IOException {
+		String st2 = "";
+		List<String> dropCapsList = doDropCapsList(st, docTagStart, docTagEnd);
+		for (String dct : dropCapsList) {
+			st2 += dct;
+		}
+		return st2;
+	}
+
+	public static List<String> doDropCapsList(final String st, final String docTagStart, final String docTagEnd)
+			throws IOException {
+		final List<String> slist = new ArrayList<String>();
+		// <span class="dropcaps">I</span>
+		String st2 = cleanPlainText(st, docTagStart, docTagEnd);
+		LOGGER.debug("st = '" + st2 + "'");
+		final String str1 = st2.substring(0, 1);
+		LOGGER.debug("str1 = '" + str1 + "'");
+		final String str2 = st2.substring(1);
+		LOGGER.debug("str2 = '" + str2 + "'");
+
+		slist.add("<span class=\"dropcaps\">");
+		slist.add(str1);
+		slist.add("</span>");
+		slist.add(str2);
+		return slist;
+	}
+
+	private static void parseInnerLIne(final DocTagLine dtl, final String startTag, final String endTag) {
+		dtl.setBareLine(dtl.getRawLine().replace(startTag, "").replace(endTag, ""));
+	}
+
+	// TODO use a real library to do this
+	private static String stripHTMLTags(final String htmlText) {
+		final Pattern pattern = Pattern.compile("<[^>]*>");
+		final Matcher matcher = pattern.matcher(htmlText);
+		final StringBuffer sb = new StringBuffer(htmlText.length());
+		while (matcher.find()) {
+			matcher.appendReplacement(sb, "");
+		}
+		matcher.appendTail(sb);
+		return sb.toString().trim();
+	}
+
+	private static void parseLineForMasterSub(final DocTagLine dtl) {
+		if (dtl == null || StringUtils.isEmpty(dtl.getTextTagLine()))
+			return;
+		String line = dtl.getTextTagLine().trim();
+
+		final String[] strList = line.split(":");
+		if (strList != null && strList.length > 0)
+			dtl.setParentTag(strList[0].trim());
+		if (strList != null && strList.length > 1)
+			dtl.setChildTag(strList[1].trim());
 	}
 
 	private static void verifyLineCheck(final DocTagLine dtl, final String line, final String startTag,
@@ -552,7 +462,6 @@ public class TextBiz {
 				throw new RuntimeException("Probably a errant tag in line: <" + line + ">");
 			}
 		}
-
 	}
 
 	private static DocTag findNextDocTag(final String startTag, final String endTag, final String line) {
@@ -570,6 +479,7 @@ public class TextBiz {
 				final String barePost = line.substring(idx2 + endTag.length());
 				final String bare = barePre + barePost;
 				dt.setBareLine(bare.trim());
+				dt.setInnerLine((bare.trim().replace(startTag, "").replace(endTag, "")));
 			} catch (java.lang.StringIndexOutOfBoundsException e) {
 				LOGGER.error(e);
 				LOGGER.error(e.getMessage(), e);
@@ -579,47 +489,18 @@ public class TextBiz {
 		return dt;
 	}
 
-	// public static String parseForDocTags(final String st, final String
-	// docTagStart, final String docTagEnd) {
-	// String st2 = st;
-	// int idx1 = st2.indexOf(docTagStart);
-	// if (idx1 > -1) {
-	// st2 = st2.substring(idx1 + docTagStart.length());
-	// int idx2 = st2.indexOf(docTagEnd);
-	// if (idx2 < -1)
-	// idx2 = st2.length();
-	// st2 = st2.substring(0, idx2);
-	// LOGGER.debug("parseForDocTags: '" + st2 + "'");
-	// }
-	// return st2;
-	// }
+	public static String getFileNameOnly(final String filename) {
+		String outFilename = null;
+		// final String filenameOnly = outputFile.getName();
+		final int extIdx = filename.lastIndexOf(".");
+		if (extIdx >= 1) {
+			// String ext = filename.substring(extIdx + 1);
+			// outFilename = filename.replaceAll(ext, "txt");
+			outFilename = filename.substring(0, extIdx);
+		} else {
+			outFilename = filename;
+		}
+		return outFilename;
+	}
 
-	/*
-	 * private static SimpleChapterDao parseChapterName(final String line, final
-	 * String div) { final SimpleChapterDao dao = new SimpleChapterDao(); final
-	 * int idxColon = line.indexOf(":"); // String ret = line; StringBuffer
-	 * divBuf = new StringBuffer(); divBuf.append(div); StringBuffer divBufR =
-	 * divBuf.reverse(); String divR = divBufR.toString(); String pre = line;
-	 * String post = null; String num = null; if (idxColon != -1) { pre =
-	 * line.substring(0, idxColon); post = line.substring(idxColon + 1); } if
-	 * (pre == null) { pre = line; }
-	 * 
-	 * if (div != null) { if (pre.startsWith(div)) pre =
-	 * pre.substring(div.length()); else if (pre.indexOf(div) > -1) pre =
-	 * pre.substring(pre.indexOf(div) + div.length()); if (post.endsWith(divR))
-	 * post = post.substring(0, post.length() - divR.length()); } if (pre !=
-	 * null) pre = pre.trim(); if (post != null) post = post.trim();
-	 * 
-	 * final int idxSpcePre = pre.lastIndexOf(" "); if (idxSpcePre >= 1) {
-	 * String temp = pre.substring(idxSpcePre); if (temp != null) temp =
-	 * temp.trim();
-	 * 
-	 * if (temp != null) { num = temp; // try { // num = Integer.valueOf(temp);
-	 * // } catch (NumberFormatException e) { // // e.printStackTrace(); // num
-	 * = 0; // } } }
-	 * 
-	 * dao.name = pre; dao.isChapter = true; dao.chpNum = num; dao.title = post;
-	 * 
-	 * // return ret; return dao; }
-	 */
 }

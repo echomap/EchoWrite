@@ -6,6 +6,15 @@ public class KeyValuePair {
 	private String key;
 	private String value;
 
+	public KeyValuePair() {
+
+	}
+
+	public KeyValuePair(final String key, final String val) {
+		this.key = key;
+		this.value = val;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);

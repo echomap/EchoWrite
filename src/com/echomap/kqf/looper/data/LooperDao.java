@@ -36,6 +36,8 @@ public class LooperDao {
 	private long dtStartCount = 0;
 	private long dtEndCount = 0;
 
+	// private final List<String> warningList = new ArrayList<>();
+
 	public LooperDao() {
 
 	}

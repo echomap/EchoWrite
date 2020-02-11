@@ -1,5 +1,7 @@
 package com.echomap.kqf.looper.data;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * @author mkatz
  *
@@ -19,6 +21,11 @@ public class CountDao {
 
 	public CountDao() {
 		clear();
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 	public int getNumChars() {

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.web.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane prefHeight="600.0" prefWidth="1500.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.ctrl.CtrlExternalUrlView">
+  <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints vgrow="ALWAYS" />
+  </rowConstraints>
+   <children>
+      <SplitPane dividerPositions="0.2089452603471295">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <TableView fx:id="inputTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <TitledPane animated="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="untitled" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                      <AnchorPane>
+                           <children>
+                              <VBox spacing="4.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox fx:id="subLinkArea0" spacing="12.0">
+                                       <children>
+                                          <Label text=" Profile:" />
+                                          <Label fx:id="textProfileLoaded" text="--None Loaded--">
+                                             <HBox.margin>
+                                                <Insets right="24.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Label text="URL:" />
+                                          <Label fx:id="textUrl" text="--none--" />
+                                       </children>
+                                       <padding>
+                                          <Insets left="12.0" />
+                                       </padding>
+                                    </HBox>
+                                    <HBox fx:id="subLinkArea" spacing="16.0" style="-fx-background-color: gray;">
+                                       <children>
+                                          <Button mnemonicParsing="false" text="Button">
+                                             <padding>
+                                                <Insets bottom="2.0" />
+                                             </padding>
+                                          </Button>
+                                          <Button mnemonicParsing="false" text="Button" HBox.hgrow="ALWAYS">
+                                             <padding>
+                                                <Insets bottom="2.0" />
+                                             </padding></Button>
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="4.0" left="16.0" right="4.0" top="4.0" />
+                                       </padding>
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <WebView fx:id="webview1" minHeight="100.0" minWidth="100.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
+                                    <HBox spacing="6.0">
+                                       <children>
+                                          <ProgressBar fx:id="progressBar1" prefWidth="250.0" progress="0.0">
+                                             <HBox.margin>
+                                                <Insets right="24.0" />
+                                             </HBox.margin></ProgressBar>
+                                          <Separator orientation="VERTICAL" />
+                                          <Button fx:id="closeBtn" cancelButton="true" defaultButton="true" onAction="#handleClose" text="_Close">
+                                             <padding>
+                                                <Insets bottom="2.0" />
+                                             </padding></Button>
+                                          <Button mnemonicParsing="false" text="Button">
+                                             <HBox.margin>
+                                                <Insets left="12.0" />
+                                             </HBox.margin>
+                                             <padding>
+                                                <Insets bottom="2.0" />
+                                             </padding></Button>
+                                       </children>
+                                       <padding>
+                                          <Insets left="16.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </TitledPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</GridPane>

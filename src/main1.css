@@ -124,3 +124,13 @@
 	-fx-border-width: 2px;
 }
 
+.greenDottedBorderBox1{
+	-fx-border-width: 2;
+	-fx-border-color:  #61a2b1;
+	-fx-border-style: dotted;
+	-fx-border-radius: 6;
+}
+
+.all-table-column-header > .label {
+	-fx-alignment: CENTER_LEFT;	
+}

@@ -13,6 +13,7 @@ import java.util.Locale;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.FormatDao;
@@ -29,7 +30,7 @@ import com.echomap.kqf.looper.data.SimpleSectionDao;
  */
 public class FileLooperHandlerCount implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerCount.class);
-	public static final String WORKTYPE = "Counter";
+	public static final String WORKTYPE = EchoWriteConst.WORD_LOOPER_WORDCOUNTER;
 	NumberFormat numberFormat;
 	// String workResult = null;
 
@@ -69,17 +70,22 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 
 	@Override
 	public void handleSection(final FormatDao formatDao, final LooperDao ldao) {
-		//
+		LOGGER.debug("handleSection: Called");
 	}
 
 	@Override
 	public void handleChapter(final FormatDao formatDao, final LooperDao ldao) {
-		//
+		LOGGER.debug("handleChapter: Called");
 	}
 
 	@Override
 	public void handleDocTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		// Not counting anything in a DocTag
+	}
+
+	@Override
+	public void postLine(FormatDao formatDao, LooperDao ldao) throws IOException {
+		// LOGGER.info("postLine-->");
 	}
 
 	@Override
@@ -98,17 +104,6 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 			TextBiz.countWords(ldao, cdao, formatDao);
 		}
 		// cdao.addOneToNumLines();
-	}
-
-	// @Override
-	// public void handleDocTagMaybeTag(final FormatDao formatDao, final
-	// LooperDao ldao) throws IOException {
-	// //
-	// }
-
-	@Override
-	public void postLine(FormatDao formatDao, LooperDao ldao) throws IOException {
-		// LOGGER.info("postLine-->");
 	}
 
 	@Override

@@ -24,6 +24,7 @@
 	<property name="dir.build.classes" value="${dir.build}/classes" />
 	<property name="dir.build.config" value="${dir.build}/config" />
 	<property name="dir.build.lib" value="./lib" />
+	<property name="dir.build.resources" value="${dir.build}/resources" />
 	<property name="dir.dist" value="./dist" />
 
 	<!-- ================== Paths ================== -->
@@ -53,6 +54,7 @@
 		<jar destfile="${dir.dist}/${jar.nameA}" >
 			<fileset dir="${dir.build.classes}" excludes="**/Test.class com/echomap/cwc/gui **/view/**" />
 			<fileset dir="${dir.build.config}" />
+			<fileset dir="${dir.build.resources}" />
 			<manifest>
 				<attribute name="Main-Class" value="com.echomap.kqf.two.FormatCli" />
 				<attribute name="Class-Path" value="${lib.list}" />
@@ -62,6 +64,7 @@
 			<fileset dir="${dir.build.classes}"
 					excludes="**/view/** **/Test.class com/echomap/kqf/persist com/echomap/kqf/cli"/>
 			<fileset dir="${dir.build.config}" />
+			<fileset dir="${dir.build.resources}" />
 			<!--fileset dir="${dir.build.config}"/-->
 			<manifest>
 				<attribute name="Main-Class" value="com.echomap.kqf.two.gui.KQFFrame" />
@@ -71,6 +74,7 @@
 		<jar destfile="${dir.dist}/${jar.name2B}">
 			<fileset dir="${dir.build.classes}" excludes="**/two/** **/Test.class" />
 			<fileset dir="${dir.build.config}" />
+			<fileset dir="${dir.build.resources}" />
 			<manifest>
 				<attribute name="Main-Class" value="com.echomap.kqf.view.MainFrame" />
 				<attribute name="Class-Path" value="commons-lang-2.0.jar log4j-1.2.8.jar gson-2.8.2.jar " />
@@ -81,6 +85,7 @@
 					excludes="**/two/gui/KQF*.class **/two/gui/Auto*.class **/two/gui/GUI*.class **/two/For*.class **/Test.class"
 			/>
 			<fileset dir="${dir.build.config}" />
+			<fileset dir="${dir.build.resources}" />
 			<manifest>
 				<attribute name="Main-Class" value="com.echomap.kqf.view.MainFrame" />
 				<attribute name="Class-Path" value="commons-lang-2.0.jar log4j-1.2.8.jar gson-2.8.2.jar " />
@@ -101,6 +106,10 @@
 		<copy todir="${dir.build.config}" flatten="false">
 			<fileset dir="${dir.src}" includes="**/*.xml,**/*.dtd,**/*.prop*,**/.html,*.html,*.fxml,*.xml,*.dtd,*.css" />
 		</copy>
+		<copy todir="${dir.build.resources}" flatten="false">
+		<fileset dir="${dir.src}" includes="**/*.png" />
+	</copy>
+		
 	</target>
 
 	<!-- ================== Tests ================== -->

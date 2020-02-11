@@ -1,7 +1,9 @@
 package com.echomap.kqf.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -16,19 +18,28 @@ public class DocTag {
 	private String bareLine = null;
 	// The full tag, start and end
 	private String fullTag = null;
+	// all line without tags
+	private String innerLine = null;
+
+	//
 	private String baseAdded = null;
 	private List<String> addedLines = new ArrayList<>();
 
 	private List<DocTag> sublist = null;
 
-	public DocTag(String docTagText) {
+	protected Map<String, String> data = new HashMap<>();
+
+	/**
+	 * 
+	 * @param docTagText
+	 */
+	public DocTag(final String docTagText) {
 		parseText(docTagText);
 	}
 
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
-		// return super.toString();
 	}
 
 	public void appendText(final String newDataString) {
@@ -64,6 +75,17 @@ public class DocTag {
 			if (idx1 > -1) {
 				String onet = docTagText.substring(0, idx1);
 				String twot = docTagText.substring(idx1 + 1);
+				this.setName(onet);
+				this.setValue(twot);
+				appendFullText(twot);
+				// TODO REGEX Collect # from twot: "[+in#]"
+				// TODO REGEX Collect # from twot: "[+out#]"
+				return;
+			}
+			int idx2 = docTagText.indexOf("=");
+			if (idx2 > -1) {
+				String onet = docTagText.substring(0, idx2);
+				String twot = docTagText.substring(idx2 + 1);
 				this.setName(onet);
 				this.setValue(twot);
 				appendFullText(twot);
@@ -179,6 +201,21 @@ public class DocTag {
 	public void setTagInfo(String tagInfo) {
 		this.tagInfo = tagInfo;
 	}
-	
+
+	public String getInnerLine() {
+		return innerLine;
+	}
+
+	public void setInnerLine(String innerLine) {
+		this.innerLine = innerLine;
+	}
+
+	public Map<String, String> getData() {
+		return data;
+	}
+
+	public void setData(Map<String, String> data) {
+		this.data = data;
+	}
 
 }

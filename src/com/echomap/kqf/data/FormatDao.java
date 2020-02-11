@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.echomap.kqf.looper.FileLooper;
+import com.echomap.kqf.view.Base;
 
 /**
  * 
@@ -57,6 +57,8 @@ public class FormatDao {
 	private Boolean centerStars = false;
 	private Boolean dropCapChapter = false;
 	private Boolean wantTextChptOutput = false;
+	private Boolean timeLineAddTimePerScene = false;
+
 	private Integer outputFormatDigits = null;
 
 	//
@@ -82,6 +84,9 @@ public class FormatDao {
 	private String docTagsSubScenePrefix = "";
 	private String sceneCoalateDivider = "";
 
+	//
+	private String outputCharCardFile = null;
+	private String timelineTimePadding = null;
 	// Calculated once at set of string list
 	// private List<String> docTagsOutlineCompressTagsList;
 
@@ -115,6 +120,8 @@ public class FormatDao {
 		addLine(sbuf, "CenterStars", this.centerStars.toString());
 		addLine(sbuf, "DropCapChapter", this.dropCapChapter.toString());
 		addLine(sbuf, "WantTextOutput", this.wantTextChptOutput.toString());
+		addLine(sbuf, "TimeLineAddTimePerScene", this.timeLineAddTimePerScene.toString());
+
 		addLine(sbuf, "FormatMode:", this.formatMode);
 		addLine(sbuf, "WriteChapters:", this.getWriteChapters());
 		addLine(sbuf, "WriteChaptersText:", this.getWriteChaptersText());
@@ -140,6 +147,9 @@ public class FormatDao {
 
 		addLine(sbuf, "CountOutputDigits:",
 				(getOutputFormatDigits() == null ? "" : this.getOutputFormatDigits().toString()));
+
+		addLine(sbuf, "OutputCharCardFile:", getOutputCharCardFile());
+		addLine(sbuf, "TimelineTimePadding:", getTimelineTimePadding());
 
 		sbuf.setLength(sbuf.length() - 1);
 		return sbuf.toString();
@@ -168,6 +178,14 @@ public class FormatDao {
 
 	public String getOutputFilename() {
 		return outputFilename;
+	}
+
+	public String getOutputCharCardFile() {
+		return outputCharCardFile;
+	}
+
+	public void setOutputCharCardFile(String outputCharCardFile) {
+		this.outputCharCardFile = outputCharCardFile;
 	}
 
 	public void setOutputFilename(String outputFilename) {
@@ -263,6 +281,14 @@ public class FormatDao {
 		this.dropCapChapter = dropCapChapter;
 	}
 
+	public Boolean getTimeLineAddTimePerScene() {
+		return timeLineAddTimePerScene;
+	}
+
+	public void setTimeLineAddTimePerScene(Boolean timeLineAddTimePerScene) {
+		this.timeLineAddTimePerScene = timeLineAddTimePerScene;
+	}
+
 	public String getFormatMode() {
 		return formatMode;
 	}
@@ -281,7 +307,7 @@ public class FormatDao {
 
 	public String getOutputEncoding() {
 		if (outputEncoding == null)
-			outputEncoding = FileLooper.DEFAULToutputEncoding;
+			outputEncoding = Base.DEFAULToutputEncoding;
 		return outputEncoding;
 	}
 
@@ -595,6 +621,14 @@ public class FormatDao {
 
 	public void setIncludeChapterName(boolean includeChapterName) {
 		this.includeChapterName = includeChapterName;
+	}
+
+	public String getTimelineTimePadding() {
+		return timelineTimePadding;
+	}
+
+	public void setTimelineTimePadding(String timelineTimePadding) {
+		this.timelineTimePadding = timelineTimePadding;
 	}
 
 }
