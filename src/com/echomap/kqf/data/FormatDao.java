@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.echomap.kqf.view.Base;
+import com.echomap.kqf.EchoWriteConst;
 
 /**
  * 
@@ -307,7 +307,7 @@ public class FormatDao {
 
 	public String getOutputEncoding() {
 		if (outputEncoding == null)
-			outputEncoding = Base.DEFAULToutputEncoding;
+			outputEncoding = EchoWriteConst.DEFAULToutputEncoding;
 		return outputEncoding;
 	}
 

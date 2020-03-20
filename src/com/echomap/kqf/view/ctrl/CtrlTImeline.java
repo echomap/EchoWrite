@@ -32,7 +32,6 @@ import com.echomap.kqf.looper.WorkDoneNotify;
 import com.echomap.kqf.looper.data.NestedTreeData;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
-import com.echomap.kqf.view.Base;
 import com.echomap.kqf.view.gui.MyWorkDoneNotify;
 import com.echomap.kqf.view.gui.WorkFinishedCallback;
 
@@ -175,7 +174,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	 */
 	@Override
 	protected String worktype() {
-		return Base.WINDOWKEY_TIMELINE;
+		return EchoWriteConst.WINDOWKEY_TIMELINE;
 	}
 
 	@Override
@@ -205,6 +204,10 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			final Map<String, Object> paramsMap) {
 		LOGGER.debug("setupController: Called");
 		super.setupController(props, appPreferences, primaryStage, paramsMap);
+		//
+		final String keyP = this.getClass().getSimpleName();
+		loadPreferencesForWindow(keyP, primaryStage);
+
 		//
 		paramsMap.put("appVersion", appVersion);
 		final Object selectedProfileO = paramsMap.get("selectedProfile");
@@ -259,9 +262,18 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		LOGGER.debug("initialize: Done");
 	}
 
+	@Override
+	public void doSceneHiding(final Stage stage) {
+
+		final String keyP = this.getClass().getSimpleName();
+		savePreferencesForWindow(keyP, stage);
+
+		super.doSceneHiding(stage);
+	}
+
 	private void createRoots() {
 		myLogDateCalendar = Calendar.getInstance();
-		myLogDateFormat.setTimeZone(myLogDateCalendar.getTimeZone());
+		EchoWriteConst.myLogDateFormat.setTimeZone(myLogDateCalendar.getTimeZone());
 
 		//
 		createTabs();
@@ -311,7 +323,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		treeContextMenu2.getItems().add(menuItemDumpItemText2);
 		dataAllThingsTable.setContextMenu(treeContextMenu2);
 		//
-		
+
 		//
 		final MenuItem menuItemDumpItemTextT = new MenuItem("Dump Item Text");
 		menuItemDumpItemTextT.setOnAction(new EventHandler<ActionEvent>() {
@@ -460,19 +472,20 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		//
 		int idxM = -1;
 		for (final String str : columnNames) {
-			if (str.compareToIgnoreCase("time") == 0 || str.compareToIgnoreCase("day") == 0
-					|| str.compareToIgnoreCase("date") == 0) {
+			if (str.compareToIgnoreCase(EchoWriteConst.WORD_TIME) == 0
+					|| str.compareToIgnoreCase(EchoWriteConst.WORD_DAY) == 0
+					|| str.compareToIgnoreCase(EchoWriteConst.WORD_DATE) == 0) {
 				columnNamesReorder2.add(str);
-			} else if (str.compareToIgnoreCase("marker") == 0) {
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_MARKER) == 0) {
 				columnNamesReorder1.add(0, str);
 				idxM = 0;
-			} else if (str.compareToIgnoreCase("name") == 0) {
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_NAME) == 0) {
 				columnNamesReorder1.add(idxM + 1, str);
-			} else if (str.compareToIgnoreCase("char") == 0) {
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_CHAR) == 0) {
 				columnNamesReorder1.add(idxM + 1, str);
-			} else if (str.compareToIgnoreCase("count") == 0) {
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_COUNT) == 0) {
 				columnNamesReorder1.add(idxM + 1, str);
-			} else if (str.compareToIgnoreCase("id") == 0) {
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_ID) == 0) {
 				columnNamesReorder2.add(str);
 			} else {
 				columnNamesReorder1.add(str);
@@ -629,40 +642,48 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		columns.clear();
 		//
 		boolean hasmarker = false;
+		final List<String> columnNamesReorder0 = new ArrayList<>();
 		final List<String> columnNamesReorder1 = new ArrayList<>();
 		final List<String> columnNamesReorder2 = new ArrayList<>();
 		if (columnNameDataMapAll.contains("marker")) {
 			hasmarker = true;
 		}
 		//
-		int idxM = -1;
 		for (final String str : columnNameDataMapAll) {
-			if (str.compareToIgnoreCase("time") == 0 || str.compareToIgnoreCase("day") == 0
-					|| str.compareToIgnoreCase("date") == 0) {
+			if (str.compareToIgnoreCase(EchoWriteConst.WORD_TIME) == 0
+					|| str.compareToIgnoreCase(EchoWriteConst.WORD_DAY) == 0
+					|| str.compareToIgnoreCase(EchoWriteConst.WORD_DATE) == 0) {
 				columnNamesReorder2.add(str);
-			} else if (str.compareToIgnoreCase("marker") == 0) {
-				columnNamesReorder1.add(0, str);
-				idxM = 0;
-			} else if (str.compareToIgnoreCase("name") == 0) {
-				columnNamesReorder1.add(idxM + 1, str);
-			} else if (str.compareToIgnoreCase("char") == 0) {
-				columnNamesReorder1.add(idxM + 1, str);
-			} else if (str.compareToIgnoreCase("count") == 0) {
-				columnNamesReorder1.add(idxM + 1, str);
-			} else if (str.compareToIgnoreCase("id") == 0) {
-				columnNamesReorder2.add(str);
-			} else {
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_MARKER) == 0) {
+				columnNamesReorder0.add(0, str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_TYPE) == 0) {
+				columnNamesReorder0.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_NAME) == 0) {
 				columnNamesReorder1.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_ACTOR) == 0) {
+				columnNamesReorder1.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_COUNT) == 0) {
+				columnNamesReorder1.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_NUMBER) == 0) {
+				columnNamesReorder1.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_ID) == 0) {
+				columnNamesReorder2.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_DESC) == 0) {
+				columnNamesReorder2.add(0, str);
+			} else {
+				columnNamesReorder2.add(str);
 			}
 		}
 		//
 		columnNameDataMapAll.clear();
 		if (hasmarker) {
+			columnNameDataMapAll.addAll(columnNamesReorder0);
 			columnNameDataMapAll.addAll(columnNamesReorder1);
 			columnNameDataMapAll.addAll(columnNamesReorder2);
 		} else {
 			columnNameDataMapAll.addAll(columnNamesReorder2);
 			columnNameDataMapAll.addAll(columnNamesReorder1);
+			columnNameDataMapAll.addAll(columnNamesReorder0);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -671,7 +692,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			final String tableColumnName = columnNameDataMapAll.get(i);
 			final TableColumn<DataItem, ?> thisCol = new TableColumn<DataItem, Object>(tableColumnName);
 			tableColumnList[i] = (thisCol);
-			if (tableColumnName.compareTo("marker") == 0) {
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_MARKER) == 0) {
 				thisCol.setSortType(TableColumn.SortType.ASCENDING);
 				dataAllThingsTable.getSortOrder().add(thisCol);
 			}
@@ -687,12 +708,11 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		// Data Factories
 		for (int i = 0; i < tableColumnList.length; i++) {
 			final String tableColumnName = columnNameDataMapAll.get(i);
-			if ("Marker".compareToIgnoreCase(tableColumnName) == 0) {
+			if (EchoWriteConst.WORD_MARKER.compareToIgnoreCase(tableColumnName) == 0) {
 				@SuppressWarnings("unchecked")
 				final TableColumn<DataItem, Integer> column2 = (TableColumn<DataItem, Integer>) tableColumnList[i];
-				column2.setCellValueFactory(
-						cellData -> new SimpleIntegerProperty(cellData.getValue().getSubByKeyInteger("marker"))
-								.asObject());
+				column2.setCellValueFactory(cellData -> new SimpleIntegerProperty(
+						cellData.getValue().getSubByKeyInteger(EchoWriteConst.WORD_MARKER)).asObject());
 			} else {
 				@SuppressWarnings("unchecked")
 				final TableColumn<DataItem, String> column1 = (TableColumn<DataItem, String>) tableColumnList[i];
@@ -820,14 +840,17 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		final TimeLoopLocal tll = new TimeLoopLocal();
 		tll.setLastLevelUp(1, rootScenes);
 		tll.setRootTime(rootTimes);
-		// tll.setRootTimeNode(null);
-		//
+
+		// clear old data
+		rootActors.getChildren().clear();
+		rootItems.getChildren().clear();
+		rootScenes.getChildren().clear();
+		rootTimes.getChildren().clear();
+
+		// Images
 		final Image nodeImageChapter = new Image(getClass().getResourceAsStream("/book-icon.png"));
 		final Image nodeImageSection = new Image(getClass().getResourceAsStream("/62863-books-icon.png"));
 		final Image nodeImageInv = new Image(getClass().getResourceAsStream("/book-icon.png"));
-
-		//
-		// final Set<String> atdKeys = filtersAllThings.keySet();
 
 		//
 		final List<DataItem> dataList = DataManagerBiz.getDataManager(selectedProfile.getInputFile()).getItems();
@@ -844,7 +867,12 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				tll.getRootTime().getChildren().add(thisElementTime);
 				tll.setRootTimeNode(thisElementTime);
 			} else if (EchoWriteConst.WORD_SCENE.compareTo(cat) == 0) {
-				final TreeTimeData treeTimeData = new TreeTimeData(dataItem.getRawValue());
+				final TreeTimeData treeTimeData = new TreeTimeData("-" + dataItem.getRawValue());
+				final TreeItem<TreeData> thisElementTime = new TreeItem<>(treeTimeData);
+				tll.getRootTimeNode().getChildren().add(thisElementTime);
+				tll.getRootTimeNode().setExpanded(true);
+			} else if (EchoWriteConst.WORD_OTHER.compareTo(cat) == 0) {
+				final TreeTimeData treeTimeData = new TreeTimeData(dataItem.getName() + ": " + dataItem.getRawValue());
 				final TreeItem<TreeData> thisElementTime = new TreeItem<>(treeTimeData);
 				tll.getRootTimeNode().getChildren().add(thisElementTime);
 				tll.getRootTimeNode().setExpanded(true);
@@ -878,9 +906,9 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			}
 			parent.getChildren().add(thisElement);
 
-			if (tll.getThisCat() != tll.getLastCat()) {
-				tll.setLastLevelUp(tll.getThisCat(), thisElement);
-			}
+			// 20200229 if (tll.getThisCat() != tll.getLastCat()) {
+			tll.setLastLevelUp(tll.getThisCat(), thisElement);
+			// }
 			//
 			tll.setLastCat(tll.getThisCat());
 			thisElement.setExpanded(true);
@@ -903,7 +931,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			if (EchoWriteConst.WORD_ACTOR.compareTo(cat) == 0) {
 				final TreeItem<TreeData> tElement = new TreeItem<>(new TreeTimeData(dataItem.getRawValue()));
 				final String sName = dataItem.getSubByKeyString(EchoWriteConst.WORD_NAME);
-				TreeItem<TreeData> actorNode = tll.getActorLookupMap().get(sName);
+				TreeItem<TreeData> actorNode = tll.getActorLookupMap().get(sName.trim());
 				if (actorNode == null) {
 					actorNode = new TreeItem<TreeData>(new TreeTimeData(sName), new ImageView(nodeImageInv));
 					tll.getActorLookupMap().put(sName, actorNode);
@@ -938,8 +966,8 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	class SortbyMarker implements Comparator<DataItem> {
 		// Used for sorting in ascending order of marker
 		public int compare(DataItem a, DataItem b) {
-			final String markerA = a.getSubByKeyString("marker");
-			final String markerB = b.getSubByKeyString("marker");
+			final String markerA = a.getSubByKeyString(EchoWriteConst.WORD_MARKER);
+			final String markerB = b.getSubByKeyString(EchoWriteConst.WORD_MARKER);
 
 			final Integer markerAI = markerA == null ? null : Integer.valueOf(markerA);
 			final Integer markerBI = markerB == null ? null : Integer.valueOf(markerB);
@@ -967,12 +995,12 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 		//
 		final List<String> filterListColumn = new ArrayList<String>();
-		filterListColumn.add("timemark");
+		filterListColumn.add(EchoWriteConst.WORD_TIMEMARK);
 		for (final DataItem dataItem : newList) {
 			for (final DataSubItem dataSubItem : dataItem.getDataSubItems()) {
 				final String key = dataSubItem.getName();
 				String keyT = key.trim().toLowerCase();
-				keyT = keyT.replace("(+u)", "").replace("(+n)", "");
+				keyT = keyT.replace(EchoWriteConst.DOCTAG_LIST, "").replace(EchoWriteConst.DOCTAG_NEWLINE, "");
 				if (!columnNameDataMapEndThings.contains(keyT) && !filterListColumn.contains(keyT))
 					columnNameDataMapEndThings.add(keyT);
 			}
@@ -994,12 +1022,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 		//
 		final List<String> filterListColumn = new ArrayList<String>();
-		filterListColumn.add("timemark");
+		filterListColumn.add(EchoWriteConst.WORD_TIMEMARK);
 		for (final DataItem dataItem : newList) {
 			for (final DataSubItem dataSubItem : dataItem.getDataSubItems()) {
 				final String key = dataSubItem.getName();
 				String keyT = key.trim().toLowerCase();
-				keyT = keyT.replace("(+u)", "").replace("(+n)", "");
+				// final String cat = dataSubItem.get
+				keyT = keyT.replace(EchoWriteConst.DOCTAG_LIST, "").replace(EchoWriteConst.DOCTAG_NEWLINE, "");
 				if (!columnNameDataMapThings.contains(keyT) && !filterListColumn.contains(keyT))
 					columnNameDataMapThings.add(keyT);
 			}
@@ -1053,14 +1082,18 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 					final List<String> filterListColumn = new ArrayList<String>();
 					filterListColumn.add("timemark");
-
+					// if (dataItem.getCategory() != EchoWriteConst.WORD_META
+					// && dataItem.getCategory() != EchoWriteConst.WORD_SECTION
+					// && dataItem.getCategory() != EchoWriteConst.WORD_CHAPTER)
+					// {
 					for (final DataSubItem dataSubItem : dataItem.getDataSubItems()) {
 						final String key = dataSubItem.getName();
 						String keyT = key.trim().toLowerCase();
-						keyT = keyT.replace("(+u)", "").replace("(+n)", "");
+						keyT = keyT.replace(EchoWriteConst.DOCTAG_LIST, "").replace(EchoWriteConst.DOCTAG_NEWLINE, "");
 						if (!columnNameDataMapAll.contains(keyT) && !filterListColumn.contains(keyT))
 							columnNameDataMapAll.add(keyT);
 					}
+					// }
 
 					//
 					final Integer marker = dataItem.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
@@ -1293,7 +1326,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		LOGGER.debug("Map lastTimeMarker: " + lastTimeMarker);
 
 		final Set<String> etlbmSet = endListItem.keySet();
-		final Iterator<String> etlbmIter = etlbmSet.iterator();
+		// final Iterator<String> etlbmIter = etlbmSet.iterator();
 		for (Iterator<String> iterator = etlbmSet.iterator(); iterator.hasNext();) {
 			final String etlI = iterator.next();
 			LOGGER.debug("Map for marker: " + etlI);
@@ -1380,8 +1413,10 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			final Set<String> atdKeys = filtersAllThings.keySet();
 
 			boolean okByCat = false;
-			if (EchoWriteConst.WORD_TIME.compareTo(cat) != 0 && EchoWriteConst.WORD_SECTION.compareTo(cat) != 0
-					&& EchoWriteConst.WORD_CHAPTER.compareTo(cat) != 0)
+			if (EchoWriteConst.WORD_TIME.compareTo(cat) != 0)
+				// if (EchoWriteConst.WORD_TIME.compareTo(cat) != 0 &&
+				// EchoWriteConst.WORD_SECTION.compareTo(cat) != 0
+				// && EchoWriteConst.WORD_CHAPTER.compareTo(cat) != 0)
 				okByCat = true;
 
 			if (okByCat) {
@@ -1518,7 +1553,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 	private void writeToScreen(final String msg) {
 		final StringBuilder sbuf = new StringBuilder();
-		final String txt = myLogDateFormat.format(myLogDateCalendar.getTime());
+		final String txt = EchoWriteConst.myLogDateFormat.format(myLogDateCalendar.getTime());
 		sbuf.append(txt);
 		sbuf.append(": ");
 		sbuf.append(msg);

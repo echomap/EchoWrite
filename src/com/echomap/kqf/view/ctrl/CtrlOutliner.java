@@ -28,7 +28,6 @@ import com.echomap.kqf.looper.WorkDoneNotify;
 import com.echomap.kqf.looper.data.NestedTreeData;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
-import com.echomap.kqf.view.Base;
 import com.echomap.kqf.view.gui.MyWorkDoneNotify;
 import com.echomap.kqf.view.gui.WorkFinishedCallback;
 
@@ -107,7 +106,7 @@ public class CtrlOutliner extends BaseCtrl implements Initializable, WorkFinishe
 	 */
 	@Override
 	protected String worktype() {
-		return Base.WINDOWKEY_OUTLINERGUI;
+		return EchoWriteConst.WINDOWKEY_OUTLINERGUI;
 	}
 
 	@Override
@@ -282,7 +281,7 @@ public class CtrlOutliner extends BaseCtrl implements Initializable, WorkFinishe
 
 	private void createRoots() {
 		myLogDateCalendar = Calendar.getInstance();
-		myLogDateFormat.setTimeZone(myLogDateCalendar.getTimeZone());
+		EchoWriteConst.myLogDateFormat.setTimeZone(myLogDateCalendar.getTimeZone());
 
 		createTabs();
 		// Tree Setup: Events
@@ -359,15 +358,16 @@ public class CtrlOutliner extends BaseCtrl implements Initializable, WorkFinishe
 					paramsMap.put("selectedProfileKey", selectedProfile.getKey());
 					paramsMap.put("profileManager", profileManager);
 					paramsMap.put("processDoneNotify", myWorkDoneNotify);
-					paramsMap.put(Base.PARAMMAP_MODAL, false);
-					paramsMap.put(Base.PARAMMAP_MODALMODE, 2);
+					paramsMap.put(EchoWriteConst.PARAMMAP_MODAL, false);
+					paramsMap.put(EchoWriteConst.PARAMMAP_MODALMODE, 2);
 					paramsMap.put("listOfAllScenes", listOfAllScenes);
 					paramsMap.put("lastTimeDate", lastTimeDate);
 					//
 
 					final String WINDOW_TITLE_FMT = "EchoWrite: Character Viewer: (v%s)";
 					final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
-					openNewWindow(Base.WINDOWKEY_VIEWCHARS, windowTitle, loggingArea, null, baseCtrl, paramsMap);
+					tryopenNewWindow(EchoWriteConst.WINDOWKEY_VIEWCHARS, windowTitle, loggingArea, null, baseCtrl,
+							paramsMap);
 
 				}
 			});
@@ -585,7 +585,7 @@ public class CtrlOutliner extends BaseCtrl implements Initializable, WorkFinishe
 
 	private void writeToScreen(final String msg) {
 		final StringBuilder sbuf = new StringBuilder();
-		final String txt = myLogDateFormat.format(myLogDateCalendar.getTime());
+		final String txt = EchoWriteConst.myLogDateFormat.format(myLogDateCalendar.getTime());
 		sbuf.append(txt);
 		sbuf.append(": ");
 		sbuf.append(msg);

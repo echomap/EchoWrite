@@ -12,12 +12,12 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.Prefs;
 import com.echomap.kqf.export.ProfileExportObj;
 import com.echomap.kqf.profile.Import;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
-import com.echomap.kqf.view.Base.FILTERTYPE;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -442,7 +442,8 @@ public class CtrlImport extends BaseCtrl implements Initializable {
 	public void handleBrowse(final ActionEvent event) {
 		LOGGER.debug("handleBrowse: Called");
 		lockGui();
-		final File cfile = locateFile(event, "Export File", inputFile, "ProfileExport.json", FILTERTYPE.JSON);
+		final File cfile = locateFile(event, "Export File", inputFile, "ProfileExport.json",
+				EchoWriteConst.FILTERTYPE.JSON);
 		if (cfile != null && cfile.exists()) {
 			readImportFile();
 			lastLoadedFile = cfile;

@@ -13,12 +13,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
+import com.echomap.kqf.EchoWriteConst.FILTERTYPE;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.profile.Export;
 import com.echomap.kqf.profile.Import;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
-import com.echomap.kqf.view.Base.FILTERTYPE;
 import com.echomap.kqf.view.gui.ConfirmResult;
 
 import javafx.beans.value.ChangeListener;
@@ -293,7 +294,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 
 		// try {
 		final File cFile = chooseFile(event, "Choose Export File", null, selectedProfile.getKey() + "_more.json",
-				FILTERTYPE.JSON);
+				EchoWriteConst.FILTERTYPE.JSON);
 		if (cFile == null) {
 			showPopupMessage("Failed", "No file selected.", false);
 			return;

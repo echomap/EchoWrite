@@ -21,11 +21,10 @@ import com.echomap.kqf.data.TreeTimeData;
 import com.echomap.kqf.looper.data.CountDao;
 import com.echomap.kqf.looper.data.LooperDao;
 import com.echomap.kqf.looper.data.NestedTreeData;
-import com.echomap.kqf.view.Base;
 
 public class FileLooperHandlerOutliner extends AbstractFilelooper implements FileLooperHandler {
 	private final static Logger LOGGER = LogManager.getLogger(FileLooperHandlerOutliner.class);
-	public static final String WORKTYPE = Base.WINDOWKEY_OUTLINERGUI;
+	public static final String WORKTYPE = EchoWriteConst.WINDOWKEY_OUTLINERGUI;
 	NumberFormat numberFormat;
 
 	//
@@ -108,10 +107,15 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 		}
 		ttsd.setLastDateTime(timeDate);
 
+		//
 		final NestedTreeData ntd1 = new NestedTreeData("number", countDao.getNumber());
 		ttsd.addData(ntd1);
 		final NestedTreeData ntd2 = new NestedTreeData("title", countDao.getTitle());
 		ttsd.addData(ntd2);
+		final NestedTreeData ntd3 = new NestedTreeData(EchoWriteConst.WORD_NAME, EchoWriteConst.WORD_SECTION);
+		ttsd.addData(ntd3);
+		final NestedTreeData ntd4 = new NestedTreeData(EchoWriteConst.WORD_DESC, countDao.getTitle());
+		ttsd.addData(ntd4);
 
 		//
 		addMarkerToData(ttsd, timeDate);
@@ -141,6 +145,10 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 			scenettd.addData(ntd1);
 			final NestedTreeData ntd2 = new NestedTreeData("title", countDao.getTitle());
 			scenettd.addData(ntd2);
+			final NestedTreeData ntd3 = new NestedTreeData(EchoWriteConst.WORD_NAME, EchoWriteConst.WORD_SECTION);
+			scenettd.addData(ntd3);
+			final NestedTreeData ntd4 = new NestedTreeData(EchoWriteConst.WORD_DESC, countDao.getTitle());
+			scenettd.addData(ntd4);
 
 			//
 			addMarkerToData(scenettd, timeDate);
@@ -165,6 +173,10 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 		ttsd.addData(ntd1);
 		final NestedTreeData ntd2 = new NestedTreeData("title", countDao.getTitle());
 		ttsd.addData(ntd2);
+		final NestedTreeData ntd3 = new NestedTreeData(EchoWriteConst.WORD_NAME, EchoWriteConst.WORD_CHAPTER);
+		ttsd.addData(ntd3);
+		final NestedTreeData ntd4 = new NestedTreeData(EchoWriteConst.WORD_DESC, countDao.getTitle());
+		ttsd.addData(ntd4);
 
 		//
 		addMarkerToData(ttsd, timeDate);
@@ -211,32 +223,27 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 					//
 					if (DATA_MANAGER.getTagListTimeDate().contains(docTag.getName())) {
 						LOGGER.debug("Found 'time/date' tag");
-						addToTreeTimeData(docTag);// , cdao.getNumber());
-					}
-					//
-					if (DATA_MANAGER.getTagListItems().contains(docTag.getName())) {
+						addToTreeTimeData(docTag);
+					} else if (DATA_MANAGER.getTagListItems().contains(docTag.getName())) {
 						LOGGER.debug("Found 'item' tag");
-						addToTreeTimeDataItem(docTag);// , cdao.getNumber());
-					}
-					//
-					if (DATA_MANAGER.getTagListActors().contains(docTag.getName())) {
+						addToTreeTimeDataItem(docTag);
+					} else if (DATA_MANAGER.getTagListActors().contains(docTag.getName())) {
 						LOGGER.debug("Found 'actor' tag");
-						addToTreeTimeDataActor(docTag);// , cdao.getNumber());
-					}
-					//
-					if (DATA_MANAGER.getTagListSubScenes().contains(docTag.getName())) {
+						addToTreeTimeDataActor(docTag);
+					} else if (DATA_MANAGER.getTagListSubScenes().contains(docTag.getName())) {
 						LOGGER.debug("Found 'subscene' tag");
 						addToTreeTimeDataSubScene(docTag, formatDao.getTimeLineAddTimePerScene());
-					}
-					//
-					if (DATA_MANAGER.getTagListScene().contains(docTag.getName())) {
+					} else if (DATA_MANAGER.getTagListScene().contains(docTag.getName())) {
 						LOGGER.debug("Found 'scene' tag");
 						addToTreeTimeDataScene(docTag, formatDao.getTimeLineAddTimePerScene());
+					} else if (!dttGL.isLongDocTag()) {
+						LOGGER.debug("Misc tag");
+						addToTreeTimeDataOther(docTag);
 					}
-					//
-				}
-			}
-		}
+				} //
+			} //
+		} //
+
 	}
 
 	@Override

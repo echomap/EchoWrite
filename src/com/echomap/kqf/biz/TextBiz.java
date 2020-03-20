@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.DocTagLine;
 import com.echomap.kqf.data.FormatDao;
@@ -290,6 +291,16 @@ public class TextBiz {
 		if (st.startsWith("<center>") && st.endsWith("</center>"))
 			return true;
 		return false;
+	}
+
+	public static String cleanFormatTags(final String textData) {
+		String st2 = textData.replace(EchoWriteConst.DOCTAG_LIST, "");
+		st2 = st2.replace(EchoWriteConst.DOCTAG_NEWLINE, "");
+		st2 = st2.replace(EchoWriteConst.DOCTAG_PRE1, "");
+		st2 = st2.replace(EchoWriteConst.DOCTAG_PRE2, "");
+		st2 = st2.replace(EchoWriteConst.DOCTAG_SUBLIST, "");
+
+		return st2;
 	}
 
 	public static String cleanPlainText(String st, final String docTagStart, final String docTagEnd) {

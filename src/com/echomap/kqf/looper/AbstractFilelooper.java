@@ -12,6 +12,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.echomap.kqf.EchoWriteConst;
+import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.biz.TextParsingBiz;
 import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.TreeTimeData;
@@ -36,6 +37,8 @@ public class AbstractFilelooper {
 	protected NestedTreeData lastSection = null;
 	// that last
 	protected NestedTreeData lastChapter = null;
+	// scene tracker
+	protected Integer sceneNumber = 1;
 
 	// For errors
 	protected final List<String> errorTagList = new ArrayList<>();
@@ -46,6 +49,7 @@ public class AbstractFilelooper {
 	public AbstractFilelooper(final File inputFile) {
 		this.messageBundle = ResourceBundle.getBundle("cwc2messages", sLocal);
 		this.inputFile = inputFile;
+		this.sceneNumber = 0;
 		DATA_MANAGER = DataManagerBiz.getDataManager(inputFile);
 	}
 
@@ -174,7 +178,7 @@ public class AbstractFilelooper {
 		//
 		boolean hasMarker = false;
 		final Map<String, String> map = TextParsingBiz.parseNameValueAtDivided(docTag.getFullText());
-		if (map.containsKey("marker")) {
+		if (map.containsKey(EchoWriteConst.WORD_MARKER)) {
 			hasMarker = true;
 		}
 		if (!hasMarker) {
@@ -206,8 +210,8 @@ public class AbstractFilelooper {
 		final TreeTimeSubData ttsd = new TreeTimeSubData();
 		TextParsingBiz.parseNameValueAtDivided(docTag.getValue(), ttsd);
 		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_SUBSCENE);
-		if (!StringUtils.isEmpty(valActor))
-			ttsd.getData().put(EchoWriteConst.WORD_SUBSCENE, valActor);
+		if (!StringUtils.isEmpty(valActor) && !StringUtils.isEmpty(valActor.trim()))
+			ttsd.getData().put(EchoWriteConst.WORD_SUBSCENE, valActor.trim());
 		else {
 			ttsd.addData(EchoWriteConst.WORD_NAME, EchoWriteConst.WORD_SUBSCENE);
 			ttsd.addData(EchoWriteConst.WORD_DESC, docTag.getValue());
@@ -215,7 +219,34 @@ public class AbstractFilelooper {
 		// datalistScene.add(ttsd);
 		addMarkerToData(ttsd, timeDate);
 		addIDToData(ttsd, EchoWriteConst.WORD_SUBSCENE);
+		addToData(ttsd, EchoWriteConst.WORD_NUMBER, sceneNumber);
+		sceneNumber++;
 		DATA_MANAGER.addSubScene(ttsd, docTag.getValue());
+		timeDate.addDataParsed(ttsd);
+	}
+
+	//
+	protected void addToTreeTimeDataOther(final DocTag docTag) {
+		LOGGER.debug("Lookup tag for OTHER lastDateTime: " + lastDateTime);
+		final TreeTimeData timeDate = findTreeTimeData(lastDateTime);
+		if (timeDate == null) {
+			LOGGER.error("TimeData not found!");
+			throw new RuntimeException("TimeData not found!");
+		}
+		final TreeTimeSubData ttsd = new TreeTimeSubData();
+		final String fmtStr = TextBiz.cleanFormatTags(docTag.getValue());
+		TextParsingBiz.parseNameValueAtDivided(fmtStr, ttsd);
+		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
+		if (!StringUtils.isEmpty(valActor) && !StringUtils.isEmpty(valActor.trim()))
+			ttsd.getData().put(EchoWriteConst.WORD_OTHER, valActor);
+		else {
+			ttsd.addData(EchoWriteConst.WORD_NAME, docTag.getName());
+			ttsd.addData(EchoWriteConst.WORD_DESC, docTag.getValue());
+		}
+		//
+		addMarkerToData(ttsd, timeDate);
+		addIDToData(ttsd, EchoWriteConst.WORD_OTHER);
+		DATA_MANAGER.addMisc(ttsd, docTag.getValue());
 		timeDate.addDataParsed(ttsd);
 	}
 
@@ -230,8 +261,8 @@ public class AbstractFilelooper {
 		final TreeTimeSubData ttsd = new TreeTimeSubData();
 		TextParsingBiz.parseNameValueAtDivided(docTag.getValue(), ttsd);
 		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_SCENE);
-		if (!StringUtils.isEmpty(valActor))
-			ttsd.getData().put(EchoWriteConst.WORD_SCENE, valActor);
+		if (!StringUtils.isEmpty(valActor) && !StringUtils.isEmpty(valActor.trim()))
+			ttsd.getData().put(EchoWriteConst.WORD_SCENE, valActor.trim());
 		else {
 			ttsd.addData(EchoWriteConst.WORD_NAME, EchoWriteConst.WORD_SCENE);
 			ttsd.addData(EchoWriteConst.WORD_DESC, docTag.getValue());
@@ -239,8 +270,18 @@ public class AbstractFilelooper {
 		//
 		addMarkerToData(ttsd, timeDate);
 		addIDToData(ttsd, EchoWriteConst.WORD_SCENE);
+		addToData(ttsd, EchoWriteConst.WORD_NUMBER, sceneNumber);
+		sceneNumber++;
 		DATA_MANAGER.addScene(ttsd, docTag.getValue());
 		timeDate.addDataParsed(ttsd);
+	}
+
+	protected void addToData(final TreeTimeSubData ttsd, final String type, final Integer value) {
+		ttsd.addData(type, value.toString());
+	}
+
+	protected void addToData(final TreeTimeSubData ttsd, final String type, final String value) {
+		ttsd.addData(type, value);
 	}
 
 	protected void addIDToData(final TreeTimeSubData ttsd, final String type) {
@@ -251,7 +292,7 @@ public class AbstractFilelooper {
 			id = ttsd.getDataByKey(EchoWriteConst.WORD_NAME);
 			// }else if(EchoWriteConst.WORD_CHAPTER==type){
 		} else {
-			final Map<String, String> data = ttsd.getData();
+			// final Map<String, String> data = ttsd.getData();
 			String val = ttsd.getDataByKey(EchoWriteConst.WORD_NAME);
 			id = val;
 		}
@@ -298,7 +339,7 @@ public class AbstractFilelooper {
 		}
 	}
 
-	private void addMarkerToData(final TreeTimeSubData ttsd, final TreeTimeData timeDate) {
+	protected void addMarkerToData(final TreeTimeSubData ttsd, final TreeTimeData timeDate) {
 		if (timeDate == null)
 			return;
 		final String valMarker = ttsd.getData().get(EchoWriteConst.WORD_MARKER);
@@ -324,10 +365,10 @@ public class AbstractFilelooper {
 		// ttsd.addData("char", docTag.getValue());
 		// timeDate.addDataParsed(ttsd);// docTag.getValue());
 		TextParsingBiz.parseNameValueAtDivided(docTag.getValue(), ttsd);
-		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME); // param,
-																				// todo?
-		if (!StringUtils.isEmpty(valActor))
-			ttsd.getData().put(docTag.getName(), valActor);// "char", valActor);
+		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
+		if (!StringUtils.isEmpty(valActor) && !StringUtils.isEmpty(valActor.trim()))
+			ttsd.getData().put(docTag.getName(), valActor.trim());
+		// "char", valActor);
 		//
 		addMarkerToData(ttsd, timeDate);
 		addIDToData(ttsd, EchoWriteConst.WORD_ACTOR);

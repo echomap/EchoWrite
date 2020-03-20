@@ -1,6 +1,7 @@
 package com.echomap.kqf.view.ctrl;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -13,14 +14,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
+import com.echomap.kqf.EchoWriteConst.FILTERTYPE;
 import com.echomap.kqf.biz.TextBiz;
+import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.looper.FileLooperHandlerCount;
 import com.echomap.kqf.looper.FileLooperHandlerFormatter;
 import com.echomap.kqf.looper.FileLooperHandlerOutline;
+import com.echomap.kqf.looper.WorkDoneNotify;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
-import com.echomap.kqf.view.Base;
-import com.echomap.kqf.view.Base.FILTERTYPE;
 import com.echomap.kqf.view.MainFrame;
 import com.echomap.kqf.view.gui.ConfirmResult;
 import com.echomap.kqf.view.gui.MyWorkDoneNotify;
@@ -242,6 +245,50 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("initialize: Done");
 	}
 
+	public void handleRunTimeline(final BaseCtrl baseCtrl, final ProfileManager profileManager,
+			final Profile selectedProfile, final TextArea loggingText, final WorkDoneNotify notifyCtrl,
+			final Map<String, Object> paramsMap) {
+		LOGGER.debug("handleRunTimeline: Called");
+		// if (runningMutex) {
+		// LOGGER.debug("Something is already running!!");
+		// return;
+		// }
+
+		if (selectedProfile == null) {
+			LOGGER.debug("Please select a profile before running!!");
+			loggingText.appendText("Please select a profile before running!!");
+			// notifyCtrl.errorWithWork("Counter", "Please select a profile
+			// before running!!");
+			return;
+		}
+
+		baseCtrl.lockGui();
+		// this.runningMutex = true;
+
+		LOGGER.info("Running TIMELINE action");
+		baseCtrl.showMessage("Running TIMELINE Process (" + BaseCtrl.getCurrentDateFmt() + ")", false, loggingText);
+		try {
+			final FormatDao formatDao = new FormatDao();
+			profileManager.setupDao(formatDao, selectedProfile);
+
+			// TODO extract
+			final String WINDOW_TITLE_FMT = "EchoWrite: Timeline: (v%s)";
+			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
+			openNewWindow(EchoWriteConst.WINDOWKEY_TIMELINE, windowTitle, loggingText, primaryStage, this, notifyCtrl,
+					paramsMap);
+
+			// final FileLooper fileLooper = new FileLooper(notifyCtrl);
+			// fileLooper.timeline(formatDao);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			// baseCtrl.unlockGui();
+			String fmtt = "Done running TIMELINE ( " + BaseCtrl.getCurrentDateFmt() + ")";
+			LOGGER.debug("fmtt: " + fmtt);
+		}
+		LOGGER.debug("handleRunTimeline: Done");
+	}
+
 	@Override
 	public void doCleanup() {
 		if (primaryStage != null) {
@@ -376,8 +423,8 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 			// paramsMap.put("selectedProfileKey", selectedProfileKey);
 			paramsMap.put("profileManager", profileManager);
 			paramsMap.put("processDoneNotify", myWorkDoneNotify);
-			paramsMap.put(Base.PARAMMAP_MODAL, true);
-			paramsMap.put(Base.PARAMMAP_MODALMODE, 2);
+			paramsMap.put(EchoWriteConst.PARAMMAP_MODAL, true);
+			paramsMap.put(EchoWriteConst.PARAMMAP_MODALMODE, 2);
 			handleRunTimeline(this, profileManager, this.selectedProfile, lastRunText, myWorkDoneNotify, paramsMap);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -496,7 +543,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_IMPORT, windowTitle, lastRunText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_IMPORT, windowTitle, lastRunText, primaryStage, this, paramsMap);
 		LOGGER.debug("handleImportProfile: Done");
 	}
 
@@ -507,7 +554,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_EXPORT, windowTitle, lastRunText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_EXPORT, windowTitle, lastRunText, primaryStage, this, paramsMap);
 		LOGGER.debug("handleExportProfile: Done");
 	}
 
@@ -621,7 +668,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_MOREFILES, windowTitle, lastRunText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_MOREFILES, windowTitle, lastRunText, primaryStage, this, paramsMap);
 		LOGGER.debug("handleMoreFiles: Done");
 	}
 
@@ -641,7 +688,7 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_EXTERNALIDS, windowTitle, lastRunText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_EXTERNALIDS, windowTitle, lastRunText, primaryStage, this, paramsMap);
 
 		LOGGER.debug("handleExternalIDs: Done");
 	}
@@ -1048,9 +1095,11 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		final String defaultEncoding = loadPropFromAppOrDefault("defaultEncoding", "");
 		outputEncoding.setText(defaultEncoding);
 
-		final String lastSelectedDirectoryStr = appPreferences.get("lastSelectedDirectory", null);
-		if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {
-			setLastSelectedDirectory(lastSelectedDirectoryStr);
+		if (appPreferences != null) {
+			final String lastSelectedDirectoryStr = appPreferences.get("lastSelectedDirectory", null);
+			if (!StringUtils.isEmpty(lastSelectedDirectoryStr)) {
+				setLastSelectedDirectory(lastSelectedDirectoryStr);
+			}
 		}
 		// if (StringUtils.isBlank(fmtModeText.getText())) {
 		// fmtModeText.setText("Sigil");

@@ -6,12 +6,12 @@ import java.io.IOException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.biz.TextBiz;
 import com.echomap.kqf.data.FormatDao;
 import com.echomap.kqf.datamgr.DataManagerBiz;
 import com.echomap.kqf.datamgr.DataManagerDBData;
 import com.echomap.kqf.looper.data.LooperDao;
-import com.echomap.kqf.view.Base;
 
 /**
  * 
@@ -26,13 +26,6 @@ public class FileLooper {
 
 	//
 	private WorkDoneNotify notifyCtrl = null;
-
-	//
-	public final static String DOCTAG_LIST = "(+u)";
-	public final static String DOCTAG_NEWLINE = "(+n)";
-	public final static String DOCTAG_SUBLIST = "(+s)";
-	public final static String DOCTAG_PRE1 = "(--)";
-	public final static String DOCTAG_PRE2 = "(==)";
 
 	/**
 	 * 
@@ -186,7 +179,7 @@ public class FileLooper {
 
 		final DataManagerDBData data = DATA_MANAGER.getDataForFile(inputFile);
 		if (data.isFromCache()) {
-			notifyCtrl.finishedWithWork(Base.WINDOWKEY_TIMELINE);
+			notifyCtrl.finishedWithWork(EchoWriteConst.WINDOWKEY_TIMELINE);
 			notifyCtrl.finalResultPackageFromWork(data);
 		} else {
 			// else process

@@ -509,7 +509,7 @@ public class FileLooperHandlerOutline extends AbstractFilelooper implements File
 	private void writeDataToFileWithCrop(final DocTag docTag, final FormatDao formatDao,
 			final BufferedWriter fWriterFile2, final String basepad) throws IOException {
 		boolean endedInNewline = false;
-		if (docTag.getFullText().indexOf(FileLooper.DOCTAG_PRE1) > -1) {
+		if (docTag.getFullText().indexOf(EchoWriteConst.DOCTAG_PRE1) > -1) {
 			String prepad = basepad == null ? "\t" : basepad;
 			final StringBuilder sb = new StringBuilder();
 			// if (docTag.getBaseAdded() != null &&
@@ -528,50 +528,50 @@ public class FileLooperHandlerOutline extends AbstractFilelooper implements File
 						continue;
 					}
 				}
-				if (stral != null && stral.compareTo("") != 0 && stral.compareTo(FileLooper.DOCTAG_PRE1) != 0) {
+				if (stral != null && stral.compareTo("") != 0 && stral.compareTo(EchoWriteConst.DOCTAG_PRE1) != 0) {
 					sb.append(stral);
 					sb.append(" ");
-					sb.append(FileLooper.DOCTAG_NEWLINE);
+					sb.append(EchoWriteConst.DOCTAG_NEWLINE);
 					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
 					sb.setLength(0);
-				} else if (stral != null && stral.compareTo(FileLooper.DOCTAG_PRE1) == 0) {
-					sb.append(FileLooper.DOCTAG_NEWLINE);
+				} else if (stral != null && stral.compareTo(EchoWriteConst.DOCTAG_PRE1) == 0) {
+					sb.append(EchoWriteConst.DOCTAG_NEWLINE);
 					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
 					sb.setLength(0);
 				}
 			}
 			if (sb.length() > 0) {
-				sb.setLength(sb.length() - FileLooper.DOCTAG_NEWLINE.length());
+				sb.setLength(sb.length() - EchoWriteConst.DOCTAG_NEWLINE.length());
 				endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad);
 			}
 		}
-		if (docTag.getFullText().indexOf(FileLooper.DOCTAG_PRE2) > -1) {
+		if (docTag.getFullText().indexOf(EchoWriteConst.DOCTAG_PRE2) > -1) {
 			String prepad = basepad == null ? "\t" : basepad;
 			final StringBuilder sb = new StringBuilder();
 			if (docTag.getBaseAdded() != null && docTag.getBaseAdded().length() > 0) {
 				sb.append(docTag.getBaseAdded().trim());
-				sb.append(FileLooper.DOCTAG_NEWLINE);
+				sb.append(EchoWriteConst.DOCTAG_NEWLINE);
 				endedInNewline = writeDataToFileWithCrop(sb.toString(), formatDao, fWriterFile2, "");
 				sb.setLength(0);
 			}
 			for (String stral : docTag.getAddedLines()) {
 				stral = stral.trim();
-				if (stral != null && stral.compareTo("") != 0 && stral.compareTo(FileLooper.DOCTAG_PRE2) != 0) {
+				if (stral != null && stral.compareTo("") != 0 && stral.compareTo(EchoWriteConst.DOCTAG_PRE2) != 0) {
 					sb.append(stral);
 					sb.append(" ");
-					sb.append(FileLooper.DOCTAG_NEWLINE);
+					sb.append(EchoWriteConst.DOCTAG_NEWLINE);
 					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad,
 							true);
 					sb.setLength(0);
-				} else if (stral != null && stral.compareTo(FileLooper.DOCTAG_PRE2) == 0 && !endedInNewline) {
-					sb.append(FileLooper.DOCTAG_NEWLINE);
+				} else if (stral != null && stral.compareTo(EchoWriteConst.DOCTAG_PRE2) == 0 && !endedInNewline) {
+					sb.append(EchoWriteConst.DOCTAG_NEWLINE);
 					endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad,
 							true);
 					sb.setLength(0);
 				}
 			}
 			if (sb.length() > 0) {
-				sb.setLength(sb.length() - FileLooper.DOCTAG_NEWLINE.length());
+				sb.setLength(sb.length() - EchoWriteConst.DOCTAG_NEWLINE.length());
 				endedInNewline = writeDataToFileWithCrop(sb.toString().trim(), formatDao, fWriterFile2, prepad, true);
 			}
 		}
@@ -646,16 +646,17 @@ public class FileLooperHandlerOutline extends AbstractFilelooper implements File
 
 		int idxS = textData2.indexOf("(+n)(+s)");
 		while (idxS > -1) {
-			textData2.replace(idxS, idxS + FileLooper.DOCTAG_SUBLIST.length() + FileLooper.DOCTAG_NEWLINE.length(),
+			textData2.replace(idxS,
+					idxS + EchoWriteConst.DOCTAG_SUBLIST.length() + EchoWriteConst.DOCTAG_NEWLINE.length(),
 					"(+n)\t\t**");
 			idxS = textData2.indexOf("(+n)(+s)");
 		}
 		idxS = textData2.indexOf("(+s)");
 		while (idxS > -1) {
 			if (isASeperateLine)
-				textData2.replace(idxS, idxS + FileLooper.DOCTAG_SUBLIST.length(), "\t\t**");
+				textData2.replace(idxS, idxS + EchoWriteConst.DOCTAG_SUBLIST.length(), "\t\t**");
 			else
-				textData2.replace(idxS, idxS + FileLooper.DOCTAG_SUBLIST.length(), "(+n)\t\t**");
+				textData2.replace(idxS, idxS + EchoWriteConst.DOCTAG_SUBLIST.length(), "(+n)\t\t**");
 			idxS = textData2.indexOf("(+s)");
 		}
 		// TODO gotta pass the second TAB in somehow?

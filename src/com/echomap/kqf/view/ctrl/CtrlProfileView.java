@@ -23,7 +23,6 @@ import com.echomap.kqf.datamgr.DataManagerBiz;
 import com.echomap.kqf.looper.FileLooper;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
-import com.echomap.kqf.view.Base;
 import com.echomap.kqf.view.MainFrame;
 import com.echomap.kqf.view.gui.ConfirmResult;
 import com.echomap.kqf.view.gui.MyWorkDoneNotify;
@@ -154,10 +153,11 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	}
 
 	@Override
-	public void doSceneShown() {
-		super.doSceneShown();
+	public void doSceneShown(final Stage stage) {
+		super.doSceneShown(stage);
 		// Set Splits to what user wants
 		if (appPreferences != null) {
+			//
 			final double splitH = appPreferences.getDouble(Prefs.VIEW_PREF_SPLIT_H, -1);
 			final double splitV = appPreferences.getDouble(Prefs.VIEW_PREF_SPLIT_V, -1);
 			LOGGER.debug("setupController: splitH=" + splitH);
@@ -178,14 +178,27 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	}
 
 	@Override
+	public void doSceneHiding(final Stage stage) {
+
+		final String keyP = this.getClass().getSimpleName();
+		savePreferencesForWindow(keyP, stage);
+
+		super.doSceneHiding(stage);
+	}
+
+	@Override
 	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage,
 			final Map<String, Object> paramsMap) {
 		super.setupController(props, appPreferences, primaryStage, paramsMap);
 		LOGGER.debug("setupController: Done");
-		this.appPreferences = Preferences.userNodeForPackage(CtrlProfileView.class);
 		profileManager.setAppVersion(this.appVersion);
 
 		if (appPreferences != null) {
+			//
+			final String keyP = this.getClass().getSimpleName();
+			loadPreferencesForWindow(keyP, primaryStage);
+
+			//
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			final ObservableList<TableColumn> columns = profileTable.getColumns();
 			String key = "";
@@ -280,10 +293,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				btnRunOutliner.setDisable(false);
 			} else if ("Formatter".compareTo(process) == 0) {
 				btnRunFormatter.setDisable(false);
-			} else if (Base.WINDOWKEY_TIMELINE.compareTo(process) == 0 || "CtrlTImeline".compareTo(process) == 0) {
+			} else if (EchoWriteConst.WINDOWKEY_TIMELINE.compareTo(process) == 0
+					|| "CtrlTImeline".compareTo(process) == 0) {
 				btnRunTimelineGui.setDisable(false);
 				unlockGuiPerProfileDataLoaded();
-			} else if (Base.WINDOWKEY_OUTLINERGUI.compareTo(process) == 0 || "CtrlOutliner".compareTo(process) == 0) {
+			} else if (EchoWriteConst.WINDOWKEY_OUTLINERGUI.compareTo(process) == 0
+					|| "CtrlOutliner".compareTo(process) == 0) {
 				btnRunOutlinerGui.setDisable(false);
 				unlockGuiPerProfileDataLoaded();
 			}
@@ -632,12 +647,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			paramsMap.put("selectedProfileKey", selectedProfileKey);
 			paramsMap.put("profileManager", profileManager);
 			paramsMap.put("processDoneNotify", myWorkDoneNotify);
-			paramsMap.put(Base.PARAMMAP_MODAL, false);
-			paramsMap.put(Base.PARAMMAP_MODALMODE, 2);
+			paramsMap.put(EchoWriteConst.PARAMMAP_MODAL, false);
+			paramsMap.put(EchoWriteConst.PARAMMAP_MODALMODE, 2);
 			// TODO extract
 			final String WINDOW_TITLE_FMT = "EchoWrite: OutlinerGui: (v%s)";
 			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
-			openNewWindow(Base.WINDOWKEY_OUTLINERGUI, windowTitle, loggingText, null, this, paramsMap);
+			openNewWindow(EchoWriteConst.WINDOWKEY_OUTLINERGUI, windowTitle, loggingText, null, this, paramsMap);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -671,12 +686,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			paramsMap.put("selectedProfileKey", selectedProfileKey);
 			paramsMap.put("profileManager", profileManager);
 			paramsMap.put("processDoneNotify", myWorkDoneNotify);
-			paramsMap.put(Base.PARAMMAP_MODAL, false);
-			paramsMap.put(Base.PARAMMAP_MODALMODE, 2);
+			paramsMap.put(EchoWriteConst.PARAMMAP_MODAL, false);
+			paramsMap.put(EchoWriteConst.PARAMMAP_MODALMODE, 2);
 			// TODO extract
 			final String WINDOW_TITLE_FMT = "EchoWrite: Timeline: (v%s)";
 			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
-			openNewWindow(Base.WINDOWKEY_TIMELINE, windowTitle, loggingText, null, this, paramsMap);
+			openNewWindow(EchoWriteConst.WINDOWKEY_TIMELINE, windowTitle, loggingText, null, this, paramsMap);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -749,7 +764,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("NEW", true);
 		paramsMap.put("selectedProfile", null);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_PROFILE_NEW, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_PROFILE_NEW, windowTitle, loggingText, primaryStage, this, paramsMap);
 		refreshData();
 		LOGGER.debug("handleProfileNew: Done");
 	}
@@ -767,7 +782,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 
 		paramsMap.put("selectedProfile", selectedProfile);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_PROFILE_DELETE, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_PROFILE_DELETE, windowTitle, loggingText, primaryStage, this,
+				paramsMap);
 
 		refreshData();
 		LOGGER.debug("handleProfileDelete: Done");
@@ -789,7 +805,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		setLastSelectedDirectory(selectedProfile.getInputFile());
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_PROFILE_EDIT, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_PROFILE_EDIT, windowTitle, loggingText, primaryStage, this,
+				paramsMap);
 		// TODO reselect profile? final Profile selectedProfileL =
 		// selectedProfile;
 		refreshData();
@@ -818,7 +835,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_IMPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_IMPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
 
 		LOGGER.debug("handleImport: Done");
 	}
@@ -831,7 +848,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_EXPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_EXPORT, windowTitle, loggingText, primaryStage, this, paramsMap);
 
 		LOGGER.debug("handleExport: Done");
 	}
@@ -869,7 +886,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_EXTERNALLINKS, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_EXTERNALLINKS, windowTitle, loggingText, primaryStage, this,
+				paramsMap);
 		//
 		LOGGER.debug("handleHelpTest1: Done");
 	}
@@ -889,7 +907,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		paramsMap.put("selectedProfile", selectedProfile);
 		paramsMap.put("profileManager", profileManager);
 		final String windowTitle = String.format(MainFrame.WINDOW_TITLE_FMT, appProps.getProperty("version"));
-		openNewWindow(Base.WINDOWKEY_EXTERNALLINKS, windowTitle, loggingText, primaryStage, this, paramsMap);
+		tryopenNewWindow(EchoWriteConst.WINDOWKEY_EXTERNALLINKS, windowTitle, loggingText, primaryStage, this,
+				paramsMap);
 		//
 		LOGGER.debug("handleRunBookLookup: Done");
 	}
@@ -1001,15 +1020,16 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 					paramsMap.put("selectedProfileKey", selectedProfileKey);
 					paramsMap.put("profileManager", profileManager);
 					paramsMap.put("processDoneNotify", myWorkDoneNotify);
-					paramsMap.put(Base.PARAMMAP_MODAL, false);
-					paramsMap.put(Base.PARAMMAP_MODALMODE, 2);
+					paramsMap.put(EchoWriteConst.PARAMMAP_MODAL, false);
+					paramsMap.put(EchoWriteConst.PARAMMAP_MODALMODE, 2);
 					// TODO extract
 					// final String WINDOW_TITLE_FMT = "EchoWrite: Timeline:
 					// (v%s)";
 					// final String windowTitle =
 					// String.format(WINDOW_TITLE_FMT,
 					// appProps.getProperty("version"));
-					// openNewWindow(Base.WINDOWKEY_TIMELINE, windowTitle,
+					// openNewWindow(EchoWriteConst.WINDOWKEY_TIMELINE,
+					// windowTitle,
 					// loggingText, null, this, paramsMap);
 					// loadData()
 					final FormatDao formatDao = new FormatDao();

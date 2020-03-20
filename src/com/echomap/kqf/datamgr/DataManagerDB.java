@@ -4,11 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
 public class DataManagerDB {
-	private final static Logger LOGGER = LogManager.getLogger(DataManagerDB.class);
+	// private final static Logger LOGGER =
+	// LogManager.getLogger(DataManagerDB.class);
 	private static DataManagerDB DATA_MANAGER = new DataManagerDB();
 
 	private final Map<File, Long> lastModifiedDate = new HashMap<File, Long>();

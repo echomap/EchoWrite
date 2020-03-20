@@ -19,9 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.data.OtherDocTagData;
 import com.echomap.kqf.profile.persist.ProfileBiz;
-import com.echomap.kqf.view.Base;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -104,7 +104,7 @@ public class XferBiz {
 	public static JsonObject ProfileDataExportFromMemory(List<OtherDocTagData> targetList, final Properties appProps) {
 		final JsonObject exportDataset = new JsonObject();
 		if (appProps != null)
-			exportDataset.addProperty("version", appProps.getProperty(Base.PROP_KEY_VERSION));
+			exportDataset.addProperty("version", appProps.getProperty(EchoWriteConst.PROP_KEY_VERSION));
 		LOGGER.debug("handleExport: exportDataset: " + exportDataset);
 		final JsonArray exportList = new JsonArray();
 		if (targetList != null) {

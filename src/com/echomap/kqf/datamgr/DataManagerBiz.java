@@ -150,7 +150,7 @@ public class DataManagerBiz {
 	public void addTime(final TreeTimeData ttd, final TreeTimeSubData ttsd, final String line) {
 		currentFileData.getDatalistTimeDate().add(ttd);
 
-		final String value = ttsd.getDataByKey(EchoWriteConst.WORD_MARKER);
+		// final String value = ttsd.getDataByKey(EchoWriteConst.WORD_MARKER);
 		final DataItem di = new DataItem();
 		currentFileData.getDataItemList().add(di);
 		di.setCategory(EchoWriteConst.WORD_TIME);
@@ -211,7 +211,19 @@ public class DataManagerBiz {
 		parseSubItemData(di, ttsd, line);
 		// setLastTime(di);
 	}
+	
+	public void addMisc(final TreeTimeSubData ttsd, final String line) {
+		currentFileData.getDatalist().add(ttsd);
 
+		final String value = ttsd.getDataByKey(EchoWriteConst.WORD_NAME);
+		final DataItem di = new DataItem();
+		currentFileData.getDataItemList().add(di);
+		di.setCategory(EchoWriteConst.WORD_OTHER);
+		di.setName(value);
+		di.setRawValue(line);
+		parseSubItemData(di, ttsd, line);
+		// setLastTime(di);
+	}
 	public void addActor(final TreeTimeSubData ttsd, final String line) {
 		currentFileData.getDatalist().add(ttsd);
 

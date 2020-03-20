@@ -7,8 +7,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.looper.WorkDoneNotify;
-import com.echomap.kqf.view.Base;
 import com.echomap.kqf.view.ctrl.BaseCtrl;
 
 import javafx.animation.Animation;
@@ -101,10 +101,10 @@ public class MyWorkDoneNotify implements WorkDoneNotify {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				if ("CtrlTImeline".equals(msg) || Base.WINDOWKEY_TIMELINE.equals(msg)) {
-					workFinishedCallback.workFinished(Base.WINDOWKEY_TIMELINE);
-				} else if ("CtrlOutliner".equals(msg) || Base.WINDOWKEY_OUTLINERGUI.equals(msg)) {
-					workFinishedCallback.workFinished(Base.WINDOWKEY_OUTLINERGUI);
+				if ("CtrlTImeline".equals(msg) || EchoWriteConst.WINDOWKEY_TIMELINE.equals(msg)) {
+					workFinishedCallback.workFinished(EchoWriteConst.WINDOWKEY_TIMELINE);
+				} else if ("CtrlOutliner".equals(msg) || EchoWriteConst.WINDOWKEY_OUTLINERGUI.equals(msg)) {
+					workFinishedCallback.workFinished(EchoWriteConst.WINDOWKEY_OUTLINERGUI);
 				} else {
 					showSummaryMessage(msg, false);
 					workFinishedCallback.workFinished("");

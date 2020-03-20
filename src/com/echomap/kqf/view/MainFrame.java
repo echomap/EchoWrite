@@ -13,6 +13,7 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.datamgr.DataManagerBiz;
 import com.echomap.kqf.view.ctrl.BaseCtrl;
 
@@ -23,6 +24,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -57,26 +59,26 @@ public class MainFrame extends Application {
 	}
 
 	public MainFrame() {
-		fxmlFrames.put(Base.WINDOWKEY_MAINWINDOW, Base.FXML_START);
-		fxmlFrames.put(Base.WINDOWKEY_PROFILE_NEW, Base.FXML_NEWPROFILE);
-		fxmlFrames.put(Base.WINDOWKEY_PROFILE_EDIT, Base.FXML_EDITPROFILE);
-		fxmlFrames.put(Base.WINDOWKEY_PROFILE_DELETE, Base.FXML_DELETEPROFILE);
-		fxmlFrames.put(Base.WINDOWKEY_EXPORT, Base.SUB_EXPORT);
-		fxmlFrames.put(Base.WINDOWKEY_IMPORT, Base.SUB_IMPORT);
-		fxmlFrames.put(Base.WINDOWKEY_MOREFILES, Base.FXML_MOREFILES);
-		fxmlFrames.put(Base.WINDOWKEY_TIMELINE, Base.FXML_TIMELINE);
-		fxmlFrames.put(Base.WINDOWKEY_OUTLINERGUI, Base.FXML_OUTLINERGUI);
-		fxmlFrames.put(Base.WINDOWKEY_VIEWCHARS, Base.FXML_VIEWCHARS);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_MAINWINDOW, EchoWriteConst.FXML_START);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_PROFILE_NEW, EchoWriteConst.FXML_NEWPROFILE);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_PROFILE_EDIT, EchoWriteConst.FXML_EDITPROFILE);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_PROFILE_DELETE, EchoWriteConst.FXML_DELETEPROFILE);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_EXPORT, EchoWriteConst.SUB_EXPORT);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_IMPORT, EchoWriteConst.SUB_IMPORT);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_MOREFILES, EchoWriteConst.FXML_MOREFILES);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_TIMELINE, EchoWriteConst.FXML_TIMELINE);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_OUTLINERGUI, EchoWriteConst.FXML_OUTLINERGUI);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_VIEWCHARS, EchoWriteConst.FXML_VIEWCHARS);
 
-		fxmlFrames.put(Base.WINDOWKEY_EXTERNALLINKS, Base.FXML_EXTERNALLINKS);
-		fxmlFrames.put(Base.WINDOWKEY_EXTERNALIDS, Base.FXML_EXTERNALIDS);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_EXTERNALLINKS, EchoWriteConst.FXML_EXTERNALLINKS);
+		fxmlFrames.put(EchoWriteConst.WINDOWKEY_EXTERNALIDS, EchoWriteConst.FXML_EXTERNALIDS);
 
-		fxmlCtrl.put(Base.WINDOWKEY_PROFILE_NEW, com.echomap.kqf.view.ctrl.CtrlProfileEdit.class);
-		fxmlCtrl.put(Base.WINDOWKEY_PROFILE_EDIT, com.echomap.kqf.view.ctrl.CtrlProfileEdit.class);
-		fxmlCtrl.put(Base.WINDOWKEY_PROFILE_DELETE, com.echomap.kqf.view.ctrl.CtrlProfileEdit.class);
+		fxmlCtrl.put(EchoWriteConst.WINDOWKEY_PROFILE_NEW, com.echomap.kqf.view.ctrl.CtrlProfileEdit.class);
+		fxmlCtrl.put(EchoWriteConst.WINDOWKEY_PROFILE_EDIT, com.echomap.kqf.view.ctrl.CtrlProfileEdit.class);
+		fxmlCtrl.put(EchoWriteConst.WINDOWKEY_PROFILE_DELETE, com.echomap.kqf.view.ctrl.CtrlProfileEdit.class);
 		// fxmlCtrl.put(key, value)
 
-		appPreferences = Preferences.userNodeForPackage(MainFrame.class);
+		appPreferences = Preferences.userNodeForPackage(EchoWriteConst.class);
 
 		InputStream propertyStreamLoad = null;
 		try {
@@ -110,16 +112,16 @@ public class MainFrame extends Application {
 
 			final URL location;
 			if (modeStartup == null)
-				location = getClass().getResource(fxmlFrames.get(Base.WINDOWKEY_MAINWINDOW));
-			else if (modeStartup.compareToIgnoreCase(Base.START_PARAM_TIMELINE) == 0)
-				location = getClass().getResource(fxmlFrames.get(Base.WINDOWKEY_TIMELINE));
-			else if (modeStartup.compareToIgnoreCase(Base.START_PARAM_OUTLINE) == 0)
-				location = getClass().getResource(fxmlFrames.get(Base.WINDOWKEY_OUTLINERGUI));
-			else if (modeStartup.compareToIgnoreCase(Base.START_PARAM_VIEWCHARS) == 0)
-				location = getClass().getResource(fxmlFrames.get(Base.WINDOWKEY_VIEWCHARS));
+				location = getClass().getResource(fxmlFrames.get(EchoWriteConst.WINDOWKEY_MAINWINDOW));
+			else if (modeStartup.compareToIgnoreCase(EchoWriteConst.START_PARAM_TIMELINE) == 0)
+				location = getClass().getResource(fxmlFrames.get(EchoWriteConst.WINDOWKEY_TIMELINE));
+			else if (modeStartup.compareToIgnoreCase(EchoWriteConst.START_PARAM_OUTLINE) == 0)
+				location = getClass().getResource(fxmlFrames.get(EchoWriteConst.WINDOWKEY_OUTLINERGUI));
+			else if (modeStartup.compareToIgnoreCase(EchoWriteConst.START_PARAM_VIEWCHARS) == 0)
+				location = getClass().getResource(fxmlFrames.get(EchoWriteConst.WINDOWKEY_VIEWCHARS));
 
 			else
-				location = getClass().getResource(fxmlFrames.get(Base.WINDOWKEY_MAINWINDOW));
+				location = getClass().getResource(fxmlFrames.get(EchoWriteConst.WINDOWKEY_MAINWINDOW));
 
 			if (location == null) {
 				LOGGER.error("Failed to get location!!!!!!");
@@ -134,8 +136,12 @@ public class MainFrame extends Application {
 			// primaryStage.setWidth(1024);
 			// primaryStage.setHeight(200);
 
+			// TODO Change ICON
+			final Image appIcon = new Image(getClass().getResourceAsStream("/62863-books-icon.png"));
+
 			final Scene scene = new Scene(parent);
 			primaryStage.setScene(scene);
+			primaryStage.getIcons().add(appIcon);
 
 			//
 			final Map<String, Object> namedParams2 = new HashMap<>();
@@ -162,27 +168,27 @@ public class MainFrame extends Application {
 
 			primaryStage.setOnShown(new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we) {
-					LOGGER.info("Stage is being shown...");
-					myController.doSceneShown();
+					LOGGER.info("Stage is being shown...(" + primaryStage.getTitle() + ")");
+					myController.doSceneShown(primaryStage);
 					LOGGER.info("Stage is shown");
 				}
 			});
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we) {
-					LOGGER.info("Stage has been requested to close...");
+					LOGGER.info("Stage has been requested to close...(" + primaryStage.getTitle() + ")");
 					myController.doSceneCloseRequested();
 				}
 			});
 			primaryStage.setOnHidden(new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we) {
-					LOGGER.info("Stage is hidding...");
+					LOGGER.info("Stage is hidding...(" + primaryStage.getTitle() + ")");
 					myController.doSceneHidden();
 					LOGGER.info("Stage is hidden");
 
 					LOGGER.debug("windowCount=" + BaseCtrl.getWindowCount());
 					if (BaseCtrl.getWindowCount() <= 0) {
 						LOGGER.info("Closing platform");
-						DataManagerBiz.close();//DATA_MANAGER.close();
+						DataManagerBiz.close();// DATA_MANAGER.close();
 						Platform.exit();
 					}
 				}
@@ -190,13 +196,13 @@ public class MainFrame extends Application {
 			primaryStage.setOnHiding(new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we) {
 					LOGGER.info("Stage is being hidden...");
-					myController.doSceneHiding();
+					myController.doSceneHiding(primaryStage);
 				}
 			});
 			primaryStage.setOnShowing(new EventHandler<WindowEvent>() {
 				public void handle(WindowEvent we) {
 					LOGGER.info("Stage is being shown...");
-					myController.doSceneShowing();
+					myController.doSceneShowing(primaryStage);
 					LOGGER.info("Stage is shown");
 				}
 			});
