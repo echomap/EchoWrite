@@ -110,4 +110,11 @@ public class EchoWriteConst {
 
 	public static final String SUB_EXPORT = "/viewexport.fxml";
 	public static final String SUB_IMPORT = "/viewimport.fxml";
+
+	//
+	//
+	public static final String WINDOW_PREF_HEIGHT = "height";
+	public static final String WINDOW_PREF_WIDTH = "width";
+	public static final String WINDOW_PREF_X = "x";
+	public static final String WINDOW_PREF_Y = "y";
 }

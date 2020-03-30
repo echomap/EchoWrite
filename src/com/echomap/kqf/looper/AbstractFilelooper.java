@@ -365,10 +365,13 @@ public class AbstractFilelooper {
 		// ttsd.addData("char", docTag.getValue());
 		// timeDate.addDataParsed(ttsd);// docTag.getValue());
 		TextParsingBiz.parseNameValueAtDivided(docTag.getValue(), ttsd);
-		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
-		if (!StringUtils.isEmpty(valActor) && !StringUtils.isEmpty(valActor.trim()))
-			ttsd.getData().put(docTag.getName(), valActor.trim());
-		// "char", valActor);
+		final String valName = ttsd.getData().get(EchoWriteConst.WORD_NAME);
+		final String valChar = ttsd.getData().get(EchoWriteConst.WORD_CHAR);
+		if (!StringUtils.isEmpty(valName) && !StringUtils.isEmpty(valName.trim()))
+			ttsd.getData().put(docTag.getName(), valName.trim());
+		if (StringUtils.isEmpty(valName) && !StringUtils.isEmpty(valChar))
+			ttsd.getData().put(EchoWriteConst.WORD_NAME, valChar);
+
 		//
 		addMarkerToData(ttsd, timeDate);
 		addIDToData(ttsd, EchoWriteConst.WORD_ACTOR);
@@ -396,10 +399,11 @@ public class AbstractFilelooper {
 			ttsd.addData(docTag.getValue(), docTag.getValue());
 
 		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
-		if (StringUtils.isEmpty(valActor)) {
+		if (StringUtils.isEmpty(valActor))
 			ttsd.getData().put(EchoWriteConst.WORD_NAME, ttsd.getData().get(EchoWriteConst.WORD_ITEM));
+		if (StringUtils.isEmpty(ttsd.getData().get(EchoWriteConst.WORD_DESC)))
 			ttsd.getData().put(EchoWriteConst.WORD_DESC, ttsd.getData().get(EchoWriteConst.WORD_ITEM));
-		}
+
 		//
 		addMarkerToData(ttsd, timeDate);
 		addIDToData(ttsd, EchoWriteConst.WORD_ITEM);

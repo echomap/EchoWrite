@@ -111,40 +111,39 @@ public abstract class BaseCtrl {
 
 	final void loadPreferencesForWindow(final String keyP, final Stage stage) {
 		//
-		final String keyY = String.format("%s/%s", keyP, "y");
+		final String keyY = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_Y);
 		final double sceneY = appPreferences.getDouble(keyY, -1);
-		LOGGER.debug("loadPreferences: keyY='" + keyY + "' colW1=" + sceneY);
+		LOGGER.debug("loadPreferences: keyY='" + keyY + "' val=" + sceneY);
 		if (sceneY > -1) {
-			primaryStage.setY(sceneY);
+			stage.setY(sceneY);
 		}
 		//
-		final String keyX = String.format("%s/%s", keyP, "x");
+		final String keyX = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_X);
 		final double sceneX = appPreferences.getDouble(keyX, -1);
-		LOGGER.debug("loadPreferences: keyX='" + keyX + "' colW1=" + sceneX);
+		LOGGER.debug("loadPreferences: keyX='" + keyX + "' val=" + sceneX);
 		if (sceneX > -1) {
-			primaryStage.setX(sceneX);
+			stage.setX(sceneX);
 		}
 		//
-		final String keyH = String.format("%s/%s", keyP, "height");
+		final String keyH = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_HEIGHT);
 		final double sceneHeight = appPreferences.getDouble(keyH, -1);
-		LOGGER.debug("loadPreferences: keyH='" + keyH + "' colW1=" + sceneHeight);
+		LOGGER.debug("loadPreferences: keyH='" + keyH + "' val=" + sceneHeight);
 		if (sceneHeight > -1) {
-			primaryStage.setHeight(sceneHeight);
+			stage.setHeight(sceneHeight);
 		}
 		//
-		final String keyW = String.format("%s/%s", keyP, "width");
+		final String keyW = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_WIDTH);
 		final double sceneWidth = appPreferences.getDouble(keyW, -1);
-		LOGGER.debug("loadPreferences: keyW='" + keyW + "' colW1=" + sceneWidth);
+		LOGGER.debug("loadPreferences: keyW='" + keyW + "' val=" + sceneWidth);
 		if (sceneWidth > -1) {
-			primaryStage.setWidth(sceneWidth);
+			stage.setWidth(sceneWidth);
 		}
-		//
 	}
 
 	final void savePreferencesForWindow(final String keyP, final Stage stage) {
 		//
 		final double sceneX = stage.getX();
-		final String keyX = String.format("%s/%s", keyP, "x");
+		final String keyX = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_X);
 		if (sceneX > 0) {
 			LOGGER.debug("savePreferences: keyX='" + keyX + "' X=" + sceneX);
 			if (appPreferences != null)
@@ -152,7 +151,7 @@ public abstract class BaseCtrl {
 		}
 		//
 		final double sceneY = stage.getY();
-		final String keyY = String.format("%s/%s", keyP, "y");
+		final String keyY = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_Y);
 		if (sceneY > 0) {
 			LOGGER.debug("savePreferences: keyY='" + keyY + "' Y=" + sceneY);
 			if (appPreferences != null)
@@ -160,7 +159,7 @@ public abstract class BaseCtrl {
 		}
 		//
 		final double sceneWidth = stage.getWidth();
-		final String keyW = String.format("%s/%s", keyP, "width");
+		final String keyW = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_WIDTH);
 		if (sceneWidth > 0) {
 			LOGGER.debug("savePreferences: keyW='" + keyW + "' width=" + sceneWidth);
 			if (appPreferences != null)
@@ -168,7 +167,7 @@ public abstract class BaseCtrl {
 		}
 		//
 		final double sceneHeight = stage.getHeight();
-		final String keyH = String.format("%s/%s", keyP, "heigth");
+		final String keyH = String.format("%s/%s", keyP, EchoWriteConst.WINDOW_PREF_HEIGHT);
 		if (sceneHeight > 0) {
 			LOGGER.debug("savePreferences: keyH='" + keyH + "' height=" + sceneHeight);
 			if (appPreferences != null)

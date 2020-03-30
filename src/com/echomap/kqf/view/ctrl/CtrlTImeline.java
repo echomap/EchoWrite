@@ -87,16 +87,20 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	@FXML
 	private TreeView<TreeData> dataItemTree;// <T>
 	@FXML
-	private TableView<DataItem> dataThingsEndTable;// <T>
-	@FXML
 	private TableView<DataItem> dataAllThingsTable;// <T>
 	@FXML
+	private TableView<DataItem> dataThingsEndTable;// <T>
+	@FXML
 	private TableView<DataItem> dataThingsTable;// <T>
+	@FXML
+	private TableView<DataItem> dataActorsTable;// <T>
 
 	@FXML
 	private HBox allTabFilterHeader;
 	@FXML
 	private HBox thingsTabFilterHeader;
+	@FXML
+	private HBox actorsTabFilterHeader;
 	@FXML
 	private HBox endThingsTabFilterHeader;
 
@@ -136,11 +140,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	final Map<String, String> filtersEndthings = new HashMap<>();
 	final Map<String, String> filtersAllThings = new HashMap<>();
 	final Map<String, String> filtersThings = new HashMap<>();
+	final Map<String, String> filtersActors = new HashMap<>();
 
 	//
 	final List<String> columnNameDataMapAll = new ArrayList<>();
 	final List<String> columnNameDataMapThings = new ArrayList<>();
 	final List<String> columnNameDataMapEndThings = new ArrayList<>();
+	final List<String> columnNameDataMapActors = new ArrayList<>();
 
 	// private List<DocTag> metaDocTagList = new ArrayList<>();
 
@@ -342,6 +348,23 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		dataThingsTable.setContextMenu(treeContextMenuT);
 		//
 
+		//
+		final MenuItem menuItemDumpItemTextA2 = new MenuItem("Dump Actor Text");
+		menuItemDumpItemTextA2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final DataItem treeSel = dataActorsTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					writeToScreen("Output: " + treeSel);
+				}
+			}
+		});
+		//
+		final ContextMenu treeContextMenuA2 = new ContextMenu();
+		treeContextMenuA2.getItems().add(menuItemDumpItemTextA2);
+		dataActorsTable.setContextMenu(treeContextMenuA2);
+		//
 	}
 
 	private void createTrees() {
@@ -522,6 +545,12 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				dataThingsEndTable.getSortOrder().add(thisCol);
 			}
 			thisCol.getStyleClass().add("all-table-column-header");
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_TYPE) == 0) {
+				thisCol.setVisible(false);
+			}
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_ITEM) == 0) {
+				thisCol.setVisible(false);
+			}
 		}
 		//
 		dataThingsEndTable.getColumns().clear();
@@ -556,6 +585,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		endThingsTabFilterHeader.getChildren().clear();
 		for (int i = 0; i < tableColumnList.length; i++) {
 			final String tableColumnName = columnNameDataMapEndThings.get(i);
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_TYPE) == 0) {
+				continue;
+			}
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_ITEM) == 0) {
+				continue;
+			}
+
 			final TextField tf = new TextField();
 			tf.setPromptText(tableColumnName);
 			endThingsTabFilterHeader.getChildren().add(tf);
@@ -568,6 +604,83 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		//
 		endtableScrollPane.requestLayout();
 	}
+
+	// dataActorsTable
+	private void updateTableActorsColumns() {
+		//
+		final ObservableList<TableColumn<DataItem, ?>> columns = dataActorsTable.getColumns();
+		columns.clear();
+		sortColumns(columnNameDataMapActors);
+
+		// Reorder Columns
+		@SuppressWarnings("unchecked")
+		final TableColumn<DataItem, ?>[] tableColumnList = new TableColumn[columnNameDataMapActors.size()];
+		for (int i = 0; i < tableColumnList.length; i++) {
+			final String tableColumnName = columnNameDataMapActors.get(i);
+			final TableColumn<DataItem, ?> thisCol = new TableColumn<DataItem, Object>(tableColumnName);
+			tableColumnList[i] = (thisCol);
+			if (tableColumnName.compareTo("marker") == 0) {
+				thisCol.setSortType(TableColumn.SortType.ASCENDING);
+				dataActorsTable.getSortOrder().add(thisCol);
+			}
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_TYPE) == 0) {
+				thisCol.setVisible(false);
+			}
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_CHAR) == 0) {
+				thisCol.setVisible(false);
+			}
+			thisCol.getStyleClass().add("all-table-column-header");
+		}
+		//
+		dataActorsTable.getColumns().clear();
+		dataActorsTable.getColumns().addAll(tableColumnList);
+		BaseCtrl.alignColumnLabelsLeftHack(dataActorsTable);
+		dataActorsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		dataActorsTable.sort();
+
+		// Data Factories
+		for (int i = 0; i < tableColumnList.length; i++) {
+			final String tableColumnName = columnNameDataMapActors.get(i);
+			if ("Marker".compareToIgnoreCase(tableColumnName) == 0) {
+				@SuppressWarnings("unchecked")
+				final TableColumn<DataItem, Integer> column2 = (TableColumn<DataItem, Integer>) tableColumnList[i];
+				column2.setCellValueFactory(
+						cellData -> new SimpleIntegerProperty(cellData.getValue().getSubByKeyInteger("marker"))
+								.asObject());
+			} else {
+				@SuppressWarnings("unchecked")
+				final TableColumn<DataItem, String> column1 = (TableColumn<DataItem, String>) tableColumnList[i];
+				column1.setCellValueFactory(
+						cellData -> new SimpleStringProperty(cellData.getValue().getSubByKeyString(tableColumnName)));
+			}
+		}
+		// Col1. resize handler
+
+		//
+		BaseCtrl.alignColumnLabelsLeftHack(dataActorsTable);
+		dataActorsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
+		// Filters
+		actorsTabFilterHeader.getChildren().clear();
+		for (int i = 0; i < tableColumnList.length; i++) {
+			final String tableColumnName = columnNameDataMapActors.get(i);
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_TYPE) == 0) {
+				continue;
+			}
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_CHAR) == 0) {
+				continue;
+			}
+			final TextField tf = new TextField();
+			tf.setPromptText(tableColumnName);
+			actorsTabFilterHeader.getChildren().add(tf);
+
+			tf.textProperty().addListener((observable, oldValue, newValue) -> {
+				LOGGER.debug("filterText changed from '" + oldValue + "' to '" + newValue + "'");
+				setupFilterActors(tableColumnName, newValue);
+			});
+		}
+		//
+	}// updateTableActorsColumns
 
 	private void updateTableThingsColumns() {
 		//
@@ -585,6 +698,9 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			if (tableColumnName.compareTo("marker") == 0) {
 				thisCol.setSortType(TableColumn.SortType.ASCENDING);
 				dataThingsTable.getSortOrder().add(thisCol);
+			}
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_TYPE) == 0) {
+				thisCol.setVisible(false);
 			}
 			thisCol.getStyleClass().add("all-table-column-header");
 		}
@@ -621,6 +737,9 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		thingsTabFilterHeader.getChildren().clear();
 		for (int i = 0; i < tableColumnList.length; i++) {
 			final String tableColumnName = columnNameDataMapThings.get(i);
+			if (tableColumnName.compareTo(EchoWriteConst.WORD_TYPE) == 0) {
+				continue;
+			}
 			final TextField tf = new TextField();
 			tf.setPromptText(tableColumnName);
 			thingsTabFilterHeader.getChildren().add(tf);
@@ -879,39 +998,45 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			}
 
 			//
-			TreeItem<TreeData> thisElement;
+			TreeItem<TreeData> thisElement = null;
 			if (EchoWriteConst.WORD_CHAPTER.compareTo(cat) == 0 && nodeImageChapter != null) {
 				thisElement = new TreeItem<>(treedata, new ImageView(nodeImageChapter));
 				tll.setThisCat(3);
 			} else if (EchoWriteConst.WORD_SECTION.compareTo(cat) == 0 && nodeImageSection != null) {
 				thisElement = new TreeItem<>(treedata, new ImageView(nodeImageSection));
 				tll.setThisCat(2);
-			} else {
+			} else if (EchoWriteConst.WORD_SCENE.compareTo(cat) == 0
+					|| EchoWriteConst.WORD_SUBSCENE.compareTo(cat) == 0) {
 				thisElement = new TreeItem<>(treedata);
 				tll.setThisCat(4);
+			} else {
+				thisElement = new TreeItem<>(treedata);
+				tll.setThisCat(5);
 			}
 			// if (EchoWriteConst.WORD_MARKER.compareTo(cat) == 0) {
 			// tll.setLastTime(dataItem);
 			// }
 
 			//
-			TreeItem<TreeData> parent = tll.getLastLevelUp();
-			if (tll.getLastCat() == 0) {
-				parent = rootScenes;
-				tll.setThisCat(1);
-				tll.setLastLevelUp(1, thisElement);
-			}
-			if (parent == null) {
-				parent = tll.getLastLevelUp(1);// lastLevelUp.get(1);
-			}
-			parent.getChildren().add(thisElement);
+			if (thisElement != null) {
+				TreeItem<TreeData> parent = tll.getLastLevelUp();
+				if (tll.getLastCat() == 0) {
+					parent = rootScenes;
+					tll.setThisCat(1);
+					tll.setLastLevelUp(1, thisElement);
+				}
+				if (parent == null) {
+					parent = tll.getLastLevelUp(1);// lastLevelUp.get(1);
+				}
+				parent.getChildren().add(thisElement);
 
-			// 20200229 if (tll.getThisCat() != tll.getLastCat()) {
-			tll.setLastLevelUp(tll.getThisCat(), thisElement);
-			// }
-			//
-			tll.setLastCat(tll.getThisCat());
-			thisElement.setExpanded(true);
+				// 20200229 if (tll.getThisCat() != tll.getLastCat()) {
+				tll.setLastLevelUp(tll.getThisCat(), thisElement);
+				// }
+				//
+				tll.setLastCat(tll.getThisCat());
+				thisElement.setExpanded(true);
+			}
 
 			//
 			final String sMarker = dataItem.getSubByKeyString(EchoWriteConst.WORD_MARKER);
@@ -1010,6 +1135,32 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		dataThingsEndTable.sort();
 	}
 
+	private void refreshTableActors() {
+		final ObservableList<DataItem> newList = FXCollections.observableArrayList();
+		parseDataFilterActors(newList);
+		//
+		dataActorsTable.getItems().clear();
+		// updateTableActorsColumns();
+		dataActorsTable.getItems().setAll(newList);
+		dataActorsTable.refresh();
+		// dataActorsTable.sort();
+
+		//
+		final List<String> filterListColumn = new ArrayList<String>();
+		filterListColumn.add(EchoWriteConst.WORD_TIMEMARK);
+		for (final DataItem dataItem : newList) {
+			for (final DataSubItem dataSubItem : dataItem.getDataSubItems()) {
+				final String key = dataSubItem.getName();
+				String keyT = key.trim().toLowerCase();
+				// final String cat = dataSubItem.get
+				keyT = keyT.replace(EchoWriteConst.DOCTAG_LIST, "").replace(EchoWriteConst.DOCTAG_NEWLINE, "");
+				if (!columnNameDataMapActors.contains(keyT) && !filterListColumn.contains(keyT))
+					columnNameDataMapActors.add(keyT);
+			}
+		}
+		//
+	}
+
 	private void refreshTableThings() {
 		final ObservableList<DataItem> newList = FXCollections.observableArrayList();
 		parseDataFilterThings(newList);
@@ -1027,7 +1178,6 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			for (final DataSubItem dataSubItem : dataItem.getDataSubItems()) {
 				final String key = dataSubItem.getName();
 				String keyT = key.trim().toLowerCase();
-				// final String cat = dataSubItem.get
 				keyT = keyT.replace(EchoWriteConst.DOCTAG_LIST, "").replace(EchoWriteConst.DOCTAG_NEWLINE, "");
 				if (!columnNameDataMapThings.contains(keyT) && !filterListColumn.contains(keyT))
 					columnNameDataMapThings.add(keyT);
@@ -1052,9 +1202,10 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		LOGGER.debug("parseData: Called");
 		lockGui();
 
-		// filtersEndthings.clear();
-		// filtersAllThings.clear();
-		// filtersThings.clear();
+		filtersEndthings.clear();
+		filtersAllThings.clear();
+		filtersThings.clear();
+		filtersActors.clear();
 		// columnNameDataMap.clear();
 		// endThingsListByMarker.clear();
 		// endThingsListByItem.clear();
@@ -1073,6 +1224,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				columnNameDataMapAll.clear();
 				columnNameDataMapThings.clear();
 				columnNameDataMapEndThings.clear();
+				columnNameDataMapActors.clear();
 
 				// Create
 				final List<DataItem> dataList = DataManagerBiz.getDataManager(selectedProfile.getInputFile())
@@ -1093,7 +1245,6 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 						if (!columnNameDataMapAll.contains(keyT) && !filterListColumn.contains(keyT))
 							columnNameDataMapAll.add(keyT);
 					}
-					// }
 
 					//
 					final Integer marker = dataItem.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
@@ -1114,13 +1265,16 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				refreshTableDataAll();
 				refreshTableThings();
 				refreshTableEndThings();
+				refreshTableActors();
 				//
 				updateTableAllThingsColumns();
 				updateTableThingsColumns();
 				updateTableEndThingsColumns();
+				updateTableActorsColumns();
 				//
 			} catch (Exception e) {
 				writeToScreen("Error! " + e);
+				e.printStackTrace();
 			} finally {
 				// baseCtrl.unlockGui();
 			}
@@ -1349,6 +1503,46 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		// LOGGER.debug(" dataItem2: " + dataItem2);
 		// }
 		// }
+	}
+
+	private void parseDataFilterActors(final ObservableList<DataItem> newList) {
+		//
+		final List<DataItem> dataList = DataManagerBiz.getDataManager(selectedProfile.getInputFile()).getItems();
+		for (final DataItem dataItem : dataList) {
+			final String cat = dataItem.getCategory();
+			boolean noMatchFilter = false;
+
+			//
+			final Set<String> atdKeys = filtersActors.keySet();
+
+			boolean okByCat = false;
+			if (EchoWriteConst.WORD_ACTOR.compareTo(cat) == 0 || EchoWriteConst.WORD_CHAR.compareTo(cat) == 0)
+				okByCat = true;
+
+			if (okByCat) {
+				//
+				for (final Iterator<String> iter = atdKeys.iterator(); iter.hasNext();) {
+					final String filterKey = (String) iter.next();
+					final String filterVal = filtersActors.get(filterKey);
+					final String dataVal = dataItem.getSubByKeyString(filterKey);
+
+					if (!StringUtils.isBlank(filterVal)) {
+						if (StringUtils.isEmpty(dataVal))
+							noMatchFilter = true;
+						else if (filterKey.compareToIgnoreCase(EchoWriteConst.WORD_MARKER) == 0) {
+							// MARKER
+							noMatchFilter = analyzeMarker(filterVal, dataVal, filtersActors);
+							// MARKER
+						} else if (!dataVal.toLowerCase().contains(filterVal.toLowerCase()))
+							noMatchFilter = true;
+					}
+				}
+
+				//
+				if (!noMatchFilter)
+					newList.add(dataItem);
+			}
+		}
 		//
 	}
 
@@ -1517,6 +1711,22 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			LOGGER.debug("filter: key='" + key + "' val='" + val + "'");
 		}
 		refreshTableDataAll();
+	}
+
+	private void setupFilterActors(final String filterKey, String filterValue) {
+		LOGGER.debug("setupFilterActors: filterKey='" + filterKey + "' filterValue='" + filterValue + "'");
+		if (StringUtils.isEmpty(filterValue)) {
+			filtersActors.remove(filterKey);
+			LOGGER.debug("setupFilterActors: removed filterKey='" + filterKey + "'");
+		} else
+			filtersActors.put(filterKey, filterValue);
+		// startTimerTask();
+		final Set<String> keys = filtersActors.keySet();
+		for (final String key : keys) {
+			final String val = filtersActors.get(key);
+			LOGGER.debug("setupFilterActors: filter: key='" + key + "' val='" + val + "'");
+		}
+		refreshTableActors();
 	}
 
 	private void setupFilterThings(final String filterKey, String filterValue) {

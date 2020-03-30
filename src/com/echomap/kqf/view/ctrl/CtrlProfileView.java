@@ -691,6 +691,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			// TODO extract
 			final String WINDOW_TITLE_FMT = "EchoWrite: Timeline: (v%s)";
 			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
+			//is modality broken with an owner?
 			openNewWindow(EchoWriteConst.WINDOWKEY_TIMELINE, windowTitle, loggingText, null, this, paramsMap);
 
 		} catch (Exception e) {
