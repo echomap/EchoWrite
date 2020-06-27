@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -81,7 +82,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	@FXML
 	private TreeView<TreeData> dataTimeTree;// <T>
 	@FXML
-	private TreeView<TreeData> scenesTree;
+	private TreeView<TreeData> scenesTree;// <T>
 	@FXML
 	private TreeView<TreeData> dataActorTree;// <T>
 	@FXML
@@ -166,13 +167,45 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	// private TreeItem<TreeData> rootEndThings = null;
 
 	//
-	Integer lastTimeMarker = null;
+	private final TimeList timeList = new TimeList();
+	// Integer lastTimeMarker = null;
+	// final List<Integer> timeList = new ArrayList<>();
 
 	//
 	final ObservableList<DataItem> dataALLList = FXCollections.observableArrayList();
 
 	public CtrlTImeline() {
 
+	}
+
+	private class TimeList {
+		//
+		private Integer lastTimeMarker = null;
+		//
+		private final List<Integer> timeList = new ArrayList<>();
+
+		public Integer getLastTimeMarker() {
+			return lastTimeMarker;
+		}
+
+		public void trackTime(final Integer time) {
+			timeList.add(time);
+			// if (lastTimeMarker == Fnull || time > lastTimeMarker)
+			// lastTimeMarker = time;
+			if (lastTimeMarker == null)
+				lastTimeMarker = time;
+			else if (lastTimeMarker < time)
+				lastTimeMarker = time;
+		}
+
+		public Integer getTimeAfter(final Integer markerI2) {
+			Collections.sort(timeList);
+			final Integer idx = timeList.indexOf(markerI2);
+			if (idx < 0)
+				return (markerI2 + 1);
+			final Integer val = timeList.get((idx + 1));
+			return (val);
+		}
 	}
 
 	/**
@@ -295,8 +328,8 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 	private void setupTables() {
 		//
-		final MenuItem menuItemDumpItemTextA = new MenuItem("Dump Item Text");
-		menuItemDumpItemTextA.setOnAction(new EventHandler<ActionEvent>() {
+		final MenuItem menuItemDumpItemTextAA = new MenuItem("Dump Item Text");
+		menuItemDumpItemTextAA.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
 				LOGGER.debug("handle item called");
@@ -306,9 +339,88 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				}
 			}
 		});
+
+		final MenuItem menuItemDumpItemTextST1 = new MenuItem("Select time");
+		menuItemDumpItemTextST1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final DataItem treeSel = dataThingsEndTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					final String marker = treeSel.getSubByKeyString(EchoWriteConst.WORD_MARKER);
+					final TextField filterfield = getEndThingFilter("marker");
+					if (filterfield != null) {
+						String markerI = marker;
+						if (!StringUtils.isEmpty(marker))
+							markerI = marker.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
+						filterfield.setText(markerI);
+					}
+				}
+			}
+		});
+
+		final MenuItem menuItemDumpItemTextSTB = new MenuItem("Select time before");
+		menuItemDumpItemTextSTB.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final DataItem treeSel = dataThingsEndTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					final String marker = treeSel.getSubByKeyString(EchoWriteConst.WORD_MARKER);
+					final TextField filterfield = getEndThingFilter("marker");
+					if (filterfield != null) {
+						String markerI = marker;
+						if (!StringUtils.isEmpty(marker))
+							markerI = marker.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
+						Integer markerI2 = Integer.valueOf(markerI);
+						markerI2--;
+						filterfield.setText(markerI2.toString());
+					}
+				}
+			}
+		});
+		final MenuItem menuItemDumpItemTextSTA = new MenuItem("Select time after");
+		menuItemDumpItemTextSTA.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final DataItem treeSel = dataThingsEndTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					final String marker = treeSel.getSubByKeyString(EchoWriteConst.WORD_MARKER);
+					final TextField filterfield = getEndThingFilter("marker");
+					if (filterfield != null) {
+						String markerI = marker;
+						if (!StringUtils.isEmpty(marker))
+							markerI = marker.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
+						Integer markerI2 = Integer.valueOf(markerI);
+						markerI2++;
+						markerI2 = timeList.getTimeAfter(markerI2);
+						filterfield.setText(markerI2.toString());
+					}
+				}
+			}
+		});
+		final MenuItem menuItemDumpItemTextDT = new MenuItem("Dump table to text");
+		menuItemDumpItemTextDT.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				writeToScreen("<<<<End things table output>>>");
+				final ObservableList<DataItem> dateItems = dataThingsEndTable.getItems();
+				for (final DataItem dataItem : dateItems) {
+					writeToScreen(dataItem.toDocTagString(), false);
+				}
+				writeToScreen("<<<<End things table output>>>");
+			}
+		});
+		//
 		//
 		final ContextMenu treeContextMenuA = new ContextMenu();
-		treeContextMenuA.getItems().add(menuItemDumpItemTextA);
+		treeContextMenuA.getItems().add(menuItemDumpItemTextAA);
+		treeContextMenuA.getItems().add(menuItemDumpItemTextST1);
+		treeContextMenuA.getItems().add(menuItemDumpItemTextSTA);
+		treeContextMenuA.getItems().add(menuItemDumpItemTextSTB);
+		treeContextMenuA.getItems().add(menuItemDumpItemTextDT);
 		dataThingsEndTable.setContextMenu(treeContextMenuA);
 		//
 
@@ -455,10 +567,68 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 						}
 				}
 			});
+			//
+			final MenuItem itemH3 = new MenuItem("Print Out Item");
+			itemH3.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(final ActionEvent event) {
+					LOGGER.debug("handle item called");
+					final TreeItem<TreeData> treeSel = scenesTree.getSelectionModel().getSelectedItem();
+					if (treeSel != null) {
+						writeToScreen("Output: " + treeSel);
+					}
+
+				}
+			});
+			//
+			final MenuItem itemH4 = new MenuItem("Select EndThings Here");
+			itemH4.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(final ActionEvent event) {
+					LOGGER.debug("handle item called");
+					String dataMessage = "Action canceled per no pertinent data found.";
+					final TreeItem<TreeData> treeSel = scenesTree.getSelectionModel().getSelectedItem();
+					if (treeSel == null) {
+						dataMessage = "Selection failure";
+					} else {
+						final TreeData td = treeSel.getValue();
+						if (td == null || !(td instanceof NestedTreeData)) {
+							dataMessage = "Data not found";
+						} else {
+							final TextField filterfield = getEndThingFilter("marker");
+							if (filterfield == null) {
+								dataMessage = "Can't find filter element.";
+							} else {
+								final NestedTreeData tdd = (NestedTreeData) treeSel.getValue();
+								final TreeTimeData markerTTD = tdd.getLastDateTime();
+								if (markerTTD == null) {
+									dataMessage = "No marker data found";
+								} else {
+									String markerI = markerTTD.getTag();
+									if (StringUtils.isEmpty(markerI)) {
+										dataMessage = "Marker data not found";
+									} else {
+										markerI = markerI.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
+										filterfield.setText(markerI);
+										dataMessage = "End things filter set to: '" + markerI + "' ("
+												+ markerTTD.getTag() + ")";
+									}
+								}
+							}
+						}
+					}
+					if (dataMessage != null)
+						writeToScreen(dataMessage);
+				}
+			});
+			//
 			ContextMenu treeContextMenu = new ContextMenu();
 			// treeContextMenu.getItems().add(item1);
 			treeContextMenu.getItems().add(itemH1);
 			treeContextMenu.getItems().add(itemH2);
+			treeContextMenu.getItems().add(itemH3);
+			treeContextMenu.getItems().add(itemH4);
+
 			tv.setContextMenu(treeContextMenu);
 		}
 
@@ -489,16 +659,18 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		boolean hasmarker = false;
 		final List<String> columnNamesReorder1 = new ArrayList<>();
 		final List<String> columnNamesReorder2 = new ArrayList<>();
+		final List<String> columnNamesReorder3 = new ArrayList<>();
+		final List<String> columnNamesReorder4 = new ArrayList<>();
 		if (columnNames.contains("marker")) {
 			hasmarker = true;
 		}
-		//
+		// TODO do this better
 		int idxM = -1;
 		for (final String str : columnNames) {
 			if (str.compareToIgnoreCase(EchoWriteConst.WORD_TIME) == 0
 					|| str.compareToIgnoreCase(EchoWriteConst.WORD_DAY) == 0
 					|| str.compareToIgnoreCase(EchoWriteConst.WORD_DATE) == 0) {
-				columnNamesReorder2.add(str);
+				columnNamesReorder4.add(str);
 			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_MARKER) == 0) {
 				columnNamesReorder1.add(0, str);
 				idxM = 0;
@@ -509,9 +681,15 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_COUNT) == 0) {
 				columnNamesReorder1.add(idxM + 1, str);
 			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_ID) == 0) {
+				columnNamesReorder4.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_STATUS) == 0) {
+				columnNamesReorder2.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_LOC) == 0) {
+				columnNamesReorder2.add(str);
+			} else if (str.compareToIgnoreCase(EchoWriteConst.WORD_SLOT) == 0) {
 				columnNamesReorder2.add(str);
 			} else {
-				columnNamesReorder1.add(str);
+				columnNamesReorder3.add(str);
 			}
 		}
 		//
@@ -519,9 +697,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		if (hasmarker) {
 			columnNames.addAll(columnNamesReorder1);
 			columnNames.addAll(columnNamesReorder2);
+			columnNames.addAll(columnNamesReorder3);
+			columnNames.addAll(columnNamesReorder4);
 		} else {
 			columnNames.addAll(columnNamesReorder2);
 			columnNames.addAll(columnNamesReorder1);
+			columnNames.addAll(columnNamesReorder3);
+			columnNames.addAll(columnNamesReorder4);
 		}
 		//
 		return columnNames;
@@ -594,6 +776,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 			final TextField tf = new TextField();
 			tf.setPromptText(tableColumnName);
+			tf.setId("EndThingFilter_" + tableColumnName);
 			endThingsTabFilterHeader.getChildren().add(tf);
 
 			tf.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -603,6 +786,20 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		}
 		//
 		endtableScrollPane.requestLayout();
+	}
+
+	private TextField getEndThingFilter(final String tableColumnName) {
+		TextField retVal = null;
+		final String key = "EndThingFilter_" + tableColumnName;
+		final ObservableList<Node> columns = endThingsTabFilterHeader.getChildren();
+		for (Node node : columns) {
+			if (key.equals(node.getId()))
+				if (node instanceof TextField) {
+					retVal = (TextField) node;
+					break;
+				}
+		}
+		return retVal;
 	}
 
 	// dataActorsTable
@@ -832,6 +1029,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				final TableColumn<DataItem, Integer> column2 = (TableColumn<DataItem, Integer>) tableColumnList[i];
 				column2.setCellValueFactory(cellData -> new SimpleIntegerProperty(
 						cellData.getValue().getSubByKeyInteger(EchoWriteConst.WORD_MARKER)).asObject());
+				// TOOD can throw exception
 			} else {
 				@SuppressWarnings("unchecked")
 				final TableColumn<DataItem, String> column1 = (TableColumn<DataItem, String>) tableColumnList[i];
@@ -978,8 +1176,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			// boolean noMatchFilter = false;
 			//
 			final NestedTreeData treedata = new NestedTreeData(dataItem.getRawValue());
+			final String marker = dataItem.getSubByKeyString(EchoWriteConst.WORD_MARKER);
+			if (marker != null) {
+				TreeTimeData ttd = new TreeTimeData(marker);
+				treedata.setLastDateTime(ttd);
+			}
 
-			// TIME/SCENES
+			// TIME/SCENES/OTHER
 			if (EchoWriteConst.WORD_TIME.compareTo(cat) == 0) {
 				final TreeTimeData treeTimeData = new TreeTimeData(dataItem.getRawValue());
 				final TreeItem<TreeData> thisElementTime = new TreeItem<>(treeTimeData);
@@ -997,7 +1200,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				tll.getRootTimeNode().setExpanded(true);
 			}
 
-			//
+			// CHAPTER/SECTION/SCENE/OTHER
 			TreeItem<TreeData> thisElement = null;
 			if (EchoWriteConst.WORD_CHAPTER.compareTo(cat) == 0 && nodeImageChapter != null) {
 				thisElement = new TreeItem<>(treedata, new ImageView(nodeImageChapter));
@@ -1043,10 +1246,11 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			try {
 				final Integer iMarker = Integer.valueOf(sMarker);
 				// LOGGER.debug("iMarker == " + sMarker);
-				if (lastTimeMarker == null)
-					lastTimeMarker = iMarker;
-				else if (lastTimeMarker < iMarker)
-					lastTimeMarker = iMarker;
+				timeList.trackTime(iMarker);
+				// if (lastTimeMarker == null)
+				// lastTimeMarker = iMarker;
+				// else if (lastTimeMarker < iMarker)
+				// lastTimeMarker = iMarker;
 			} catch (NumberFormatException e) {
 				LOGGER.warn("DataItem has invalid sMarker, " + dataItem.toString());
 				// e.printStackTrace();
@@ -1226,6 +1430,11 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				columnNameDataMapEndThings.clear();
 				columnNameDataMapActors.clear();
 
+				// Meta
+				final List<DataItem> metadataList = DataManagerBiz.getDataManager(selectedProfile.getInputFile())
+						.getMetaItems();
+				// TODO
+
 				// Create
 				final List<DataItem> dataList = DataManagerBiz.getDataManager(selectedProfile.getInputFile())
 						.getItems();
@@ -1248,15 +1457,18 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 					//
 					final Integer marker = dataItem.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
-					if (marker != null && lastTimeMarker == null)
-						lastTimeMarker = marker;
-					else if (marker != null && marker > lastTimeMarker)
-						lastTimeMarker = marker;
-					else {
-					}
+					timeList.trackTime(marker);
+					// if (marker != null && lastTimeMarker == null)
+					// lastTimeMarker = marker;
+					// else if (marker != null && marker > lastTimeMarker)
+					// lastTimeMarker = marker;
+					// else {
+					// }
 				} // for
 
 				//
+				// TODO Warn if timemark is off?
+
 				// final List<String> tagSceneTags =
 				// DATA_MANAGER.getTagListScene();
 				// tagSceneTags.addAll(DATA_MANAGER.getTagListSubScenes());F
@@ -1394,7 +1606,8 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				noMatchFilter = true;
 		} else {
 			LOGGER.debug("filterTextMarker: <");
-			final String filterValS = filterVal;
+			final String filterValS = filterVal == null ? filterVal
+					: filterVal.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
 			try {
 				final int filterValSI = Integer.valueOf(filterValS);
 				final int dataValI = Integer.valueOf(dataVal);
@@ -1424,7 +1637,11 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				okByCat = true;
 			//
 			final Integer marker = dataItem.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
-			final String iName = dataItem.getSubByKeyString(EchoWriteConst.WORD_NAME);
+			final String sName = dataItem.getSubByKeyString(EchoWriteConst.WORD_NAME);
+			final String sActor = dataItem.getSubByKeyString(EchoWriteConst.WORD_ACTOR);
+			String matchName = sName;
+			if (!StringUtils.isEmpty(sActor))
+				matchName = String.format("%s:%s", sName, sActor);
 			// final Integer iCount =
 			// dataItem.getSubByKeyInteger(EchoWriteConst.WORD_COUNT);
 
@@ -1433,7 +1650,8 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				if (marker == null) {
 					// noMatchFilter = true;
 				} else {
-					if (marker > lastTimeMarker) {
+					if (marker > timeList.getLastTimeMarker()) {
+						// if (marker > lastTimeMarker) {
 						noMatchFilter = true;
 					}
 				}
@@ -1462,12 +1680,12 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 						} // blank filterVal
 					} // for
 					if (!noMatchFilter) {
-						final Integer tMarker = endListMarker.get(iName);
+						final Integer tMarker = endListMarker.get(matchName);
 						// final DataItem tDataItem =
 						// endListItem.get(iName);
 						if (tMarker == null || tMarker < marker) {
-							endListItem.put(iName, dataItem);
-							endListMarker.put(iName, tMarker);
+							endListItem.put(matchName, dataItem);
+							endListMarker.put(matchName, tMarker);
 						}
 
 					}
@@ -1477,13 +1695,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		// for
 
 		//
-		LOGGER.debug("Map lastTimeMarker: " + lastTimeMarker);
+		LOGGER.debug("Map lastTimeMarker: " + timeList.getLastTimeMarker());// lastTimeMarker);
 
 		final Set<String> etlbmSet = endListItem.keySet();
 		// final Iterator<String> etlbmIter = etlbmSet.iterator();
 		for (Iterator<String> iterator = etlbmSet.iterator(); iterator.hasNext();) {
 			final String etlI = iterator.next();
-			LOGGER.debug("Map for marker: " + etlI);
+			LOGGER.debug("Map for marker: '" + etlI + "'");
 			final DataItem etlD = endListItem.get(etlI);
 			LOGGER.debug(" dataItem2: " + etlD);
 			final Integer iCount = etlD.getSubByKeyInteger(EchoWriteConst.WORD_COUNT);
@@ -1762,10 +1980,15 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	}
 
 	private void writeToScreen(final String msg) {
+		writeToScreen(msg, true);
+	}
+
+	private void writeToScreen(final String msg, boolean incTime) {
 		final StringBuilder sbuf = new StringBuilder();
-		final String txt = EchoWriteConst.myLogDateFormat.format(myLogDateCalendar.getTime());
-		sbuf.append(txt);
-		sbuf.append(": ");
+		if (incTime) {
+			sbuf.append(EchoWriteConst.myLogDateFormat.format(myLogDateCalendar.getTime()));
+			sbuf.append(": ");
+		}
 		sbuf.append(msg);
 		if (!msg.endsWith("\n"))
 			sbuf.append("\n");

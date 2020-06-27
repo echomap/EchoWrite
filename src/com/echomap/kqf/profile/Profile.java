@@ -20,6 +20,8 @@ public class Profile {
 	private String inputFilePrefix = null;
 	private boolean appendUnderscoreToPrefix = false;
 	private String keywords = "";
+	//For file status
+	private String status = null;
 
 	// Formatting/Tagging
 	private String docTagStart = null;
@@ -224,6 +226,14 @@ public class Profile {
 
 	public void setKeywords(String keywords) {
 		this.keywords = keywords;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public String getSectionHeaderTag() {

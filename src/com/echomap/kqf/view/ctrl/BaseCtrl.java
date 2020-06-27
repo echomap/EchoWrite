@@ -940,7 +940,8 @@ public abstract class BaseCtrl {
 			startDir = getLastSelectedDirectory();
 		if (startDir == null) {
 			final String sfhome = (String) appProps.get("home");
-			startDir = new File(sfhome);
+			if (sfhome != null)
+				startDir = new File(sfhome);
 		}
 		if (startDir != null) {
 			if (!startDir.isDirectory())
@@ -950,7 +951,8 @@ public abstract class BaseCtrl {
 		}
 		if (startDir == null) {
 			final String sfhome = (String) appProps.get("home");
-			startDir = new File(sfhome);
+			if (sfhome != null)
+				startDir = new File(sfhome);
 		}
 		if (startDir != null) {
 			chooser.setInitialDirectory(startDir);

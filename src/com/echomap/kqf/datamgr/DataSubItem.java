@@ -2,6 +2,8 @@ package com.echomap.kqf.datamgr;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.echomap.kqf.EchoWriteConst;
+
 public class DataSubItem {
 	private String name;
 	private String value;
@@ -39,9 +41,12 @@ public class DataSubItem {
 	}
 
 	public Integer getValueInt() {
-		if(StringUtils.isEmpty(value))
+		if (StringUtils.isEmpty(value))
 			return Integer.valueOf(0);
-		return Integer.valueOf(value);
+		String value2 = value;
+		if (value != null)
+			value2 = value.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
+		return Integer.valueOf(value2);
 	}
 
 }

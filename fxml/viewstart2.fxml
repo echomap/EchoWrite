@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="outerMostContainer" prefHeight="742.0" prefWidth="777.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.ctrl.CtrlProfileView">
+<BorderPane fx:id="outerMostContainer" prefHeight="736.0" prefWidth="845.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.ctrl.CtrlProfileView">
 
 	<top>
 		<MenuBar BorderPane.alignment="CENTER">
@@ -48,7 +48,7 @@
 	<center>
 		<SplitPane fx:id="splitVert" dividerPositions="0.768642447418738" orientation="VERTICAL" BorderPane.alignment="CENTER">
 			<items>
-				<SplitPane fx:id="splitHoriz" dividerPositions="0.4532085561497326">
+				<SplitPane fx:id="splitHoriz" dividerPositions="0.5599051008303677">
 					<items>
 						<AnchorPane>
 							<children>
@@ -56,8 +56,9 @@
 									<children>
 										<TextField fx:id="filterTextKey" promptText="Key FIlter" />
 										<TextField fx:id="filterTextSeries" promptText="Series Filter" />
-										<TextField fx:id="filterTextName" promptText="Name Filter" HBox.hgrow="SOMETIMES" />
+										<TextField fx:id="filterTextName" promptText="Title Filter" HBox.hgrow="SOMETIMES" />
 										<TextField fx:id="filterTextKeyword" promptText="Keyword Filter" />
+                              <TextField fx:id="filterTextStatus" layoutX="361.0" layoutY="10.0" promptText="Status Filter" />
 									</children>
 								</HBox>
 								<ScrollPane fitToHeight="true" fitToWidth="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
@@ -70,6 +71,7 @@
                                     <TableColumn prefWidth="75.0" text="Sub" />
                                     <TableColumn prefWidth="40.0" text="Vol." />
 												<TableColumn prefWidth="75.0" text="Keywords" />
+                                    <TableColumn minWidth="20.0" prefWidth="75.0" text="Status" />
 											</columns>
 										</TableView>
 									</content>

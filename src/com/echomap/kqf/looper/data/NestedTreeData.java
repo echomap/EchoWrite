@@ -39,6 +39,15 @@ public class NestedTreeData implements TreeData {
 		return tag;
 	}
 
+	public String getDataByKey(final String key) {
+		String valMarker = null;
+		for (final NestedTreeData nestedTreeData : data) {
+			if (key == nestedTreeData.getTag())
+				valMarker = nestedTreeData.getValue();
+		}
+		return valMarker;
+	}
+
 	public String getTag() {
 		return tag;
 	}

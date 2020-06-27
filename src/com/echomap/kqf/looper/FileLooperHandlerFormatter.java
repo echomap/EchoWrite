@@ -498,7 +498,9 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 						writeToChapterWriterPlain("\t");
 					}
 					fWriterPlain.write(textPClean);// todo simplify?
-					writeToChapterWriterPlain(textPClean);
+
+					if (sectionType == null || !sectionType.isSection)
+						writeToChapterWriterPlain(textPClean);
 				}
 				fWriterPlain.write(TextBiz.newLine);
 				writeToChapterWriterPlain(TextBiz.newLine);

@@ -21,6 +21,15 @@ public class DataItem {
 		return msg.toString();
 	}
 
+	public String toDocTagString() {
+		final StringBuilder msg = new StringBuilder(String.format("[[*inv: %s *]]", rawValue));
+		// for (final DataSubItem dataSubItem : dataSubItems) {
+		// msg.append(dataSubItem);
+		// msg.append(" ");
+		// }
+		return msg.toString();
+	}
+
 	public List<DataSubItem> getSubByKey(final String key) {
 		final List<DataSubItem> diList = new ArrayList<>();
 		for (final DataSubItem dataItem : dataSubItems) {
@@ -36,6 +45,10 @@ public class DataItem {
 		if (list.size() > 0)
 			try {
 				return list.get(0).getValueInt();
+			} catch (NumberFormatException e) {
+				// TOOD can throw number format exception
+				e.printStackTrace();
+				return -1;
 			} catch (Exception e) {
 				e.printStackTrace();
 				return -1;

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.echomap.kqf.data.DocTag;
 import com.echomap.kqf.data.TreeData;
 import com.echomap.kqf.data.TreeTimeData;
 
@@ -18,7 +17,7 @@ public class DataManagerDBData {
 	private final List<DataItem> dataItemList = new ArrayList<>();
 
 	// all the meta doctags
-	private final List<DocTag> metaDocTagList = new ArrayList<>();
+	private final List<DataItem> metadataList = new ArrayList<>();
 
 	// all the dates //TODO need this? TreeTimeData? and Nested Tree?
 	private final List<TreeTimeData> datalistTimeDate = new ArrayList<>();
@@ -41,7 +40,7 @@ public class DataManagerDBData {
 		this.dataItemList.clear();
 		this.datalist.clear();
 		this.datalistTimeDate.clear();
-		this.metaDocTagList.clear();
+		this.metadataList.clear();
 		this.tagListActors.clear();
 		this.tagListItems.clear();
 		this.tagListScene.clear();
@@ -78,8 +77,8 @@ public class DataManagerDBData {
 		return dataItemList;
 	}
 
-	public List<DocTag> getMetaDocTagList() {
-		return metaDocTagList;
+	public List<DataItem> getMetadataList() {
+		return metadataList;
 	}
 
 	public List<TreeTimeData> getDatalistTimeDate() {

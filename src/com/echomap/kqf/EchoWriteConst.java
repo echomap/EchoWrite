@@ -8,6 +8,7 @@ public class EchoWriteConst {
 	//
 	public static final String WORD_LOOPER_OUTLINE = "outliner";
 	public static final String WORD_LOOPER_WORDCOUNTER = "wordcount";
+	public static final String WORD_LOOPER_FORMATTER = "formatter";
 
 	//
 	public static final String WORD_TYPE = "category";
@@ -28,9 +29,13 @@ public class EchoWriteConst {
 	public static final String WORD_OTHER = "misc";
 	public static final String WORD_INVENTORY = "inv";
 	public static final String WORD_TIME = "time";
+	public static final String WORD_TIMEDESC = "timedesc";
 	public static final String WORD_DATE = "date";
 	public static final String WORD_DAY = "day";
 	public static final String WORD_CHAR = "char";
+	public static final String WORD_STATUS = "status";
+	public static final String WORD_LOC = "location";
+	public static final String WORD_SLOT = "slot";
 	public static final String WORD_TIMEMARK = "timemark";
 	public static final String WORD_SECTION = "section";
 	public static final String WORD_CHAPTER = "chapter";
@@ -63,6 +68,10 @@ public class EchoWriteConst {
 
 	public static final String DEFAULToutputEncoding = "Cp1252";
 
+	// Removed minus sign, but kept it in #2
+	static public final String regExpReplaceSpecialChars = "[\\\\+\\.\\^:,]";
+	static public final String regExpReplaceSpecialChars2 = "[\\-\\+\\.\\^:,]";
+
 	//
 	static public enum FILTERTYPE {
 		NONE, JSON, HTML, TEXT, CSV, YAML;
@@ -83,7 +92,7 @@ public class EchoWriteConst {
 	static public final String WINDOWKEY_EXPORT = "Export";
 	static public final String WINDOWKEY_TIMELINE = "Timeline";
 	static public final String WINDOWKEY_OUTLINER = "Outliner";
-	static public final String WINDOWKEY_OUTLINERGUI = "OutlinerGui";
+	static public final String WINDOWKEY_OUTLINERGUI = "TimelineProcessor";
 	static public final String WINDOWKEY_VIEWCHARS = "ViewChars";
 	public static final String WINDOWKEY_EXTERNALIDS = "ExternalIDs";
 

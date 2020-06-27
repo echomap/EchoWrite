@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 public class DataManagerDB {
-	// private final static Logger LOGGER =
-	// LogManager.getLogger(DataManagerDB.class);
+	private final static Logger LOGGER = LogManager.getLogger(DataManagerDB.class);
 	private static DataManagerDB DATA_MANAGER = new DataManagerDB();
-
 	private final Map<File, Long> lastModifiedDate = new HashMap<File, Long>();
-
 	private final Map<File, DataManagerDBData> lastFileData = new HashMap<File, DataManagerDBData>();
 
 	/**
@@ -18,6 +18,12 @@ public class DataManagerDB {
 	 */
 	private DataManagerDB() {
 
+	}
+
+	public static void close() {
+		LOGGER.info("Closing Data Layer");
+		DATA_MANAGER.lastFileData.clear();
+		DATA_MANAGER.lastModifiedDate.clear();
 	}
 
 	public static DataManagerDB getDataManager() {

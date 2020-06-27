@@ -99,8 +99,9 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 		final String msg = String.format("Section %s: %s", countDao.getNumber(), countDao.getTitle());
 		final NestedTreeData ttsd = new NestedTreeData(msg);
 		ttsd.setType(20);
+		boolean addTime = formatDao.getTimeLineAddTimePerScene();
 
-		TreeTimeData timeDate = findTreeTimeData(lastDateTime);
+		TreeTimeData timeDate = findTreeTimeData(lastDateTime, addTime);
 		if (timeDate == null) {
 			// TODO
 			LOGGER.error("TimeData not found!");
@@ -131,11 +132,12 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 	public void handleChapter(final FormatDao formatDao, final LooperDao ldao) {
 		LOGGER.debug("handleChapter: Called");
 		final CountDao countDao = ldao.getChaptCount();
+		boolean addTime = formatDao.getTimeLineAddTimePerScene();
 
 		if (lastSection == null) {
 			final NestedTreeData scenettd = new NestedTreeData("Section");
 
-			TreeTimeData timeDate = findTreeTimeData(lastDateTime);
+			TreeTimeData timeDate = findTreeTimeData(lastDateTime, addTime);
 			if (timeDate == null) {
 				// TODO
 				LOGGER.error("TimeData not found!");
@@ -163,7 +165,7 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 		final NestedTreeData ttsd = new NestedTreeData(msg);
 		ttsd.setType(10);
 
-		TreeTimeData timeDate = findTreeTimeData(lastDateTime);
+		TreeTimeData timeDate = findTreeTimeData(lastDateTime, addTime);
 		if (timeDate == null) {
 			// TODO
 			LOGGER.error("TimeData not found!");
@@ -220,10 +222,12 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 					// addToTreeTimeDataAll(docTag);
 					// DATA_MANAGER.add(docTag);
 
+					final boolean addtime = formatDao.getTimeLineAddTimePerScene();
 					//
 					if (DATA_MANAGER.getTagListTimeDate().contains(docTag.getName())) {
 						LOGGER.debug("Found 'time/date' tag");
 						addToTreeTimeData(docTag);
+						addToTreeTimeDataTime(docTag);
 					} else if (DATA_MANAGER.getTagListItems().contains(docTag.getName())) {
 						LOGGER.debug("Found 'item' tag");
 						addToTreeTimeDataItem(docTag);
@@ -232,10 +236,10 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 						addToTreeTimeDataActor(docTag);
 					} else if (DATA_MANAGER.getTagListSubScenes().contains(docTag.getName())) {
 						LOGGER.debug("Found 'subscene' tag");
-						addToTreeTimeDataSubScene(docTag, formatDao.getTimeLineAddTimePerScene());
+						addToTreeTimeDataSubScene(docTag, addtime);
 					} else if (DATA_MANAGER.getTagListScene().contains(docTag.getName())) {
 						LOGGER.debug("Found 'scene' tag");
-						addToTreeTimeDataScene(docTag, formatDao.getTimeLineAddTimePerScene());
+						addToTreeTimeDataScene(docTag, addtime);
 					} else if (!dttGL.isLongDocTag()) {
 						LOGGER.debug("Misc tag");
 						addToTreeTimeDataOther(docTag);

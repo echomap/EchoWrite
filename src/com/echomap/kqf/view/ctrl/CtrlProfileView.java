@@ -2,6 +2,8 @@ package com.echomap.kqf.view.ctrl;
 
 import java.io.File;
 import java.net.URL;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -69,6 +73,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private static int COL_SUBTITLE = 4;
 	private static int COL_VOLUME = 5;
 	private static int COL_KEYWORDS = 6;
+	private static int COL_STATUS = 7;
 
 	@FXML
 	private BorderPane outerMostContainer;
@@ -128,6 +133,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 	private TextField filterTextSeries;
 	@FXML
 	private TextField filterTextKeyword;
+	@FXML
+	private TextField filterTextStatus;
 
 	@FXML
 	private TextField inputFileText;
@@ -202,18 +209,20 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			final ObservableList<TableColumn> columns = profileTable.getColumns();
 			String key = "";
-			key = String.format(Prefs.VIEW_PREF_COL_S, 1);
-			setColumnWidth(columns, key, 0);
-			key = String.format(Prefs.VIEW_PREF_COL_S, 2);
-			setColumnWidth(columns, key, 1);
-			key = String.format(Prefs.VIEW_PREF_COL_S, 3);
-			setColumnWidth(columns, key, 2);
-			key = String.format(Prefs.VIEW_PREF_COL_S, 4);
-			setColumnWidth(columns, key, 3);
-			key = String.format(Prefs.VIEW_PREF_COL_S, 5);
-			setColumnWidth(columns, key, 4);
-			key = String.format(Prefs.VIEW_PREF_COL_S, 6);
-			setColumnWidth(columns, key, 5);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_KEY);
+			setColumnWidth(columns, key, COL_KEY - 1);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_SERIES);
+			setColumnWidth(columns, key, COL_SERIES - 1);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_MAINTITLE);
+			setColumnWidth(columns, key, COL_MAINTITLE - 1);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_SUBTITLE);
+			setColumnWidth(columns, key, COL_SUBTITLE - 1);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_VOLUME);
+			setColumnWidth(columns, key, COL_VOLUME - 1);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_KEYWORDS);
+			setColumnWidth(columns, key, COL_KEYWORDS - 1);
+			key = String.format(Prefs.VIEW_PREF_COL_S, COL_STATUS);
+			setColumnWidth(columns, key, COL_STATUS - 1);
 		}
 
 		// final Locale list[] = DateFormat.getAvailableLocales();
@@ -247,7 +256,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			System.out.println("filterTextKeyword changed from " + oldValue + " to " + newValue);
 			setupFilter("Keyword", newValue);
 		});
+		filterTextStatus.textProperty().addListener((observable, oldValue, newValue) -> {
+			System.out.println("filterTextStatus changed from " + oldValue + " to " + newValue);
+			setupFilter("Status", newValue);
+		});
 
+		//
 		myWorkDoneNotify = new MyWorkDoneNotify(loggingText, loggingText, this);
 
 		//
@@ -287,17 +301,17 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		if (!othersRunning())
 			unlockGui();
 		if (!StringUtils.isEmpty(process)) {
-			if (EchoWriteConst.WORD_LOOPER_WORDCOUNTER.compareTo(process) == 0) {
+			if (EchoWriteConst.WORD_LOOPER_WORDCOUNTER.compareToIgnoreCase(process) == 0) {
 				btnRunWordCounter.setDisable(false);
-			} else if (EchoWriteConst.WORD_LOOPER_OUTLINE.compareTo(process) == 0) {
+			} else if (EchoWriteConst.WORD_LOOPER_OUTLINE.compareToIgnoreCase(process) == 0) {
 				btnRunOutliner.setDisable(false);
-			} else if ("Formatter".compareTo(process) == 0) {
+			} else if (EchoWriteConst.WORD_LOOPER_FORMATTER.compareToIgnoreCase(process) == 0) {
 				btnRunFormatter.setDisable(false);
-			} else if (EchoWriteConst.WINDOWKEY_TIMELINE.compareTo(process) == 0
+			} else if (EchoWriteConst.WINDOWKEY_TIMELINE.compareToIgnoreCase(process) == 0
 					|| "CtrlTImeline".compareTo(process) == 0) {
 				btnRunTimelineGui.setDisable(false);
 				unlockGuiPerProfileDataLoaded();
-			} else if (EchoWriteConst.WINDOWKEY_OUTLINERGUI.compareTo(process) == 0
+			} else if (EchoWriteConst.WINDOWKEY_OUTLINERGUI.compareToIgnoreCase(process) == 0
 					|| "CtrlOutliner".compareTo(process) == 0) {
 				btnRunOutlinerGui.setDisable(false);
 				unlockGuiPerProfileDataLoaded();
@@ -383,18 +397,20 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		//
 		final ObservableList<TableColumn<Profile, ?>> columns = profileTable.getColumns();
 
-		final TableColumn colK = columns.get(0);
+		final TableColumn colK = columns.get(COL_KEY - 1);
 		colK.setCellValueFactory(new PropertyValueFactory<>("key"));
-		final TableColumn colS = columns.get(1);
+		final TableColumn colS = columns.get(COL_SERIES - 1);
 		colS.setCellValueFactory(new PropertyValueFactory<>("seriesTitle"));
-		final TableColumn colM = columns.get(2);
+		final TableColumn colM = columns.get(COL_MAINTITLE - 1);
 		colM.setCellValueFactory(new PropertyValueFactory<>("mainTitle"));
-		final TableColumn colT = columns.get(3);
+		final TableColumn colT = columns.get(COL_SUBTITLE - 1);
 		colT.setCellValueFactory(new PropertyValueFactory<>("subTitle"));
-		final TableColumn colS2 = columns.get(4);
+		final TableColumn colS2 = columns.get(COL_VOLUME - 1);
 		colS2.setCellValueFactory(new PropertyValueFactory<>("volume"));
-		final TableColumn colW = columns.get(5);
+		final TableColumn colW = columns.get(COL_KEYWORDS - 1);
 		colW.setCellValueFactory(new PropertyValueFactory<>("keywords"));
+		final TableColumn colFS = columns.get(COL_STATUS - 1);
+		colFS.setCellValueFactory(new PropertyValueFactory<>("status"));
 
 		// TableColumn colS2 = null;
 		// if (columns.size() > 5) {
@@ -445,6 +461,12 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				columnWidthChanged(COL_KEYWORDS, newValue);
 			}
 		});
+		colFS.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				columnWidthChanged(COL_STATUS, newValue);
+			}
+		});
 
 		// Hack: align column headers to the center.
 		BaseCtrl.alignColumnLabelsLeftHack(profileTable);
@@ -476,6 +498,27 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		});
 		profileTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 		// GUIUtils.autoFitTable(profileTable);
+
+		// Context Menu
+		final MenuItem menuItemDumpItemTextT = new MenuItem("Duplicate");
+		menuItemDumpItemTextT.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final Object sel = profileTable.getSelectionModel().getSelectedItem();
+				if (sel != null) {
+					final Profile profile = (Profile) sel;
+					// writeToScreen("Output: " + treeSel);
+					loggingText.appendText("Selected profile: '" + profile + "'");
+					DataManagerBiz.getDataManager(selectedProfile.getInputFile()).duplicateProfile();
+				}
+			}
+		});
+		//
+		final ContextMenu treeContextMenuT = new ContextMenu();
+		treeContextMenuT.getItems().add(menuItemDumpItemTextT);
+		profileTable.setContextMenu(treeContextMenuT);
+		//
 	}
 
 	/*
@@ -487,6 +530,9 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("loadTableData: Called");
 		final ObservableList<Profile> newList = FXCollections.observableArrayList();
 		final List<Profile> profiles = profileManager.getProfiles();
+		//
+		final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT);
+		//
 		for (Profile profile : profiles) {
 			final Set<String> keys = filters.keySet();
 			boolean dataFail = false;
@@ -521,12 +567,31 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 					if (!profile.getVolume().toLowerCase().contains(val.toLowerCase()))
 						dataFail = true;
 				}
+				if ("Status" == key && val != null && val.length() > 0 && !dataFail) {
+					if (!profile.getStatus().toLowerCase().contains(val.toLowerCase()))
+						dataFail = true;
+				}
+				//
 				if (dataFail)
 					continue;
 			}
 			if (dataFail)
 				continue;
 			// if (dataOk)
+			final String inputFileS = profile.getInputFile();
+			final File inputFile = new File(inputFileS);
+			String status;
+			if (StringUtils.isEmpty(inputFileS)) {
+				status = "_None";
+			} else if (!inputFile.exists()) {
+				status = "_Missing";
+			} else {
+				final String date = dateFormat.format(new Date(inputFile.lastModified()));
+				status = date;
+			}
+			//
+			profile.setStatus(status);
+			//
 			newList.add(profile);
 		}
 		profileTable.getItems().clear();
@@ -556,6 +621,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 
 	// Prevent Actions when there is no profile selected
 	private void lockGuiPerNoProfile() {
+		LOGGER.debug("lockGuiPerNoProfile: Called");
 		btnRunWordCounter.setDisable(true);
 		btnRunOutliner.setDisable(true);
 		btnRunFormatter.setDisable(true);
@@ -691,7 +757,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			// TODO extract
 			final String WINDOW_TITLE_FMT = "EchoWrite: Timeline: (v%s)";
 			final String windowTitle = String.format(WINDOW_TITLE_FMT, appProps.getProperty("version"));
-			//is modality broken with an owner?
+			// is modality broken with an owner?
 			openNewWindow(EchoWriteConst.WINDOWKEY_TIMELINE, windowTitle, loggingText, null, this, paramsMap);
 
 		} catch (Exception e) {

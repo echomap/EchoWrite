@@ -187,8 +187,9 @@ public class MainFrame extends Application {
 
 					LOGGER.debug("windowCount=" + BaseCtrl.getWindowCount());
 					if (BaseCtrl.getWindowCount() <= 0) {
-						LOGGER.info("Closing platform");
+						LOGGER.info("Closing Datamanagers");
 						DataManagerBiz.close();// DATA_MANAGER.close();
+						LOGGER.info("Closing platform");
 						Platform.exit();
 					}
 				}

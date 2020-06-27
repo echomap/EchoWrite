@@ -64,35 +64,28 @@ public class AbstractFilelooper {
 		return findTreeTimeData(dateTime, false);
 	}
 
-	private TreeTimeData findTreeTimeData(final String dateTime, final Boolean addtime) {
+	protected TreeTimeData findTreeTimeData(final String dateTime, final Boolean addtime) {
 		TreeTimeData found = null;
 		if (dateTime == null) {
-			found = new TreeTimeData("0");
-			// datalistTimeDate.add(found);{
+			found = new TreeTimeData("marker: 0");
 			final TreeTimeData found2 = DATA_MANAGER.findTimeDate(found.getTag());
 			if (found2 == null)
 				DATA_MANAGER.addTime(found, found.getTag());
 			found = DATA_MANAGER.findTimeDate(found.getTag());
 		} else {
 			found = DATA_MANAGER.findTimeDate(dateTime);
-			// for (final TreeTimeData treeTimeData :
-			// DATA_MANAGER.getDatalistTimeDate()) {
-			// if (treeTimeData != null && treeTimeData.getTag() != null)
-			// if (treeTimeData.getTag().compareTo(dateTime) == 0) {
-			// found = treeTimeData;
-			// }
-			// }
 		}
 		if (found == null) {
-			// found = new TreeTimeData(dateTime);
-			// datalistTimeDate.add(found);
 			final TreeTimeSubData ttsd = new TreeTimeSubData();
 			TextParsingBiz.parseNameValueAtDivided(dateTime, ttsd);
-			final String valm = ttsd.getData().get(EchoWriteConst.WORD_MARKER);
-			if (!StringUtils.isEmpty(valm))
+			String valm = ttsd.getData().get(EchoWriteConst.WORD_MARKER);
+			if (!StringUtils.isEmpty(valm)) {
+				valm = valm.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
 				found = new TreeTimeData(EchoWriteConst.WORD_MARKER + ": " + valm);
-			else
-				found = new TreeTimeData(dateTime);
+			} else {
+				final String dateTime2 = dateTime.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
+				found = new TreeTimeData(dateTime2);
+			}
 			found.addDataParsed(ttsd);
 			DATA_MANAGER.addTime(found, ttsd, dateTime);
 			lastDateTime = found.getTag().trim();
@@ -102,7 +95,9 @@ public class AbstractFilelooper {
 			TextParsingBiz.parseNameValueAtDivided(found.toString(), ttsd);
 			if (ttsd.getData() != null) {
 				try {
-					final String valm = ttsd.getData().get(EchoWriteConst.WORD_MARKER);// todo...
+					String valm = ttsd.getData().get(EchoWriteConst.WORD_MARKER);// todo...
+					if (valm != null)
+						valm = valm.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
 					Integer vali = Integer.valueOf(valm);
 					vali = vali + 1;
 					ttsd.getData().put(EchoWriteConst.WORD_MARKER, vali.toString());
@@ -197,6 +192,42 @@ public class AbstractFilelooper {
 		}
 
 		findTreeTimeData(lastDateTime);
+	}
+
+	// add TIME data to DB
+
+	// add ACTOR/CHAR data to DB
+	protected void addToTreeTimeDataTime(final DocTag docTag) {
+		// parse the tag
+		final TreeTimeSubData ttsd = new TreeTimeSubData();
+		// ttsd.addData("char", docTag.getValue());
+		// timeDate.addDataParsed(ttsd);// docTag.getValue());
+		TextParsingBiz.parseNameValueAtDivided(docTag.getValue(), ttsd);
+		// Name
+		final String valMark = ttsd.getData().get(EchoWriteConst.WORD_MARKER);
+		final String valName = ttsd.getData().get(EchoWriteConst.WORD_NAME);
+		final String valChar = ttsd.getData().get(EchoWriteConst.WORD_DATE);
+		if (!StringUtils.isEmpty(valName) && !StringUtils.isEmpty(valName.trim()))
+			ttsd.getData().put(docTag.getName(), valName.trim());
+		else if (StringUtils.isEmpty(valName) && !StringUtils.isEmpty(valMark))
+			ttsd.getData().put(EchoWriteConst.WORD_NAME, valMark);
+		else if (StringUtils.isEmpty(valName) && !StringUtils.isEmpty(valChar))
+			ttsd.getData().put(EchoWriteConst.WORD_NAME, valChar);
+		// DESC
+		final String valDesc = ttsd.getData().get(EchoWriteConst.WORD_DESC);
+		if (StringUtils.isEmpty(valDesc) && !StringUtils.isEmpty(docTag.getValue()))
+			ttsd.getData().put(EchoWriteConst.WORD_DESC, docTag.getValue().trim());
+		//
+		// addMarkerToData(ttsd, timeDate);
+		addIDToData(ttsd, EchoWriteConst.WORD_MARKER);
+		DATA_MANAGER.addTime(ttsd, docTag.getValue());
+		//
+		TreeTimeData timeDate = findTreeTimeData(lastDateTime);
+		if (timeDate == null) {
+			// TODO
+			LOGGER.error("TimeData not found!");
+		}
+		timeDate.addDataParsed(ttsd);
 	}
 
 	// add SUBSCENE data to DB
@@ -297,7 +328,6 @@ public class AbstractFilelooper {
 			id = val;
 		}
 		ttsd.addData(EchoWriteConst.WORD_ID, id);
-
 	}
 
 	protected void addIDToData(final NestedTreeData ttsd, final String type) {
@@ -333,7 +363,9 @@ public class AbstractFilelooper {
 		}
 
 		if (StringUtils.isEmpty(valMarker)) {
-			final String valMarker2 = timeDate.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+			String valMarker2 = timeDate.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+			if (valMarker2 != null)
+				valMarker2 = valMarker2.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
 			final NestedTreeData ntd = new NestedTreeData(EchoWriteConst.WORD_MARKER, valMarker2);
 			ttsd.addData(ntd);// EchoWriteConst.WORD_MARKER, valMarker2);
 		}
@@ -344,7 +376,9 @@ public class AbstractFilelooper {
 			return;
 		final String valMarker = ttsd.getData().get(EchoWriteConst.WORD_MARKER);
 		if (StringUtils.isEmpty(valMarker)) {
-			final String valMarker2 = timeDate.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+			String valMarker2 = timeDate.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+			if (valMarker2 != null)
+				valMarker2 = valMarker2.replaceAll(EchoWriteConst.regExpReplaceSpecialChars, "");
 			ttsd.addData(EchoWriteConst.WORD_MARKER, valMarker2);
 		}
 	}
@@ -398,12 +432,20 @@ public class AbstractFilelooper {
 		if (ttsd.getData().size() < 1)
 			ttsd.addData(docTag.getValue(), docTag.getValue());
 
-		final String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
-		if (StringUtils.isEmpty(valActor))
+		String valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
+		// If Name is null, put in item
+		if (StringUtils.isEmpty(valActor)) {
 			ttsd.getData().put(EchoWriteConst.WORD_NAME, ttsd.getData().get(EchoWriteConst.WORD_ITEM));
+			valActor = ttsd.getData().get(EchoWriteConst.WORD_NAME);
+		}
+		// If desc is empty, put in item
 		if (StringUtils.isEmpty(ttsd.getData().get(EchoWriteConst.WORD_DESC)))
 			ttsd.getData().put(EchoWriteConst.WORD_DESC, ttsd.getData().get(EchoWriteConst.WORD_ITEM));
 
+		// if char is null, put name there?
+		final String valChar = ttsd.getData().get(EchoWriteConst.WORD_CHAR);
+		if (StringUtils.isEmpty(valChar) && !StringUtils.isEmpty(valActor))
+			ttsd.getData().put(EchoWriteConst.WORD_CHAR, valActor);
 		//
 		addMarkerToData(ttsd, timeDate);
 		addIDToData(ttsd, EchoWriteConst.WORD_ITEM);

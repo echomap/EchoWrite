@@ -899,9 +899,9 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		docTagStartText.setText(child.getDocTagStart());
 		docTagEndText.setText(child.getDocTagEnd());
 
-		// TODO formatDao.setChapterHeaderTag(chapterHeaderTag.getText());
-		// TODO formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
-
+		chapterHeaderTag.setText( child.getChapterHeaderTag());
+		sectionHeaderTag.setText( child.getSectionHeaderTag());
+		
 		fmtModeText.setText(child.getFmtMode());
 		// if (StringUtils.isBlank(fmtModeText.getText())) {
 		// fmtModeText.setText("Sigil");
@@ -1013,8 +1013,8 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		child.setDocTagStart(docTagStartText.getText());
 		child.setDocTagEnd(docTagEndText.getText());
 
-		// TODO formatDao.setChapterHeaderTag(chapterHeaderTag.getText());
-		// TODO formatDao.setSectionHeaderTag(sectionHeaderTag.getText());
+		child.setChapterHeaderTag(chapterHeaderTag.getText());
+		child.setSectionHeaderTag(sectionHeaderTag.getText());
 
 		child.setFmtMode(fmtModeText.getText());
 		child.setOutputEncoding(outputEncoding.getText());

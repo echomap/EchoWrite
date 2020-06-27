@@ -171,8 +171,9 @@ public class FileLooperHandlerOutline extends AbstractFilelooper implements File
 					if (docName.contains("@")) {
 						final KeyValuePair kvp = TextParsingBiz.parseFirstNameValueAtDivided(docTag.getName());
 						if (kvp == null) {
-							LOGGER.error("KVP is null for " + docTag);
-							errorStringList.add("KVP is null for " + docTag);
+							// LOGGER.error("KVP is null for " + docTag);
+							LOGGER.error("KVP is null at line: " + ldao.getLineCount() + " for " + docTag);
+							errorStringList.add("KVP is null at line: " + ldao.getLineCount() + " for " + docTag);
 						} else
 							docName = kvp.getKey();
 					}

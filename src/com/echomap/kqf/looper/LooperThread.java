@@ -41,6 +41,7 @@ public class LooperThread extends Thread {
 		this.flHandler = flHandler;
 		this.ldao = ldao;
 		this.notifyCtrl = notifyCtrl;
+		this.setDaemon(true);
 	}
 
 	public void run() {

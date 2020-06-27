@@ -183,7 +183,14 @@ public class DataManagerBiz {
 	}
 
 	public void addMeta(final DocTag metaDocTag) {
-		currentFileData.getMetaDocTagList().add(metaDocTag);
+		final DataItem di = new DataItem();
+		currentFileData.getMetadataList().add(di);
+		di.setCategory(EchoWriteConst.WORD_META);
+		di.setName(metaDocTag.getName());
+		di.setRawValue(metaDocTag.getFullText());
+		// metaDocTag.getValue();
+		// metaDocTag.getAddedLines();
+		// parseSubItemData(di, ttsd, line);
 	}
 
 	public void addScene(final TreeTimeSubData ttsd, final String line) {
@@ -211,7 +218,7 @@ public class DataManagerBiz {
 		parseSubItemData(di, ttsd, line);
 		// setLastTime(di);
 	}
-	
+
 	public void addMisc(final TreeTimeSubData ttsd, final String line) {
 		currentFileData.getDatalist().add(ttsd);
 
@@ -224,6 +231,20 @@ public class DataManagerBiz {
 		parseSubItemData(di, ttsd, line);
 		// setLastTime(di);
 	}
+
+	public void addTime(final TreeTimeSubData ttsd, final String line) {
+		currentFileData.getDatalist().add(ttsd);
+
+		final String value = ttsd.getDataByKey(EchoWriteConst.WORD_DESC);
+		final DataItem di = new DataItem();
+		currentFileData.getDataItemList().add(di);
+		di.setCategory(EchoWriteConst.WORD_TIMEDESC);
+		di.setName(value);
+		di.setRawValue(line);
+		parseSubItemData(di, ttsd, line);
+		// setLastTime(di);
+	}
+
 	public void addActor(final TreeTimeSubData ttsd, final String line) {
 		currentFileData.getDatalist().add(ttsd);
 
@@ -250,10 +271,16 @@ public class DataManagerBiz {
 		// setLastTime(di);
 	}
 
-	public TreeTimeData findTimeDate(final String dateTime) {
+	public TreeTimeData findTimeDate(String dateTime) {
 		TreeTimeData found = null;
-		if (dateTime == null)
+		if (dateTime == null) {
+			if (currentFileData.getDatalistTimeDate().size() < 1) {
+				dateTime = "marker: 0dark";
+			}
+		else {
 			return null;
+		}}
+
 		for (final TreeTimeData treeTimeData : currentFileData.getDatalistTimeDate()) {
 			// DATA_MANAGER.getDatalistTimeDate()) {
 			if (treeTimeData != null && treeTimeData.getTag() != null)
@@ -291,6 +318,15 @@ public class DataManagerBiz {
 		LOGGER.debug("<<---DATA.");
 	}
 
+	public List<DataItem> getMetaItems() {
+		final List<DataItem> diList = new ArrayList<>();
+		for (final DataItem dataItem : currentFileData.getMetadataList()) {
+			diList.add(dataItem);
+		}
+		return diList;
+
+	}
+
 	public List<DataItem> getItems() {
 		final List<DataItem> diList = new ArrayList<>();
 		for (final DataItem dataItem : currentFileData.getDataItemList()) {
@@ -320,7 +356,11 @@ public class DataManagerBiz {
 	}
 
 	public static void close() {
+		LOGGER.info("Closing Data Layers");
+		DataManagerDB.close();
+		LOGGER.info("Closing Data Biz Layer");
 		dataManagerList.clear();
+		LOGGER.info("Closed Data Layers");
 	}
 
 	public void postProcess(final File inputFile) {
@@ -347,6 +387,11 @@ public class DataManagerBiz {
 		final DataManagerDB dataManagerDB = DataManagerDB.getDataManager();
 		dataManagerDB.clearDataForFile(inputFile);
 		initialize(inputFile);
+	}
+
+	public void duplicateProfile() {
+		// TODO Auto-generated method stub
+
 	}
 
 }
