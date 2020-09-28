@@ -3,7 +3,7 @@ package com.echomap.kqf.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class DocTagLine {
 
@@ -12,7 +12,7 @@ public class DocTagLine {
 	private String rawLine = null;
 	// bareLine= Seems to be used when there is text data on a doctag line?
 	private String bareLine = null;
-	//bare line but without tags
+	// bare line but without tags
 	private String innerLine = null;
 	//
 	private long lineCount = 0;

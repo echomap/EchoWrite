@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,7 +20,6 @@ import com.echomap.kqf.EchoWriteConst;
 import com.echomap.kqf.looper.WorkDoneNotify;
 import com.echomap.kqf.view.MainFrame;
 import com.echomap.kqf.view.gui.ConfirmResult;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
 
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -51,6 +50,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -731,7 +731,7 @@ public abstract class BaseCtrl {
 						if (tableView.getSkin() == null)
 							continue;
 						// if (columnToFitMethod == null) continue;
-						if (tableView.getSkin() != null && column != null)
+						if (tableView.getSkin() != null && column != null && columnToFitMethod != null)
 							columnToFitMethod.invoke(tableView.getSkin(), column, -1);
 					} catch (IllegalAccessException | InvocationTargetException e) {
 						e.printStackTrace();
@@ -1010,7 +1010,8 @@ public abstract class BaseCtrl {
 			startDir = getLastSelectedDirectory();
 		if (startDir == null) {
 			final String sfhome = (String) appProps.get("home");
-			startDir = new File(sfhome);
+			if (sfhome != null)
+				startDir = new File(sfhome);
 		}
 		if (startDir != null) {
 			if (!startDir.isDirectory())

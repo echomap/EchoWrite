@@ -14,10 +14,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -87,6 +88,8 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	private TreeView<TreeData> dataActorTree;// <T>
 	@FXML
 	private TreeView<TreeData> dataItemTree;// <T>
+	@FXML
+	private TreeView<TreeData> dataEndSlotTree;// <T>
 	@FXML
 	private TableView<DataItem> dataAllThingsTable;// <T>
 	@FXML
@@ -164,7 +167,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	private TreeItem<TreeData> rootScenes = null;
 	private TreeItem<TreeData> rootActors = null;
 	private TreeItem<TreeData> rootItems = null;
-	// private TreeItem<TreeData> rootEndThings = null;
+	private TreeItem<TreeData> rootEndSlot = null;
 
 	//
 	private final TimeList timeList = new TimeList();
@@ -504,6 +507,14 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		rootItems = new TreeItem<TreeData>(rteT);
 		dataItemTree.setRoot(rootItems);
 		rootItems.setExpanded(true);
+
+		// Tree Setup: rootEndThingsSlot
+		final TreeTimeData rteES = new TreeTimeData("End View");
+		rootEndSlot = new TreeItem<TreeData>(rteES);
+		dataEndSlotTree.setRoot(rootEndSlot);
+		rootEndSlot.setExpanded(true);
+		//
+
 		//
 	}
 
@@ -527,6 +538,10 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		if (!tablist.contains("Things Tree")) {
 			final TreeView<TreeData> tv = createTreeViewTab(tabs, "Things Tree");
 			dataItemTree = tv;
+		}
+		if (!tablist.contains("End by Slot")) {
+			final TreeView<TreeData> tv = createTreeViewTab(tabs, "End by Slot");
+			dataEndSlotTree = tv;
 		}
 
 		//
@@ -1152,6 +1167,66 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 	}
 
+	private void refreshEndSlotTree(final ObservableList<DataItem> newList) {
+		//
+		rootEndSlot.getChildren().clear();
+
+		// Images
+		final Image nodeImageChapter = new Image(getClass().getResourceAsStream("/book-icon.png"));
+		final Image nodeImageSection = new Image(getClass().getResourceAsStream("/62863-books-icon.png"));
+		final Image nodeImageInv = new Image(getClass().getResourceAsStream("/book-icon.png"));
+
+		//
+		final TreeMap<String, TreeMap> actorMap = new TreeMap<String, TreeMap>();
+		for (final DataItem dataItem : newList) {
+			final String sSlot = dataItem.getSubByKeyString(EchoWriteConst.WORD_SLOT);
+			final String sName = dataItem.getSubByKeyString(EchoWriteConst.WORD_NAME);
+			final String sDesc = dataItem.getSubByKeyString(EchoWriteConst.WORD_DESC);
+			final String sActor = dataItem.getSubByKeyString(EchoWriteConst.WORD_ACTOR);
+			final NestedTreeData treedata = new NestedTreeData(dataItem.getRawValue());
+			final String key = sName + " (" + sDesc + ")";
+			final TreeItem<String> tItem = new TreeItem(key);// , new ImageView(nodeImageInv));
+
+			//
+			TreeMap<String, TreeItem> actorSlotMap = null;
+			if (actorMap.containsKey(sActor)) {
+				actorSlotMap = actorMap.get(sActor);
+			} else {
+				actorSlotMap = new TreeMap<String, TreeItem>();
+				actorMap.put(sActor, actorSlotMap);
+			}
+
+			TreeItem<String> dSlot = actorSlotMap.get(sSlot);
+			if (dSlot == null) {
+				dSlot = new TreeItem(sSlot, new ImageView(nodeImageChapter));
+				actorSlotMap.put(sSlot, dSlot);
+			}
+			dSlot.getChildren().add(tItem);
+		}
+
+		// Populate tree using actorMap and the slot map within.
+		final Set<String> atdKeys = actorMap.keySet();
+		for (final Iterator<String> iter = atdKeys.iterator(); iter.hasNext();) {
+			final String actorKey = (String) iter.next();
+			final TreeMap<String, TreeItem> slotMap = actorMap.get(actorKey);
+
+			final TreeItem<TreeData> actorTreeItem = new TreeItem(actorKey, new ImageView(nodeImageSection));
+			rootEndSlot.getChildren().add(actorTreeItem);
+			actorTreeItem.setExpanded(true);
+
+			final Set<String> slotKeys = slotMap.keySet();
+			for (final Iterator<String> iterS = slotKeys.iterator(); iterS.hasNext();) {
+				final String slotKey = (String) iterS.next();
+				final TreeItem slotTreeItem = slotMap.get(slotKey);
+
+				actorTreeItem.getChildren().add(slotTreeItem);
+				slotTreeItem.setExpanded(true);
+			}
+
+		}
+		//
+	}
+
 	private void refreshTrees() {
 		// 0=none, 1=root, 2=section, 3=chapter, 4=other/item/actor/etc
 		final TimeLoopLocal tll = new TimeLoopLocal();
@@ -1311,10 +1386,13 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 	}
 
 	// TODO
-	private void refreshTableEndThings() {
+	private ObservableList<DataItem> refreshTableEndThings() {
 		final ObservableList<DataItem> newList = FXCollections.observableArrayList();
 		newList.sort(new SortbyMarker());
+		//
 		parseDataFilterEndThings(newList);
+		//
+		// refreshEndSlotTree(newList);
 		//
 		dataThingsEndTable.getItems().clear();
 		// updateTableThingsColumns();
@@ -1337,6 +1415,8 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		//
 		dataThingsEndTable.refresh();
 		dataThingsEndTable.sort();
+		//
+		return newList;
 	}
 
 	private void refreshTableActors() {
@@ -1476,8 +1556,12 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				refreshTrees();
 				refreshTableDataAll();
 				refreshTableThings();
-				refreshTableEndThings();
+				final ObservableList<DataItem> newList = refreshTableEndThings();
 				refreshTableActors();
+				//
+				refreshTableActors();
+				//
+				refreshEndSlotTree(newList);
 				//
 				updateTableAllThingsColumns();
 				updateTableThingsColumns();
@@ -1639,7 +1723,12 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			final Integer marker = dataItem.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
 			final String sName = dataItem.getSubByKeyString(EchoWriteConst.WORD_NAME);
 			final String sActor = dataItem.getSubByKeyString(EchoWriteConst.WORD_ACTOR);
+			final String sItem = dataItem.getSubByKeyString(EchoWriteConst.WORD_ITEM);
+			// final String sSlot = dataItem.getSubByKeyString(EchoWriteConst.WORD_SLOT);
+
 			String matchName = sName;
+			if (!StringUtils.isEmpty(sName))
+				matchName = sItem;
 			if (!StringUtils.isEmpty(sActor))
 				matchName = String.format("%s:%s", sName, sActor);
 			// final Integer iCount =

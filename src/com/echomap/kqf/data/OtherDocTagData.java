@@ -3,7 +3,7 @@ package com.echomap.kqf.data;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class OtherDocTagData {
 	// private final static Logger LOGGER =
@@ -21,6 +21,14 @@ public class OtherDocTagData {
 
 	@Override
 	public String toString() {
+//		final StringBuilder sbuf = new StringBuilder();
+//		sbuf.append("name=");
+//		sbuf.append(name);
+//		sbuf.append(", file=");
+//		sbuf.append(file);
+//		sbuf.append(", docTags=");
+//		sbuf.append(docTags);
+//		return sbuf.toString();
 		return ToStringBuilder.reflectionToString(this);
 	}
 

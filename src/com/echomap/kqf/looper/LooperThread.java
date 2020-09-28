@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -132,7 +132,13 @@ public class LooperThread extends Thread {
 						final DocTag metaDocTag = TextBiz.isMetaTag(dttGL);
 						if (metaDocTag != null) {
 							flHandler.handleMetaDocTag(formatDao, ldao, metaDocTag);
+//						} else if (dttGL.getNumberOfEndTags() == dttGL.getNumberOfStartTags()
+//								&& !dttGL.isOnlyDoctag()) {
+//							flHandler.handleMixedDocTag(formatDao, ldao, metaDocTag);
+//							
+//							// ldao.getChaptCount().addOneToNumLines();
 						} else if (!dttGL.isLongDocTag() || (dttGL.isLongDocTag() && dttGL.isEndDocTag())) {
+							// ?? Parse out the Full Text of the tag into component Key/Values
 							setupDocTagCapped(dttGL);
 							flHandler.handleDocTag(formatDao, ldao);
 						}

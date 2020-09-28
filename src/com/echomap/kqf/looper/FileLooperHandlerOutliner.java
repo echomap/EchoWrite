@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -226,8 +226,8 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 					//
 					if (DATA_MANAGER.getTagListTimeDate().contains(docTag.getName())) {
 						LOGGER.debug("Found 'time/date' tag");
-						addToTreeTimeData(docTag);
-						addToTreeTimeDataTime(docTag);
+						final DocTag docTag2 = addToTreeTimeData(docTag);
+						addToTreeTimeDataTime(docTag2);
 					} else if (DATA_MANAGER.getTagListItems().contains(docTag.getName())) {
 						LOGGER.debug("Found 'item' tag");
 						addToTreeTimeDataItem(docTag);
@@ -253,6 +253,11 @@ public class FileLooperHandlerOutliner extends AbstractFilelooper implements Fil
 	@Override
 	public void handleDocTagNotTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		//
+	}
+
+	@Override
+	public void handleMixedDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 

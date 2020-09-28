@@ -1,6 +1,6 @@
 package com.echomap.kqf.datamgr;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.echomap.kqf.EchoWriteConst;
 

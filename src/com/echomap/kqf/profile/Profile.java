@@ -3,7 +3,7 @@ package com.echomap.kqf.profile;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.echomap.kqf.data.KeyValuePair;
 import com.echomap.kqf.data.OtherDocTagData;
@@ -20,18 +20,18 @@ public class Profile {
 	private String inputFilePrefix = null;
 	private boolean appendUnderscoreToPrefix = false;
 	private String keywords = "";
-	//For file status
+	// For file status
 	private String status = null;
 
 	// Formatting/Tagging
-	private String docTagStart = null;
-	private String docTagEnd = null;
+	private String docTagStart = "[[*";
+	private String docTagEnd = "*]]";
 	private String fmtMode = null;
 	private String outputEncoding = null;
 	private String chpDiv = null;
 	private String secDiv = null;
-	private String chapterHeaderTag = "[[*";
-	private String sectionHeaderTag = "*]]";
+	private String chapterHeaderTag = "h1";
+	private String sectionHeaderTag = "h1";
 
 	private String outputFormatChpTextDir = null;
 

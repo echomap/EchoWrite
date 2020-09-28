@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import com.echomap.kqf.data.KeyValuePair;
 import com.echomap.kqf.data.OtherDocTagData;
 
@@ -24,7 +22,15 @@ public class ProfileData {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		final StringBuilder sbuf = new StringBuilder();
+		sbuf.append("key=");
+		sbuf.append(key);
+		sbuf.append(", series=");
+		sbuf.append(series);
+//		sbuf.append(", docTags=");
+//		sbuf.append(docTags);
+		return sbuf.toString();
+//		return ToStringBuilder.reflectionToString(this);
 	}
 
 	public void setText(final String key, final String val) {

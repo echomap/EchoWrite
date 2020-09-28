@@ -2,11 +2,13 @@ package com.echomap.kqf.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class DocTag {
 	private String fullText;
@@ -35,6 +37,32 @@ public class DocTag {
 	 */
 	public DocTag(final String docTagText) {
 		parseText(docTagText);
+	}
+
+	public DocTag(final String name, final Map<String, String> map) {
+		final Set<String> keys = map.keySet();
+		final Iterator<String> it = keys.iterator();
+		this.name = name;
+		this.bareLine = "";
+		// this.fullText = "";
+		// boolean hasName = false;
+		for (final String key : keys) {
+			// if (!hasName) {
+			// this.name = key;
+			// this.value = map.get(key);
+			// this.fullText = key + "=" + map.get(key) + ".";
+			// baseAdded = this.getValue();
+			// hasName = true;
+			// } else {
+			if (fullText == null)
+				this.fullText = key + "=" + map.get(key) + ".";
+			else
+				this.fullText = fullText + " " + key + "=" + map.get(key) + ".";
+			data.put(key, map.get(key));
+			// }
+		}
+		this.value = this.fullText;
+		this.baseAdded = this.fullText;
 	}
 
 	@Override

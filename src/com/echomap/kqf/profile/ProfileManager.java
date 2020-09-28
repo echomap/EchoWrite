@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -30,6 +30,7 @@ public class ProfileManager {
 	private boolean wasError = false;
 	private List<Profile> profiles = new ArrayList<>();
 	String currentVersion = null;
+	Profile profileSavedForCopy = null;
 
 	public ProfileManager() {
 		// try {
@@ -389,6 +390,96 @@ public class ProfileManager {
 			return value;
 		}
 		return defaultValue;
+	}
+
+	public void selectProfileForCopy(final Profile selectedProfile) {
+		this.profileSavedForCopy = selectedProfile;
+	}
+
+	public void copyProfileFromCopy(final Profile selectedProfile) throws IOException {
+		//
+		if (this.profileSavedForCopy == null) {
+			throw new IOException("No profile selected for copy");
+		}
+		//
+		// selectedProfile.setAppendUnderscoreToPrefix(appendUnderscoreToPrefix);
+		//
+		Profile profile = selectedProfile;
+		Profile profileData = profileSavedForCopy;
+
+		// <Main Section>
+		// profile.setKey(profileData.getKey());
+		profile.setMainTitle(profileData.getMainTitle());
+		profile.setSubTitle(profileData.getSubTitle());
+		profile.setSeriesTitle(profileData.getSeriesTitle());
+		profile.setVolume(profileData.getVolume());
+		profile.setKeywords(profileData.getKeywords());
+
+		// profile.setInputFile(setupValue(profileData, "inputFile", ""));
+		// profile.setInputFilePrefix(setupValue(profileData, "inputFilePrefix", ""));
+		profile.setAppendUnderscoreToPrefix(profileData.isAppendUnderscoreToPrefix());
+
+		// <RegEx Section>
+		profile.setRegexpChapter(profileData.getRegexpChapter());
+		profile.setRegexpSection(profileData.getRegexpSection());
+
+		// <Word Counter Section>
+		// profile.setOutputCountFile(profileData.getOutputCountFile());
+
+		// <Formatting Section>
+		// profile.setOutputFormatSingleFile(profileData.getOutputFormatSingleFile());
+		// profile.setOutputFormatChpHtmlDir(profileData.getOutputFormatChpHtmlDir());
+		// profile.setOutputFormatChpTextDir(profileData.getOutputFormatChpTextDir());
+
+		profile.setCbRemoveDiv(profileData.isCbRemoveDiv());
+		profile.setCbCenterStars(profileData.isCbCenterStars());
+		profile.setCbDropCapChapters(profileData.isCbDropCapChapters());
+		profile.setWantTextChptOutput(profileData.isWantTextChptOutput());
+		profile.setTimeLineAddTimePerScene(profileData.isTimeLineAddTimePerScene());
+
+		//
+		profile.setCounterDigitChoice(profileData.getCounterDigitChoice());
+
+		// <DocTag Outliner Section>
+		// profile.setOutputDocTagsOutlineFile(profileData.getOutputDocTagsOutlineFile());
+		// profile.setOutputDocTagsSceneFile(profileData.getOutputDocTagsSceneFile());
+		profile.setOutputDocTagsMaxLineLength(profileData.getOutputDocTagsMaxLineLength());
+		profile.setOutputDocTagsScenePrefix(profileData.getOutputDocTagsSubScenePrefix());
+		profile.setOutputDocTagsSubScenePrefix(profileData.getOutputDocTagsSubScenePrefix());
+		profile.setSceneCoalateDiv(profileData.getSceneCoalateDiv());
+		profile.setDocTagsOutlineTags(profileData.getDocTagsOutlineTags());
+		profile.setDocTagsOutlineCompressTags(profileData.getDocTagsOutlineCompressTags());
+		profile.setDocTagsSceneTags(profileData.getDocTagsSceneTags());
+		profile.setDocTagsSceneCompressTags(profileData.getDocTagsSceneCompressTags());
+
+		// Misnamed in V1
+		// profile.setOutputCSVOutlineFile(profileData.getOutputCSVOutlineFile());
+		// Misnamed in V1
+		// profile.setOutputCSVAllFile(profileData.getOutputCSVAllFile());
+
+		// <Input/Output Section>
+		profile.setOutputEncoding(profileData.getOutputEncoding());
+		profile.setChapterHeaderTag(profileData.getChapterHeaderTag());
+		profile.setSectionHeaderTag(profileData.getSectionHeaderTag());
+		profile.setFmtMode(profileData.getFmtMode());
+		profile.setDocTagStart(profileData.getDocTagStart());
+		profile.setDocTagEnd(profileData.getDocTagEnd());
+
+		// Other Files Section
+		profile.setOutputs(profileData.getOutputs());
+		profile.setExternalIDs(profileData.getExternalIDs());
+
+		//
+		profile.setCbRemoveSectDiv(profileData.isCbRemoveSectDiv());
+		profile.setCbRemoveSectDiv(profileData.isCbRemoveSectDiv());
+		profile.setChpDiv(profileData.getChpDiv());
+		profile.setSecDiv(profileData.getSecDiv());
+		//
+
+		// profile.setOutputCharCardFile(profileData.getOutputCharCardFile());
+		profile.setTimelineTimePadding(profileData.getTimelineTimePadding());
+		//
+		saveProfileData(profile);
 	}
 
 }

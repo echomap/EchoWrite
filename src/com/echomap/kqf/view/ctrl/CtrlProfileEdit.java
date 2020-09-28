@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -226,6 +226,9 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		if (selDelO != null && selDelO instanceof Boolean) {
 			modeDelete = (Boolean) selDelO;
 		}
+		//
+		final String keyP = this.getClass().getSimpleName();
+		loadPreferencesForWindow(keyP, primaryStage);
 
 		loadData();
 	}
@@ -294,6 +297,14 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		if (primaryStage != null) {
 			// primaryStage.refreshData();
 		}
+	}
+
+	@Override
+	public void doSceneHiding(final Stage stage) {
+		//
+		final String keyP = this.getClass().getSimpleName();
+		savePreferencesForWindow(keyP, stage);
+		super.doSceneHiding(stage);
 	}
 
 	@Override
@@ -899,9 +910,9 @@ public class CtrlProfileEdit extends BaseCtrl implements Initializable, WorkFini
 		docTagStartText.setText(child.getDocTagStart());
 		docTagEndText.setText(child.getDocTagEnd());
 
-		chapterHeaderTag.setText( child.getChapterHeaderTag());
-		sectionHeaderTag.setText( child.getSectionHeaderTag());
-		
+		chapterHeaderTag.setText(child.getChapterHeaderTag());
+		sectionHeaderTag.setText(child.getSectionHeaderTag());
+
 		fmtModeText.setText(child.getFmtMode());
 		// if (StringUtils.isBlank(fmtModeText.getText())) {
 		// fmtModeText.setText("Sigil");

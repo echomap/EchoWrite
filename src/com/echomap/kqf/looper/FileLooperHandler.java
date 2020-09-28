@@ -38,6 +38,11 @@ public interface FileLooperHandler {
 	void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException;
 
 	/**
+	 * 
+	 */
+	void handleMixedDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) throws IOException;
+
+	/**
 	 * Always called for each line, after all handleLine methods
 	 */
 	void postLine(FormatDao formatDao, LooperDao ldao) throws IOException;

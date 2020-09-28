@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane fx:id="outerMostContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="650.0" prefWidth="600.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.echomap.kqf.view.ctrl.CtrlExternalIDs">
+	<items>
+		<GridPane fx:id="outerFirstContainer">
+			<columnConstraints>
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+			</columnConstraints>
+			<rowConstraints>
+            <RowConstraints vgrow="SOMETIMES" />
+				<RowConstraints vgrow="SOMETIMES" />
+				<RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="ALWAYS" />
+            <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+			</rowConstraints>
+			<children>
+				<ScrollPane fitToHeight="true" fitToWidth="true" GridPane.rowIndex="3">
+					<content>
+						<GridPane>
+							<children>
+								<TableView fx:id="inputTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+									<columns>
+										<TableColumn prefWidth="92.0" text="Name" />
+										<TableColumn prefWidth="335.0" text="Value" />
+									</columns>
+								</TableView>
+							</children>
+							<columnConstraints>
+								<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+							</columnConstraints>
+							<rowConstraints>
+								<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+							</rowConstraints>
+						</GridPane>
+					</content>
+				</ScrollPane>
+            <VBox>
+               <children>
+      				<HBox fx:id="mainButtonBar" alignment="CENTER" spacing="20.0" styleClass="gradButtonPanel">
+      					<children>
+      						<Button onAction="#handleNew" styleClass="newbutton" text="_New">
+      							<HBox.margin>
+      								<Insets bottom="6.0" />
+      							</HBox.margin>
+      						</Button>
+      						<Button fx:id="buttonDelete1" onAction="#handleDelete" styleClass="deletebutton" text="_Delete">
+      							<HBox.margin>
+      								<Insets bottom="6.0" />
+      							</HBox.margin>
+      						</Button>
+      						<Separator orientation="VERTICAL" />
+      						<Separator orientation="VERTICAL" />
+      						<HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
+      							<children>
+      								<Label fx:id="chosenProfileText" styleClass="greenOutlinedText" text="NO PROFILE">
+      									<padding>
+      										<Insets left="12.0" right="12.0" />
+      									</padding>
+      									<HBox.margin>
+      										<Insets bottom="6.0" />
+      									</HBox.margin>
+      								</Label>
+      								<Label fx:id="overallDataChanged" minHeight="35.0" minWidth="110.0" styleClass="highlightedOutlinedText" text="Unsaved Changes">
+      									<font>
+      										<Font name="Bitstream Charter Bold" size="14.0" />
+      									</font>
+      									<HBox.margin>
+      										<Insets left="10.0" />
+      									</HBox.margin>
+      								</Label>
+      							</children>
+      						</HBox>
+      					</children>
+      				</HBox>
+                  <VBox fx:id="areaKeyValue" spacing="8.0">
+                     <children>
+                        <HBox>
+                           <children>
+      								<HBox style="-fx-border-color: black;">
+      									<children>
+      										<Label minWidth="50.0" text="Name:">
+      											<font>
+      												<Font name="System Bold" size="15.0" />
+      											</font>
+      										</Label>
+      										<TextField fx:id="inputName" minWidth="200.0" promptText="ASIN/ISBN/ETC" />
+      									</children>
+      									<padding>
+      										<Insets left="10.0" right="10.0" top="10.0" />
+      									</padding>
+      								</HBox>
+      								<HBox style="-fx-border-color: black;">
+      									<children>
+      										<Label minWidth="50.0" text="Value:">
+      											<font>
+      												<Font name="System Bold" size="15.0" />
+      											</font>
+      										</Label>
+      										<TextField fx:id="inputValue" minWidth="200.0" promptText="the actual ASIN/ISBN/etc" HBox.hgrow="ALWAYS">
+      											<HBox.margin>
+      												<Insets />
+      											</HBox.margin>
+      										</TextField>
+      									</children>
+      									<padding>
+      										<Insets left="10.0" right="10.0" top="10.0" />
+      									</padding>
+      								</HBox>
+                           </children>
+                        </HBox>
+      						<HBox>
+      							<children>
+      								<Button fx:id="buttonAddEdit" onAction="#handleModifySave" styleClass="actionbutton" text="_Modify">
+      									<HBox.margin>
+      										<Insets bottom="6.0" left="12.0" />
+      									</HBox.margin>
+      								</Button>
+      								<Separator orientation="VERTICAL">
+                                 <padding>
+                                    <Insets left="12.0" />
+                                 </padding>
+                              </Separator>
+      								<Button fx:id="buttonCancelChange" onAction="#handleCancelChange" styleClass="deletebutton" text="Cancel">
+      									<HBox.margin>
+      										<Insets bottom="6.0" left="8.0" />
+      									</HBox.margin>
+      								</Button>
+      										<Label fx:id="chosenDocTagsText" styleClass="greenOutlinedText" text="NONE">
+      											<padding>
+      												<Insets left="12.0" right="12.0" />
+      											</padding>
+      											<HBox.margin>
+      												<Insets bottom="6.0" left="8.0" />
+      											</HBox.margin>
+      										</Label>
+      								<Label fx:id="profileDataChanged" styleClass="highlightedOffOutlinedText" text="Unsaved Changes">
+      									<font>
+      										<Font name="Bitstream Charter Bold" size="14.0" />
+      									</font>
+      									<HBox.margin>
+      										<Insets left="8.0" />
+      									</HBox.margin>
+      								</Label>
+      							</children>
+      						</HBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets left="12.0" />
+                     </VBox.margin>
+                  </VBox>
+               </children>
+            </VBox>
+            <HBox styleClass="gradButtonPanel" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+               <children>
+						<Button fx:id="btnCloseScreen" cancelButton="true" defaultButton="true" onAction="#handleClose" style="-fx-background-color: #6473A4;" styleClass="actionbutton" text="_Close">
+							<HBox.margin>
+								<Insets bottom="6.0" left="12.0" />
+							</HBox.margin>
+						</Button>
+						<Separator orientation="VERTICAL">
+                     <HBox.margin>
+                        <Insets left="12.0" />
+                     </HBox.margin>
+                  </Separator>
+						<Button fx:id="buttonSave" onAction="#handleSaveToProfile" styleClass="savebutton" text="_Save to Profile">
+							<HBox.margin>
+								<Insets bottom="6.0" left="12.0" />
+							</HBox.margin>
+						</Button>
+               </children>
+            </HBox>
+			</children>
+		</GridPane>
+	</items>
+</SplitPane>

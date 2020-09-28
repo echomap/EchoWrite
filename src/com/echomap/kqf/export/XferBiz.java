@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -115,15 +115,13 @@ public class XferBiz {
 				dataset.addProperty("docTags", odtd.getDocTags());
 
 				/*
-				 * TODO OPTIONS final JsonArray dsOptions = new JsonArray();
-				 * final SortedMap<String, DocTagDataOption> options =
-				 * odtd.getOptions(); final Set<String> keys = options.keySet();
-				 * for (final String key : keys) { final DocTagDataOption dtdo =
-				 * options.get(key);
+				 * TODO OPTIONS final JsonArray dsOptions = new JsonArray(); final
+				 * SortedMap<String, DocTagDataOption> options = odtd.getOptions(); final
+				 * Set<String> keys = options.keySet(); for (final String key : keys) { final
+				 * DocTagDataOption dtdo = options.get(key);
 				 * 
-				 * final JsonObject dsOption = new JsonObject();
-				 * dsOption.addProperty("name", dtdo.getName());
-				 * dsOption.addProperty("prefix", dtdo.getPrefix());
+				 * final JsonObject dsOption = new JsonObject(); dsOption.addProperty("name",
+				 * dtdo.getName()); dsOption.addProperty("prefix", dtdo.getPrefix());
 				 * dsOption.addProperty("showCompress", dtdo.isShowCompress());
 				 * dsOption.addProperty("showExpand", dtdo.isShowExpand());
 				 * 

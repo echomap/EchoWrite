@@ -1,7 +1,5 @@
 package com.echomap.kqf.view.ctrl;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -9,15 +7,10 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.echomap.kqf.EchoWriteConst;
-import com.echomap.kqf.EchoWriteConst.FILTERTYPE;
-import com.echomap.kqf.data.OtherDocTagData;
-import com.echomap.kqf.profile.Export;
-import com.echomap.kqf.profile.Import;
+import com.echomap.kqf.data.KeyValuePair;
 import com.echomap.kqf.profile.Profile;
 import com.echomap.kqf.profile.ProfileManager;
 import com.echomap.kqf.view.gui.ConfirmResult;
@@ -37,31 +30,31 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-public class CtrlMoreFiles extends BaseCtrl implements Initializable {
-	private final static Logger LOGGER = LogManager.getLogger(CtrlMoreFiles.class);
+/**
+ * 
+ * @author mkatz
+ */
+public class CtrlExternalIDs extends BaseCtrl implements Initializable {
+	private final static Logger LOGGER = LogManager.getLogger(CtrlExternalIDs.class);
 
 	protected static final int COL_KEY = 1;
-	protected static final int COL_FILE = 2;
-	protected static final int COL_DOCTAGS = 3;
+	protected static final int COL_VALUE = 2;
 
-	final ProfileManager profileManager;
+	ProfileManager profileManager = null;
+
 	Profile selectedProfile = null;
-	OtherDocTagData selectedOtherData = null;
+	KeyValuePair selectedOtherData = null;
 	private int selectedRow = 0;
-	// Profile Changes in this case are changes made to a docTag element, where
-	// this is overall
-	// private boolean overallChangeMade = false;
-	private List<OtherDocTagData> cachedOutputs = null;
+
+	private List<KeyValuePair> cachedOutputs = null;
 
 	@FXML
 	private SplitPane outerMostContainer;
@@ -69,44 +62,36 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	private GridPane outerFirstContainer;
 	@FXML
 	private GridPane outerSecondContainer;
-	@FXML
-	private VBox editProfilePane;
-	@FXML
-	private HBox mainButtonBar;
 
 	@SuppressWarnings("rawtypes")
 	@FXML
 	private TableView inputTable;
 
 	@FXML
-	private Label chosenProfileText;
-	@FXML
 	private Label profileDataChanged;
-
 	@FXML
 	private Label chosenDocTagsText;
 	@FXML
 	private Label overallDataChanged;
+	@FXML
+	private Label chosenProfileText;
 
-	@FXML
-	private Button buttonExport;
-	@FXML
-	private Button buttonImport;
 	@FXML
 	private Button btnCloseScreen;
 
 	@FXML
 	private TextField inputName;
 	@FXML
-	private TextField inputFile;
+	private TextField inputValue;
+
 	@FXML
-	private TextArea inputDocTags;
+	private Pane areaKeyValue;
 
 	/**
 	 * 
 	 */
-	public CtrlMoreFiles() {
-		profileManager = new ProfileManager();
+	public CtrlExternalIDs() {
+		// profileManager = new ProfileManager();
 	}
 
 	@Override
@@ -129,28 +114,24 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		LOGGER.debug("initialize: Done");
 	}
 
-	// @Override
-	// public void setupController(final Properties props, final Preferences
-	// appPreferences, final Stage primaryStage) {
-	// super.setupController(props, appPreferences, primaryStage);
-	// LOGGER.debug("setupController: Done");
-	// this.appPreferences =
-	// Preferences.userNodeForPackage(CtrlProfileView.class);
-	// profileManager.setAppVersion(this.appVersion);
-	// }
-
 	@Override
 	public void setupController(final Properties props, final Preferences appPreferences, final Stage primaryStage,
 			final Map<String, Object> paramsMap) {
 		super.setupController(props, appPreferences, primaryStage, paramsMap);
-		//
+		// Parse Params
 		paramsMap.put("appVersion", appVersion);
 		final Object selectedProfileO = paramsMap.get("selectedProfile");
 		if (selectedProfileO != null && selectedProfileO instanceof Profile) {
 			selectedProfile = (Profile) selectedProfileO;
 			chosenProfileText.setText(selectedProfile.getKey());
-			cachedOutputs = selectedProfile.getOutputs();
+			cachedOutputs = selectedProfile.getExternalIDs();
 		}
+		final Object profileManagerO = paramsMap.get("profileManager");
+		if (profileManagerO != null && selectedProfileO instanceof ProfileManager) {
+			profileManager = (ProfileManager) profileManagerO;
+		} else
+			profileManager = new ProfileManager();
+		// Load Data and setup GUI
 		loadData();
 		fixFocus();
 	}
@@ -163,21 +144,28 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 
 	@Override
 	void lockGui() {
-		mainButtonBar.setDisable(true);
+		// mainButtonBar.setDisable(true);
+		areaKeyValue.setVisible(false);
+		hideAllInArea(areaKeyValue);
 	}
 
 	@Override
 	void unlockGui() {
-		mainButtonBar.setDisable(false);
+		// mainButtonBar.setDisable(false);
 	}
 
 	void lockNewInputArea() {
-		editProfilePane.setDisable(true);
+		// editProfilePane.setDisable(true);
 		setProfileChangeMade(false);
+		areaKeyValue.setVisible(true);
+		hideAllInArea(areaKeyValue);
+		fixFocus();
 	}
 
 	void unlockNewInputArea() {
-		editProfilePane.setDisable(false);
+		// editProfilePane.setDisable(false);
+		areaKeyValue.setVisible(true);
+		showAllInArea(areaKeyValue);
 	}
 
 	void lockTable() {
@@ -190,74 +178,23 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		// inputTable.setSelectionModel(inputTableSelectionModel);
 	}
 
-	// ->inputFile
-	public void handleBrowse(final ActionEvent event) {
-		LOGGER.debug("handleBrowse: Called");
-		final String filePrefixText = selectedProfile.getInputFilePrefix();
-		if (StringUtils.isBlank(inputFile.getText())) {
-			final File inFile = new File(selectedProfile.getInputFile());
-			if (inFile != null)
-				inputFile.setText(inFile.getParent());
-		}
-		boolean success = locateDir(event, "Open Output Dir", inputFile, inputFile);
-		if (success) {
-			final String outFilename = filePrefixText == null ? "/" + inputName.getText() + ".txt"
-					: filePrefixText + (selectedProfile.isAppendUnderscoreToPrefix() ? "_" : "") + inputName.getText()
-							+ ".txt";
-			final File nFile = new File(inputFile.getText(), outFilename);
-			inputFile.setText(nFile.getAbsolutePath());
-			// actionToCancel();
-		}
-		LOGGER.debug("handleBrowse: Done");
-	}
-
-	public void handleModifySave(final ActionEvent event) {
-		LOGGER.debug("handleModifySave: Called");
-		if (selectedOtherData == null) {
-			selectedOtherData = new OtherDocTagData();
-			selectedProfile.addOutput(selectedOtherData);
-		}
-		selectedOtherData.setDocTags(inputDocTags.getText());
-		selectedOtherData.setFile(inputFile.getText());
-		selectedOtherData.setName(inputName.getText());
-
-		setOverallChangeMade(true);
-		setProfileChangeMade(false);
-		unselectRow();
-		unlockTable();
-		refreshTable();
-		LOGGER.debug("handleModifySave: Done");
-	}
-
-	public void handleDelete(final ActionEvent event) {
-		LOGGER.debug("handleDelete: Called");
-		if (selectedOtherData == null) {
-			showPopupMessage("Error", "Nothing selected to delete", true);
-			return;
-		}
-		//
-		final ConfirmResultDelete confirmResultDelete = new ConfirmResultDelete();
-		showConfirmDialog("Delete?", "Really Delete?", confirmResultDelete);
-		LOGGER.debug("handleDelete: Done");
-	}
-
 	class ConfirmResultDelete implements ConfirmResult {
 
 		@Override
 		public void actionConfirmed(final String title) {
 			LOGGER.debug("actionConfirmed: Called");
-			final List<OtherDocTagData> listo = selectedProfile.getOutputs();
-			for (final OtherDocTagData otherDocTagData : listo) {
-				if (otherDocTagData.getName().compareTo(selectedOtherData.getName()) == 0) {
-					LOGGER.debug("actionConfirmed: Removed name=" + otherDocTagData.getName());
-					listo.remove(otherDocTagData);
+			final List<KeyValuePair> listo = selectedProfile.getExternalIDs();
+			for (final KeyValuePair otherData : listo) {
+				if (otherData.getKey().compareTo(selectedOtherData.getKey()) == 0) {
+					LOGGER.debug("actionConfirmed: Removed name=" + otherData.getKey());
+					listo.remove(otherData);
 					break;
 				}
 			}
 			selectedOtherData = null;
 
-			// profileManager.saveProfileData(selectedProfile);
-			// cachedOutputs = selectedProfile.getOutputs();
+			profileManager.saveProfileData(selectedProfile);
+			cachedOutputs = selectedProfile.getExternalIDs();
 
 			setOverallChangeMade(true);
 			unselectRow();
@@ -289,81 +226,42 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		LOGGER.debug("handleNew: Done");
 	}
 
-	public void handleExport(final ActionEvent event) {
-		LOGGER.debug("handleExport: Called");
+	public void handleModifySave(final ActionEvent event) {
+		LOGGER.debug("handleModifySave: Called");
+		if (selectedOtherData == null) {
+			selectedOtherData = new KeyValuePair();
+			selectedProfile.addExternalIDs(selectedOtherData);
+		}
+		selectedOtherData.setKey(inputName.getText());
+		selectedOtherData.setValue(inputValue.getText());
 
-		// try {
-		final File cFile = chooseFile(event, "Choose Export File", null, selectedProfile.getKey() + "_more.json",
-				EchoWriteConst.FILTERTYPE.JSON);
-		if (cFile == null) {
-			showPopupMessage("Failed", "No file selected.", false);
+		setOverallChangeMade(true);
+		setProfileChangeMade(false);
+		unselectRow();
+		unlockTable();
+		refreshTable();
+		lockNewInputArea();
+		LOGGER.debug("handleModifySave: Done");
+	}
+
+	public void handleDelete(final ActionEvent event) {
+		LOGGER.debug("handleDelete: Called");
+		if (selectedOtherData == null) {
+			showPopupMessage("Error", "Nothing selected to delete", true);
 			return;
 		}
-
-		try {
-			final Export export1 = new Export();
-			final File outputFilePlain = export1.doExportMoreFiles(cFile.getAbsolutePath(), selectedProfile,
-					this.appProps, this.appPreferences, profileManager);
-			showPopupMessage("Export Done!", "Export Done! Written to '" + outputFilePlain + "'", false);
-		} catch (IOException e) {
-			LOGGER.error(e);
-			showPopupMessage("Export Error", e.getMessage(), true);
-		}
-
 		//
-		// // final Charset selCharSet = formatDao.getCharSet();
-		// final Export export1 = new Export();
-		// @SuppressWarnings("unchecked")
-		// final File outputFilePlain =
-		// export1.doExportMoreFiles(inputFile.getText(), inputTable.getItems(),
-		// this.appProps, this.appPreferences, profileManager);
-		// showPopupMessage("Export Done!", "Export Done! Written to '" +
-		// outputFilePlain + "'", false);
-		// } catch (IOException e) {
-		// LOGGER.error(e);
-		// showPopupMessage("Export Error", e.getMessage(), true);
-		// }
-
-		LOGGER.debug("handleExport: Done");
+		final ConfirmResultDelete confirmResultDelete = new ConfirmResultDelete();
+		showConfirmDialog("Delete?", "Really Delete?", confirmResultDelete);
+		LOGGER.debug("handleDelete: Done");
 	}
 
-	public void handleImport(final ActionEvent event) {
-		LOGGER.debug("handleImport: Called");
-		// TODO
-		// try {
-		final File cFile = locateFile(event, "Choose Import File", null, selectedProfile.getKey() + "_more.json",
-				FILTERTYPE.JSON);
-		if (cFile == null) {
-			showPopupMessage("Failed", "No file selected.", false);
-			return;
-		}
-
-		try {
-			final Import export1 = new Import();
-			// final List<Profile> output =
-			// TODO return data
-			export1.doImportMoreFiles(cFile.getAbsolutePath(), selectedProfile, this.appProps, this.appPreferences,
-					profileManager);
-			// showPopupMessage("Import Done!", "Import Done! Written from '" +
-			// outputFilePlain + "'", false);
-			setProfileChangeMade(true);
-			setOverallChangeMade(true);
-			loadData();
-			LOGGER.debug("Import Done");
-		} catch (IOException e) {
-			LOGGER.error(e);
-			showPopupMessage("Import Error", e.getMessage(), true);
-		}
-
-		LOGGER.debug("handleImport: Done");
-	}
-
-	public void handleSave(final ActionEvent event) {
-		LOGGER.debug("handleSave: Called");
+	public void handleSaveToProfile(final ActionEvent event) {
+		LOGGER.debug("handleSaveToProfile: Called");
 		profileManager.saveProfileData(selectedProfile);
-		cachedOutputs = selectedProfile.getOutputs();
+		cachedOutputs = selectedProfile.getExternalIDs();
 		setOverallChangeMade(false);
-		LOGGER.debug("handleSave: Done");
+		LOGGER.debug("handleSaveToProfile: Done");
 	}
 
 	public void handleClose(final ActionEvent event) {
@@ -414,11 +312,9 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		//
 		final ObservableList<TableColumn> columns = inputTable.getColumns();
 		final TableColumn colK = columns.get(0);
-		colK.setCellValueFactory(new PropertyValueFactory<>("name"));
+		colK.setCellValueFactory(new PropertyValueFactory<>("key"));
 		final TableColumn colS = columns.get(1);
-		colS.setCellValueFactory(new PropertyValueFactory<>("file"));
-		final TableColumn colM = columns.get(2);
-		colM.setCellValueFactory(new PropertyValueFactory<>("docTags"));
+		colS.setCellValueFactory(new PropertyValueFactory<>("value"));
 
 		// col1. resize handler
 		colK.widthProperty().addListener(new ChangeListener<Number>() {
@@ -430,28 +326,22 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		colS.widthProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				columnWidthChanged(COL_FILE, newValue);
-			}
-		});
-		colM.widthProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				columnWidthChanged(COL_DOCTAGS, newValue);
+				columnWidthChanged(COL_VALUE, newValue);
 			}
 		});
 
 		// Hack: align column headers to the center.
 		BaseCtrl.alignColumnLabelsLeftHack(inputTable);
 
-		inputTable.setRowFactory(new Callback<TableView<OtherDocTagData>, TableRow<OtherDocTagData>>() {
+		inputTable.setRowFactory(new Callback<TableView<KeyValuePair>, TableRow<KeyValuePair>>() {
 			@Override
-			public TableRow<OtherDocTagData> call(TableView<OtherDocTagData> tableView) {
-				final TableRow<OtherDocTagData> row = new TableRow<>();
+			public TableRow<KeyValuePair> call(TableView<KeyValuePair> tableView) {
+				final TableRow<KeyValuePair> row = new TableRow<>();
 				row.setOnMouseClicked(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(final MouseEvent event) {
 						if (event.getClickCount() == 2 && (!row.isEmpty())) {
-							final OtherDocTagData rowData = row.getItem();
+							final KeyValuePair rowData = row.getItem();
 							LOGGER.debug("rowData: left2: " + rowData);
 							// inputName.setText(rowData.getName());
 							// rowData.setExport(!rowData.isExport());
@@ -464,7 +354,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 							}
 						} else if (event.isSecondaryButtonDown()) {
 							// right click code here
-							final OtherDocTagData rowData = row.getItem();
+							final KeyValuePair rowData = row.getItem();
 							LOGGER.debug("rowData: right: " + rowData);
 							// rowData.setExport(true);
 						}
@@ -499,8 +389,8 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 		}
 	}
 
-	private void selectRow(final OtherDocTagData oodtd) {
-		LOGGER.debug("selectProfile: OtherDocTagData: " + oodtd);
+	private void selectRow(final KeyValuePair oodtd) {
+		LOGGER.debug("selectRow: Data: " + oodtd);
 		if (oodtd == null) {
 			return;
 		}
@@ -508,10 +398,9 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 			return;
 		}
 		selectedOtherData = oodtd;
-		chosenDocTagsText.setText(oodtd.getName());
-		inputName.setText(oodtd.getName());
-		inputFile.setText(oodtd.getFile());
-		inputDocTags.setText(oodtd.getDocTags());
+		// chosenDocTagsText.setText(oodtd.getKey());
+		inputName.setText(oodtd.getKey());
+		inputValue.setText(oodtd.getValue());
 		//
 		setProfileChangeMade(false);
 		unlockNewInputArea();
@@ -522,8 +411,8 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	private void unselectRow() {
 		LOGGER.debug("unselectRow: Called");
 		inputName.setText("");
-		inputFile.setText("");
-		inputDocTags.setText("");
+		inputValue.setText("");
+		// inputDocTags.setText("");
 		setProfileChangeMade(false);
 		lockNewInputArea();
 		LOGGER.debug("unselectRow: Done");
@@ -532,14 +421,14 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 	@SuppressWarnings("unchecked")
 	private void loadData() {
 		LOGGER.debug("loadTableData: Called");
-		final ObservableList<OtherDocTagData> newList = FXCollections.observableArrayList();
+		final ObservableList<KeyValuePair> newList = FXCollections.observableArrayList();
 		inputTable.getItems().clear();
 		if (selectedProfile != null) {
 
-			final List<OtherDocTagData> listOO = selectedProfile.getOutputs();
+			final List<KeyValuePair> listOO = selectedProfile.getExternalIDs();
 			if (listOO != null) {
-				for (final OtherDocTagData otherDocTagData : listOO) {
-					newList.add(otherDocTagData);
+				for (final KeyValuePair otherData : listOO) {
+					newList.add(otherData);
 				}
 			}
 			inputTable.getItems().clear();
@@ -559,7 +448,7 @@ public class CtrlMoreFiles extends BaseCtrl implements Initializable {
 
 	private void resetSelectedProfile() {
 		// profileManager.loadProfileData();
-		selectedProfile.setOutputs(cachedOutputs);
+		selectedProfile.setExternalIDs(cachedOutputs);
 	}
 
 	private void fixFocus() {

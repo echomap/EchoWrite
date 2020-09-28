@@ -276,10 +276,10 @@ public class DataManagerBiz {
 		if (dateTime == null) {
 			if (currentFileData.getDatalistTimeDate().size() < 1) {
 				dateTime = "marker: 0dark";
+			} else {
+				return null;
 			}
-		else {
-			return null;
-		}}
+		}
 
 		for (final TreeTimeData treeTimeData : currentFileData.getDatalistTimeDate()) {
 			// DATA_MANAGER.getDatalistTimeDate()) {
@@ -374,7 +374,7 @@ public class DataManagerBiz {
 		currentFileData = dataManagerDB.getDataForFile(inputFile);
 	}
 
-	public DataManagerDBData getDataForFile(File inputFile) {
+	public DataManagerDBData getDataForFile(final File inputFile) {
 		final DataManagerDB dataManagerDB = DataManagerDB.getDataManager();
 		final DataManagerDBData data = dataManagerDB.getDataForFile(inputFile);
 		currentFileData = data;
@@ -387,11 +387,6 @@ public class DataManagerBiz {
 		final DataManagerDB dataManagerDB = DataManagerDB.getDataManager();
 		dataManagerDB.clearDataForFile(inputFile);
 		initialize(inputFile);
-	}
-
-	public void duplicateProfile() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

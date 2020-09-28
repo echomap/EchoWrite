@@ -1,6 +1,7 @@
 package com.echomap.kqf.view.ctrl;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.Date;
@@ -14,7 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.prefs.Preferences;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -500,8 +501,8 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		// GUIUtils.autoFitTable(profileTable);
 
 		// Context Menu
-		final MenuItem menuItemDumpItemTextT = new MenuItem("Duplicate");
-		menuItemDumpItemTextT.setOnAction(new EventHandler<ActionEvent>() {
+		final MenuItem menuItemDumpItemTextTD = new MenuItem("Duplicate");
+		menuItemDumpItemTextTD.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
 				LOGGER.debug("handle item called");
@@ -509,14 +510,51 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 				if (sel != null) {
 					final Profile profile = (Profile) sel;
 					// writeToScreen("Output: " + treeSel);
-					loggingText.appendText("Selected profile: '" + profile + "'");
-					DataManagerBiz.getDataManager(selectedProfile.getInputFile()).duplicateProfile();
+					showMessage("Selected profile: '" + profile + "'");
+					profileManager.selectProfileForCopy(selectedProfile);
+				}
+			}
+		});
+		// Context Menu
+		final MenuItem menuItemDumpItemTextTC = new MenuItem("Copy from Here");
+		menuItemDumpItemTextTC.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final Object sel = profileTable.getSelectionModel().getSelectedItem();
+				if (sel != null) {
+					final Profile profile = (Profile) sel;
+					// writeToScreen("Output: " + treeSel);
+					showMessage("Selected profile for Copy: '" + profile.getKey() + "'");
+					profileManager.selectProfileForCopy(selectedProfile);
+				}
+			}
+		});
+		// Context Menu
+		final MenuItem menuItemDumpItemTextTP = new MenuItem("Paste into Here");
+		menuItemDumpItemTextTP.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final Object sel = profileTable.getSelectionModel().getSelectedItem();
+				if (sel != null) {
+					final Profile profile = (Profile) sel;
+					// writeToScreen("Output: " + treeSel);
+					showMessage("Selected profile: '" + profile.getKey() + "'");
+					try {
+						profileManager.copyProfileFromCopy(selectedProfile);
+					} catch (IOException e) {
+						e.printStackTrace();
+						showMessage("Error Pasting profile: '" + e + "'");
+					}
 				}
 			}
 		});
 		//
 		final ContextMenu treeContextMenuT = new ContextMenu();
-		treeContextMenuT.getItems().add(menuItemDumpItemTextT);
+		treeContextMenuT.getItems().add(menuItemDumpItemTextTD);
+		treeContextMenuT.getItems().add(menuItemDumpItemTextTC);
+		treeContextMenuT.getItems().add(menuItemDumpItemTextTP);
 		profileTable.setContextMenu(treeContextMenuT);
 		//
 	}
@@ -533,6 +571,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		//
 		final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT);
 		//
+		LOGGER.debug("loadTableData: profiles.size(): " + profiles.size());
 		for (Profile profile : profiles) {
 			final Set<String> keys = filters.keySet();
 			boolean dataFail = false;
@@ -572,11 +611,15 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 						dataFail = true;
 				}
 				//
-				if (dataFail)
+				if (dataFail) {
+					LOGGER.debug("loadTableData: datafail 1");
 					continue;
+				}
 			}
-			if (dataFail)
+			if (dataFail) {
+				LOGGER.debug("loadTableData: datafail 2");
 				continue;
+			}
 			// if (dataOk)
 			final String inputFileS = profile.getInputFile();
 			final File inputFile = new File(inputFileS);
@@ -597,6 +640,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		profileTable.getItems().clear();
 		profileTable.getItems().setAll(newList);
 		profileTable.refresh();
+		showMessage("Profiles shown updated");
 		LOGGER.debug("loadTableData: Done");
 	}
 
@@ -701,7 +745,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 
 			if (selectedProfile == null) {
 				LOGGER.debug("Please select a profile before running!!");
-				loggingText.appendText("Please select a profile before running!!");
+				showMessage("Please select a profile before running!!");
 				// notifyCtrl.errorWithWork("Counter", "Please select a profile
 				// before running!!");
 				return;
@@ -740,7 +784,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 
 			if (selectedProfile == null) {
 				LOGGER.debug("Please select a profile before running!!");
-				loggingText.appendText("Please select a profile before running!!");
+				showMessage("Please select a profile before running!!");
 				// notifyCtrl.errorWithWork("Counter", "Please select a profile
 				// before running!!");
 				return;
@@ -886,9 +930,9 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 		LOGGER.debug("handleProfilesDeleteAll: Called");
 
 		final ConfirmResultDeleteAllProfiles confirmResultDelete = new ConfirmResultDeleteAllProfiles();
-		showConfirmDialog(getLocalizedText("text_deleteprofiles_title", "Delete ALL Profiles?"),
-				getLocalizedText("text_deleteprofiles_text",
-						"Really Delete all Saved Profiles Data, including Series/Titles/More Files?\r\nThis can not be undone."),
+		showConfirmDialog(getLocalizedText("text_deleteprofiles_title", "Delete ALL Profiles?"), getLocalizedText(
+				"text_deleteprofiles_text",
+				"Really Delete all Saved Profiles Data, including Series/Titles/More Files?\r\nThis can not be undone."),
 				confirmResultDelete);
 		LOGGER.debug("handleDelete: Done");
 		LOGGER.debug("handleProfilesDeleteAll: Done");
@@ -1074,7 +1118,7 @@ public class CtrlProfileView extends BaseCtrl implements Initializable, WorkFini
 			try {
 				if (selectedProfile == null) {
 					LOGGER.debug("Please select a profile before running!!");
-					loggingText.appendText("Please select a profile before running!!");
+					showMessage("Please select a profile before running!!");
 					return;
 				}
 				final File inputFile = new File(selectedProfile.getInputFile());

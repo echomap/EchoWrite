@@ -10,10 +10,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -156,12 +157,45 @@ public class FileLooperHandlerFormatter implements FileLooperHandler {
 	}
 
 	@Override
-	public void handleDocTagNotTag(FormatDao formatDao, LooperDao ldao) throws IOException {
+	public void handleDocTagNotTag(final FormatDao formatDao, final LooperDao ldao) throws IOException {
 		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
 		final CountDao cdao = ldao.getChaptCount();
 		formatLine(formatDao, ldao, cdao, chpt);
 	}
 
+	@Override
+	public void handleMixedDocTag(final FormatDao formatDao, final LooperDao ldao, final DocTag metaDocTag)
+			throws IOException {
+		// TODO Auto-generated method stub
+		final SimpleChapterDao chpt = TextBiz.isChapter(ldao.getCurrentLine(), formatDao.getRegexpChapter());
+		final CountDao cdao = ldao.getChaptCount();
+		final DocTagLine dttGL = ldao.getLineDocTagLine();
+
+		final DocTagLine dtl = TextBiz.isDocTag(dttGL.getRawLine(), formatDao.getDocTagStart(),
+				formatDao.getDocTagEnd());
+		final List<DocTag> dtlist = dtl.getDocTags();
+		for (final DocTag docTagI : dtlist) {
+			// docTagI.getBareLine(); // text
+			final DocTagLine ndtl = new DocTagLine();
+			ndtl.setBareLine(docTagI.getBareLine());
+			ldao.setLineDocTagLine(ndtl);
+			formatLine(formatDao, ldao, cdao, chpt);
+
+			// docTagI.getFullTag();// doctag
+			final DocTagLine ndtl2 = new DocTagLine();
+			ndtl2.addDocTag(docTagI);
+			ndtl2.setLine(docTagI.getFullTag());
+			ldao.setLineDocTagLine(ndtl2);
+
+			// final DocTagLine docTagLine = ldao.getLineDocTagLine();
+			// if (!docTagLine.isLongDocTag() && !docTagLine.isOnlyDoctag())
+			formatLine(formatDao, ldao, cdao, chpt);
+
+			// flHandler.handleDocTag(formatDao, ldao);
+			// flHandler.handleDocTagNotTag(formatDao, ldao);
+		}
+
+	}
 	// @Override
 	// public void handleDocTagMaybeTag(FormatDao formatDao, LooperDao ldao)
 	// throws IOException {

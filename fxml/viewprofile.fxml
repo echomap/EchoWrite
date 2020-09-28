@@ -9,7 +9,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane fx:id="outerMostContainer" maxHeight="-1.0" maxWidth="-1.0" prefHeight="970.0" prefWidth="1620.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane fx:id="outerMostContainer" maxHeight="-1.0" maxWidth="-1.0" prefHeight="950.0" prefWidth="1600.0" stylesheets="@main1.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<columnConstraints>
 		<ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" />
 	</columnConstraints>

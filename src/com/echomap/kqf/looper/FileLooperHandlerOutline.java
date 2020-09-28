@@ -24,7 +24,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -132,6 +132,11 @@ public class FileLooperHandlerOutline extends AbstractFilelooper implements File
 	@Override
 	public void handleMetaDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) {
 		//
+	}
+
+	@Override
+	public void handleMixedDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -833,16 +838,13 @@ public class FileLooperHandlerOutline extends AbstractFilelooper implements File
 		}
 
 		/*
-		 * if
-		 * (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())
-		 * ) { this.levelledCount = 0; if
-		 * ("scene".compareToIgnoreCase(docTag.getName()) == 0) {
-		 * this.levelledCount = 0; } else if
-		 * (docTag.getName().startsWith("sub-") ||
-		 * docTag.getName().endsWith("-sub")) { this.levelledCount = 1; } else {
-		 * // if ("subscene".compareToIgnoreCase(docTag.getName()) == 0 // ||
-		 * "scenesub".compareToIgnoreCase(docTag.getName()) == 0) {
-		 * this.levelledCount = 1; } }
+		 * if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName()) ) {
+		 * this.levelledCount = 0; if ("scene".compareToIgnoreCase(docTag.getName()) ==
+		 * 0) { this.levelledCount = 0; } else if (docTag.getName().startsWith("sub-")
+		 * || docTag.getName().endsWith("-sub")) { this.levelledCount = 1; } else { //
+		 * if ("subscene".compareToIgnoreCase(docTag.getName()) == 0 // ||
+		 * "scenesub".compareToIgnoreCase(docTag.getName()) == 0) { this.levelledCount =
+		 * 1; } }
 		 */
 
 		if (formatDao.getDocTagsOutlineCompressTags().contains(docTag.getName())) {

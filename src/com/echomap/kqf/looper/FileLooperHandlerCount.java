@@ -107,6 +107,11 @@ public class FileLooperHandlerCount implements FileLooperHandler {
 	}
 
 	@Override
+	public void handleMixedDocTag(FormatDao formatDao, LooperDao ldao, DocTag metaDocTag) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public Object postHandlerPackage(FormatDao formatDao, LooperDao ldao) {
 		return null;
 	}

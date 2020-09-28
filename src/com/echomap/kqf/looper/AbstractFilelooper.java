@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -164,17 +164,34 @@ public class AbstractFilelooper {
 	// }
 
 	// add TIME data to DB
-	protected void addToTreeTimeData(final DocTag docTag) {
+	protected DocTag addToTreeTimeData(final DocTag docTag) {
 		// check if already on list
 		// final TreeTimeData found = findTreeTimeData(docTag);
 		// found.addData(docTag.getValue());
+		final String lastDateTimeBackup = lastDateTime;
+
 		lastDateTime = docTag.getValue().trim();
 
+		//
+		DocTag docTag2 = docTag;
 		//
 		boolean hasMarker = false;
 		final Map<String, String> map = TextParsingBiz.parseNameValueAtDivided(docTag.getFullText());
 		if (map.containsKey(EchoWriteConst.WORD_MARKER)) {
 			hasMarker = true;
+			if (map.get(EchoWriteConst.WORD_MARKER).equalsIgnoreCase("xx")) {
+				final TreeTimeData timeDate = findTreeTimeData(lastDateTimeBackup, true);
+				if (timeDate == null) {
+					LOGGER.error("TimeData not found!");
+					throw new RuntimeException("TimeData not found!");
+				} else {
+					map.remove(EchoWriteConst.WORD_MARKER);
+					map.put(EchoWriteConst.WORD_MARKER, timeDate.getDataParsedByName(EchoWriteConst.WORD_MARKER));
+					docTag2 = new DocTag(docTag.getName(), map);
+					lastDateTime = docTag2.getValue().trim();
+					hasMarker = true;
+				}
+			}
 		}
 		if (!hasMarker) {
 			String valTimeMarker = null;
@@ -192,6 +209,7 @@ public class AbstractFilelooper {
 		}
 
 		findTreeTimeData(lastDateTime);
+		return docTag2;
 	}
 
 	// add TIME data to DB
