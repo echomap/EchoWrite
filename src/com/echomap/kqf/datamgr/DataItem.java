@@ -3,6 +3,8 @@ package com.echomap.kqf.datamgr;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.echomap.kqf.EchoWriteConst;
+
 public class DataItem {
 	private String name;
 	private String category;
@@ -19,6 +21,35 @@ public class DataItem {
 			msg.append(" ");
 		}
 		return msg.toString();
+	}
+
+	public String toString(final boolean simpleOutput) {
+		if (simpleOutput) {
+			final StringBuilder msg = new StringBuilder();
+			final StringBuilder msg2 = new StringBuilder();
+			for (final DataSubItem dataSubItem : dataSubItems) {
+				msg2.append(dataSubItem);
+				msg2.append(" ");
+				if (dataSubItem.getName().equals(EchoWriteConst.WORD_DESC)) {
+					msg.append("/ ");
+					msg.append(dataSubItem.getName());
+					msg.append("=");
+					msg.append(dataSubItem.getValue());
+					msg.append(" ");
+				}
+				if (dataSubItem.getName().equals(EchoWriteConst.WORD_NAME)) {
+					msg.append("/ ");
+					msg.append(dataSubItem.getName());
+					msg.append("=");
+					msg.append(dataSubItem.getValue());
+					msg.append(" ");
+				}
+			}
+			msg.append(String.format("-->data=%s, rawvalue='%s'", name, category, rawValue));
+			msg.append(msg2);
+			return msg.toString();
+		} else
+			return toString();
 	}
 
 	public String toDocTagString() {

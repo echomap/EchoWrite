@@ -331,18 +331,29 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 	private void setupTables() {
 		//
-		final MenuItem menuItemDumpItemTextAA = new MenuItem("Dump Item Text");
-		menuItemDumpItemTextAA.setOnAction(new EventHandler<ActionEvent>() {
+		final MenuItem menuItemDumpItemEndThingsText = new MenuItem("Dump Item Text");
+		menuItemDumpItemEndThingsText.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
 				LOGGER.debug("handle item called");
 				final DataItem treeSel = dataThingsEndTable.getSelectionModel().getSelectedItem();
 				if (treeSel != null) {
-					writeToScreen("Output: " + treeSel);
+					writeToScreen("Output: " + treeSel.toString(true));
 				}
 			}
 		});
-
+		//
+		final MenuItem menuItemDumpItemEndThingsDocTag = new MenuItem("Dump Item DocTag");
+		menuItemDumpItemEndThingsDocTag.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final DataItem treeSel = dataAllThingsTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					writeToScreen("Output: " + treeSel.toDocTagString());
+				}
+			}
+		});
 		final MenuItem menuItemDumpItemTextST1 = new MenuItem("Select time");
 		menuItemDumpItemTextST1.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -361,7 +372,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				}
 			}
 		});
-
+		//
 		final MenuItem menuItemDumpItemTextSTB = new MenuItem("Select time before");
 		menuItemDumpItemTextSTB.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -382,6 +393,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				}
 			}
 		});
+		//
 		final MenuItem menuItemDumpItemTextSTA = new MenuItem("Select time after");
 		menuItemDumpItemTextSTA.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -403,6 +415,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				}
 			}
 		});
+		//
 		final MenuItem menuItemDumpItemTextDT = new MenuItem("Dump table to text");
 		menuItemDumpItemTextDT.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -417,32 +430,130 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 			}
 		});
 		//
-		//
 		final ContextMenu treeContextMenuA = new ContextMenu();
-		treeContextMenuA.getItems().add(menuItemDumpItemTextAA);
+		treeContextMenuA.getItems().add(menuItemDumpItemEndThingsText);
+		treeContextMenuA.getItems().add(menuItemDumpItemEndThingsDocTag);
 		treeContextMenuA.getItems().add(menuItemDumpItemTextST1);
 		treeContextMenuA.getItems().add(menuItemDumpItemTextSTA);
 		treeContextMenuA.getItems().add(menuItemDumpItemTextSTB);
 		treeContextMenuA.getItems().add(menuItemDumpItemTextDT);
 		dataThingsEndTable.setContextMenu(treeContextMenuA);
 		//
+		//
 
 		//
-		final MenuItem menuItemDumpItemText2 = new MenuItem("Dump Item Text");
-		menuItemDumpItemText2.setOnAction(new EventHandler<ActionEvent>() {
+		final MenuItem menuItemDumpItemAllThingsText = new MenuItem("Dump Item Text");
+		menuItemDumpItemAllThingsText.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
 				LOGGER.debug("handle item called");
 				final DataItem treeSel = dataAllThingsTable.getSelectionModel().getSelectedItem();
 				if (treeSel != null) {
-					writeToScreen("Output: " + treeSel);
+					writeToScreen("Output: " + treeSel.toString(true));
 				}
 			}
 		});
 		//
+		final MenuItem menuItemDumpItemAllThingsDocTag = new MenuItem("Dump Item DocTag");
+		menuItemDumpItemAllThingsDocTag.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item called");
+				final DataItem treeSel = dataAllThingsTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					writeToScreen("Output: " + treeSel.toDocTagString());
+				}
+			}
+		});
+		//
+		final MenuItem menuItemDumpItemText3 = new MenuItem("Show <End Table> at this Mark");
+		menuItemDumpItemText3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("handle item (3) called");
+				final DataItem treeSel = dataAllThingsTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					final Integer marker = treeSel.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
+					writeToScreen("marker: " + marker);
+					// TODO use consts
+					final Tab tab = getTabByNameAndSelect("End Table", "marker", marker);
+					if (tab != null) {
+						final String fId = "EndThingFilter_marker";
+						ObservableList<Node> fhlist = endThingsTabFilterHeader.getChildren();
+						for (Node sNode : fhlist) {
+							if (sNode.getId().compareTo(fId) == 0) {
+								final TextField fldT = (TextField) sNode;
+								fldT.setText(marker.toString());
+							}
+						}
+						// endThingsTabFilterHeader.getChildren().get(index)
+						// tf.setId("EndThingFilter_" + tableColumnName);
+						// endThingsTabFilterHeader.getChildren().add(tf);
+
+						// for (int i = 0; i < tableColumnList.length; i++) {
+						// final String tableColumnName = columnNameDataMapEndThings.get(i);
+						// }
+					}
+				}
+			}
+		});
+		//
+		final MenuItem menuItemSelectThingAtMarker = new MenuItem("Select Item on <Thing Table>");
+		menuItemSelectThingAtMarker.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("menuItemSelectThingAtMarker");
+				final DataItem treeSel = dataAllThingsTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					// writeToScreen("Output: " + treeSel);
+					final Integer marker = treeSel.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
+					if (marker != null) {
+						final Integer idx = findItemRowNumberByMarker(dataThingsTable, marker);
+						if (idx != null) {
+							dataThingsTable.getSelectionModel().select(idx);
+							// TODO use consts
+							getTabByNameAndSelect("Things Table", "marker", marker);
+						} else
+							writeToScreen("No thing found at that marker");
+					}
+				}
+			}
+		});
+		//
+		final MenuItem menuItemSelectActorAtMarker = new MenuItem("Select Actor on <Actor Table>");
+		menuItemSelectActorAtMarker.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				LOGGER.debug("menuItemSelectActorAtMarker");
+				final DataItem treeSel = dataAllThingsTable.getSelectionModel().getSelectedItem();
+				if (treeSel != null) {
+					LOGGER.debug("menuItemSelectActorAtMarker: found treeSel: " + treeSel);
+					// writeToScreen("Output: " + treeSel);
+					final Integer marker = treeSel.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
+					if (marker != null) {
+						final Integer idx = findItemRowNumberByMarker(dataActorsTable, marker);
+						if (idx != null) {
+							dataActorsTable.getSelectionModel().select(idx);
+							// TODO use consts
+							getTabByNameAndSelect("Actors Table", "marker", marker);
+						} else
+							writeToScreen("No actor found at that marker");
+					} else
+						writeToScreen("No actor marker found for that row");
+				} else
+					writeToScreen("No selection found for that row");
+			}
+		});
+
+		//
 		final ContextMenu treeContextMenu2 = new ContextMenu();
-		treeContextMenu2.getItems().add(menuItemDumpItemText2);
+		treeContextMenu2.getItems().add(menuItemDumpItemAllThingsText);
+		treeContextMenu2.getItems().add(menuItemDumpItemAllThingsDocTag);
+		treeContextMenu2.getItems().add(menuItemDumpItemText3);
+		treeContextMenu2.getItems().add(menuItemSelectThingAtMarker);
+		treeContextMenu2.getItems().add(menuItemSelectActorAtMarker);
 		dataAllThingsTable.setContextMenu(treeContextMenu2);
+		//
 		//
 
 		//
@@ -453,7 +564,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 				LOGGER.debug("handle item called");
 				final DataItem treeSel = dataThingsTable.getSelectionModel().getSelectedItem();
 				if (treeSel != null) {
-					writeToScreen("Output: " + treeSel);
+					writeToScreen("Output: " + treeSel.toString(true));
 				}
 			}
 		});
@@ -461,6 +572,7 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		final ContextMenu treeContextMenuT = new ContextMenu();
 		treeContextMenuT.getItems().add(menuItemDumpItemTextT);
 		dataThingsTable.setContextMenu(treeContextMenuT);
+		//
 		//
 
 		//
@@ -480,6 +592,21 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		treeContextMenuA2.getItems().add(menuItemDumpItemTextA2);
 		dataActorsTable.setContextMenu(treeContextMenuA2);
 		//
+		//
+	}
+
+	protected Integer findItemRowNumberByMarker(final TableView<DataItem> dataTable2, final Integer marker) {
+		final ObservableList<DataItem> newList = dataTable2.getItems();
+		Integer itemIdx = null;
+		for (final DataItem dataItem : newList) {
+			final Integer iex = dataItem.getSubByKeyInteger(EchoWriteConst.WORD_MARKER);
+			if (iex != null && marker.equals(iex))
+				itemIdx = iex;
+			if (iex == null) {
+				LOGGER.debug("Marker null for: " + dataItem);
+			}
+		}
+		return itemIdx;
 	}
 
 	private void createTrees() {
@@ -516,6 +643,18 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 		//
 
 		//
+	}
+
+	private Tab getTabByNameAndSelect(final String tabname, final String filterName, final Integer filterValue) {
+		final List<String> tablist = new ArrayList<>();
+		final ObservableList<Tab> tabs = mainTabPane.getTabs();
+		for (final Tab tab : tabs) {
+			if (tabname.equals(tab.getText())) {
+				mainTabPane.getSelectionModel().select(tab);
+				return tab;
+			}
+		}
+		return null;
 	}
 
 	// Time/Date ... All Table ... End Table ... Things Table ..
@@ -1067,7 +1206,10 @@ public class CtrlTImeline extends BaseCtrl implements Initializable, WorkFinishe
 
 		// Filters
 		allTabFilterHeader.getChildren().clear();
-		for (int i = 0; i < tableColumnList.length; i++) {
+		int numFilters = tableColumnList.length;
+		if (numFilters > 10)
+			numFilters = 10;
+		for (int i = 0; i < numFilters; i++) {
 			final String tableColumnName = columnNameDataMapAll.get(i);
 			final TextField tf = new TextField();
 			tf.setPromptText(tableColumnName);

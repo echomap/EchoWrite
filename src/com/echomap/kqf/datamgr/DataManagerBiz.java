@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -29,6 +30,7 @@ public class DataManagerBiz {
 	private final static Map<File, DataManagerBiz> dataManagerList = new HashMap<File, DataManagerBiz>();
 
 	DataManagerDBData currentFileData = null;
+	TreeTimeData lastAddedTime = null;
 
 	/**
 	 * 
@@ -138,6 +140,17 @@ public class DataManagerBiz {
 	public void addTime(final TreeTimeData found, final String line) {
 		currentFileData.getDatalistTimeDate().add(found);
 
+//		if (lastAddedTime != null && found != null) {
+//			final String valLast = lastAddedTime.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+//			final String valFound = found.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+//			if (!StringUtils.isEmpty(valLast) && !StringUtils.isEmpty(valFound)) {
+//				final Integer valLastI = Integer.valueOf(valLast);
+//				final Integer valFoundI = Integer.valueOf(valFound);
+//				if(valFoundI<valLastI) {
+//					
+//				}
+//			}
+//		}
 		final DataItem di = new DataItem();
 		currentFileData.getDataItemList().add(di);
 		di.setCategory(EchoWriteConst.WORD_TIME);
@@ -145,6 +158,7 @@ public class DataManagerBiz {
 		di.setRawValue(line);// found.getTag());
 		parseSubItemData(di, found.getTag());
 		// setupLastTime(di);
+		lastAddedTime = found;
 	}
 
 	public void addTime(final TreeTimeData ttd, final TreeTimeSubData ttsd, final String line) {

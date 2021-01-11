@@ -1,0 +1,18 @@
+
+
+2020 01 11
+	timeline upates
+	rem close button hotkey on timeline gui
+	ext links updates
+	better 'dump text'
+2020 06 04
+	Added file status column to profile view screen
+
+## Bugs
+- format keeping doctags when inline?
+
+
+TEST:
+	I still gasped as I asked, “Dude?” [[*info: The middle name of the character *]]
+	
+	

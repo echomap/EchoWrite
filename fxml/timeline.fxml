@@ -180,7 +180,7 @@
    <right>
       <VBox fx:id="paneButtons" alignment="CENTER" spacing="32.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="actionbuttonQuit" text="_Close" />
+            <Button fx:id="buttonClose" cancelButton="true" defaultButton="true" onAction="#handleClose" styleClass="actionbuttonQuit" text="Close" />
             <Button fx:id="buttonRefresh" layoutX="10.0" layoutY="329.0" onAction="#handleRefreshData" styleClass="actionbuttonRunner" text="_Refresh" />
          </children>
       </VBox>

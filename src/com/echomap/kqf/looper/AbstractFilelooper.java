@@ -33,6 +33,7 @@ public class AbstractFilelooper {
 
 	// that last time...
 	protected String lastDateTime = null;
+	protected TreeTimeData lastDateTimeData = null;
 	// that last
 	protected NestedTreeData lastSection = null;
 	// that last
@@ -58,6 +59,25 @@ public class AbstractFilelooper {
 			return defaultText;
 		}
 		return messageBundle.getString(key);
+	}
+
+	private void setLastDateTime(final TreeTimeData newLastDateTime) {
+		// TODO Test if less tan previous?
+
+		if (lastDateTimeData != null && newLastDateTime != null) {
+			final String valLast = lastDateTimeData.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+			final String valFound = lastDateTimeData.getDataParsedByName(EchoWriteConst.WORD_MARKER);
+			if (!StringUtils.isEmpty(valLast) && !StringUtils.isEmpty(valFound)) {
+				final Integer valLastI = Integer.valueOf(valLast);
+				final Integer valFoundI = Integer.valueOf(valFound);
+				if (valFoundI < valLastI) {
+					LOGGER.warn("Time went backwards, might be fine or an error");
+				}
+			}
+		}
+
+		lastDateTime = newLastDateTime.getTag();
+		lastDateTimeData = newLastDateTime;
 	}
 
 	protected TreeTimeData findTreeTimeData(final String dateTime) {
@@ -89,6 +109,7 @@ public class AbstractFilelooper {
 			found.addDataParsed(ttsd);
 			DATA_MANAGER.addTime(found, ttsd, dateTime);
 			lastDateTime = found.getTag().trim();
+			setLastDateTime(found);
 
 		} else if (addtime) {
 			final TreeTimeSubData ttsd = new TreeTimeSubData();
@@ -107,6 +128,7 @@ public class AbstractFilelooper {
 					// datalistTimeDate.add(found);
 					DATA_MANAGER.addTime(found, ttsd.toString());
 					lastDateTime = found.getTag().trim();
+					setLastDateTime(found);
 				} catch (NumberFormatException e) {
 					LOGGER.error("Failed to parse marker for +1 (" + ttsd.getData().get("marker") + ")");
 					e.printStackTrace();
@@ -171,7 +193,7 @@ public class AbstractFilelooper {
 		final String lastDateTimeBackup = lastDateTime;
 
 		lastDateTime = docTag.getValue().trim();
-
+		// setLastDateTime(docTag); TODO
 		//
 		DocTag docTag2 = docTag;
 		//
@@ -189,6 +211,7 @@ public class AbstractFilelooper {
 					map.put(EchoWriteConst.WORD_MARKER, timeDate.getDataParsedByName(EchoWriteConst.WORD_MARKER));
 					docTag2 = new DocTag(docTag.getName(), map);
 					lastDateTime = docTag2.getValue().trim();
+					// setLastDateTime(docTag2);TODO
 					hasMarker = true;
 				}
 			}
@@ -209,6 +232,7 @@ public class AbstractFilelooper {
 		}
 
 		findTreeTimeData(lastDateTime);
+		// setLastDateTime(lastDateTime);TODO
 		return docTag2;
 	}
 
@@ -436,6 +460,7 @@ public class AbstractFilelooper {
 		// parse the tag
 		if (lastDateTime == null) {
 			lastDateTime = "0";
+			// setLastDateTime(docTag);TODO
 		}
 		// find the date tag
 		LOGGER.debug("Lookup tag for date: " + lastDateTime);

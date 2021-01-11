@@ -30,6 +30,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
@@ -53,6 +54,8 @@ public class CtrlExternalIDs extends BaseCtrl implements Initializable {
 	Profile selectedProfile = null;
 	KeyValuePair selectedOtherData = null;
 	private int selectedRow = 0;
+
+	private StringBuilder logText = new StringBuilder(5000);
 
 	private List<KeyValuePair> cachedOutputs = null;
 
@@ -83,6 +86,9 @@ public class CtrlExternalIDs extends BaseCtrl implements Initializable {
 	private TextField inputName;
 	@FXML
 	private TextField inputValue;
+
+	@FXML
+	private TextArea textAreaLog;
 
 	@FXML
 	private Pane areaKeyValue;
@@ -453,5 +459,11 @@ public class CtrlExternalIDs extends BaseCtrl implements Initializable {
 
 	private void fixFocus() {
 		btnCloseScreen.requestFocus();
+	}
+
+	private void writeLog(final String str) {
+		logText.insert(0, str + System.lineSeparator());
+		if (textAreaLog != null)
+			textAreaLog.setText(logText.toString());
 	}
 }

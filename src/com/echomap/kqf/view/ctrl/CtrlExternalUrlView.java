@@ -35,7 +35,10 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -59,6 +62,7 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 
 	//
 	Profile selectedProfile = null;
+	private StringBuilder logText = new StringBuilder(5000);
 
 	@FXML
 	private Pane outerMostContainer;
@@ -81,7 +85,11 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 	@FXML
 	private Label textUrl;
 	@FXML
+	private Label textExternalID;
+	@FXML
 	private Label textProfileLoaded;
+	@FXML
+	private TextArea textAreaLog;
 
 	/**
 	 * 
@@ -144,6 +152,18 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 		// btn.getStyleClass().add("");
 		btn.setPadding(inset1);
 		btn.setText(hdrText);
+		textExternalID.setText(linkData);
+		// textExternalID.setTooltip(new Tooltip(""));
+		textExternalID.setOnMouseClicked(e -> {
+			System.out.println("label has been clicked");
+			if (linkData != null) {
+				final Clipboard clipboard = Clipboard.getSystemClipboard();
+				final ClipboardContent content = new ClipboardContent();
+				content.putString(linkData);
+				clipboard.setContent(content);
+			}
+		});
+
 		btn.setOnAction(event -> {
 			try {
 				doloadExternalData(btn, linkFormat, linkData);
@@ -204,18 +224,19 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 				row.setOnMouseClicked(new EventHandler<MouseEvent>() {
 					@Override
 					public void handle(MouseEvent event) {
-						if (event.getClickCount() == 2 && (!row.isEmpty())) {
+						if (!row.isEmpty()) {
+							// if (event.isPrimaryButtonDown()) {
+							// && event.getClickCount() == 2
 							final BookDataObj rowData = row.getItem();
 							LOGGER.debug("rowData: left2: " + rowData);
-							// inputName.setText(rowData.getName());
 							setupSubLinkArea(rowData);
-							// rowData.setExport(!rowData.isExport());
-						} else if (event.isSecondaryButtonDown()) {
-							// right click code here
-							final BookDataObj rowData = row.getItem();
-							LOGGER.debug("rowData: right: " + rowData);
-							// rowData.setExport(true);
-							setupSubLinkArea(rowData);
+							// } else if (event.isSecondaryButtonDown()) {
+							// // right click code here
+							// final BookDataObj rowData = row.getItem();
+							// LOGGER.debug("rowData: right: " + rowData);
+							// setupSubLinkArea(rowData);
+							// copyExternalID(rowData);
+							// }
 						}
 						inputTable.refresh();
 					}
@@ -223,6 +244,9 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 				return row;
 			}
 		});
+		// inputTable.setTooltip(new Tooltip(
+		// "Double left click to get data in right panel/ Double right click to copy
+		// ASIN/External to clipboard"));
 
 		// Trying to set color of these cells
 		// exportCol.setCellFactory(tc -> new TableCell<BookDataObj, Object>() {
@@ -316,13 +340,24 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 		subLinkArea.getChildren().clear();
 		textProfileLoaded.setText("--None Selected--");
 		textUrl.setText("--none--");
+		textExternalID.setText("--none--");
 	}
 
 	private void clearWebArea() {
 		// webview1.TODO Opne local page
 	}
 
-	private void setupSubLinkArea(final BookDataObj rowData) {
+	private void copyExternalID(final BookDataObj rowData) {
+		final String asin = setupSubLinkArea(rowData);
+		if (asin != null) {
+			final Clipboard clipboard = Clipboard.getSystemClipboard();
+			final ClipboardContent content = new ClipboardContent();
+			content.putString(rowData.getAsin());
+			clipboard.setContent(content);
+		}
+	}
+
+	private String setupSubLinkArea(final BookDataObj rowData) {
 		// subLinkArea
 		// TODO add buttons for each of the amazon locations, and goodreads?
 		clearSubLinkArea();
@@ -342,12 +377,13 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 		// final String title = rowData.getBookTitle();
 		final List<KeyValuePair> extList = rowData.getExternalIDlist();
 		String asin = null;
-		for (final KeyValuePair keyValuePair : extList) {
-			if (keyValuePair.getKey().compareToIgnoreCase("asin") == 0) {
-				asin = keyValuePair.getValue();
-				break;
+		if (extList != null)
+			for (final KeyValuePair keyValuePair : extList) {
+				if (keyValuePair.getKey().compareToIgnoreCase("asin") == 0) {
+					asin = keyValuePair.getValue();
+					break;
+				}
 			}
-		}
 		if (asin != null) {
 			createLinkButton("Amazon.com", "https://www.amazon.com/dp/%1$s", asin, subLinkArea, inset1);
 			createLinkButton("Amazon.br", "https://www.amazon.com.br/dp/%1$s", asin, subLinkArea, inset1);
@@ -365,7 +401,7 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 			createLinkButton("Amazon.in", "https://www.amazon.in/dp/%1$s", asin, subLinkArea, inset1);
 		}
 		// if it has an XXX, do goodreads link(s)
-
+		return asin;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -469,6 +505,12 @@ public class CtrlExternalUrlView extends BaseCtrl implements Initializable {
 	@Override
 	void unlockGui() {
 		unlockAllButtons(outerMostContainer);
+	}
+
+	private void writeLog(final String str) {
+		logText.insert(0, str + System.lineSeparator());
+		if (textAreaLog != null)
+			textAreaLog.setText(logText.toString());
 	}
 
 	public void handleClose(final ActionEvent event) {
